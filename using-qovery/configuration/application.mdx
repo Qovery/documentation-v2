@@ -1,19 +1,690 @@
 ---
-title: "Application"
-description: "Configure and deploy applications"
+title: "Application Configuration"
+description: "Configure and deploy applications on Qovery"
 ---
 
-## Coming Soon
+Applications are the core services that run your containerized code on Qovery. This guide covers everything you need to know about configuring and deploying applications.
 
-This guide will cover:
-- Creating applications
-- Configuring build settings
-- Environment variables
-- Port configuration
-- Health checks
-- Auto-scaling
-- Custom domains
+## Prerequisites
 
-<Info>
-This guide is being created. See [Deploy Your First Application](/guides/getting-started/deploy-your-first-application) for basics.
-</Info>
+Before you begin:
+
+<Check>You have created a [Project](/using-qovery/configuration/project)</Check>
+<Check>You have created an [Environment](/using-qovery/configuration/environment)</Check>
+<Check>You have a Git repository or container image to deploy</Check>
+
+## Creating an Application
+
+### From Git Repository
+
+Deploy directly from your source code:
+
+<Steps>
+  <Step title="Navigate to Environment">
+    Go to your project and select the environment where you want to deploy
+  </Step>
+
+  <Step title="Add Application">
+    Click **Create** → **Application**
+  </Step>
+
+  <Step title="Select Source">
+    Choose **Git Repository** as the source
+  </Step>
+
+  <Step title="Configure Repository">
+    - **Git Provider**: Select GitHub, GitLab, or Bitbucket
+    - **Repository**: Choose your repository
+    - **Branch**: Select the branch to deploy (e.g., `main`, `develop`)
+    - **Root Application Path**: Leave empty if app is in repository root, otherwise specify subdirectory
+  </Step>
+
+  <Step title="Configure Build">
+    Qovery auto-detects your application:
+
+    **With Dockerfile**:
+    - Dockerfile path (default: `Dockerfile` at root)
+    - Build arguments (optional)
+    - Target stage (for multi-stage builds)
+
+    **Without Dockerfile** (Buildpacks):
+    - Qovery automatically detects language/framework
+    - Supports Node.js, Python, Go, Ruby, Java, PHP, etc.
+  </Step>
+</Steps>
+
+### From Container Registry
+
+Deploy a pre-built container image:
+
+<Steps>
+  <Step title="Add Application">
+    Click **Create** → **Application**
+  </Step>
+
+  <Step title="Select Container Registry">
+    Choose **Container Registry** as the source
+  </Step>
+
+  <Step title="Configure Registry">
+    - **Registry**: Select your configured registry
+    - **Image Name**: Full image name (e.g., `my-org/my-app`)
+    - **Tag**: Image tag to deploy (e.g., `latest`, `v1.2.3`)
+  </Step>
+</Steps>
+
+<Note>
+Container registry credentials must be configured at the organization level. See [Container Registry Integration](/using-qovery/integration/container-registry).
+</Note>
+
+## General Configuration
+
+### Application Name & Description
+
+- **Name**: Unique identifier within the environment
+- **Description**: Optional description for documentation
+
+### Git Repository Settings
+
+When deploying from Git:
+
+<AccordionGroup>
+  <Accordion title="Branch Configuration">
+    - **Branch**: The Git branch to deploy from
+    - **Auto-deploy**: Enable to deploy automatically on push
+    - **Deployment Restrictions**: Filter which files trigger deployments
+  </Accordion>
+
+  <Accordion title="Build Configuration">
+    **Dockerfile Settings**:
+    - **Dockerfile Path**: Path to Dockerfile (default: `Dockerfile`)
+    - **Dockerfile Target**: For multi-stage builds
+    - **Build Context**: Directory containing build context (default: repository root)
+
+    **Build Arguments**:
+    ```dockerfile
+    ARG NODE_ENV
+    ARG API_URL
+    ```
+    Configure as key-value pairs in Qovery console
+  </Accordion>
+
+  <Accordion title="Buildpacks (No Dockerfile)">
+    Qovery uses Cloud Native Buildpacks to detect and build:
+
+    **Supported Languages**:
+    - Node.js (detects `package.json`)
+    - Python (detects `requirements.txt`, `Pipfile`)
+    - Go (detects `go.mod`)
+    - Ruby (detects `Gemfile`)
+    - Java (detects `pom.xml`, `build.gradle`)
+    - PHP (detects `composer.json`)
+
+    **Advantages**:
+    - No Dockerfile needed
+    - Automatic dependency detection
+    - Security updates included
+    - Best practices built-in
+  </Accordion>
+</AccordionGroup>
+
+## Resource Configuration
+
+### CPU and Memory
+
+Configure resources for your application:
+
+**Default Resources**:
+- **CPU**: 500m (0.5 cores)
+- **Memory**: 512 MB
+
+**Recommended Settings by Application Type**:
+
+| Application Type | CPU | Memory | Use Case |
+|-----------------|-----|--------|----------|
+| API (Light) | 250m | 256 MB | Simple REST API |
+| API (Standard) | 500m - 1000m | 512 MB - 1 GB | Production API |
+| API (Heavy) | 1000m - 2000m | 1 - 2 GB | High-traffic API |
+| Frontend (Static) | 100m | 128 MB | Static site (Nginx) |
+| Frontend (SSR) | 500m - 1000m | 512 MB - 1 GB | Next.js, Nuxt |
+| Worker/Background | 250m - 500m | 256 MB - 512 MB | Queue processing |
+| Data Processing | 1000m+ | 2 GB+ | ETL, analytics |
+
+<Tip>
+Start with lower resources and scale up based on actual usage. Monitor CPU and memory metrics in the Qovery console to right-size your resources.
+</Tip>
+
+### Auto-Scaling
+
+Enable horizontal auto-scaling based on resource usage:
+
+**Configuration**:
+- **Min Instances**: Minimum number of replicas (default: 1)
+- **Max Instances**: Maximum number of replicas (default: 3)
+- **CPU Threshold**: Trigger scaling at CPU percentage (default: 60%)
+- **Memory Threshold**: Trigger scaling at memory percentage (optional)
+
+**Example Configuration**:
+```yaml
+min_instances: 2
+max_instances: 10
+cpu_threshold: 70%
+```
+
+<Warning>
+Auto-scaling requires your application to be stateless. Use external storage (databases, Redis) for shared state.
+</Warning>
+
+## Port Configuration
+
+Configure how your application exposes services:
+
+### Adding Ports
+
+<Steps>
+  <Step title="Define Internal Port">
+    The port your application listens on (e.g., 3000, 8080, 5000)
+  </Step>
+
+  <Step title="Configure Protocol">
+    - **HTTP/HTTPS**: For web applications
+    - **gRPC**: For gRPC services
+    - **TCP**: For custom protocols
+  </Step>
+
+  <Step title="Set External Port">
+    - **443** (HTTPS) - Recommended for production
+    - **80** (HTTP) - Redirects to HTTPS automatically
+    - **Custom**: For non-HTTP services
+  </Step>
+
+  <Step title="Enable Public Access">
+    Toggle **Publicly Accessible** to expose via load balancer
+  </Step>
+</Steps>
+
+### Port Examples
+
+<Tabs>
+  <Tab title="Web Application">
+    ```yaml
+    Internal Port: 3000
+    Protocol: HTTP
+    External Port: 443
+    Publicly Accessible: Yes
+    ```
+    Application accessible via: `https://your-app.qovery.io`
+  </Tab>
+
+  <Tab title="API Service">
+    ```yaml
+    Internal Port: 8080
+    Protocol: HTTP
+    External Port: 443
+    Publicly Accessible: Yes
+    ```
+  </Tab>
+
+  <Tab title="gRPC Service">
+    ```yaml
+    Internal Port: 50051
+    Protocol: gRPC
+    External Port: 443
+    Publicly Accessible: Yes
+    ```
+  </Tab>
+
+  <Tab title="Internal Service">
+    ```yaml
+    Internal Port: 8080
+    Protocol: HTTP
+    Publicly Accessible: No
+    ```
+    Only accessible within the environment
+  </Tab>
+</Tabs>
+
+### Multiple Ports
+
+Applications can expose multiple ports:
+
+```yaml
+Port 1 (web):
+  Internal: 3000
+  External: 443
+  Public: Yes
+
+Port 2 (metrics):
+  Internal: 9090
+  External: 9090
+  Public: No (internal only)
+```
+
+## Health Checks
+
+Configure health checks to ensure application reliability:
+
+### Liveness Probe
+
+Determines if application should be restarted:
+
+```yaml
+Type: HTTP
+Path: /health
+Port: 3000
+Initial Delay: 30s
+Period: 10s
+Timeout: 5s
+Success Threshold: 1
+Failure Threshold: 3
+```
+
+### Readiness Probe
+
+Determines if application should receive traffic:
+
+```yaml
+Type: HTTP
+Path: /ready
+Port: 3000
+Initial Delay: 10s
+Period: 5s
+```
+
+### Health Check Endpoints
+
+Implement health check endpoints in your application:
+
+<CodeGroup>
+```javascript Node.js/Express
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' });
+});
+
+app.get('/ready', async (req, res) => {
+  // Check database connection
+  const dbHealthy = await checkDatabase();
+  if (dbHealthy) {
+    res.status(200).json({ status: 'ready' });
+  } else {
+    res.status(503).json({ status: 'not ready' });
+  }
+});
+```
+
+```python Python/Flask
+@app.route('/health')
+def health():
+    return {'status': 'healthy'}, 200
+
+@app.route('/ready')
+def ready():
+    # Check dependencies
+    if check_database():
+        return {'status': 'ready'}, 200
+    return {'status': 'not ready'}, 503
+```
+
+```go Go
+http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
+})
+
+http.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+    if checkDatabase() {
+        w.WriteHeader(http.StatusOK)
+        json.NewEncoder(w).Encode(map[string]string{"status": "ready"})
+    } else {
+        w.WriteHeader(http.StatusServiceUnavailable)
+        json.NewEncoder(w).Encode(map[string]string{"status": "not ready"})
+    }
+})
+```
+</CodeGroup>
+
+## Environment Variables
+
+Configure application settings and secrets:
+
+### Built-in Variables
+
+Qovery automatically injects variables for service interconnection:
+
+```bash
+# Application info
+QOVERY_APPLICATION_ID
+QOVERY_APPLICATION_NAME
+QOVERY_ENVIRONMENT_ID
+QOVERY_PROJECT_ID
+
+# Service connections (example for database named "my-db")
+QOVERY_DATABASE_MY_DB_CONNECTION_URI
+QOVERY_DATABASE_MY_DB_HOST
+QOVERY_DATABASE_MY_DB_PORT
+QOVERY_DATABASE_MY_DB_USERNAME
+QOVERY_DATABASE_MY_DB_PASSWORD
+QOVERY_DATABASE_MY_DB_DATABASE
+```
+
+### Custom Variables
+
+Add custom environment variables:
+
+<Steps>
+  <Step title="Navigate to Variables">
+    Click on your application → **Variables** tab
+  </Step>
+
+  <Step title="Add Variable">
+    - **Key**: Variable name (e.g., `API_KEY`)
+    - **Value**: Variable value
+    - **Scope**: Application, Environment, or Project
+    - **Type**: Variable or Secret
+  </Step>
+
+  <Step title="Use in Code">
+    ```javascript
+    const apiKey = process.env.API_KEY;
+    const dbUrl = process.env.QOVERY_DATABASE_MY_DB_CONNECTION_URI;
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+Use **Secrets** for sensitive data like API keys, passwords, and tokens. Secrets are encrypted and not displayed in logs.
+</Tip>
+
+Learn more about [Environment Variables](/using-qovery/configuration/environment).
+
+## Custom Domains
+
+Add your own domain to your application:
+
+### Configure Domain
+
+<Steps>
+  <Step title="Add Domain">
+    Go to application settings → **Domains** → **Add Domain**
+  </Step>
+
+  <Step title="Enter Domain">
+    Enter your domain name (e.g., `app.example.com`)
+  </Step>
+
+  <Step title="Configure DNS">
+    Add a CNAME record in your DNS provider:
+    ```
+    CNAME: app.example.com → xxxx.qovery.io
+    ```
+  </Step>
+
+  <Step title="Verify & Deploy">
+    - Qovery verifies DNS configuration
+    - SSL/TLS certificate is automatically provisioned
+    - Redeploy application to activate domain
+  </Step>
+</Steps>
+
+### Wildcard Domains
+
+For multiple subdomains, configure wildcard:
+
+```
+CNAME: *.example.com → xxxx.qovery.io
+```
+
+Then add domains like:
+- `api.example.com`
+- `admin.example.com`
+- `app.example.com`
+
+<Note>
+SSL/TLS certificates are automatically managed by Qovery using Let's Encrypt. Certificates auto-renew before expiration.
+</Note>
+
+## Storage
+
+### Ephemeral Storage
+
+By default, all storage is ephemeral (lost on restart):
+
+```yaml
+Type: Ephemeral
+Size: Container file system
+Use: Temporary files, caches
+```
+
+### Persistent Storage
+
+Add persistent volumes for data that survives restarts:
+
+<Steps>
+  <Step title="Add Storage">
+    Go to application settings → **Storage** → **Add Storage**
+  </Step>
+
+  <Step title="Configure Volume">
+    - **Mount Path**: Where to mount in container (e.g., `/data`)
+    - **Size**: Volume size (e.g., 10 GB)
+    - **Type**: SSD or HDD (depending on cloud provider)
+  </Step>
+
+  <Step title="Use in Application">
+    ```javascript
+    // Files written to /data persist across restarts
+    fs.writeFileSync('/data/file.txt', 'content');
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+**Limitations**:
+- Persistent storage cannot be shared between replicas (use S3/blob storage for shared files)
+- Auto-scaling requires stateless applications (use external storage)
+</Warning>
+
+## Advanced Settings
+
+### Build Settings
+
+<AccordionGroup>
+  <Accordion title="Build Timeout">
+    Maximum time for build to complete (default: 30 minutes)
+
+    Increase for large applications:
+    ```yaml
+    build_timeout: 45m
+    ```
+  </Accordion>
+
+  <Accordion title="Build Resources">
+    CPU and memory allocated for building:
+    ```yaml
+    build_cpu: 1000m
+    build_memory: 2048 MB
+    ```
+  </Accordion>
+
+  <Accordion title="Build Cache">
+    Enable to speed up subsequent builds:
+    - Docker layer caching
+    - Dependency caching
+    - 50% faster builds on average
+  </Accordion>
+</AccordionGroup>
+
+### Deployment Settings
+
+<AccordionGroup>
+  <Accordion title="Deployment Strategy">
+    **Rolling Update** (default):
+    - Zero downtime
+    - Gradual rollout
+    ```yaml
+    strategy: rolling_update
+    max_unavailable: 0
+    max_surge: 1
+    ```
+
+    **Recreate**:
+    - Stop all pods, then start new
+    - Brief downtime
+    - Use for stateful apps
+  </Accordion>
+
+  <Accordion title="Graceful Shutdown">
+    Time to wait before forcing pod termination:
+    ```yaml
+    termination_grace_period: 30s
+    ```
+
+    Implement graceful shutdown in code:
+    ```javascript
+    process.on('SIGTERM', async () => {
+      await server.close();
+      await db.disconnect();
+      process.exit(0);
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Node Affinity">
+    Control which nodes run your application:
+    - Same zone only
+    - Specific instance types
+    - GPU nodes
+  </Accordion>
+</AccordionGroup>
+
+### Networking Settings
+
+Advanced network configuration:
+
+- **CORS**: Configure cross-origin requests
+- **Timeouts**: Request/connection timeouts
+- **Rate Limiting**: Requests per second limits
+- **IP Whitelist**: Restrict access by IP
+- **Basic Auth**: Add authentication layer
+
+## Lifecycle Hooks
+
+Execute commands during application lifecycle:
+
+### Post-Start Hook
+
+Run after container starts:
+
+```bash
+# Example: Warm up cache
+curl http://localhost:3000/warmup
+```
+
+### Pre-Stop Hook
+
+Run before container stops:
+
+```bash
+# Example: Drain connections
+/app/scripts/drain.sh
+```
+
+## Cloning Applications
+
+Clone an application to duplicate configuration:
+
+<Steps>
+  <Step title="Select Application">
+    Go to the application you want to clone
+  </Step>
+
+  <Step title="Clone">
+    Click **Actions** → **Clone**
+  </Step>
+
+  <Step title="Configure Clone">
+    - **New Name**: Unique name for cloned app
+    - **Target Environment**: Same or different environment
+    - **Copy Variables**: Option to copy environment variables
+  </Step>
+</Steps>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Resource Management" icon="gauge">
+    - Start with minimal resources
+    - Monitor and adjust based on metrics
+    - Use auto-scaling for variable traffic
+    - Set memory limits to prevent OOM
+  </Card>
+
+  <Card title="Health Checks" icon="heartbeat">
+    - Always implement health endpoints
+    - Use readiness for dependency checks
+    - Set appropriate timeouts
+    - Test health checks locally
+  </Card>
+
+  <Card title="Environment Variables" icon="key">
+    - Use secrets for sensitive data
+    - Never commit secrets to Git
+    - Use built-in variables for service connections
+    - Document required variables
+  </Card>
+
+  <Card title="Deployment" icon="rocket">
+    - Use auto-deploy for dev/staging
+    - Manual deploys for production
+    - Test in staging before production
+    - Keep deployment history for rollbacks
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Application Won't Start">
+    **Check**:
+    - Application logs for errors
+    - Port configuration matches app
+    - Required environment variables set
+    - Health check endpoint responding
+    - Sufficient resources allocated
+  </Accordion>
+
+  <Accordion title="High Memory Usage">
+    **Solutions**:
+    - Increase memory limits
+    - Check for memory leaks
+    - Optimize application code
+    - Enable memory profiling
+    - Consider horizontal scaling
+  </Accordion>
+
+  <Accordion title="Connection Issues">
+    **Check**:
+    - Service is publicly accessible (if needed)
+    - Domain DNS configured correctly
+    - SSL certificate status
+    - Firewall/security group rules
+    - Load balancer health checks
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+    Step-by-step deployment guide
+  </Card>
+  <Card title="Environment Variables" icon="key" href="/using-qovery/configuration/environment">
+    Manage configuration and secrets
+  </Card>
+  <Card title="Custom Domains" icon="globe" href="/guides/applications/configure-custom-domain">
+    Add your own domain
+  </Card>
+  <Card title="Auto-Deploy" icon="arrows-rotate" href="/using-qovery/deployment/auto-deploy">
+    Set up automatic deployments
+  </Card>
+</CardGroup>
