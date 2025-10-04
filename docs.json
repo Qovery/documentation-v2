@@ -36,6 +36,7 @@
     "tabs": [
       {
         "tab": "Documentation",
+        "icon": "book",
         "groups": [
           {
             "group": "Getting Started",
@@ -119,6 +120,7 @@
       },
       {
         "tab": "Guides",
+        "icon": "map",
         "groups": [
           {
             "group": "Basics",
@@ -148,6 +150,7 @@
       },
       {
         "tab": "Integrations",
+        "icon": "plug",
         "groups": [
           {
             "group": "Overview",
@@ -231,6 +234,7 @@
       },
       {
         "tab": "Terraform Provider",
+        "icon": "code",
         "groups": [
           {
             "group": "Getting Started",
@@ -248,6 +252,7 @@
       },
       {
         "tab": "CLI",
+        "icon": "terminal",
         "groups": [
           {
             "group": "Getting Started",
@@ -265,6 +270,7 @@
       },
       {
         "tab": "API Reference",
+        "icon": "brackets-curly",
         "groups": [
           {
             "group": "Getting Started",
