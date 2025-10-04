@@ -1,0 +1,6 @@
+node_modules
+.mintlify
+.next
+out
+.cache
+.DS_Store

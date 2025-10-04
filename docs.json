@@ -1,0 +1,56 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Qovery",
+  "theme": "mint",
+  "logo": {
+    "light": "/qovery-logo-black.svg",
+    "dark": "/qovery-logo-white.svg"
+  },
+  "colors": {
+    "primary": "#642DFF",
+    "light": "#B296FF",
+    "dark": "#370087"
+  },
+  "font": {
+    "headings": {
+      "family": "Roboto Flex"
+    },
+    "body": {
+      "family": "Roboto Flex"
+    },
+    "code": {
+      "family": "Roboto Mono"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Console",
+      "url": "https://console.qovery.com"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "https://console.qovery.com/signup"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footerSocials": {
+    "github": "https://github.com/Qovery",
+    "twitter": "https://twitter.com/Qovery_",
+    "linkedin": "https://www.linkedin.com/company/qovery"
+  }
+}
