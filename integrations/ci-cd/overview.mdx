@@ -1,0 +1,137 @@
+---
+title: "CI/CD Integrations"
+description: "Integrate Qovery with your CI/CD pipelines"
+---
+
+## Overview
+
+Qovery integrates with popular CI/CD platforms to automate your deployment workflows. Use the Qovery CLI in your pipelines to deploy applications, manage environments, and trigger deployments programmatically.
+
+## Supported CI/CD Platforms
+
+<CardGroup cols={2}>
+  <Card title="GitHub Actions" icon="github" href="/integrations/ci-cd/github-actions">
+    Deploy from GitHub workflows with Qovery CLI
+  </Card>
+
+  <Card title="GitLab CI" icon="gitlab" href="/integrations/ci-cd/gitlab-ci">
+    Integrate with GitLab CI/CD pipelines
+  </Card>
+
+  <Card title="CircleCI" icon="circle" href="/integrations/ci-cd/circleci">
+    Use CircleCI workflows with Qovery
+  </Card>
+
+  <Card title="Jenkins" icon="jenkins" href="/integrations/ci-cd/jenkins">
+    Automate with Jenkins pipelines
+  </Card>
+</CardGroup>
+
+## Common Use Cases
+
+### Build and Deploy
+
+1. **CI/CD builds** container image
+2. **Push to registry** (ECR, Docker Hub, etc.)
+3. **Trigger Qovery deployment** via CLI/API
+4. **Monitor deployment** status
+
+### Preview Environments
+
+- Create temporary environment for each pull request
+- Automatically deploy and test changes
+- Clean up after merge
+- Comment PR with environment URL
+
+### Environment Cloning
+
+- Clone production to staging
+- Run tests against clone
+- Update configurations
+- Deploy changes
+
+## Setup Instructions
+
+<Steps>
+  <Step title="Generate API Token">
+    In Qovery Console: Settings → API Tokens → Generate Token
+  </Step>
+
+  <Step title="Add to CI/CD Secrets">
+    Store as `QOVERY_CLI_ACCESS_TOKEN` in your CI/CD platform secrets
+  </Step>
+
+  <Step title="Install Qovery CLI">
+    Add CLI installation step to your pipeline
+  </Step>
+
+  <Step title="Deploy">
+    Use Qovery CLI commands to deploy applications
+  </Step>
+</Steps>
+
+## Qovery CLI in CI/CD
+
+### Authentication
+
+```bash
+# Set token in environment
+export QOVERY_CLI_ACCESS_TOKEN=${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+
+# CLI will auto-authenticate
+qovery application deploy
+```
+
+### Common Commands
+
+```bash
+# Deploy application
+qovery application deploy --application-name my-app --commit-id $COMMIT_SHA
+
+# Create preview environment
+qovery environment create --name pr-$PR_NUMBER --clone-from staging
+
+# Delete environment
+qovery environment delete --name pr-$PR_NUMBER
+
+# Check deployment status
+qovery application status --application-name my-app
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Separate Build & Deploy" icon="layer-group">
+    - Build in CI/CD
+    - Push to registry
+    - Deploy with Qovery
+    - Faster iterations
+  </Card>
+
+  <Card title="Use Commit SHAs" icon="code-commit">
+    - Tag images with commit SHA
+    - Deploy specific versions
+    - Easy rollback
+    - Clear traceability
+  </Card>
+
+  <Card title="Environment Strategy" icon="diagram-project">
+    - Auto-deploy to dev/staging
+    - Manual approval for production
+    - Preview envs for PRs
+    - Clean up after merge
+  </Card>
+
+  <Card title="Monitor Deployments" icon="chart-line">
+    - Watch deployment logs
+    - Check health status
+    - Alert on failures
+    - Track metrics
+  </Card>
+</CardGroup>
+
+## Resources
+
+- [Qovery CLI Documentation](/cli/overview)
+- [API Reference](/api-reference/introduction)
+- [Deployment Overview](/using-qovery/deployment/overview)

@@ -1,0 +1,34 @@
+---
+title: "GitHub Actions Integration"
+description: "Deploy with Qovery from GitHub Actions workflows"
+---
+
+<Info>Detailed guide coming soon</Info>
+
+## Quick Example
+
+```yaml
+name: Deploy to Qovery
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+      
+      - name: Deploy
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --application-name my-app \
+            --commit-id ${{ github.sha }}
+```
+
+[CI/CD Overview](/integrations/ci-cd/overview)

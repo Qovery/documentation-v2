@@ -157,6 +157,89 @@
         ]
       },
       {
+        "tab": "Integrations",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "integrations/overview"
+            ]
+          },
+          {
+            "group": "Container Registries",
+            "pages": [
+              "integrations/container-registries/overview",
+              "integrations/container-registries/aws-ecr",
+              "integrations/container-registries/docker-hub",
+              "integrations/container-registries/gcp-artifact-registry",
+              "integrations/container-registries/azure-acr",
+              "integrations/container-registries/github-cr",
+              "integrations/container-registries/gitlab-cr",
+              "integrations/container-registries/scaleway-cr",
+              "integrations/container-registries/generic"
+            ]
+          },
+          {
+            "group": "Cloud Providers",
+            "pages": [
+              "integrations/cloud-providers/overview",
+              "integrations/cloud-providers/aws",
+              "integrations/cloud-providers/gcp",
+              "integrations/cloud-providers/azure",
+              "integrations/cloud-providers/scaleway",
+              "integrations/cloud-providers/kubernetes",
+              "integrations/cloud-providers/on-premise"
+            ]
+          },
+          {
+            "group": "CI/CD",
+            "pages": [
+              "integrations/ci-cd/overview",
+              "integrations/ci-cd/github-actions",
+              "integrations/ci-cd/gitlab-ci",
+              "integrations/ci-cd/circleci",
+              "integrations/ci-cd/jenkins"
+            ]
+          },
+          {
+            "group": "Git Providers",
+            "pages": [
+              "integrations/git-providers/overview",
+              "integrations/git-providers/github",
+              "integrations/git-providers/gitlab",
+              "integrations/git-providers/bitbucket"
+            ]
+          },
+          {
+            "group": "Secret Managers",
+            "pages": [
+              "integrations/secret-managers/overview",
+              "integrations/secret-managers/doppler",
+              "integrations/secret-managers/aws-secrets-manager",
+              "integrations/secret-managers/external-secrets"
+            ]
+          },
+          {
+            "group": "Helm Repositories",
+            "pages": [
+              "integrations/helm/overview"
+            ]
+          },
+          {
+            "group": "Observability",
+            "pages": [
+              "integrations/observability/overview"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "integrations/webhooks"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Terraform Provider",
         "groups": [
           {

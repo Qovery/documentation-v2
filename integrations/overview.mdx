@@ -1,0 +1,232 @@
+---
+title: "Integrations Overview"
+description: "Connect Qovery with your favorite tools and cloud providers"
+---
+
+## Overview
+
+Qovery integrates with the most popular tools and services in the cloud-native ecosystem. Connect your existing infrastructure, CI/CD pipelines, container registries, and more to create a seamless DevOps workflow.
+
+## Integration Categories
+
+<CardGroup cols={2}>
+  <Card title="Container Registries" icon="box" href="/integrations/container-registries/overview">
+    Connect Docker Hub, ECR, GCR, ACR, and private registries
+  </Card>
+
+  <Card title="Cloud Providers" icon="cloud" href="/integrations/cloud-providers/overview">
+    Deploy on AWS, GCP, Azure, Scaleway, or any Kubernetes cluster
+  </Card>
+
+  <Card title="CI/CD" icon="arrows-rotate" href="/integrations/ci-cd/overview">
+    Integrate with GitHub Actions, GitLab CI, CircleCI, and Jenkins
+  </Card>
+
+  <Card title="Git Providers" icon="code-branch" href="/integrations/git-providers/overview">
+    Connect GitHub, GitLab, and Bitbucket repositories
+  </Card>
+
+  <Card title="Secret Managers" icon="key" href="/integrations/secret-managers/overview">
+    Use Doppler, AWS Secrets Manager, and more
+  </Card>
+
+  <Card title="Helm Repositories" icon="helm" href="/integrations/helm/overview">
+    Deploy charts from any Helm repository
+  </Card>
+
+  <Card title="Observability" icon="chart-line" href="/integrations/observability/overview">
+    Monitor with built-in tools or integrate Datadog, Grafana
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/integrations/webhooks">
+    Get notified about deployments and events
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+### Connect a Git Repository
+
+<Steps>
+  <Step title="Navigate to Organization Settings">
+    Go to your organization settings in the Qovery Console
+  </Step>
+
+  <Step title="Select Git Provider">
+    Click on **Git Providers** and choose your provider (GitHub, GitLab, or Bitbucket)
+  </Step>
+
+  <Step title="Authorize Access">
+    Follow the OAuth flow to authorize Qovery to access your repositories
+  </Step>
+
+  <Step title="Start Deploying">
+    Your repositories are now available when creating applications
+  </Step>
+</Steps>
+
+### Connect a Container Registry
+
+<Steps>
+  <Step title="Go to Organization Settings">
+    Navigate to **Settings** → **Container Registries**
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry** and select your registry type
+  </Step>
+
+  <Step title="Provide Credentials">
+    Enter registry URL and authentication credentials
+  </Step>
+
+  <Step title="Deploy Images">
+    Deploy container images from your connected registry
+  </Step>
+</Steps>
+
+## Popular Integrations
+
+### AWS
+
+Complete AWS integration for enterprise deployments:
+
+- **EKS**: Managed Kubernetes clusters
+- **ECR**: Container image registry
+- **RDS**: Managed databases (PostgreSQL, MySQL)
+- **S3**: Object storage for backups and artifacts
+- **Secrets Manager**: Centralized secret management
+- **CloudWatch**: Logging and monitoring
+
+[Learn more →](/integrations/cloud-providers/aws)
+
+### GitHub
+
+Full GitHub integration for GitOps workflows:
+
+- **GitHub Repositories**: Deploy from any repository
+- **GitHub Actions**: CI/CD integration with Qovery CLI
+- **GitHub Container Registry**: Store and deploy container images
+- **Preview Environments**: Automatic environments for pull requests
+
+[Learn more →](/integrations/git-providers/github)
+
+### Docker Hub
+
+Use Docker Hub for container images:
+
+- **Public Images**: Deploy from Docker Hub's public registry
+- **Private Repositories**: Connect your Docker Hub account
+- **Official Images**: Use verified images for databases and services
+
+[Learn more →](/integrations/container-registries/docker-hub)
+
+## Multi-Cloud Support
+
+Qovery supports multiple cloud providers, allowing you to:
+
+- **Avoid Vendor Lock-in**: Switch providers without changing your workflow
+- **Multi-Cloud Deployments**: Deploy different environments on different clouds
+- **Hybrid Cloud**: Combine cloud and on-premise Kubernetes clusters
+- **Disaster Recovery**: Replicate across multiple cloud providers
+
+### Supported Cloud Providers
+
+| Provider | Kubernetes Service | Container Registry | Managed Databases | Object Storage |
+|----------|-------------------|-------------------|-------------------|----------------|
+| **AWS** | EKS | ECR | RDS | S3 |
+| **Google Cloud** | GKE | Artifact Registry | Cloud SQL | Cloud Storage |
+| **Azure** | AKS | ACR | Azure Database | Blob Storage |
+| **Scaleway** | Kapsule | Container Registry | Managed Databases | Object Storage |
+| **Self-Managed** | Any Kubernetes | Any Registry | Container Mode | Any S3-compatible |
+
+## Infrastructure as Code
+
+Qovery integrates with Infrastructure as Code tools:
+
+### Terraform Provider
+
+Manage Qovery resources with Terraform:
+
+```hcl
+resource "qovery_application" "my_app" {
+  name = "my-application"
+  environment_id = qovery_environment.production.id
+
+  git_repository = {
+    url = "https://github.com/my-org/my-app"
+    branch = "main"
+  }
+
+  build_mode = "DOCKER"
+  dockerfile_path = "Dockerfile"
+}
+```
+
+[View Terraform docs →](/terraform/overview)
+
+### Qovery CLI
+
+Automate deployments with the CLI:
+
+```bash
+# Deploy application
+qovery application deploy --application-name my-app
+
+# Create environment
+qovery environment create --name staging
+
+# Clone environment
+qovery environment clone --from production --to staging-test
+```
+
+[View CLI docs →](/cli/overview)
+
+## API & SDKs
+
+Integrate Qovery programmatically:
+
+- **REST API**: Full API access to all Qovery features
+- **Go SDK**: Official Golang client library
+- **TypeScript SDK**: Official TypeScript/JavaScript client
+- **OpenAPI Specification**: Generate clients for any language
+
+[Explore API →](/api-reference/introduction)
+
+## Integration Support
+
+### Community Integrations
+
+Qovery's extensibility allows integration with any tool that supports:
+
+- **Helm Charts**: Deploy any Helm chart from public or private repositories
+- **Container Images**: Use any OCI-compliant container registry
+- **Kubernetes**: Works with any CNCF-certified Kubernetes distribution
+- **Webhooks**: Send events to any webhook-compatible service
+
+### Need Help?
+
+- **Documentation**: Detailed guides for each integration
+- **Community Forum**: Get help from the Qovery community
+- **Support**: Contact support for enterprise assistance
+- **Feature Requests**: Suggest new integrations on GitHub
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Container Registries" icon="box" href="/integrations/container-registries/overview">
+    Connect your container registry
+  </Card>
+
+  <Card title="Cloud Providers" icon="cloud" href="/integrations/cloud-providers/overview">
+    Set up your cloud provider
+  </Card>
+
+  <Card title="CI/CD Integration" icon="arrows-rotate" href="/integrations/ci-cd/overview">
+    Automate with CI/CD pipelines
+  </Card>
+
+  <Card title="Git Providers" icon="code-branch" href="/integrations/git-providers/overview">
+    Connect your Git repositories
+  </Card>
+</CardGroup>

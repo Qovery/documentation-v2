@@ -1,0 +1,57 @@
+---
+title: "Docker Hub Integration"
+description: "Connect Docker Hub with Qovery"
+---
+
+<Info>
+**Detailed integration guide coming soon**
+
+This page will include:
+- Docker Hub authentication
+- Rate limit considerations
+- Public vs private repository access
+- Access token management
+- Best practices
+</Info>
+
+## Quick Setup
+
+### Registry URL
+
+```
+https://index.docker.io/v1/
+```
+
+### Authentication
+
+Use Docker Hub username and access token (recommended) or password.
+
+## Configuration Steps
+
+<Steps>
+  <Step title="Create Access Token">
+    In Docker Hub, go to Account Settings → Security → New Access Token
+  </Step>
+
+  <Step title="Add Registry in Qovery">
+    Organization Settings → Container Registries → Add Registry
+  </Step>
+
+  <Step title="Select Docker Hub">
+    Choose "Docker Hub" from the list
+  </Step>
+
+  <Step title="Enter Credentials">
+    - Username: Your Docker Hub username
+    - Password: Access token (not your password)
+  </Step>
+
+  <Step title="Save">
+    Registry is now connected
+  </Step>
+</Steps>
+
+## Resources
+
+- [Docker Hub Documentation](https://docs.docker.com/docker-hub/)
+- [Container Registry Overview](/integrations/container-registries/overview)

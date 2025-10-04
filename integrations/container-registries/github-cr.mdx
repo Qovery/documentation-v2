@@ -1,0 +1,63 @@
+---
+title: "GitHub Container Registry Integration"
+description: "Connect GitHub Container Registry (GHCR) with Qovery"
+---
+
+<Info>
+**Detailed integration guide coming soon**
+
+This page will include:
+- GHCR authentication
+- Personal Access Token setup
+- Organization package access
+- Image naming conventions
+- Integration with GitHub Actions
+</Info>
+
+## Quick Setup
+
+### Registry URL
+
+```
+https://ghcr.io
+```
+
+### Image Format
+
+```
+ghcr.io/<owner>/<image-name>:<tag>
+```
+
+## Configuration Steps
+
+<Steps>
+  <Step title="Create Personal Access Token">
+    GitHub Settings → Developer settings → Personal access tokens → Generate new token
+
+    Required scopes:
+    - `read:packages`
+    - `write:packages` (if pushing)
+  </Step>
+
+  <Step title="Add Registry in Qovery">
+    Organization Settings → Container Registries → Add Registry
+  </Step>
+
+  <Step title="Select GitHub CR">
+    Choose "GitHub Container Registry"
+  </Step>
+
+  <Step title="Enter Credentials">
+    - Username: Your GitHub username
+    - Password: Personal Access Token
+  </Step>
+
+  <Step title="Save">
+    Registry is now connected
+  </Step>
+</Steps>
+
+## Resources
+
+- [GitHub Container Registry Docs](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+- [Container Registry Overview](/integrations/container-registries/overview)

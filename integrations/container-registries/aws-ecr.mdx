@@ -1,0 +1,76 @@
+---
+title: "Amazon ECR Integration"
+description: "Connect AWS Elastic Container Registry with Qovery"
+---
+
+<Info>
+**Detailed integration guide coming soon**
+
+This page will include:
+- ECR authentication setup (Access Keys and IAM Roles)
+- Public vs Private ECR configuration
+- IAM policy examples
+- Cross-account ECR access
+- Best practices for ECR with Qovery
+</Info>
+
+## Quick Setup
+
+### Registry URL Format
+
+```
+https://<aws_account_id>.dkr.ecr.<region>.amazonaws.com
+```
+
+### Required IAM Permissions
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+## Configuration Steps
+
+<Steps>
+  <Step title="Get AWS Credentials">
+    Create IAM user with ECR permissions or use IAM role
+  </Step>
+
+  <Step title="Add Registry in Qovery">
+    Go to Organization Settings → Container Registries → Add Registry
+  </Step>
+
+  <Step title="Select AWS ECR">
+    Choose "Amazon ECR" from registry types
+  </Step>
+
+  <Step title="Enter Details">
+    - Registry URL
+    - AWS Access Key ID
+    - AWS Secret Access Key
+    - Region
+  </Step>
+
+  <Step title="Test & Save">
+    Qovery will verify credentials and save the configuration
+  </Step>
+</Steps>
+
+## Resources
+
+- [AWS ECR Documentation](https://docs.aws.amazon.com/ecr/)
+- [Container Registry Overview](/integrations/container-registries/overview)
+- [Deploy from Registry](/using-qovery/configuration/application)

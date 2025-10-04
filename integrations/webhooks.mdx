@@ -1,0 +1,89 @@
+---
+title: "Webhook Integration"
+description: "Get notified about deployment events via webhooks"
+---
+
+## Overview
+
+Configure webhooks to receive real-time notifications about deployments and other Qovery events.
+
+## Webhook Types
+
+<CardGroup cols={2}>
+  <Card title="Standard Webhooks" icon="webhook">
+    Qovery proprietary payload format
+  </Card>
+
+  <Card title="Slack Webhooks" icon="slack">
+    Pre-formatted for Slack messaging
+  </Card>
+</CardGroup>
+
+## Supported Events
+
+- **Deployment Started**: When deployment begins
+- **Deployment Successful**: Deployment completed successfully
+- **Deployment Failed**: Deployment encountered errors
+- **Deployment Cancelled**: Deployment was cancelled
+
+## Configuration
+
+<Steps>
+  <Step title="Navigate to Settings">
+    Organization or Project Settings → Webhooks
+  </Step>
+
+  <Step title="Create Webhook">
+    Click "Add Webhook"
+  </Step>
+
+  <Step title="Configure">
+    - Webhook URL
+    - Webhook type (Standard or Slack)
+    - Events to trigger on
+    - Environment filter (optional)
+    - Secret (optional, for verification)
+  </Step>
+
+  <Step title="Test">
+    Send test webhook to verify configuration
+  </Step>
+</Steps>
+
+## Webhook Payload
+
+### Standard Webhook
+
+```json
+{
+  "event_type": "deployment.started",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "organization_id": "org_xxx",
+  "project_id": "proj_xxx",
+  "environment_id": "env_xxx",
+  "application_id": "app_xxx",
+  "application_name": "my-app",
+  "commit_id": "abc123",
+  "status": "running"
+}
+```
+
+### Slack Webhook
+
+Pre-formatted message sent directly to Slack channel.
+
+## Use Cases
+
+- **ChatOps**: Notify team in Slack/Discord
+- **Incident Management**: Trigger PagerDuty/OpsGenie
+- **CI/CD**: Trigger downstream pipelines
+- **Analytics**: Track deployment metrics
+- **Audit**: Log all deployment events
+
+## Security
+
+- **Secret Verification**: Verify webhook authenticity
+- **HTTPS Only**: Webhooks sent only to HTTPS endpoints
+- **Retry Logic**: Automatic retries on failure
+
+[Integration Overview](/integrations/overview)

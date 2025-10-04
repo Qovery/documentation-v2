@@ -1,0 +1,22 @@
+---
+title: "GitLab CI Integration"
+description: "Deploy with Qovery from GitLab CI pipelines"
+---
+
+<Info>Detailed guide coming soon</Info>
+
+## Quick Example
+
+```yaml
+deploy:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - curl -s https://get.qovery.com | sh
+    - export QOVERY_CLI_ACCESS_TOKEN=$QOVERY_TOKEN
+    - qovery application deploy --application-name my-app
+  only:
+    - main
+```
+
+[CI/CD Overview](/integrations/ci-cd/overview)
