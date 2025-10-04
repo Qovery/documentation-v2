@@ -188,6 +188,7 @@
             "group": "CI/CD",
             "pages": [
               "integrations/ci-cd/overview",
+              "integrations/ci-cd/qovery-deploy",
               "integrations/ci-cd/github-actions",
               "integrations/ci-cd/github-actions-enterprise",
               "integrations/ci-cd/gitlab-ci",
@@ -215,6 +216,12 @@
             ]
           },
           {
+            "group": "Terraform",
+            "pages": [
+              "integrations/terraform/overview"
+            ]
+          },
+          {
             "group": "Helm Repositories",
             "pages": [
               "integrations/helm/overview"
@@ -223,7 +230,11 @@
           {
             "group": "Observability",
             "pages": [
-              "integrations/observability/overview"
+              "integrations/observability/overview",
+              "integrations/observability/qovery-observe",
+              "integrations/observability/datadog",
+              "integrations/observability/new-relic",
+              "integrations/observability/other-solutions"
             ]
           },
           {

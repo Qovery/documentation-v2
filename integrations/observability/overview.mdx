@@ -1,65 +1,416 @@
 ---
 title: "Observability Integrations"
-description: "Monitor your applications with built-in and external observability tools"
+description: "Monitor your applications with Qovery Observe and external observability tools"
 ---
 
 ## Overview
 
-Qovery provides built-in observability features and integrates with external monitoring tools.
+Qovery provides comprehensive observability through **Qovery Observe** (built-in) and integrations with leading monitoring platforms. Deploy external observability tools using their official Helm charts directly within your Qovery environments.
 
-## Built-in Observability
+## Observability Solutions
 
 <CardGroup cols={2}>
-  <Card title="Logs" icon="file-lines">
-    - Real-time log streaming
-    - 90-day retention (with package)
-    - Pod-level filtering
-    - Search and filter
+  <Card title="Qovery Observe" icon="chart-mixed" href="/integrations/observability/qovery-observe">
+    Qovery's built-in observability solution with logs, metrics, and events
   </Card>
 
-  <Card title="Metrics" icon="chart-line">
-    - CPU and memory usage
-    - Network traffic
-    - Request rates
-    - Custom metrics
+  <Card title="Datadog" icon="datadog" href="/integrations/observability/datadog">
+    Deploy Datadog agent via Helm chart for full-stack monitoring
   </Card>
 
-  <Card title="Events" icon="bell">
-    - Kubernetes events
-    - Qovery deployment events
-    - Health check failures
-    - Auto-scaling events
+  <Card title="New Relic" icon="chart-line" href="/integrations/observability/new-relic">
+    Deploy New Relic infrastructure and APM via Helm chart
   </Card>
 
-  <Card title="Health Checks" icon="heartbeat">
-    - Liveness probes
-    - Readiness probes
-    - Application health status
+  <Card title="Other Solutions" icon="chart-network" href="/integrations/observability/other-solutions">
+    Prometheus, Grafana, Elastic, and more via Helm
   </Card>
 </CardGroup>
 
-## External Integrations
+## Qovery Observe vs External Tools
 
-### Supported Tools
+| Feature | Qovery Observe | External Tools (Helm) |
+|---------|----------------|----------------------|
+| **Setup** | Built-in, no configuration | Deploy as Helm service |
+| **Cost** | Included with Qovery | Tool-specific pricing |
+| **Log Retention** | 90 days (with package) | Based on tool configuration |
+| **Metrics** | CPU, memory, network | Full custom metrics |
+| **APM** | Basic | Advanced (Datadog, New Relic) |
+| **Alerts** | Via Qovery Console | Native tool alerting |
+| **Integration** | Deep Qovery integration | Standard Kubernetes |
 
-- **Datadog**: Full-stack monitoring and APM
+## Quick Start
+
+### Using Qovery Observe
+
+Qovery Observe is enabled by default for all applications:
+
+<Steps>
+  <Step title="Deploy Application">
+    Deploy any application to your Qovery environment
+  </Step>
+
+  <Step title="View Logs">
+    Navigate to application → Logs tab for real-time log streaming
+  </Step>
+
+  <Step title="Check Metrics">
+    View CPU, memory, and network metrics in the Metrics tab
+  </Step>
+
+  <Step title="Monitor Events">
+    Track Kubernetes and deployment events in the Events tab
+  </Step>
+</Steps>
+
+### Deploying External Tools
+
+Deploy observability tools as Helm services:
+
+<Steps>
+  <Step title="Add Helm Service">
+    Create → Helm Chart in your environment
+  </Step>
+
+  <Step title="Select Official Chart">
+    Choose from:
+    - Datadog: `datadog/datadog`
+    - New Relic: `newrelic/nri-bundle`
+    - Prometheus: `prometheus-community/kube-prometheus-stack`
+    - Grafana: `grafana/grafana`
+  </Step>
+
+  <Step title="Configure Values">
+    Set API keys, endpoints, and configurations
+  </Step>
+
+  <Step title="Deploy">
+    Deploy the Helm service to start monitoring
+  </Step>
+</Steps>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Development Teams" icon="users">
+    **Qovery Observe** provides everything needed:
+    - Quick debugging with logs
+    - Resource usage monitoring
+    - Deployment tracking
+    - No external tool costs
+  </Card>
+
+  <Card title="Production Workloads" icon="server">
+    **External Tools** for advanced needs:
+    - APM and distributed tracing
+    - Custom metrics and dashboards
+    - Advanced alerting
+    - Long-term data retention
+  </Card>
+
+  <Card title="Cost Optimization" icon="dollar-sign">
+    **Kubecost** or **Grafana** for:
+    - Resource cost breakdown
+    - Optimization recommendations
+    - Budget alerts
+    - Showback/chargeback
+  </Card>
+
+  <Card title="Multi-Tool Strategy" icon="layer-group">
+    **Combine solutions**:
+    - Qovery Observe for quick access
+    - Datadog/New Relic for deep insights
+    - Grafana for custom dashboards
+    - Best of both worlds
+  </Card>
+</CardGroup>
+
+## Technology Stack
+
+### Qovery Observe
+
+Built on industry-standard open-source tools:
+
+- **Grafana Loki**: Log aggregation and storage
+- **Prometheus**: Metrics collection and alerting
 - **Grafana**: Visualization and dashboards
-- **Kubecost**: Kubernetes cost monitoring
-- **CloudWatch**: AWS native monitoring (for EKS)
+- **Kubernetes Events**: Native event tracking
 
-### Technology Stack
+### External Tools Support
 
-Qovery uses industry-standard tools:
-- **Grafana Loki**: Log aggregation
-- **Prometheus**: Metrics collection
-- **Grafana**: Visualization
+Deploy any observability tool that provides an official Helm chart:
+
+**APM & Monitoring**:
+- Datadog
+- New Relic
+- Dynatrace
+- AppDynamics
+- Elastic APM
+
+**Metrics & Visualization**:
+- Prometheus + Grafana
+- InfluxDB + Telegraf
+- Victoria Metrics
+- Thanos
+
+**Logging**:
+- Elastic Stack (ELK)
+- Splunk
+- Fluentd/Fluent Bit
+- LogDNA
+
+**Cost Management**:
+- Kubecost
+- KubeCost Analyzer
+
+## Features Comparison
+
+### Qovery Observe Features
+
+<AccordionGroup>
+  <Accordion title="Logs" icon="file-lines">
+    - **Real-time streaming**: Live tail application logs
+    - **90-day retention**: Available with Observability Package
+    - **Pod-level filtering**: Filter by specific pods/containers
+    - **Search capabilities**: Full-text search across logs
+    - **Multi-service**: View logs from multiple services
+    - **Export**: Download logs for analysis
+  </Accordion>
+
+  <Accordion title="Metrics" icon="chart-line">
+    - **CPU usage**: Per-pod CPU utilization
+    - **Memory usage**: RAM consumption tracking
+    - **Network I/O**: Incoming/outgoing traffic
+    - **Request rates**: HTTP request metrics
+    - **Custom metrics**: Application-specific metrics
+    - **Historical data**: Time-series analysis
+  </Accordion>
+
+  <Accordion title="Events" icon="bell">
+    - **Kubernetes events**: Pod lifecycle, scheduling
+    - **Deployment events**: Release tracking
+    - **Health checks**: Liveness/readiness failures
+    - **Auto-scaling**: HPA events
+    - **Warnings**: Resource constraints, errors
+    - **Audit trail**: Configuration changes
+  </Accordion>
+
+  <Accordion title="Health Checks" icon="heartbeat">
+    - **Liveness probes**: Application responsiveness
+    - **Readiness probes**: Traffic handling status
+    - **Startup probes**: Initial boot checks
+    - **Status dashboard**: Overall health view
+    - **Alerts**: Failed probe notifications
+    - **History**: Health check timeline
+  </Accordion>
+</AccordionGroup>
+
+### External Tools Features
+
+When deploying via Helm, you get:
+
+- **Full feature set** of the observability tool
+- **Native integrations** with your applications
+- **Custom dashboards** and visualizations
+- **Advanced alerting** with integrations (Slack, PagerDuty)
+- **APM capabilities** for distributed tracing
+- **Long-term retention** based on your plan
+- **Multi-cluster monitoring** across environments
 
 ## Observability Package
 
-Available on AWS, GCP, and Scaleway (Azure coming soon):
-- 90-day log retention
-- Extended metrics
-- Custom dashboards
-- Alert management
+### What's Included
 
-[Observability Logs](/using-qovery/observability/logs) | [Monitoring](/using-qovery/observability/monitoring)
+Available on AWS, GCP, Scaleway (Azure coming soon):
+
+<Tabs>
+  <Tab title="Features">
+    - **90-day log retention**: Extended from standard 7 days
+    - **Enhanced metrics**: Higher resolution metrics
+    - **Custom dashboards**: Create personalized views
+    - **Alert management**: Configure alerts in Qovery Console
+    - **SLA monitoring**: Track uptime and reliability
+    - **Cost analytics**: Resource usage insights
+  </Tab>
+
+  <Tab title="Pricing">
+    - **Included** in Qovery Business and Enterprise plans
+    - **Add-on** for Team plan
+    - **Per-cluster** pricing model
+    - **No per-GB charges** for logs/metrics
+    - Contact sales for custom retention periods
+  </Tab>
+
+  <Tab title="Availability">
+    ✅ **AWS EKS**: Fully available
+    ✅ **GCP GKE**: Fully available
+    ✅ **Scaleway Kapsule**: Fully available
+    🚧 **Azure AKS**: Coming soon
+    ❌ **BYOK**: Use external tools instead
+  </Tab>
+</Tabs>
+
+## Deployment Patterns
+
+### Pattern 1: Qovery Observe Only
+
+**Best for**: Development, staging, small teams
+
+```
+✓ Zero configuration
+✓ No additional costs
+✓ Integrated with Qovery Console
+✓ Sufficient for most use cases
+```
+
+### Pattern 2: External Tool Only
+
+**Best for**: Large production deployments, existing tool standardization
+
+```
+✓ Advanced features (APM, custom metrics)
+✓ Centralized monitoring across platforms
+✓ Long-term data retention
+✓ Custom alerting workflows
+```
+
+### Pattern 3: Hybrid Approach
+
+**Best for**: Enterprise teams, complex requirements
+
+```
+✓ Qovery Observe for quick debugging
+✓ Datadog/New Relic for deep analysis
+✓ Best of both worlds
+✓ Gradual migration path
+```
+
+## Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Your Applications                      │
+└────────────┬──────────────────────────┬─────────────────┘
+             │                          │
+             │                          │
+      ┌──────▼──────┐          ┌────────▼────────┐
+      │   Qovery    │          │  External Tool   │
+      │   Observe   │          │  (via Helm)      │
+      │             │          │                  │
+      │ • Logs      │          │ • Datadog        │
+      │ • Metrics   │          │ • New Relic      │
+      │ • Events    │          │ • Prometheus     │
+      └──────┬──────┘          └────────┬─────────┘
+             │                          │
+             │                          │
+      ┌──────▼──────────────────────────▼─────────┐
+      │         Qovery Console / Tool UI          │
+      └───────────────────────────────────────────┘
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Start with Qovery Observe" icon="rocket">
+    - Use built-in tools first
+    - Understand your monitoring needs
+    - Add external tools as needed
+    - Avoid over-engineering
+  </Card>
+
+  <Card title="Configure Retention" icon="clock">
+    - Enable 90-day retention for production
+    - Use shorter retention for dev/staging
+    - Archive critical logs externally
+    - Balance cost vs retention needs
+  </Card>
+
+  <Card title="Set Up Alerts" icon="bell">
+    - Alert on critical metrics only
+    - Avoid alert fatigue
+    - Use proper escalation paths
+    - Test alert delivery
+  </Card>
+
+  <Card title="Optimize Costs" icon="dollar-sign">
+    - Use Qovery Observe for dev/staging
+    - External tools for production only
+    - Right-size retention periods
+    - Monitor observability costs
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Logs Not Showing">
+    **Problem**: No logs visible in Qovery Observe
+
+    **Solutions**:
+    - Verify application is running and producing logs
+    - Check application writes to stdout/stderr
+    - Ensure Observability Package is enabled (for extended retention)
+    - Wait a few seconds for log aggregation
+    - Check pod status and events
+  </Accordion>
+
+  <Accordion title="External Tool Not Collecting Data">
+    **Problem**: Helm-deployed tool not receiving metrics/logs
+
+    **Solutions**:
+    - Verify Helm deployment is running (check pods)
+    - Confirm API keys/credentials are correct
+    - Check network policies allow traffic
+    - Review tool-specific configuration
+    - Check tool's agent logs for errors
+  </Accordion>
+
+  <Accordion title="High Observability Costs">
+    **Problem**: External tool costs increasing
+
+    **Solutions**:
+    - Review data ingestion rates
+    - Optimize log sampling (not all logs need collection)
+    - Use Qovery Observe for non-production
+    - Set up data retention policies
+    - Filter noisy logs at source
+  </Accordion>
+
+  <Accordion title="Missing Metrics">
+    **Problem**: Some metrics not appearing
+
+    **Solutions**:
+    - Verify application exposes metrics endpoint
+    - Check ServiceMonitor/PodMonitor configuration
+    - Ensure metrics port is accessible
+    - Review Prometheus scraping config
+    - Check application instrumentation
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Qovery Observe" icon="chart-mixed" href="/integrations/observability/qovery-observe">
+    Learn about Qovery's built-in observability
+  </Card>
+
+  <Card title="Deploy Datadog" icon="datadog" href="/integrations/observability/datadog">
+    Set up Datadog monitoring via Helm
+  </Card>
+
+  <Card title="Deploy New Relic" icon="chart-line" href="/integrations/observability/new-relic">
+    Configure New Relic APM and infrastructure
+  </Card>
+
+  <Card title="Other Solutions" icon="chart-network" href="/integrations/observability/other-solutions">
+    Explore Prometheus, Grafana, Elastic, and more
+  </Card>
+</CardGroup>
+
+## Resources
+
+- [Qovery Observability Docs](/using-qovery/observability/logs)
+- [Monitoring Guide](/using-qovery/observability/monitoring)
+- [Helm Integration](/integrations/helm/overview)
+- [Application Configuration](/using-qovery/configuration/application)

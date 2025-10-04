@@ -1,0 +1,518 @@
+---
+title: "Qovery Observe"
+description: "Built-in observability with logs, metrics, and events"
+---
+
+## Overview
+
+Qovery Observe is Qovery's built-in observability solution that provides logs, metrics, and events for all your applications without any additional configuration. Built on industry-standard open-source tools (Loki, Prometheus, Grafana), it offers immediate insights into your applications' health and performance.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Real-Time Logs" icon="file-lines">
+    Live log streaming with 90-day retention and full-text search
+  </Card>
+
+  <Card title="Metrics Dashboard" icon="chart-line">
+    CPU, memory, network, and custom application metrics
+  </Card>
+
+  <Card title="Event Tracking" icon="bell">
+    Kubernetes events, deployments, and health check failures
+  </Card>
+
+  <Card title="Zero Configuration" icon="rocket">
+    Automatically enabled for all applications and services
+  </Card>
+</CardGroup>
+
+## Features
+
+### Logs
+
+<Accordion title="Real-Time Log Streaming" icon="stream">
+  **Capabilities**:
+  - **Live tail**: Stream logs in real-time as they're generated
+  - **Multi-pod**: View logs from all pods of a service simultaneously
+  - **Pod filtering**: Filter by specific pod or container
+  - **Time range**: Navigate historical logs by time
+  - **Auto-scroll**: Follow latest logs automatically
+  - **Color coding**: Syntax highlighting for better readability
+
+  **Access Logs**:
+  1. Navigate to your application in Qovery Console
+  2. Click the **Logs** tab
+  3. View real-time logs streaming
+  4. Use filters and search to find specific entries
+</Accordion>
+
+<Accordion title="Log Search & Filtering" icon="magnifying-glass">
+  **Search Capabilities**:
+  - **Full-text search**: Find any text across all logs
+  - **Regular expressions**: Use regex patterns for advanced searches
+  - **Case sensitivity**: Toggle case-sensitive search
+  - **Pod selection**: Filter logs by specific pod
+  - **Time range**: Search within specific time periods
+  - **Level filtering**: Filter by log level (INFO, WARN, ERROR, etc.)
+
+  **Example Searches**:
+  ```
+  error                    # Find all error messages
+  status code 500          # Find 500 errors
+  /api/users/*             # Find API calls to users endpoint
+  timeout.*database        # Find database timeout errors
+  ```
+</Accordion>
+
+<Accordion title="Log Retention" icon="clock">
+  **Retention Periods**:
+
+  | Plan | Retention | Storage |
+  |------|-----------|---------|
+  | **Free/Team** | 7 days | Limited |
+  | **Business** | 90 days | Extended |
+  | **Enterprise** | Custom | Configurable |
+
+  **With Observability Package**:
+  - 90-day log retention included
+  - Available on AWS, GCP, Scaleway
+  - No per-GB charges
+  - Automatic log rotation
+  - Compressed storage
+
+  **Enable Extended Retention**:
+  1. Go to Organization Settings
+  2. Navigate to Billing → Add-ons
+  3. Enable Observability Package
+  4. Select clusters to apply
+</Accordion>
+
+<Accordion title="Log Export" icon="download">
+  **Export Options**:
+  - **Download**: Export logs as text file
+  - **Copy**: Copy log lines to clipboard
+  - **Time range**: Export specific time periods
+  - **Format**: Plain text or JSON
+
+  **Use Cases**:
+  - Long-term archival
+  - Compliance requirements
+  - External analysis tools
+  - Incident reports
+</Accordion>
+
+### Metrics
+
+<Accordion title="Resource Metrics" icon="gauge">
+  **Available Metrics**:
+
+  **CPU**:
+  - Current usage (millicores)
+  - Usage percentage vs limits
+  - Historical usage trends
+  - Throttling events
+
+  **Memory**:
+  - Current RAM usage (MB/GB)
+  - Usage percentage vs limits
+  - Memory pressure indicators
+  - OOM kill events
+
+  **Network**:
+  - Inbound traffic (bytes/sec)
+  - Outbound traffic (bytes/sec)
+  - Connection counts
+  - Network errors
+
+  **Storage**:
+  - Disk usage (for persistent volumes)
+  - I/O operations
+  - Read/write throughput
+</Accordion>
+
+<Accordion title="Application Metrics" icon="chart-area">
+  **HTTP Metrics**:
+  - Request rate (req/sec)
+  - Response times (p50, p95, p99)
+  - Status code distribution
+  - Error rates
+
+  **Custom Metrics**:
+  Expose Prometheus metrics from your application:
+
+  ```javascript
+  // Node.js example with prom-client
+  const client = require('prom-client');
+  const register = new client.Registry();
+
+  const httpRequestDuration = new client.Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'Duration of HTTP requests in seconds',
+    labelNames: ['method', 'route', 'status_code']
+  });
+
+  register.registerMetric(httpRequestDuration);
+
+  // Expose metrics endpoint
+  app.get('/metrics', (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(register.metrics());
+  });
+  ```
+
+  ```python
+  # Python example with prometheus_client
+  from prometheus_client import Histogram, generate_latest
+  from flask import Flask, Response
+
+  app = Flask(__name__)
+
+  REQUEST_DURATION = Histogram(
+      'http_request_duration_seconds',
+      'Duration of HTTP requests in seconds',
+      ['method', 'endpoint', 'status']
+  )
+
+  @app.route('/metrics')
+  def metrics():
+      return Response(generate_latest(), mimetype='text/plain')
+  ```
+
+  **Configure Metrics Port**:
+  In your application settings, add metrics port:
+  - Port: `9090` (or your metrics port)
+  - Protocol: HTTP
+  - Service type: Internal (not publicly exposed)
+</Accordion>
+
+<Accordion title="Dashboard & Visualization" icon="chart-mixed">
+  **Built-in Dashboards**:
+  - **Overview**: High-level service health
+  - **Resources**: CPU, memory, network graphs
+  - **Requests**: HTTP request metrics
+  - **Errors**: Error rates and trends
+  - **Performance**: Response time percentiles
+
+  **Time Ranges**:
+  - Last 15 minutes
+  - Last 1 hour
+  - Last 6 hours
+  - Last 24 hours
+  - Last 7 days
+  - Custom range
+
+  **Graph Types**:
+  - Line charts for trends
+  - Area charts for cumulative metrics
+  - Bar charts for distributions
+  - Heatmaps for latency percentiles
+</Accordion>
+
+### Events
+
+<Accordion title="Kubernetes Events" icon="cubes">
+  **Event Types**:
+
+  **Pod Lifecycle**:
+  - `Scheduled`: Pod assigned to node
+  - `Pulling`: Pulling container image
+  - `Pulled`: Image pulled successfully
+  - `Created`: Container created
+  - `Started`: Container started
+  - `Killing`: Container being stopped
+  - `FailedScheduling`: Cannot schedule pod
+  - `FailedMount`: Volume mount failed
+
+  **Resource Events**:
+  - `ScalingReplicaSet`: Scaling replicas
+  - `SuccessfulCreate`: Resource created
+  - `SuccessfulDelete`: Resource deleted
+
+  **Warning Events**:
+  - `BackOff`: Container restart backoff
+  - `Unhealthy`: Health check failed
+  - `FailedKillPod`: Failed to kill pod
+  - `OOMKilled`: Out of memory killed
+</Accordion>
+
+<Accordion title="Deployment Events" icon="rocket">
+  **Qovery Deployment Tracking**:
+  - **Started**: Deployment initiated
+  - **Building**: Building container image
+  - **Pushing**: Pushing to registry
+  - **Deploying**: Rolling out to Kubernetes
+  - **Running**: Deployment successful
+  - **Failed**: Deployment failed (with reason)
+  - **Rolled Back**: Automatic rollback triggered
+
+  **Timeline View**:
+  - Visual timeline of all deployments
+  - Duration of each phase
+  - Success/failure indicators
+  - Links to logs for each phase
+</Accordion>
+
+<Accordion title="Health Check Events" icon="heartbeat">
+  **Probe Failures**:
+  - **Liveness probe failed**: Application not responding
+  - **Readiness probe failed**: Not ready for traffic
+  - **Startup probe failed**: Initial startup check failed
+
+  **Event Details**:
+  - Timestamp of failure
+  - Number of consecutive failures
+  - Probe configuration
+  - Container restart count
+  - Recovery actions taken
+
+  **Alerts**:
+  Configure alerts for health check failures:
+  1. Go to application settings
+  2. Navigate to Health Checks
+  3. Enable health check monitoring
+  4. Set up alert channels (email, Slack, webhook)
+</Accordion>
+
+## Technology Stack
+
+Qovery Observe is built on industry-standard open-source tools:
+
+<CardGroup cols={3}>
+  <Card title="Grafana Loki" icon="database">
+    **Log Aggregation**
+    - Highly scalable log storage
+    - Label-based indexing
+    - Efficient compression
+    - S3-compatible storage backend
+  </Card>
+
+  <Card title="Prometheus" icon="chart-line">
+    **Metrics Collection**
+    - Time-series database
+    - Pull-based architecture
+    - Powerful query language (PromQL)
+    - Built-in alerting
+  </Card>
+
+  <Card title="Grafana" icon="chart-mixed">
+    **Visualization**
+    - Rich dashboards
+    - Multiple data sources
+    - Custom queries
+    - Alert visualization
+  </Card>
+</CardGroup>
+
+## Observability Package
+
+### What's Included
+
+<Tabs>
+  <Tab title="Features">
+    **Extended Capabilities**:
+    - ✅ **90-day log retention** (vs 7-day standard)
+    - ✅ **Enhanced metrics resolution** (15s vs 60s)
+    - ✅ **Custom dashboards** creation
+    - ✅ **Alert management** in Qovery Console
+    - ✅ **SLA monitoring** with uptime tracking
+    - ✅ **Cost analytics** for resource optimization
+    - ✅ **Multi-cluster view** across environments
+  </Tab>
+
+  <Tab title="Availability">
+    **Cloud Provider Support**:
+
+    | Provider | Status |
+    |----------|--------|
+    | AWS EKS | ✅ Available |
+    | GCP GKE | ✅ Available |
+    | Scaleway Kapsule | ✅ Available |
+    | Azure AKS | 🚧 Coming soon |
+    | BYOK (Self-managed) | ❌ Not available* |
+
+    *For BYOK clusters, use external observability tools deployed via Helm.
+  </Tab>
+
+  <Tab title="Pricing">
+    **Cost Structure**:
+    - **Included**: Business & Enterprise plans
+    - **Add-on**: Available for Team plan
+    - **Per-cluster**: Pricing model
+    - **No per-GB**: No data ingestion charges
+    - **Predictable**: Fixed monthly cost
+
+    Contact sales for Enterprise custom retention periods (180+ days).
+  </Tab>
+</Tabs>
+
+### Enabling Observability Package
+
+<Steps>
+  <Step title="Navigate to Settings">
+    Organization Settings → Billing → Add-ons
+  </Step>
+
+  <Step title="Enable Package">
+    Toggle **Observability Package** on
+  </Step>
+
+  <Step title="Select Clusters">
+    Choose which clusters to enable (per-cluster billing)
+  </Step>
+
+  <Step title="Confirm">
+    Review pricing and confirm enablement
+  </Step>
+
+  <Step title="Wait for Activation">
+    Package activates within 5-10 minutes
+  </Step>
+</Steps>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Structured Logging" icon="code">
+    **Use JSON format** for better parsing:
+    ```json
+    {
+      "timestamp": "2025-01-15T10:30:00Z",
+      "level": "error",
+      "message": "Database connection failed",
+      "service": "api",
+      "trace_id": "abc123"
+    }
+    ```
+
+    Benefits:
+    - Better searchability
+    - Easier filtering
+    - Machine-readable
+    - Correlation with traces
+  </Card>
+
+  <Card title="Log Levels" icon="layer-group">
+    **Use appropriate log levels**:
+    - `DEBUG`: Detailed debugging info (disable in production)
+    - `INFO`: General informational messages
+    - `WARN`: Warning messages (potential issues)
+    - `ERROR`: Error messages (requires attention)
+    - `FATAL`: Critical errors (service down)
+
+    Avoid excessive INFO logs in production.
+  </Card>
+
+  <Card title="Custom Metrics" icon="chart-simple">
+    **Expose application metrics**:
+    - Business metrics (orders, signups)
+    - Performance metrics (latency, throughput)
+    - Error rates
+    - Queue lengths
+
+    Use Prometheus client libraries.
+  </Card>
+
+  <Card title="Health Checks" icon="heart-pulse">
+    **Configure proper health checks**:
+    - **Liveness**: Check if app is alive
+    - **Readiness**: Check if ready for traffic
+    - **Startup**: Initial startup check
+
+    Return HTTP 200 for healthy, 500+ for unhealthy.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="No Logs Appearing">
+    **Problem**: Logs not showing in Qovery Console
+
+    **Solutions**:
+    1. **Check stdout/stderr**: Ensure application logs to stdout/stderr, not files
+       ```javascript
+       // Good
+       console.log("Message");
+
+       // Bad (won't appear in Qovery)
+       fs.writeFileSync('/var/log/app.log', "Message");
+       ```
+
+    2. **Verify application is running**: Check pod status
+    3. **Wait for aggregation**: Logs may take 10-30 seconds to appear
+    4. **Check time range**: Ensure correct time range selected
+    5. **Verify log format**: Very long log lines may be truncated
+  </Accordion>
+
+  <Accordion title="Metrics Not Showing">
+    **Problem**: Custom metrics not appearing
+
+    **Solutions**:
+    1. **Check metrics endpoint**: Verify `/metrics` endpoint returns data
+       ```bash
+       curl http://localhost:9090/metrics
+       ```
+
+    2. **Configure port**: Ensure metrics port configured in Qovery
+    3. **Check ServiceMonitor**: Verify Prometheus is scraping
+    4. **Validate format**: Use Prometheus exposition format
+    5. **Check labels**: Ensure consistent label names
+  </Accordion>
+
+  <Accordion title="High Memory Usage">
+    **Problem**: Logs using too much memory
+
+    **Solutions**:
+    1. **Reduce log verbosity**: Disable DEBUG logs in production
+    2. **Limit log size**: Truncate very large log messages
+    3. **Enable log sampling**: Only log percentage of requests
+    4. **Use external tool**: For extremely high log volumes, consider external tool
+    5. **Rotate logs**: Ensure log rotation is working
+  </Accordion>
+
+  <Accordion title="Events Not Showing">
+    **Problem**: Kubernetes events missing
+
+    **Solutions**:
+    1. **Check time range**: Events may be outside selected range
+    2. **Verify event severity**: Check if filtering by severity
+    3. **Wait for propagation**: Events may take 1-2 minutes
+    4. **Check permissions**: Verify Qovery has cluster access
+  </Accordion>
+</AccordionGroup>
+
+## Comparing with External Tools
+
+| Feature | Qovery Observe | External Tool (Datadog, New Relic) |
+|---------|----------------|-------------------------------------|
+| **Setup Time** | 0 minutes (built-in) | 30-60 minutes (Helm deployment) |
+| **Configuration** | Zero config | API keys, values.yaml |
+| **Cost** | Included | $15-100+ per host/month |
+| **Log Retention** | 90 days (with package) | Based on plan (often costly) |
+| **Learning Curve** | Low (integrated in Console) | Medium (separate UI) |
+| **APM** | Basic | Advanced (distributed tracing) |
+| **Custom Dashboards** | Limited | Unlimited |
+| **Alerting** | Basic | Advanced (ML, anomaly detection) |
+| **Multi-Cluster** | Per-cluster view | Centralized across all clusters |
+| **Best For** | Dev, staging, small prod | Large production, complex systems |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy External Tool" icon="helm" href="/integrations/observability/datadog">
+    Add Datadog for advanced monitoring
+  </Card>
+
+  <Card title="Configure Health Checks" icon="heartbeat" href="/using-qovery/configuration/application">
+    Set up liveness and readiness probes
+  </Card>
+
+  <Card title="Observability Best Practices" icon="book" href="/using-qovery/observability/monitoring">
+    Learn monitoring best practices
+  </Card>
+
+  <Card title="Logs Documentation" icon="file-lines" href="/using-qovery/observability/logs">
+    Comprehensive logging guide
+  </Card>
+</CardGroup>

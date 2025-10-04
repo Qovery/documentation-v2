@@ -1,0 +1,633 @@
+---
+title: "Terraform Integration"
+description: "Deploy and manage Terraform modules with Qovery"
+---
+
+## Overview
+
+Qovery supports deploying Terraform modules directly from your Git repositories, allowing you to manage infrastructure as code alongside your applications. Deploy Terraform configurations for resources, integrations, or any infrastructure that Terraform can manage.
+
+<Note>
+**Terragrunt support coming soon!** Qovery will soon support Terragrunt for advanced Terraform workflow management.
+</Note>
+
+## Features
+
+- **Git-Based Deployments**: Deploy Terraform modules from Git repositories
+- **Version Control**: Track infrastructure changes through Git
+- **State Management**: Qovery manages Terraform state automatically
+- **Variables & Secrets**: Inject variables and secrets securely
+- **Plan & Apply**: See Terraform plans before applying changes
+- **Drift Detection**: Monitor infrastructure drift
+- **Rollback Support**: Revert to previous Terraform configurations
+- **Multi-Environment**: Manage infrastructure across environments
+- **Terragrunt Support**: (Coming soon) Deploy Terragrunt configurations
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Infrastructure Provisioning" icon="server">
+    - Cloud resources (VPCs, databases, storage)
+    - Kubernetes resources
+    - DNS records
+    - Load balancers
+  </Card>
+
+  <Card title="Third-Party Integrations" icon="plug">
+    - Datadog monitors
+    - PagerDuty services
+    - Auth0 applications
+    - GitHub repositories
+  </Card>
+
+  <Card title="Configuration Management" icon="sliders">
+    - IAM roles and policies
+    - Security groups
+    - Network configurations
+    - Monitoring rules
+  </Card>
+
+  <Card title="Multi-Cloud Resources" icon="cloud">
+    - AWS resources
+    - GCP resources
+    - Azure resources
+    - Cross-cloud networking
+  </Card>
+</CardGroup>
+
+## How It Works
+
+<Steps>
+  <Step title="Create Terraform Module">
+    Store your Terraform configuration in a Git repository
+  </Step>
+
+  <Step title="Add to Qovery">
+    Create a new Terraform service in your Qovery environment
+  </Step>
+
+  <Step title="Configure Variables">
+    Set Terraform variables and secrets
+  </Step>
+
+  <Step title="Plan">
+    Qovery runs `terraform plan` to preview changes
+  </Step>
+
+  <Step title="Apply">
+    Review and approve, then Qovery applies the changes
+  </Step>
+
+  <Step title="Manage State">
+    Qovery automatically manages Terraform state in secure storage
+  </Step>
+</Steps>
+
+## Creating a Terraform Service
+
+### From Git Repository
+
+<Steps>
+  <Step title="Navigate to Environment">
+    Go to your project and select an environment
+  </Step>
+
+  <Step title="Add Terraform Service">
+    Click **Create** → **Terraform**
+  </Step>
+
+  <Step title="Select Repository">
+    Choose your Git repository containing Terraform code
+  </Step>
+
+  <Step title="Configure Module">
+    - **Module Path**: Path to your Terraform module (default: root)
+    - **Branch**: Branch to deploy from
+    - **Terraform Version**: Select Terraform version (e.g., 1.6.0)
+  </Step>
+
+  <Step title="Set Variables">
+    Add Terraform variables and secrets
+  </Step>
+
+  <Step title="Deploy">
+    Create the service and deploy
+  </Step>
+</Steps>
+
+## Terraform Configuration
+
+### Module Structure
+
+Your Git repository should contain standard Terraform files:
+
+```
+my-terraform-module/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── terraform.tfvars (optional)
+└── README.md
+```
+
+### Example: AWS S3 Bucket
+
+```hcl
+# variables.tf
+variable "bucket_name" {
+  description = "Name of the S3 bucket"
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+}
+
+# main.tf
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+resource "aws_s3_bucket" "app_bucket" {
+  bucket = var.bucket_name
+
+  tags = {
+    Name        = var.bucket_name
+    Environment = var.environment
+    ManagedBy   = "Qovery"
+  }
+}
+
+resource "aws_s3_bucket_versioning" "app_bucket" {
+  bucket = aws_s3_bucket.app_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# outputs.tf
+output "bucket_name" {
+  description = "Name of the created bucket"
+  value       = aws_s3_bucket.app_bucket.id
+}
+
+output "bucket_arn" {
+  description = "ARN of the created bucket"
+  value       = aws_s3_bucket.app_bucket.arn
+}
+```
+
+## Variables & Secrets
+
+### Setting Variables in Qovery
+
+In your Terraform service settings:
+
+<Tabs>
+  <Tab title="Environment Variables">
+    Set as regular variables:
+    ```
+    TF_VAR_bucket_name=my-app-bucket
+    TF_VAR_environment=production
+    TF_VAR_aws_region=us-east-1
+    ```
+
+    These automatically map to Terraform variables.
+  </Tab>
+
+  <Tab title="Secrets">
+    For sensitive values:
+    ```
+    TF_VAR_aws_access_key=<secret>
+    TF_VAR_aws_secret_key=<secret>
+    TF_VAR_database_password=<secret>
+    ```
+
+    Qovery encrypts and securely injects these.
+  </Tab>
+
+  <Tab title="Built-in Variables">
+    Qovery provides:
+    ```
+    QOVERY_TERRAFORM_STATE_BUCKET=<auto-generated>
+    QOVERY_ENVIRONMENT_ID=<environment-id>
+    QOVERY_PROJECT_ID=<project-id>
+    ```
+  </Tab>
+</Tabs>
+
+## State Management
+
+### Automatic State Backend
+
+Qovery automatically configures Terraform state backend:
+
+- **S3 Backend** (AWS): State stored in S3 with DynamoDB locking
+- **GCS Backend** (GCP): State stored in Google Cloud Storage
+- **Azure Blob** (Azure): State stored in Azure Blob Storage
+- **Encrypted**: State is encrypted at rest
+- **Versioned**: Previous states are preserved for rollback
+
+<Note>
+You don't need to configure backend in your Terraform code. Qovery injects the backend configuration automatically.
+</Note>
+
+### Accessing State
+
+State is managed by Qovery and not directly accessible. Use Terraform outputs to expose values to other services.
+
+## Deployment Workflow
+
+### Plan Phase
+
+When you deploy or update a Terraform service:
+
+1. **Code Checkout**: Qovery pulls latest code from Git
+2. **Terraform Init**: Initializes providers and backend
+3. **Terraform Plan**: Generates execution plan
+4. **Review**: View the plan in Qovery console
+5. **Approval**: Manual or automatic approval
+
+### Apply Phase
+
+After approval:
+
+1. **Terraform Apply**: Executes the plan
+2. **Output Capture**: Saves Terraform outputs
+3. **State Update**: Updates state in backend
+4. **Success/Failure**: Reports deployment status
+
+### Viewing Plans
+
+<Steps>
+  <Step title="Navigate to Service">
+    Go to your Terraform service
+  </Step>
+
+  <Step title="View Deployment">
+    Click on a deployment to see details
+  </Step>
+
+  <Step title="Check Plan">
+    View the Terraform plan output showing:
+    - Resources to create (+)
+    - Resources to update (~)
+    - Resources to destroy (-)
+  </Step>
+
+  <Step title="Review Changes">
+    Ensure changes match expectations before approval
+  </Step>
+</Steps>
+
+## Using Terraform Outputs
+
+### Exposing Outputs
+
+Define outputs in your Terraform module:
+
+```hcl
+output "database_endpoint" {
+  description = "Database connection endpoint"
+  value       = aws_db_instance.main.endpoint
+  sensitive   = false
+}
+
+output "database_password" {
+  description = "Database password"
+  value       = random_password.db_password.result
+  sensitive   = true
+}
+```
+
+### Accessing Outputs in Applications
+
+Qovery automatically creates environment variables from Terraform outputs:
+
+```bash
+# Format: QOVERY_TERRAFORM_<SERVICE_NAME>_OUTPUT_<OUTPUT_NAME>
+QOVERY_TERRAFORM_INFRA_OUTPUT_DATABASE_ENDPOINT=db.example.com:5432
+QOVERY_TERRAFORM_INFRA_OUTPUT_DATABASE_PASSWORD=<sensitive>
+```
+
+Use these in your applications:
+
+```javascript
+const dbEndpoint = process.env.QOVERY_TERRAFORM_INFRA_OUTPUT_DATABASE_ENDPOINT;
+const dbPassword = process.env.QOVERY_TERRAFORM_INFRA_OUTPUT_DATABASE_PASSWORD;
+```
+
+## Advanced Configuration
+
+### Provider Authentication
+
+#### AWS Provider
+
+Use IAM roles or access keys:
+
+```bash
+# Option 1: Access Keys (not recommended for production)
+TF_VAR_aws_access_key=<secret>
+TF_VAR_aws_secret_key=<secret>
+
+# Option 2: IAM Role (recommended)
+# Qovery can assume IAM role for EKS clusters
+AWS_ROLE_ARN=arn:aws:iam::123456789:role/TerraformRole
+```
+
+#### GCP Provider
+
+```bash
+# Service Account Key
+GOOGLE_CREDENTIALS=<service-account-json>
+GOOGLE_PROJECT=my-project-id
+```
+
+#### Azure Provider
+
+```bash
+ARM_CLIENT_ID=<client-id>
+ARM_CLIENT_SECRET=<client-secret>
+ARM_SUBSCRIPTION_ID=<subscription-id>
+ARM_TENANT_ID=<tenant-id>
+```
+
+### Multi-Provider Configurations
+
+Deploy resources across multiple clouds:
+
+```hcl
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    datadog = {
+      source  = "DataDog/datadog"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+provider "datadog" {
+  api_key = var.datadog_api_key
+  app_key = var.datadog_app_key
+}
+
+# Create AWS resources
+resource "aws_s3_bucket" "logs" {
+  bucket = "app-logs-${var.environment}"
+}
+
+# Create Datadog monitor
+resource "datadog_monitor" "s3_size" {
+  name    = "S3 Bucket Size Monitor"
+  type    = "metric alert"
+  message = "S3 bucket size exceeds threshold"
+
+  query = "avg(last_5m):aws.s3.bucket_size{bucket:${aws_s3_bucket.logs.id}} > 1000000000"
+}
+```
+
+## Terragrunt Support (Coming Soon)
+
+<Info>
+Terragrunt support is coming soon to Qovery! This will enable:
+- DRY Terraform configurations
+- Multiple environment management
+- Remote state configuration
+- Dependency management between modules
+</Info>
+
+### Planned Features
+
+- **Terragrunt Run**: Execute Terragrunt commands
+- **Multiple Modules**: Deploy multiple Terraform modules with dependencies
+- **Inheritance**: Share configurations across environments
+- **Remote State**: Automatic state management for Terragrunt
+- **Plan All**: View plans for all modules
+
+Stay tuned for updates!
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Version Control" icon="code-branch">
+    - Commit all Terraform files to Git
+    - Use semantic versioning for modules
+    - Tag releases for production deploys
+    - Document changes in commit messages
+  </Card>
+
+  <Card title="State Management" icon="database">
+    - Let Qovery manage state automatically
+    - Don't modify state manually
+    - Use outputs to share values
+    - Review plans before applying
+  </Card>
+
+  <Card title="Security" icon="shield">
+    - Store secrets in Qovery secrets
+    - Use IAM roles instead of keys when possible
+    - Mark sensitive outputs as sensitive
+    - Rotate credentials regularly
+  </Card>
+
+  <Card title="Module Organization" icon="folder-tree">
+    - Keep modules focused and reusable
+    - Use variables for configurability
+    - Document inputs and outputs
+    - Test modules independently
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Terraform Plan Failed">
+    **Problem**: Plan phase fails with errors
+
+    **Solutions**:
+    - Check Terraform syntax: `terraform validate`
+    - Verify provider credentials are set
+    - Ensure Terraform version is compatible
+    - Check variable names match TF_VAR_ format
+    - Review plan logs in Qovery console
+  </Accordion>
+
+  <Accordion title="Apply Failed">
+    **Problem**: Apply phase fails after successful plan
+
+    **Solutions**:
+    - Check provider permissions/quotas
+    - Verify network connectivity
+    - Check resource limits in cloud provider
+    - Review Terraform logs for specific errors
+    - Ensure no manual changes to managed resources
+  </Accordion>
+
+  <Accordion title="State Lock Error">
+    **Problem**: Unable to acquire state lock
+
+    **Solutions**:
+    - Wait for other operations to complete
+    - Check if previous deployment is still running
+    - Contact support if lock is stuck
+    - Don't manually modify state lock
+  </Accordion>
+
+  <Accordion title="Outputs Not Available">
+    **Problem**: Can't access Terraform outputs in application
+
+    **Solutions**:
+    - Ensure outputs are defined in outputs.tf
+    - Verify Terraform apply completed successfully
+    - Redeploy application to refresh env vars
+    - Check output variable naming
+    - Ensure Terraform service deployed before application
+  </Accordion>
+</AccordionGroup>
+
+## Examples
+
+### Example 1: Datadog Integration
+
+```hcl
+terraform {
+  required_providers {
+    datadog = {
+      source  = "DataDog/datadog"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "datadog" {
+  api_key = var.datadog_api_key
+  app_key = var.datadog_app_key
+}
+
+resource "datadog_monitor" "cpu_high" {
+  name    = "${var.app_name} - High CPU Usage"
+  type    = "metric alert"
+  message = "CPU usage is high on ${var.app_name}"
+
+  query = "avg(last_5m):avg:kubernetes.cpu.usage{kube_deployment:${var.app_name}} > 80"
+
+  notify_no_data    = false
+  renotify_interval = 60
+
+  tags = ["app:${var.app_name}", "env:${var.environment}"]
+}
+```
+
+### Example 2: DNS Configuration
+
+```hcl
+terraform {
+  required_providers {
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}
+
+resource "cloudflare_record" "app" {
+  zone_id = var.cloudflare_zone_id
+  name    = var.subdomain
+  value   = var.load_balancer_ip
+  type    = "A"
+  proxied = true
+}
+
+output "domain_name" {
+  value = "${cloudflare_record.app.name}.${var.domain}"
+}
+```
+
+### Example 3: AWS IAM Role
+
+```hcl
+resource "aws_iam_role" "app_role" {
+  name = "${var.app_name}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "app_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  role       = aws_iam_role.app_role.name
+}
+
+output "role_arn" {
+  value = aws_iam_role.app_role.arn
+}
+```
+
+## Deployment Pipeline Integration
+
+### Ordering Services
+
+Terraform services can be ordered in deployment pipelines:
+
+```
+Stage 1: Terraform (Infrastructure)
+  ↓
+Stage 2: Applications (using Terraform outputs)
+```
+
+This ensures infrastructure is created before applications that depend on it.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Terraform Provider" icon="code" href="/terraform/overview">
+    Use Qovery Terraform Provider
+  </Card>
+
+  <Card title="Helm Integration" icon="helm" href="/integrations/helm/overview">
+    Deploy Helm charts
+  </Card>
+
+  <Card title="Environment Variables" icon="key" href="/using-qovery/configuration/environment">
+    Manage variables and secrets
+  </Card>
+
+  <Card title="Deployment Pipeline" icon="list-timeline" href="/using-qovery/deployment/deployment-pipeline">
+    Order service deployments
+  </Card>
+</CardGroup>

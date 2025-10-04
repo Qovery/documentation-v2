@@ -1,0 +1,675 @@
+---
+title: "Datadog Integration"
+description: "Deploy Datadog monitoring via official Helm chart on Qovery"
+---
+
+## Overview
+
+Deploy Datadog's full-stack monitoring and APM platform on your Qovery cluster using the official Datadog Helm chart. Get comprehensive observability including infrastructure monitoring, application performance monitoring (APM), log management, and real user monitoring (RUM).
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Infrastructure Monitoring" icon="server">
+    Monitor hosts, containers, and cloud resources
+  </Card>
+
+  <Card title="APM & Distributed Tracing" icon="diagram-project">
+    Track requests across microservices with distributed tracing
+  </Card>
+
+  <Card title="Log Management" icon="file-lines">
+    Centralized logging with powerful search and analytics
+  </Card>
+
+  <Card title="Real User Monitoring" icon="users">
+    Track frontend performance and user interactions
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+<Check>Datadog account (sign up at [datadoghq.com](https://www.datadoghq.com))</Check>
+<Check>Datadog API key</Check>
+<Check>Datadog APP key (optional, for advanced features)</Check>
+<Check>Qovery cluster with Helm support</Check>
+
+## Quick Start
+
+### 1. Get Datadog API Keys
+
+<Steps>
+  <Step title="Log into Datadog">
+    Go to [app.datadoghq.com](https://app.datadoghq.com)
+  </Step>
+
+  <Step title="Generate API Key">
+    Organization Settings → API Keys → New API Key
+    - Name: `Qovery Cluster`
+    - Copy the API key
+  </Step>
+
+  <Step title="Generate APP Key (Optional)">
+    Organization Settings → Application Keys → New Key
+    - Name: `Qovery Integration`
+    - Copy the APP key
+  </Step>
+</Steps>
+
+### 2. Deploy Datadog via Helm
+
+<Steps>
+  <Step title="Create Helm Service">
+    In Qovery Console:
+    1. Navigate to your environment
+    2. Click **Create** → **Helm Chart**
+    3. Name: `datadog`
+  </Step>
+
+  <Step title="Configure Helm Repository">
+    - **Repository**: `https://helm.datadoghq.com`
+    - **Chart Name**: `datadog`
+    - **Chart Version**: `3.50.0` (or latest)
+  </Step>
+
+  <Step title="Add values.yaml">
+    Create custom `values.yaml`:
+
+    ```yaml
+    datadog:
+      apiKey: YOUR_DATADOG_API_KEY
+      appKey: YOUR_DATADOG_APP_KEY  # Optional
+      site: datadoghq.com  # Use datadoghq.eu for EU
+
+      # Cluster name (identifies your cluster in Datadog)
+      clusterName: qovery-production
+
+      # Enable logs collection
+      logs:
+        enabled: true
+        containerCollectAll: true
+
+      # Enable APM (Application Performance Monitoring)
+      apm:
+        portEnabled: true
+        port: 8126
+
+      # Enable process monitoring
+      processAgent:
+        enabled: true
+        processCollection: true
+
+      # Enable network monitoring
+      networkMonitoring:
+        enabled: true
+
+    # Agent configuration
+    agents:
+      # Use DaemonSet to run agent on every node
+      enabled: true
+
+      # Resource limits
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+
+    # Cluster Agent (for Kubernetes metadata)
+    clusterAgent:
+      enabled: true
+      replicas: 2
+
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+
+    # Cluster Checks Runner (for cluster-level checks)
+    clusterChecksRunner:
+      enabled: true
+      replicas: 2
+    ```
+  </Step>
+
+  <Step title="Store API Keys as Secrets">
+    **Option 1**: Use Qovery secrets (recommended)
+    1. Go to Environment Variables
+    2. Add secrets:
+       - `DATADOG_API_KEY`: Your API key
+       - `DATADOG_APP_KEY`: Your APP key
+    3. Update values.yaml:
+       ```yaml
+       datadog:
+         apiKeyExistingSecret: qovery-secrets
+         appKeyExistingSecret: qovery-secrets
+       ```
+
+    **Option 2**: Inline in values.yaml (less secure)
+    ```yaml
+    datadog:
+      apiKey: YOUR_API_KEY_HERE
+      appKey: YOUR_APP_KEY_HERE
+    ```
+  </Step>
+
+  <Step title="Deploy">
+    Click **Deploy** and wait 2-3 minutes for Datadog agents to start
+  </Step>
+</Steps>
+
+### 3. Verify Installation
+
+<Steps>
+  <Step title="Check Pods">
+    Verify Datadog pods are running:
+    ```bash
+    kubectl get pods -n qovery
+    # Should see datadog-agent-* pods on each node
+    # Should see datadog-cluster-agent-* pods
+    ```
+  </Step>
+
+  <Step title="Check Datadog Dashboard">
+    1. Log into Datadog UI
+    2. Go to Infrastructure → Kubernetes
+    3. You should see your cluster appear within 2-3 minutes
+  </Step>
+
+  <Step title="Verify Metrics">
+    1. Navigate to Metrics Explorer
+    2. Search for `kubernetes.cpu.usage`
+    3. Filter by your cluster name
+  </Step>
+</Steps>
+
+## Instrumentation
+
+### Enable APM for Your Applications
+
+<Tabs>
+  <Tab title="Node.js">
+    **Install Datadog tracer**:
+    ```bash
+    npm install dd-trace
+    ```
+
+    **Instrument your application**:
+    ```javascript
+    // Must be imported and initialized FIRST
+    const tracer = require('dd-trace').init({
+      service: 'my-app',
+      env: process.env.QOVERY_ENVIRONMENT_NAME || 'production',
+      version: process.env.QOVERY_COMMIT_ID || '1.0.0',
+      hostname: process.env.DD_AGENT_HOST || 'datadog-agent.qovery.svc.cluster.local',
+      port: 8126
+    });
+
+    // Rest of your application
+    const express = require('express');
+    const app = express();
+
+    app.get('/', (req, res) => {
+      res.send('Hello World!');
+    });
+
+    app.listen(3000);
+    ```
+
+    **Set environment variables in Qovery**:
+    ```bash
+    DD_AGENT_HOST=datadog-agent.qovery.svc.cluster.local
+    DD_TRACE_AGENT_PORT=8126
+    DD_SERVICE=my-app
+    DD_ENV=production
+    DD_VERSION=$QOVERY_COMMIT_ID
+    ```
+  </Tab>
+
+  <Tab title="Python">
+    **Install Datadog tracer**:
+    ```bash
+    pip install ddtrace
+    ```
+
+    **Instrument with ddtrace-run** (automatic):
+    ```bash
+    # Update your Dockerfile CMD or startup command
+    CMD ["ddtrace-run", "python", "app.py"]
+    ```
+
+    **Or manual instrumentation**:
+    ```python
+    from ddtrace import tracer, patch_all
+
+    # Patch all supported libraries
+    patch_all()
+
+    # Configure tracer
+    tracer.configure(
+        hostname='datadog-agent.qovery.svc.cluster.local',
+        port=8126,
+    )
+
+    # Your application code
+    from flask import Flask
+    app = Flask(__name__)
+
+    @app.route('/')
+    def hello():
+        return 'Hello World!'
+
+    if __name__ == '__main__':
+        app.run()
+    ```
+
+    **Environment variables**:
+    ```bash
+    DD_AGENT_HOST=datadog-agent.qovery.svc.cluster.local
+    DD_TRACE_AGENT_PORT=8126
+    DD_SERVICE=my-python-app
+    DD_ENV=production
+    DD_VERSION=$QOVERY_COMMIT_ID
+    ```
+  </Tab>
+
+  <Tab title="Go">
+    **Install Datadog tracer**:
+    ```bash
+    go get gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer
+    ```
+
+    **Instrument your application**:
+    ```go
+    package main
+
+    import (
+        "log"
+        "net/http"
+        "os"
+
+        "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+        httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
+    )
+
+    func main() {
+        // Start the tracer
+        tracer.Start(
+            tracer.WithAgentAddr("datadog-agent.qovery.svc.cluster.local:8126"),
+            tracer.WithService("my-go-app"),
+            tracer.WithEnv(os.Getenv("QOVERY_ENVIRONMENT_NAME")),
+            tracer.WithServiceVersion(os.Getenv("QOVERY_COMMIT_ID")),
+        )
+        defer tracer.Stop()
+
+        // Wrap your http.Handler
+        mux := httptrace.NewServeMux()
+        mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+            w.Write([]byte("Hello World!"))
+        })
+
+        log.Fatal(http.ListenAndServe(":8080", mux))
+    }
+    ```
+
+    **Environment variables**:
+    ```bash
+    DD_AGENT_HOST=datadog-agent.qovery.svc.cluster.local
+    DD_TRACE_AGENT_PORT=8126
+    DD_SERVICE=my-go-app
+    DD_ENV=production
+    DD_VERSION=$QOVERY_COMMIT_ID
+    ```
+  </Tab>
+
+  <Tab title="Java">
+    **Download Java agent**:
+    ```dockerfile
+    # In your Dockerfile
+    RUN wget -O dd-java-agent.jar https://dtdg.co/latest-java-tracer
+    ```
+
+    **Update application startup**:
+    ```bash
+    java -javaagent:/path/to/dd-java-agent.jar \
+      -Ddd.service=my-java-app \
+      -Ddd.env=production \
+      -Ddd.version=$QOVERY_COMMIT_ID \
+      -Ddd.agent.host=datadog-agent.qovery.svc.cluster.local \
+      -Ddd.agent.port=8126 \
+      -jar myapp.jar
+    ```
+
+    **Environment variables**:
+    ```bash
+    DD_AGENT_HOST=datadog-agent.qovery.svc.cluster.local
+    DD_TRACE_AGENT_PORT=8126
+    DD_SERVICE=my-java-app
+    DD_ENV=production
+    DD_VERSION=$QOVERY_COMMIT_ID
+    JAVA_TOOL_OPTIONS=-javaagent:/path/to/dd-java-agent.jar
+    ```
+  </Tab>
+</Tabs>
+
+## Advanced Configuration
+
+### Custom Checks
+
+Create custom Datadog checks for application-specific monitoring:
+
+```yaml
+# values.yaml
+datadog:
+  confd:
+    http_check.yaml: |-
+      init_config:
+      instances:
+        - name: My Application Health
+          url: http://my-app.qovery.svc.cluster.local/health
+          timeout: 5
+          method: GET
+          tags:
+            - app:my-app
+            - env:production
+```
+
+### Log Collection Configuration
+
+```yaml
+datadog:
+  logs:
+    enabled: true
+    containerCollectAll: true
+
+    # Auto multi-line detection
+    autoMultiLineDetection: true
+
+    # Exclude noisy logs
+    containerCollectUsingFiles: true
+    containerLogsPath: /var/log/pods
+
+    # Process pod labels for log tagging
+    containerCollectAll: true
+```
+
+### Network Performance Monitoring
+
+```yaml
+datadog:
+  networkMonitoring:
+    enabled: true
+
+  # Enable DNS monitoring
+  systemProbe:
+    enableTCPQueueLength: true
+    enableOOMKill: true
+```
+
+### Kubernetes Events Collection
+
+```yaml
+clusterAgent:
+  enabled: true
+
+  # Collect Kubernetes events
+  confd:
+    kubernetes_state.yaml: |-
+      init_config:
+      instances:
+        - collectors:
+          - events
+          - pods
+          - nodes
+          - services
+```
+
+## Monitoring Dashboards
+
+### Pre-built Dashboards
+
+Datadog provides out-of-the-box dashboards:
+
+1. **Kubernetes Overview**: Cluster-wide metrics
+2. **Kubernetes Pods**: Per-pod resource usage
+3. **Kubernetes Deployments**: Deployment health
+4. **APM Service Overview**: Application performance
+5. **Log Analytics**: Log patterns and errors
+
+Access: Dashboard → Dashboard List → Search "Kubernetes" or "APM"
+
+### Custom Dashboards
+
+Create custom dashboards for your applications:
+
+<Steps>
+  <Step title="Create Dashboard">
+    Dashboards → New Dashboard → Name it
+  </Step>
+
+  <Step title="Add Widgets">
+    - Timeseries: CPU, memory over time
+    - Query Value: Current pod count
+    - Top List: Top error-producing services
+    - Heatmap: Request latency distribution
+  </Step>
+
+  <Step title="Add Metrics">
+    Example queries:
+    ```
+    avg:kubernetes.cpu.usage{cluster_name:qovery-production}
+    sum:trace.http.request.hits{service:my-app,env:production}
+    avg:trace.http.request.duration{service:my-app} by {resource_name}
+    ```
+  </Step>
+</Steps>
+
+## Alerting
+
+### Create Monitors
+
+<Steps>
+  <Step title="Navigate to Monitors">
+    Monitors → New Monitor
+  </Step>
+
+  <Step title="Choose Monitor Type">
+    - **Metric Monitor**: Alert on metric thresholds
+    - **APM Monitor**: Alert on trace metrics
+    - **Log Monitor**: Alert on log patterns
+    - **Composite**: Combine multiple conditions
+  </Step>
+
+  <Step title="Define Metric">
+    Example: High error rate
+    ```
+    avg(last_5m):sum:trace.http.request.errors{service:my-app,env:production}.as_count() > 10
+    ```
+  </Step>
+
+  <Step title="Set Alert Conditions">
+    - **Warning**: Error rate > 5
+    - **Alert**: Error rate > 10
+    - **Recovery**: Back below 3
+  </Step>
+
+  <Step title="Notification">
+    Configure notification channels:
+    - Email
+    - Slack
+    - PagerDuty
+    - Webhook
+  </Step>
+</Steps>
+
+### Common Alerts
+
+<AccordionGroup>
+  <Accordion title="High CPU Usage">
+    ```
+    avg(last_10m):avg:kubernetes.cpu.usage{kube_deployment:my-app} > 80
+    ```
+    Alert when CPU exceeds 80% for 10 minutes
+  </Accordion>
+
+  <Accordion title="High Memory Usage">
+    ```
+    avg(last_10m):avg:kubernetes.memory.usage{kube_deployment:my-app} / avg:kubernetes.memory.limits{kube_deployment:my-app} * 100 > 90
+    ```
+    Alert when memory exceeds 90% of limits
+  </Accordion>
+
+  <Accordion title="Pod Crashes">
+    ```
+    change(avg(last_5m),last_5m):avg:kubernetes.containers.restarts{kube_deployment:my-app} > 3
+    ```
+    Alert on more than 3 pod restarts in 5 minutes
+  </Accordion>
+
+  <Accordion title="High Error Rate">
+    ```
+    avg(last_5m):sum:trace.http.request.errors{service:my-app}.as_count() / sum:trace.http.request.hits{service:my-app}.as_count() * 100 > 5
+    ```
+    Alert when error rate exceeds 5%
+  </Accordion>
+
+  <Accordion title="High Latency">
+    ```
+    avg(last_10m):avg:trace.http.request.duration{service:my-app,resource_name:/api/*} > 1000
+    ```
+    Alert when average latency exceeds 1 second
+  </Accordion>
+</AccordionGroup>
+
+## Cost Optimization
+
+<CardGroup cols={2}>
+  <Card title="Right-Size Resources" icon="arrows-minimize">
+    Adjust agent resource limits:
+    ```yaml
+    agents:
+      resources:
+        requests:
+          cpu: 100m      # Lower for small clusters
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+    ```
+  </Card>
+
+  <Card title="Selective Monitoring" icon="filter">
+    Only monitor important namespaces:
+    ```yaml
+    datadog:
+      namespaceLabelsAsTags:
+        qovery/environment: "environment"
+
+      # Exclude non-essential namespaces
+      excludePauseContainer: true
+    ```
+  </Card>
+
+  <Card title="Log Filtering" icon="funnel">
+    Reduce log ingestion:
+    ```yaml
+    datadog:
+      logs:
+        enabled: true
+        # Only collect ERROR and WARN logs
+        containerCollectAll: false
+    ```
+    Configure per-app log collection
+  </Card>
+
+  <Card title="Monitor Datadog Usage" icon="chart-line">
+    Track costs in Datadog:
+    1. Plan & Usage → Usage
+    2. View host count, container count
+    3. Monitor indexed logs
+    4. Adjust retention policies
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Agent Not Starting">
+    **Problem**: Datadog agent pods crash or fail to start
+
+    **Solutions**:
+    - Check API key is valid: `kubectl logs -n qovery datadog-agent-xxx`
+    - Verify secret exists: `kubectl get secret -n qovery`
+    - Check resource limits (may need more memory)
+    - Review values.yaml for syntax errors
+  </Accordion>
+
+  <Accordion title="No Metrics in Datadog">
+    **Problem**: Cluster appears in Datadog but no metrics
+
+    **Solutions**:
+    - Wait 5-10 minutes for initial data
+    - Verify agent is scraping: Check agent logs
+    - Ensure correct `site` (datadoghq.com vs datadoghq.eu)
+    - Check firewall/network policies allow outbound to Datadog
+  </Accordion>
+
+  <Accordion title="APM Traces Not Appearing">
+    **Problem**: Application instrumented but no traces in Datadog
+
+    **Solutions**:
+    - Verify `DD_AGENT_HOST` points to agent service
+    - Check `DD_TRACE_AGENT_PORT` is 8126
+    - Ensure APM is enabled in values.yaml
+    - Check application logs for tracer errors
+    - Verify tracer library is loaded first in application
+  </Accordion>
+
+  <Accordion title="High Datadog Costs">
+    **Problem**: Datadog bill higher than expected
+
+    **Solutions**:
+    - Review host and container count (may have autoscaling)
+    - Check log ingestion volume (most common cost driver)
+    - Filter non-essential logs at source
+    - Reduce log retention in Datadog
+    - Use log sampling for high-volume logs
+    - Consider Datadog's "Indexed Logs" vs "Live Tail" features
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+1. **Use Unified Service Tagging**: Tag with `service`, `env`, `version` consistently
+2. **Enable APM for Production**: Get deep insights into performance
+3. **Set Up Key Alerts**: Don't alert on everything, focus on actionable metrics
+4. **Create Dashboards per Team**: Customize views for different teams
+5. **Monitor Datadog Usage**: Keep track of hosts and log volume
+6. **Use Sensitive Data Scanner**: Redact sensitive info from logs
+7. **Leverage Log Patterns**: Find common error patterns automatically
+8. **Enable Network Monitoring**: Understand service-to-service communication
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Datadog Documentation" icon="book" href="https://docs.datadoghq.com/agent/kubernetes/">
+    Official Datadog Kubernetes docs
+  </Card>
+
+  <Card title="Deploy New Relic" icon="chart-line" href="/integrations/observability/new-relic">
+    Alternative APM solution
+  </Card>
+
+  <Card title="Qovery Observe" icon="chart-mixed" href="/integrations/observability/qovery-observe">
+    Built-in observability option
+  </Card>
+
+  <Card title="Helm Integration" icon="helm" href="/integrations/helm/overview">
+    Learn more about Helm on Qovery
+  </Card>
+</CardGroup>
