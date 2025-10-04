@@ -1,0 +1,549 @@
+---
+title: "GitHub Enterprise Actions Integration"
+description: "Deploy with Qovery from GitHub Enterprise Actions workflows"
+---
+
+## Overview
+
+Use GitHub Actions on your GitHub Enterprise Server or Cloud instance to automate deployments to Qovery. This integration works seamlessly with both self-hosted and cloud-based GitHub Enterprise Actions runners.
+
+## Features
+
+- **Self-Hosted Runners**: Use your enterprise-managed runners
+- **GitHub-Hosted Runners**: Use cloud runners with Enterprise Cloud
+- **Secure Secrets**: Leverage GitHub Enterprise secret management
+- **Deployment Workflows**: Automate build and deploy processes
+- **Preview Environments**: Create environments for pull requests
+- **Advanced Security**: Integration with GitHub Advanced Security scanning
+- **SAML/SSO**: Enterprise authentication support
+- **Audit Logging**: Track all CI/CD activities
+
+## Prerequisites
+
+<Check>GitHub Enterprise Server 3.0+ or GitHub Enterprise Cloud</Check>
+<Check>GitHub Actions enabled on your instance</Check>
+<Check>Qovery CLI access token</Check>
+<Check>Connected GitHub Enterprise to Qovery</Check>
+
+## Setup
+
+### 1. Generate Qovery API Token
+
+<Steps>
+  <Step title="Navigate to Settings">
+    In Qovery Console: Settings → API Tokens
+  </Step>
+
+  <Step title="Generate Token">
+    Click **Generate Token** and name it (e.g., "GitHub Enterprise Actions")
+  </Step>
+
+  <Step title="Copy Token">
+    Copy and securely store the token
+  </Step>
+</Steps>
+
+### 2. Add Secret to GitHub Enterprise
+
+<Steps>
+  <Step title="Go to Repository Settings">
+    Navigate to your repository → Settings → Secrets and variables → Actions
+  </Step>
+
+  <Step title="Add New Secret">
+    Click **New repository secret**
+
+    - **Name**: `QOVERY_CLI_ACCESS_TOKEN`
+    - **Value**: Your Qovery API token
+  </Step>
+
+  <Step title="Save Secret">
+    Secret is now available to your workflows
+  </Step>
+</Steps>
+
+<Tip>
+For multiple repositories, add the secret at the **organization level** instead.
+</Tip>
+
+## Basic Workflow Examples
+
+### Deploy on Push
+
+```yaml
+name: Deploy to Qovery
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  deploy:
+    runs-on: self-hosted  # Use enterprise self-hosted runner
+    # Or: runs-on: ubuntu-latest  # For Enterprise Cloud with GitHub runners
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Qovery CLI
+        run: |
+          curl -s https://get.qovery.com | bash
+          echo "$HOME/.qovery/bin" >> $GITHUB_PATH
+
+      - name: Deploy to Qovery
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --application-name my-app \
+            --commit-id ${{ github.sha }} \
+            --watch
+```
+
+### Build Docker Image and Deploy
+
+```yaml
+name: Build and Deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy to Qovery
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --application-name my-app \
+            --commit-id ${{ github.sha }}
+```
+
+### Preview Environments for Pull Requests
+
+```yaml
+name: Preview Environment
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+jobs:
+  preview:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Create Preview Environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          # Create or update preview environment
+          qovery environment create \
+            --name "pr-${{ github.event.pull_request.number }}" \
+            --clone-from staging \
+            || qovery environment update --name "pr-${{ github.event.pull_request.number }}"
+
+          # Deploy to preview environment
+          qovery application deploy \
+            --application-name my-app \
+            --environment "pr-${{ github.event.pull_request.number }}" \
+            --commit-id ${{ github.sha }}
+
+      - name: Comment PR with Preview URL
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 Preview environment deployed!\n\nURL: https://pr-${{ github.event.pull_request.number }}.qovery.io'
+            })
+```
+
+### Cleanup Preview Environment on PR Close
+
+```yaml
+name: Cleanup Preview
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: self-hosted
+
+    steps:
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Delete Preview Environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery environment delete \
+            --name "pr-${{ github.event.pull_request.number }}" \
+            --force
+```
+
+## Advanced Workflows
+
+### Multi-Environment Deployment
+
+```yaml
+name: Deploy to Multiple Environments
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Determine Environment
+        id: env
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to Environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --application-name my-app \
+            --environment ${{ steps.env.outputs.environment }} \
+            --commit-id ${{ github.sha }}
+```
+
+### Run Tests Before Deploy
+
+```yaml
+name: Test and Deploy
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run linter
+        run: npm run lint
+
+  deploy:
+    needs: test
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy to Qovery
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --application-name my-app \
+            --commit-id ${{ github.sha }}
+```
+
+### Manual Approval for Production
+
+```yaml
+name: Deploy with Approval
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-staging:
+    runs-on: self-hosted
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy to Staging
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --application-name my-app \
+            --environment staging \
+            --commit-id ${{ github.sha }}
+
+  deploy-production:
+    needs: deploy-staging
+    runs-on: self-hosted
+    environment: production  # Requires manual approval
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy to Production
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --application-name my-app \
+            --environment production \
+            --commit-id ${{ github.sha }}
+```
+
+## Self-Hosted Runners Configuration
+
+### Setting Up Self-Hosted Runners
+
+For GitHub Enterprise Server, self-hosted runners are recommended:
+
+<Steps>
+  <Step title="Create Runner">
+    Repository Settings → Actions → Runners → New self-hosted runner
+  </Step>
+
+  <Step title="Install Runner">
+    Follow instructions for your OS (Linux, macOS, Windows)
+  </Step>
+
+  <Step title="Configure Runner">
+    Add labels for targeting specific workflows:
+    ```bash
+    ./config.sh --labels self-hosted,linux,x64,qovery
+    ```
+  </Step>
+
+  <Step title="Start Runner">
+    ```bash
+    ./run.sh
+    ```
+    Or install as a service for persistent running
+  </Step>
+</Steps>
+
+### Runner Requirements
+
+Ensure your self-hosted runners have:
+- **Docker** installed (for building images)
+- **Network access** to Qovery API
+- **Sufficient resources** (CPU, RAM, disk)
+- **Security updates** applied regularly
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Secret Management" icon="key">
+    - Store API tokens as GitHub secrets
+    - Use organization secrets for multiple repos
+    - Rotate tokens regularly
+    - Limit token scope to necessary permissions
+  </Card>
+
+  <Card title="Runner Security" icon="shield">
+    - Use dedicated runners for sensitive workloads
+    - Keep runner software updated
+    - Isolate runners from production systems
+    - Monitor runner activity logs
+  </Card>
+
+  <Card title="Code Scanning" icon="magnifying-glass">
+    - Enable GitHub Advanced Security
+    - Run security scans before deploy
+    - Block deployments on high-severity issues
+    - Review dependency vulnerabilities
+  </Card>
+
+  <Card title="Access Control" icon="lock">
+    - Use required reviewers for production
+    - Enable branch protection rules
+    - Require status checks to pass
+    - Use CODEOWNERS for sensitive files
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Qovery CLI Not Found">
+    **Problem**: CLI installation fails or not found in PATH
+
+    **Solutions**:
+    - Verify curl is available on runner
+    - Check network access to get.qovery.com
+    - Add CLI to PATH: `echo "$HOME/.qovery/bin" >> $GITHUB_PATH`
+    - For self-hosted runners, pre-install CLI
+  </Accordion>
+
+  <Accordion title="Authentication Failed">
+    **Problem**: Qovery CLI authentication errors
+
+    **Solutions**:
+    - Verify QOVERY_CLI_ACCESS_TOKEN secret is set
+    - Check token hasn't expired
+    - Ensure token has correct permissions
+    - Regenerate token if necessary
+  </Accordion>
+
+  <Accordion title="Self-Hosted Runner Offline">
+    **Problem**: Runner not picking up workflows
+
+    **Solutions**:
+    - Check runner service is running
+    - Verify network connectivity
+    - Review runner logs
+    - Restart runner service
+    - Re-register runner if necessary
+  </Accordion>
+
+  <Accordion title="Deployment Timeout">
+    **Problem**: Workflow times out during deployment
+
+    **Solutions**:
+    - Increase workflow timeout in YAML
+    - Use `--no-watch` flag for async deploys
+    - Check Qovery deployment logs
+    - Verify application health checks
+  </Accordion>
+</AccordionGroup>
+
+## Integration with GitHub Enterprise Features
+
+### SAML/SSO
+
+GitHub Enterprise SSO works seamlessly:
+- Users authenticate via enterprise SSO
+- Workflows use PATs or app tokens
+- No additional Qovery configuration needed
+
+### GitHub Advanced Security
+
+Integrate security scanning in workflows:
+
+```yaml
+- name: Run Security Scan
+  uses: github/codeql-action/analyze@v2
+
+- name: Check for High Severity Issues
+  run: |
+    # Fail if high severity issues found
+    if gh api /repos/${{ github.repository }}/code-scanning/alerts \
+      | jq -e '.[] | select(.rule.security_severity_level == "high")'; then
+      echo "High severity security issues found!"
+      exit 1
+    fi
+```
+
+### Audit Logging
+
+GitHub Enterprise audit logs track:
+- Workflow executions
+- Secret access
+- Deployment triggers
+- API token usage
+
+## Best Practices
+
+1. **Use Organization Secrets**: Share tokens across multiple repositories
+2. **Implement Gates**: Require manual approval for production deployments
+3. **Run Tests First**: Always test before deploying
+4. **Use Environments**: Configure GitHub Environments for different stages
+5. **Monitor Deployments**: Watch Qovery deployment status
+6. **Clean Up**: Delete preview environments when PRs close
+7. **Document Workflows**: Add clear comments in YAML files
+8. **Version Control**: Keep workflow files in version control
+9. **Regular Updates**: Keep actions and CLI versions current
+10. **Security Scanning**: Integrate security checks in workflows
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="GitHub Enterprise Git" icon="github" href="/integrations/git-providers/github-enterprise">
+    Set up GitHub Enterprise Git integration
+  </Card>
+
+  <Card title="CI/CD Overview" icon="arrows-rotate" href="/integrations/ci-cd/overview">
+    Learn about all CI/CD integrations
+  </Card>
+
+  <Card title="Preview Environments" icon="eye" href="/guides/advanced/preview-environments">
+    Set up preview environments
+  </Card>
+
+  <Card title="Qovery CLI" icon="terminal" href="/cli/overview">
+    Learn more about Qovery CLI
+  </Card>
+</CardGroup>

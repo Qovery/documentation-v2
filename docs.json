@@ -189,6 +189,7 @@
             "pages": [
               "integrations/ci-cd/overview",
               "integrations/ci-cd/github-actions",
+              "integrations/ci-cd/github-actions-enterprise",
               "integrations/ci-cd/gitlab-ci",
               "integrations/ci-cd/circleci",
               "integrations/ci-cd/jenkins"
@@ -199,6 +200,7 @@
             "pages": [
               "integrations/git-providers/overview",
               "integrations/git-providers/github",
+              "integrations/git-providers/github-enterprise",
               "integrations/git-providers/gitlab",
               "integrations/git-providers/bitbucket"
             ]
