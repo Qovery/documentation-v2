@@ -91,16 +91,6 @@
             ]
           },
           {
-            "group": "Integration",
-            "pages": [
-              "using-qovery/integration/container-registry",
-              "using-qovery/integration/git-repository",
-              "using-qovery/integration/continuous-integration",
-              "using-qovery/integration/secret-manager",
-              "using-qovery/integration/webhooks"
-            ]
-          },
-          {
             "group": "Observability",
             "pages": [
               "using-qovery/observability/monitoring",
