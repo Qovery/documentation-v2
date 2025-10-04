@@ -1,0 +1,266 @@
+---
+title: "Getting Started with Qovery API"
+description: "Learn how to authenticate and use the Qovery API"
+---
+
+## Introduction
+
+Welcome to the Qovery API Reference! The Qovery API is a REST API that allows you to programmatically manage your entire infrastructure.
+
+## Authentication
+
+All API requests require authentication using a Bearer token. Include your API token in the `Authorization` header of every request:
+
+```bash
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+### Creating an API Token
+
+1. Log in to the [Qovery Console](https://console.qovery.com)
+2. Navigate to **Organization Settings** → **API Tokens**
+3. Click **Generate Token**
+4. Give your token a descriptive name and set appropriate permissions
+5. Copy and save the token securely (it will only be displayed once)
+
+### Example Request
+
+```bash
+curl -X GET "https://api.qovery.com/api/v1/organization" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+### Token Security
+
+<Warning>
+API tokens provide access to your infrastructure. Keep them secure:
+- Never commit tokens to version control
+- Store them in environment variables or secrets management systems
+- Rotate tokens regularly
+- Use minimal required permissions
+</Warning>
+
+## Official SDKs
+
+Qovery provides official client libraries to simplify API integration:
+
+### TypeScript/JavaScript
+
+Install via npm:
+
+```bash
+npm install @qovery/client
+```
+
+Usage:
+
+```typescript
+import { QoveryClient } from '@qovery/client';
+
+const client = new QoveryClient({
+  apiToken: process.env.QOVERY_API_TOKEN
+});
+
+// Get organization
+const org = await client.organization.get();
+console.log(`Organization: ${org.name}`);
+
+// List projects
+const projects = await client.projects.list();
+projects.forEach(project => {
+  console.log(`Project: ${project.name}`);
+});
+```
+
+**Resources:**
+- [TypeScript SDK on npm](https://www.npmjs.com/package/@qovery/client)
+- [GitHub Repository](https://github.com/Qovery/qovery-client-typescript)
+
+### Go
+
+Install via go get:
+
+```bash
+go get github.com/qovery/qovery-client-go
+```
+
+Usage:
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+
+    "github.com/qovery/qovery-client-go"
+)
+
+func main() {
+    token := os.Getenv("QOVERY_API_TOKEN")
+
+    client := qovery.NewAPIClient(&qovery.Configuration{
+        DefaultHeader: map[string]string{
+            "Authorization": fmt.Sprintf("Bearer %s", token),
+        },
+    })
+
+    ctx := context.Background()
+
+    // Get organization
+    org, _, err := client.OrganizationApi.GetOrganization(ctx)
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Printf("Organization: %s\n", org.Name)
+
+    // List projects
+    projects, _, err := client.ProjectsApi.ListProjects(ctx, org.Id)
+    if err != nil {
+        panic(err)
+    }
+
+    for _, project := range projects.Results {
+        fmt.Printf("Project: %s\n", project.Name)
+    }
+}
+```
+
+**Resources:**
+- [Go SDK on GitHub](https://github.com/Qovery/qovery-client-go)
+- [Go Package Documentation](https://pkg.go.dev/github.com/qovery/qovery-client-go)
+
+## Other Languages
+
+For other languages, you can:
+
+1. **Use the REST API directly** - All endpoints are documented in this reference
+2. **Generate a client** - Use the [OpenAPI specification](https://raw.githubusercontent.com/qovery/qovery-openapi-spec/main/openapi.yaml) with code generation tools like:
+   - [OpenAPI Generator](https://openapi-generator.tech/)
+   - [Swagger Codegen](https://swagger.io/tools/swagger-codegen/)
+
+## Base URL
+
+All API requests should be made to:
+
+```
+https://api.qovery.com
+```
+
+## API Versioning
+
+The current API version is included in the URL path:
+
+```
+https://api.qovery.com/api/v1
+```
+
+We maintain backward compatibility within a major version. Breaking changes will result in a new major version (v2, v3, etc.).
+
+## Rate Limits
+
+- **1000 requests per hour** per API token
+- Rate limit headers are included in all responses:
+  - `X-RateLimit-Limit`: Maximum requests per window
+  - `X-RateLimit-Remaining`: Remaining requests
+  - `X-RateLimit-Reset`: Time when limit resets (Unix timestamp)
+
+If you exceed the rate limit, you'll receive a `429 Too Many Requests` response.
+
+## Response Format
+
+All successful responses return JSON:
+
+```json
+{
+  "id": "resource-id",
+  "name": "resource-name",
+  "created_at": "2024-01-01T00:00:00.000Z",
+  "updated_at": "2024-01-01T00:00:00.000Z"
+}
+```
+
+## Error Handling
+
+Error responses include a status code and error details:
+
+```json
+{
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation error: name is required"
+}
+```
+
+### Common Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Success |
+| `201` | Created |
+| `204` | No Content |
+| `400` | Bad Request - Invalid input |
+| `401` | Unauthorized - Invalid or missing token |
+| `403` | Forbidden - Insufficient permissions |
+| `404` | Not Found - Resource doesn't exist |
+| `429` | Too Many Requests - Rate limit exceeded |
+| `500` | Internal Server Error |
+
+## Pagination
+
+List endpoints support pagination:
+
+```bash
+GET /api/v1/projects?page=1&page_size=20
+```
+
+Response includes pagination metadata:
+
+```json
+{
+  "results": [...],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_count": 150,
+    "total_pages": 8
+  }
+}
+```
+
+## Try It Out
+
+Use the interactive API reference on the right to explore endpoints and make test requests. Each endpoint includes:
+
+- **Request parameters** - Path, query, and body parameters
+- **Example requests** - Code samples in multiple languages
+- **Responses** - Expected response formats
+- **Try it out** - Test the API directly from the documentation
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Explore Endpoints" icon="list">
+    Browse all available API endpoints in the reference
+  </Card>
+  <Card title="Code Examples" icon="code" href="/api/examples">
+    See practical examples and common workflows
+  </Card>
+  <Card title="TypeScript SDK" icon="npm" href="https://www.npmjs.com/package/@qovery/client">
+    Use the official TypeScript client
+  </Card>
+  <Card title="Go SDK" icon="golang" href="https://github.com/Qovery/qovery-client-go">
+    Use the official Go client
+  </Card>
+</CardGroup>
+
+## Support
+
+Need help with the API?
+
+- **Discord Community**: [Join our Discord](https://discord.qovery.com)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/Qovery/qovery-client-go/issues)
+- **Email Support**: support@qovery.com

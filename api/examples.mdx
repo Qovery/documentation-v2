@@ -1,0 +1,467 @@
+---
+title: "API Examples"
+description: "Practical examples for using the Qovery API"
+---
+
+## List All Projects
+
+Get all projects in your organization:
+
+```bash
+curl -X GET "https://api.qovery.com/api/v1/organization/{org_id}/project" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json"
+```
+
+Response:
+
+```json
+{
+  "results": [
+    {
+      "id": "project-id",
+      "name": "My Project",
+      "description": "Project description",
+      "created_at": "2024-01-01T00:00:00.000Z",
+      "updated_at": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+## Create a New Environment
+
+Create a new environment in a project:
+
+```bash
+curl -X POST "https://api.qovery.com/api/v1/project/{project_id}/environment" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "staging",
+    "mode": "STAGING",
+    "cluster_id": "cluster-id"
+  }'
+```
+
+Response:
+
+```json
+{
+  "id": "env-id",
+  "name": "staging",
+  "mode": "STAGING",
+  "cluster_id": "cluster-id",
+  "created_at": "2024-01-01T00:00:00.000Z"
+}
+```
+
+## Deploy an Application
+
+Trigger an application deployment:
+
+```bash
+curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/deploy" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "git_commit_id": "abc123def456"
+  }'
+```
+
+Response:
+
+```json
+{
+  "id": "deployment-id",
+  "status": "QUEUED",
+  "application_id": "app-id",
+  "created_at": "2024-01-01T00:00:00.000Z"
+}
+```
+
+## Get Application Status
+
+Check the status of an application:
+
+```bash
+curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/status" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json"
+```
+
+Response:
+
+```json
+{
+  "id": "app-id",
+  "state": "RUNNING",
+  "service_deployment_status": "UP_TO_DATE",
+  "last_deployment_date": "2024-01-01T00:00:00.000Z"
+}
+```
+
+## Manage Environment Variables
+
+### Create Environment Variable
+
+```bash
+curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/environmentVariable" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "DATABASE_URL",
+    "value": "postgresql://user:pass@host:5432/db"
+  }'
+```
+
+### Create Secret
+
+```bash
+curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/secret" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "API_KEY",
+    "value": "secret-api-key"
+  }'
+```
+
+### List Environment Variables
+
+```bash
+curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/environmentVariable" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json"
+```
+
+## Stream Application Logs
+
+Get application logs (last 100 lines):
+
+```bash
+curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/log?tail=100" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json"
+```
+
+## Create and Deploy a Database
+
+### Create PostgreSQL Database
+
+```bash
+curl -X POST "https://api.qovery.com/api/v1/environment/{env_id}/database" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "main-db",
+    "type": "POSTGRESQL",
+    "version": "15",
+    "mode": "MANAGED",
+    "cpu": 250,
+    "memory": 512,
+    "storage": 10
+  }'
+```
+
+### Deploy Database
+
+```bash
+curl -X POST "https://api.qovery.com/api/v1/database/{db_id}/deploy" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json"
+```
+
+## Complete Workflow Example
+
+Here's a complete example that creates a project, environment, application, and deploys it:
+
+```python
+import requests
+import os
+
+# Configuration
+API_TOKEN = os.getenv("QOVERY_API_TOKEN")
+BASE_URL = "https://api.qovery.com/api/v1"
+ORG_ID = "your-org-id"
+
+headers = {
+    "Authorization": f"Bearer {API_TOKEN}",
+    "Content-Type": "application/json"
+}
+
+# 1. Create a project
+project_data = {
+    "name": "API Demo Project",
+    "description": "Created via API"
+}
+project_response = requests.post(
+    f"{BASE_URL}/organization/{ORG_ID}/project",
+    headers=headers,
+    json=project_data
+)
+project_id = project_response.json()["id"]
+print(f"Created project: {project_id}")
+
+# 2. Create an environment
+env_data = {
+    "name": "production",
+    "mode": "PRODUCTION",
+    "cluster_id": "your-cluster-id"
+}
+env_response = requests.post(
+    f"{BASE_URL}/project/{project_id}/environment",
+    headers=headers,
+    json=env_data
+)
+env_id = env_response.json()["id"]
+print(f"Created environment: {env_id}")
+
+# 3. Create an application
+app_data = {
+    "name": "api-server",
+    "git_repository": {
+        "url": "https://github.com/your-org/api-server",
+        "branch": "main"
+    },
+    "build_mode": "DOCKER",
+    "dockerfile_path": "Dockerfile",
+    "cpu": 500,
+    "memory": 512,
+    "min_running_instances": 1,
+    "max_running_instances": 3,
+    "ports": [
+        {
+            "internal_port": 8080,
+            "external_port": 443,
+            "protocol": "HTTP",
+            "publicly_accessible": True
+        }
+    ]
+}
+app_response = requests.post(
+    f"{BASE_URL}/environment/{env_id}/application",
+    headers=headers,
+    json=app_data
+)
+app_id = app_response.json()["id"]
+print(f"Created application: {app_id}")
+
+# 4. Add environment variables
+env_vars = [
+    {"key": "NODE_ENV", "value": "production"},
+    {"key": "PORT", "value": "8080"}
+]
+for var in env_vars:
+    requests.post(
+        f"{BASE_URL}/application/{app_id}/environmentVariable",
+        headers=headers,
+        json=var
+    )
+print("Added environment variables")
+
+# 5. Deploy the application
+deploy_response = requests.post(
+    f"{BASE_URL}/application/{app_id}/deploy",
+    headers=headers
+)
+print(f"Deployment started: {deploy_response.json()['id']}")
+
+# 6. Check deployment status
+import time
+while True:
+    status_response = requests.get(
+        f"{BASE_URL}/application/{app_id}/status",
+        headers=headers
+    )
+    status = status_response.json()["state"]
+    print(f"Status: {status}")
+
+    if status == "RUNNING":
+        print("Application is running!")
+        break
+    elif status in ["STOPPED", "ERROR"]:
+        print("Deployment failed!")
+        break
+
+    time.sleep(10)
+```
+
+## Batch Operations
+
+### Deploy Multiple Applications
+
+```python
+import requests
+import concurrent.futures
+
+def deploy_application(app_id):
+    response = requests.post(
+        f"{BASE_URL}/application/{app_id}/deploy",
+        headers=headers
+    )
+    return app_id, response.json()
+
+# Deploy multiple apps in parallel
+app_ids = ["app-1", "app-2", "app-3"]
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    futures = [executor.submit(deploy_application, app_id) for app_id in app_ids]
+
+    for future in concurrent.futures.as_completed(futures):
+        app_id, result = future.result()
+        print(f"Deployed {app_id}: {result['status']}")
+```
+
+## Webhook Integration
+
+### Create a Webhook
+
+```bash
+curl -X POST "https://api.qovery.com/api/v1/organization/{org_id}/webhook" \
+  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target_url": "https://your-domain.com/webhooks/qovery",
+    "events": ["DEPLOYMENT_STARTED", "DEPLOYMENT_SUCCEEDED", "DEPLOYMENT_FAILED"],
+    "enabled": true
+  }'
+```
+
+### Handle Webhook Events
+
+Example webhook handler in Node.js/Express:
+
+```javascript
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+app.post('/webhooks/qovery', (req, res) => {
+  const { event_type, payload } = req.body;
+
+  console.log(`Received event: ${event_type}`);
+
+  switch (event_type) {
+    case 'DEPLOYMENT_STARTED':
+      console.log(`Deployment started for app: ${payload.application_id}`);
+      break;
+    case 'DEPLOYMENT_SUCCEEDED':
+      console.log(`Deployment succeeded for app: ${payload.application_id}`);
+      // Send notification, update dashboard, etc.
+      break;
+    case 'DEPLOYMENT_FAILED':
+      console.error(`Deployment failed for app: ${payload.application_id}`);
+      // Alert team, rollback, etc.
+      break;
+  }
+
+  res.status(200).send('OK');
+});
+
+app.listen(3000);
+```
+
+## CI/CD Integration Examples
+
+### GitHub Actions
+
+```yaml
+name: Deploy to Qovery
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy application
+        run: |
+          curl -X POST "https://api.qovery.com/api/v1/application/${{ secrets.QOVERY_APP_ID }}/deploy" \
+            -H "Authorization: Bearer ${{ secrets.QOVERY_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"git_commit_id": "${{ github.sha }}"}'
+```
+
+### GitLab CI
+
+```yaml
+deploy:
+  stage: deploy
+  script:
+    - |
+      curl -X POST "https://api.qovery.com/api/v1/application/${QOVERY_APP_ID}/deploy" \
+        -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "{\"git_commit_id\": \"${CI_COMMIT_SHA}\"}"
+  only:
+    - main
+```
+
+## Error Handling
+
+Always handle errors appropriately:
+
+```python
+import requests
+
+def safe_api_call(url, method="GET", **kwargs):
+    try:
+        response = requests.request(method, url, **kwargs)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e.response.status_code}")
+        print(f"Error message: {e.response.json()}")
+        raise
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        raise
+
+# Usage
+try:
+    data = safe_api_call(
+        f"{BASE_URL}/application/{app_id}/status",
+        headers=headers
+    )
+    print(f"Status: {data['state']}")
+except Exception as e:
+    print("Failed to get application status")
+```
+
+## Rate Limiting Best Practices
+
+Handle rate limits gracefully:
+
+```python
+import time
+
+def api_call_with_retry(url, max_retries=3, **kwargs):
+    for attempt in range(max_retries):
+        response = requests.get(url, **kwargs)
+
+        if response.status_code == 429:
+            # Rate limited
+            retry_after = int(response.headers.get('X-RateLimit-Reset', 60))
+            print(f"Rate limited. Waiting {retry_after} seconds...")
+            time.sleep(retry_after)
+            continue
+
+        return response
+
+    raise Exception("Max retries exceeded")
+```
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="book" href="https://api-doc.qovery.com">
+    Complete API documentation
+  </Card>
+  <Card title="OpenAPI Spec" icon="file-code" href="https://api.qovery.com/openapi.json">
+    Download OpenAPI specification
+  </Card>
+</CardGroup>

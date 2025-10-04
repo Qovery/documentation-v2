@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Qovery",
-  "theme": "mint",
+  "theme": "aspen",
   "logo": {
     "light": "/qovery-logo-black.svg",
     "dark": "/qovery-logo-white.svg"
@@ -41,10 +41,174 @@
             "group": "Getting Started",
             "pages": [
               "introduction",
-              "quickstart"
+              "what-is-qovery",
+              "how-it-works",
+              "basic-concepts",
+              "deploy-my-app"
+            ]
+          },
+          {
+            "group": "Installation",
+            "pages": [
+              "installation/aws",
+              "installation/gcp",
+              "installation/azure",
+              "installation/scaleway",
+              "installation/kubernetes",
+              "installation/local"
+            ]
+          },
+          {
+            "group": "Interface",
+            "pages": [
+              "using-qovery/interface/web-interface",
+              "using-qovery/interface/cli",
+              "using-qovery/interface/rest-api"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "using-qovery/configuration/organization",
+              "using-qovery/configuration/project",
+              "using-qovery/configuration/environment",
+              "using-qovery/configuration/application",
+              "using-qovery/configuration/database",
+              "using-qovery/configuration/helm",
+              "using-qovery/configuration/cronjob",
+              "using-qovery/configuration/lifecycle-job",
+              "using-qovery/configuration/clusters"
+            ]
+          },
+          {
+            "group": "Deployment",
+            "pages": [
+              "using-qovery/deployment/overview",
+              "using-qovery/deployment/auto-deploy",
+              "using-qovery/deployment/ci-cd",
+              "using-qovery/deployment/deployment-pipeline",
+              "using-qovery/deployment/logs"
+            ]
+          },
+          {
+            "group": "Integration",
+            "pages": [
+              "using-qovery/integration/container-registry",
+              "using-qovery/integration/git-repository",
+              "using-qovery/integration/continuous-integration",
+              "using-qovery/integration/secret-manager",
+              "using-qovery/integration/webhooks"
+            ]
+          },
+          {
+            "group": "Observability",
+            "pages": [
+              "using-qovery/observability/monitoring",
+              "using-qovery/observability/logs"
+            ]
+          },
+          {
+            "group": "Security & Compliance",
+            "pages": [
+              "security-and-compliance/overview",
+              "security-and-compliance/backup-restore",
+              "security-and-compliance/encryption",
+              "security-and-compliance/gdpr",
+              "security-and-compliance/soc2"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "using-qovery/troubleshoot/cluster",
+              "using-qovery/troubleshoot/service-deployment",
+              "using-qovery/troubleshoot/service-run"
             ]
           }
         ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Basics",
+            "pages": [
+              "guides/getting-started/deploy-your-first-application",
+              "guides/getting-started/create-environment",
+              "guides/getting-started/connect-database"
+            ]
+          },
+          {
+            "group": "Applications",
+            "pages": [
+              "guides/applications/deploy-web-application",
+              "guides/applications/configure-custom-domain",
+              "guides/applications/manage-environment-variables"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "guides/advanced/preview-environments",
+              "guides/advanced/multi-environment-setup",
+              "guides/advanced/ci-cd-integration"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Terraform Provider",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "terraform/overview"
+            ]
+          },
+          {
+            "group": "Examples",
+            "pages": [
+              "terraform/examples"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CLI",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "cli/overview"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "cli/commands"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "api-reference/introduction",
+              "api/authentication"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "api/overview",
+              "api/examples"
+            ]
+          }
+        ],
+        "openapi": "/openapi.yaml"
       }
     ]
   },

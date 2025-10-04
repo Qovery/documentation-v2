@@ -1,0 +1,154 @@
+---
+title: "Applications"
+description: "Configure and deploy containerized applications"
+---
+
+## Overview
+
+Applications in Qovery are containerized workloads that run continuously. They can be web services, APIs, background workers, or any long-running process.
+
+## Creating an Application
+
+### Via Console
+
+1. Navigate to your environment
+2. Click "Create Application"
+3. Configure:
+   - **Name**: Unique identifier
+   - **Git Repository**: Source code location
+   - **Branch**: Git branch to deploy
+   - **Build Method**: Dockerfile, Buildpacks, or pre-built image
+
+### Via Terraform
+
+```hcl
+resource "qovery_application" "api" {
+  environment_id = qovery_environment.prod.id
+  name           = "api"
+  
+  git_repository = {
+    url    = "https://github.com/your-org/api"
+    branch = "main"
+  }
+  
+  build_mode      = "DOCKER"
+  dockerfile_path = "Dockerfile"
+  
+  cpu    = 500
+  memory = 1024
+  
+  ports = [
+    {
+      internal_port       = 8080
+      external_port       = 443
+      protocol            = "HTTP"
+      publicly_accessible = true
+    }
+  ]
+  
+  auto_deploy = true
+}
+```
+
+## Resource Allocation
+
+Configure CPU and memory:
+
+- **CPU**: Measured in millicores (1000 = 1 core)
+- **Memory**: Measured in MB
+
+```yaml
+resources:
+  cpu: 500      # 0.5 CPU cores
+  memory: 1024  # 1 GB RAM
+```
+
+## Scaling
+
+### Manual Scaling
+
+Set fixed number of instances:
+
+```yaml
+min_running_instances: 2
+max_running_instances: 2
+```
+
+### Auto-Scaling
+
+Configure horizontal pod autoscaling:
+
+```yaml
+min_running_instances: 1
+max_running_instances: 10
+auto_scaling_enabled: true
+```
+
+## Port Configuration
+
+Expose application ports:
+
+```yaml
+ports:
+  - internal_port: 8080
+    external_port: 443
+    protocol: HTTP
+    publicly_accessible: true
+  - internal_port: 8081
+    protocol: HTTP
+    publicly_accessible: false  # Internal only
+```
+
+## Build Configuration
+
+### Dockerfile
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### Buildpacks
+
+Automatic detection - no Dockerfile needed. Supported:
+- Node.js, Python, Go, Java, Ruby, PHP
+
+### Pre-built Image
+
+Use existing container image:
+
+```yaml
+build_mode: IMAGE
+image:
+  registry_id: my-registry
+  name: my-app
+  tag: v1.0.0
+```
+
+## Health Checks
+
+Configure liveness and readiness probes:
+
+```yaml
+healthchecks:
+  liveness_probe:
+    type: HTTP
+    path: /health
+    port: 8080
+    initial_delay_seconds: 30
+    period_seconds: 10
+    
+  readiness_probe:
+    type: HTTP
+    path: /ready
+    port: 8080
+    initial_delay_seconds: 5
+    period_seconds: 5
+```
+
+See [Applications Configuration](/configuration/applications) for more details.

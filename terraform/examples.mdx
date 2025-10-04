@@ -1,0 +1,253 @@
+---
+title: "Terraform Examples"
+description: "Practical examples for using the Qovery Terraform Provider"
+---
+
+## Basic Application Deployment
+
+Deploy a containerized application with the Qovery Terraform provider:
+
+```hcl
+# Define a project
+resource "qovery_project" "my_project" {
+  organization_id = var.organization_id
+  name            = "My Project"
+}
+
+# Create an environment
+resource "qovery_environment" "production" {
+  project_id = qovery_project.my_project.id
+  name       = "production"
+  mode       = "PRODUCTION"
+  cluster_id = var.cluster_id
+}
+
+# Deploy an application
+resource "qovery_application" "api" {
+  environment_id = qovery_environment.production.id
+  name           = "api"
+
+  git_repository = {
+    url    = "https://github.com/your-org/your-app"
+    branch = "main"
+  }
+
+  build_mode = "DOCKER"
+  dockerfile_path = "Dockerfile"
+
+  cpu    = 500
+  memory = 512
+
+  ports = [
+    {
+      internal_port = 8080
+      external_port = 443
+      protocol      = "HTTP"
+      publicly_accessible = true
+    }
+  ]
+
+  auto_deploy = true
+}
+```
+
+## Application with Database
+
+Deploy an application with a PostgreSQL database:
+
+```hcl
+# Create a PostgreSQL database
+resource "qovery_database" "postgres" {
+  environment_id = qovery_environment.production.id
+  name           = "main-db"
+  type           = "POSTGRESQL"
+  version        = "15"
+  mode           = "MANAGED"
+
+  cpu    = 250
+  memory = 512
+  storage = 10
+}
+
+# Application with database connection
+resource "qovery_application" "backend" {
+  environment_id = qovery_environment.production.id
+  name           = "backend"
+
+  git_repository = {
+    url    = "https://github.com/your-org/backend"
+    branch = "main"
+  }
+
+  build_mode = "DOCKER"
+
+  # Environment variables for database connection
+  environment_variables = [
+    {
+      key   = "DATABASE_HOST"
+      value = qovery_database.postgres.internal_host
+    },
+    {
+      key   = "DATABASE_PORT"
+      value = qovery_database.postgres.port
+    },
+    {
+      key   = "DATABASE_NAME"
+      value = qovery_database.postgres.name
+    }
+  ]
+
+  # Database credentials as secrets
+  secrets = [
+    {
+      key   = "DATABASE_USER"
+      value = qovery_database.postgres.login
+    },
+    {
+      key   = "DATABASE_PASSWORD"
+      value = qovery_database.postgres.password
+    }
+  ]
+
+  depends_on = [qovery_database.postgres]
+}
+```
+
+## Multi-Environment Setup
+
+Create multiple environments with different configurations:
+
+```hcl
+locals {
+  environments = {
+    development = {
+      mode   = "DEVELOPMENT"
+      cpu    = 250
+      memory = 256
+    }
+    staging = {
+      mode   = "STAGING"
+      cpu    = 500
+      memory = 512
+    }
+    production = {
+      mode   = "PRODUCTION"
+      cpu    = 1000
+      memory = 1024
+    }
+  }
+}
+
+# Create multiple environments
+resource "qovery_environment" "envs" {
+  for_each = local.environments
+
+  project_id = qovery_project.my_project.id
+  name       = each.key
+  mode       = each.value.mode
+  cluster_id = var.cluster_id
+}
+
+# Deploy application to each environment
+resource "qovery_application" "app" {
+  for_each = local.environments
+
+  environment_id = qovery_environment.envs[each.key].id
+  name           = "my-app"
+
+  git_repository = {
+    url    = "https://github.com/your-org/app"
+    branch = each.key == "production" ? "main" : each.key
+  }
+
+  build_mode = "DOCKER"
+
+  cpu    = each.value.cpu
+  memory = each.value.memory
+
+  auto_deploy = each.key != "production"
+}
+```
+
+## Container Registry Configuration
+
+Use a custom container registry:
+
+```hcl
+resource "qovery_application" "app" {
+  environment_id = qovery_environment.production.id
+  name           = "my-app"
+
+  # Use pre-built image from registry
+  build_mode = "BUILDPACKS"
+
+  git_repository = {
+    url    = "https://github.com/your-org/app"
+    branch = "main"
+  }
+
+  # Custom registry credentials
+  registry_id = var.container_registry_id
+
+  cpu    = 500
+  memory = 512
+}
+```
+
+## Health Checks
+
+Configure health checks for your application:
+
+```hcl
+resource "qovery_application" "api" {
+  environment_id = qovery_environment.production.id
+  name           = "api"
+
+  git_repository = {
+    url    = "https://github.com/your-org/api"
+    branch = "main"
+  }
+
+  build_mode = "DOCKER"
+
+  # Health check configuration
+  healthchecks = {
+    liveness_probe = {
+      type = {
+        http = {
+          path = "/health"
+          port = 8080
+        }
+      }
+      initial_delay_seconds = 30
+      period_seconds        = 10
+      timeout_seconds       = 5
+      failure_threshold     = 3
+    }
+
+    readiness_probe = {
+      type = {
+        http = {
+          path = "/ready"
+          port = 8080
+        }
+      }
+      initial_delay_seconds = 15
+      period_seconds        = 5
+      timeout_seconds       = 3
+      failure_threshold     = 3
+    }
+  }
+}
+```
+
+## Useful Resources
+
+<CardGroup cols={2}>
+  <Card title="Provider Documentation" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Complete reference documentation
+  </Card>
+  <Card title="GitHub Examples" icon="github" href="https://github.com/Qovery/terraform-examples">
+    More examples on GitHub
+  </Card>
+</CardGroup>

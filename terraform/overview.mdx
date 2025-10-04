@@ -1,0 +1,71 @@
+---
+title: "Terraform Provider"
+description: "Manage your Qovery infrastructure as code with Terraform"
+---
+
+## Overview
+
+The Qovery Terraform Provider allows you to manage your Qovery infrastructure using Infrastructure as Code (IaC). With this provider, you can define, provision, and manage your applications, databases, and environments declaratively.
+
+## Installation
+
+Add the Qovery provider to your Terraform configuration:
+
+```hcl
+terraform {
+  required_providers {
+    qovery = {
+      source  = "qovery/qovery"
+      version = "~> 0.45.0"
+    }
+  }
+}
+
+provider "qovery" {
+  token = var.qovery_api_token
+}
+```
+
+## Authentication
+
+To authenticate with the Qovery API, you need an API token. You can generate one from the [Qovery Console](https://console.qovery.com).
+
+Set your token as an environment variable:
+
+```bash
+export QOVERY_API_TOKEN="your-api-token"
+```
+
+Or pass it directly in your Terraform configuration:
+
+```hcl
+provider "qovery" {
+  token = "your-api-token"
+}
+```
+
+<Warning>
+Never commit API tokens to version control. Use environment variables or a secure secrets management solution.
+</Warning>
+
+## Key Resources
+
+The Qovery Terraform provider supports managing:
+
+- **Projects** - Organize your applications and environments
+- **Environments** - Development, staging, production environments
+- **Applications** - Deploy and manage containerized applications
+- **Databases** - Provision and configure managed databases
+- **Clusters** - Kubernetes cluster configuration
+- **Environment Variables** - Manage secrets and configuration
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Examples" icon="code" href="/terraform/examples">
+    See practical examples of using the Terraform provider
+  </Card>
+  <Card title="Terraform Registry" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Full provider documentation
+  </Card>
+</CardGroup>

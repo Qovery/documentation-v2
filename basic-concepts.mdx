@@ -1,0 +1,232 @@
+---
+title: "Basic Concepts"
+description: "Core concepts and terminology in Qovery"
+---
+
+Understanding Qovery's basic concepts will help you get the most out of the platform. This page covers the fundamental building blocks and terminology used throughout Qovery.
+
+## Organization
+
+An **Organization** is the workspace where DevOps and developers can collaborate across many projects at once and it usually corresponds to your company. A user can have access to one or more organizations and have different roles & permissions assigned within it thanks to our RBAC system.
+
+<Note>
+Think of an Organization as your company's workspace in Qovery. It's the top-level container for all your infrastructure and team members.
+</Note>
+
+## Cluster
+
+At Qovery, when we refer to **Cluster**, we mean Kubernetes cluster. A Kubernetes cluster is a collection of node machines that allows you to run containerized applications.
+
+### Managed Cluster
+
+A **Managed Cluster** is a Kubernetes cluster managed by Qovery. It means that Qovery will create the cluster for you and will take care of the cluster lifecycle (creation, upgrade, deletion, etc.). Zero maintenance for you.
+
+### Self-Managed Cluster
+
+A **Self-Managed Cluster** is a Kubernetes cluster managed by you. It means that you have to create the cluster yourself and you have to take care of the cluster lifecycle (creation, upgrade, deletion, etc.). You can install Qovery on your cluster to let Qovery manage the deployment of your applications on your cluster.
+
+<Tip>
+Choose **Managed Cluster** if you want Qovery to handle all Kubernetes operations. Choose **Self-Managed Cluster** (also known as BYOK - Bring Your Own Kubernetes) if you have specific Kubernetes requirements or existing clusters.
+</Tip>
+
+## Project
+
+A **Project** allows you to group together a set of services interacting between each other to serve a common purpose. For example, you can have one project to run your main application (composed by a front-end, back-end and a database) and another project to manage your internal tools.
+
+```
+Organization
+└── Project (e.g., "Main Application")
+    ├── Production Environment
+    ├── Staging Environment
+    └── Development Environment
+```
+
+## Environment
+
+An **Environment** allows you to group together a set of services having a specific version, usually based on a branch of your repository. For example, you can have one `Production` environment (all the services pointing to the main branch), one `Staging` environment (all services pointing to the staging branch) etc.
+
+### Environment Types
+
+Qovery supports three types of environments:
+
+- **Production**: Should not be stopped or deleted. Contains your live applications.
+- **Staging**: Reflects critical work processes. Used for final testing before production.
+- **Development**: Used for developing and testing features.
+
+### Preview Environment (or Ephemeral Environment)
+
+A **Preview Environment** is an ephemeral environment allowing you to get early feedback on your application changes before the changes are merged into production. A dedicated preview environment can be automatically created at each new PR on your repository to validate the change. The environment is automatically deleted once the PR is merged or closed.
+
+<Info>
+Preview Environments are also known as **Ephemeral Environments** or **Temporary Environments**. They're perfect for testing pull requests in isolation.
+</Info>
+
+## Service
+
+A **Service** is the basic unit that you can add to an environment, representing one of the elements of your tech stack (front-end, database, etc.).
+
+Qovery provides five types of services:
+
+### Application
+
+An **Application** is a service that runs your containerized application code. It can be built from:
+- A Git repository (Qovery builds the Docker image for you)
+- A pre-built container image from a registry
+
+Applications support:
+- Auto-scaling based on CPU/RAM usage
+- Custom domains with automatic SSL/TLS
+- Health checks and rolling deployments
+- Environment variables and secrets
+- Port configuration
+- Resource allocation (CPU/RAM)
+
+### Database
+
+A **Database** service provides managed or containerized database instances. Qovery supports:
+
+- **PostgreSQL**
+- **MySQL**
+- **MongoDB**
+- **Redis**
+
+Databases can run in two modes:
+- **Container mode**: Database runs as a container (ideal for development/testing)
+- **Managed mode**: Cloud provider managed database (ideal for production)
+
+### CronJob
+
+A **CronJob** is a service that runs scheduled tasks based on a cron expression. Perfect for:
+- Periodic data processing
+- Scheduled backups
+- Report generation
+- Cleanup tasks
+
+### Lifecycle Job
+
+A **Lifecycle Job** is a Kubernetes job that executes only on selected events (deploy/stop/delete). Use cases include:
+- Database seeding in preview environments
+- Pre-deployment validation
+- Post-deployment tasks
+- Environment cleanup
+
+### Helm
+
+A **Helm** service allows you to deploy Helm charts from:
+- Git repositories
+- Helm repositories
+
+This enables you to deploy third-party applications like:
+- Monitoring tools (Prometheus, Grafana)
+- Databases
+- Message queues
+- Any Helm-packaged application
+
+## Deployment Workflow
+
+Understanding Qovery's deployment workflow helps you troubleshoot issues and optimize your deployments.
+
+### Deployment Pipeline
+
+A **Deployment Pipeline** consists of ordered "Deployment Stages". Each service belongs to one deployment stage, allowing you to define service inter-dependencies and control deployment order.
+
+**Default Pipeline Stages:**
+1. `0.DEFAULT DATABASE` - Databases deploy first
+2. `1.DEFAULT JOB` - Jobs deploy after databases
+3. `2.DEFAULT CONTAINER` - Containers deploy next
+4. `3.DEFAULT APPLICATION` - Applications deploy last
+
+### Deployment Status
+
+Each service has two status indicators:
+
+- **Deployment Status**: Shows if the deployment is in progress, succeeded, or failed
+- **Running Status**: Shows if the service is currently running and healthy
+
+## GitOps Principles
+
+Qovery follows GitOps principles where:
+
+1. **Git is the single source of truth**: Your application configuration lives in Git
+2. **Declarative configuration**: Define what you want, not how to get there
+3. **Automated deployments**: Push to Git triggers automatic deployments
+4. **Version control**: All changes are tracked and auditable
+
+## Environment Variables and Secrets
+
+Qovery provides a powerful system for managing configuration and secrets:
+
+### Variable Scopes
+
+Variables can be defined at three levels:
+
+1. **Project level**: Shared across all environments in a project
+2. **Environment level**: Shared across all services in an environment
+3. **Service level**: Specific to a single service
+
+### Variable Types
+
+- **Standard variables**: Plain-text configuration values
+- **Secrets**: Encrypted sensitive data (passwords, API keys)
+- **Variable as File**: Variables exposed as files in containers
+
+### Built-in Variables
+
+Qovery automatically generates built-in variables for service interconnection:
+
+```bash
+# Example built-in variables
+QOVERY_PROJECT_ID
+QOVERY_ENVIRONMENT_ID
+QOVERY_APPLICATION_ID
+QOVERY_DATABASE_MY_DB_CONNECTION_URI
+QOVERY_DATABASE_MY_DB_HOST
+QOVERY_DATABASE_MY_DB_PORT
+```
+
+## Resource Allocation
+
+### Default Resources
+
+By default, each application is allocated:
+- **CPU**: 500m (0.5 cores)
+- **RAM**: 512MB
+
+### Auto-scaling
+
+Applications can automatically scale based on:
+- **CPU utilization**: Default trigger at 60%
+- **Memory utilization**: Configurable threshold
+- **Min/Max replicas**: Control scaling bounds
+
+## Networking
+
+### Internal Network
+
+Services within the same environment communicate over a private internal network. This network is not accessible from outside the cluster.
+
+### Public Exposure
+
+Applications can be exposed publicly through:
+- **Automatically generated domains**: `*.qovery.io`
+- **Custom domains**: Bring your own domain with automatic SSL/TLS
+- **Port configuration**: Expose one or more ports
+
+## Next Steps
+
+Now that you understand the basic concepts, you're ready to:
+
+<CardGroup cols={2}>
+  <Card title="Install Qovery" icon="download" href="/installation/aws">
+    Set up Qovery on your cloud provider
+  </Card>
+  <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+    Follow our quickstart guide
+  </Card>
+  <Card title="Configuration" icon="sliders" href="/using-qovery/configuration/organization">
+    Learn about configuration options
+  </Card>
+  <Card title="How It Works" icon="gears" href="/how-it-works">
+    Understand the architecture
+  </Card>
+</CardGroup>

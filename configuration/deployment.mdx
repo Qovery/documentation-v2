@@ -1,0 +1,57 @@
+---
+title: "Deployment"
+description: "Configure deployment strategies"
+---
+
+## Deployment Strategies
+
+### Rolling Update
+
+Default strategy - gradually replace old pods:
+
+```yaml
+strategy: ROLLING_UPDATE
+max_unavailable: 1
+max_surge: 1
+```
+
+### Recreate
+
+Stop all pods before starting new ones:
+
+```yaml
+strategy: RECREATE
+```
+
+## Auto-Deploy
+
+Automatic deployment on git push:
+
+```hcl
+auto_deploy = true
+```
+
+## Deployment Rules
+
+### Branch-based Deployment
+
+```hcl
+auto_deploy_on_branch = "main"
+```
+
+### Preview Environments
+
+Automatically create environments for PRs:
+
+```hcl
+enable_preview_environments = true
+```
+
+## Rollback
+
+Rollback to previous version:
+
+```bash
+qovery application rollback --application my-app
+```
+

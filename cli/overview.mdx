@@ -1,0 +1,121 @@
+---
+title: "Qovery CLI"
+description: "Manage your Qovery infrastructure from the command line"
+---
+
+## Overview
+
+The Qovery CLI (Command Line Interface) enables you to interact with Qovery directly from your terminal. Deploy applications, manage environments, stream logs, and more - all without leaving your command line.
+
+## Installation
+
+### macOS
+
+Install using Homebrew:
+
+```bash
+brew tap qovery/qovery-cli
+brew install qovery-cli
+```
+
+### Linux
+
+```bash
+curl -s https://get.qovery.com | bash
+```
+
+### Windows
+
+Download the latest release from [GitHub Releases](https://github.com/Qovery/qovery-cli/releases) and add it to your PATH.
+
+### Verify Installation
+
+```bash
+qovery version
+```
+
+## Authentication
+
+Before using the CLI, you need to authenticate:
+
+```bash
+qovery auth
+```
+
+This will open a browser window for authentication. Once completed, you'll be ready to use the CLI.
+
+### API Token Authentication
+
+You can also authenticate using an API token:
+
+```bash
+export QOVERY_CLI_ACCESS_TOKEN="your-api-token"
+qovery auth
+```
+
+Generate an API token from the [Qovery Console](https://console.qovery.com/platform/organization/api-tokens).
+
+## Configuration
+
+The CLI stores configuration in `~/.qovery/context.json`. You can manage multiple contexts for different organizations or clusters.
+
+### Set Default Context
+
+```bash
+qovery context set
+```
+
+### List Contexts
+
+```bash
+qovery context list
+```
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Deploy Applications" icon="rocket">
+    Deploy and redeploy applications instantly from the terminal
+  </Card>
+  <Card title="Environment Management" icon="layer-group">
+    Create, update, and manage environments
+  </Card>
+  <Card title="Live Logs" icon="terminal">
+    Stream real-time logs from your applications
+  </Card>
+  <Card title="Shell Access" icon="code">
+    Execute commands directly in running containers
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+### List Projects
+
+```bash
+qovery project list
+```
+
+### List Environments
+
+```bash
+qovery environment list
+```
+
+### Deploy an Application
+
+```bash
+qovery application deploy
+```
+
+### View Logs
+
+```bash
+qovery log
+```
+
+## Next Steps
+
+<Card title="CLI Commands" icon="terminal" href="/cli/commands">
+  Explore all available commands and examples
+</Card>

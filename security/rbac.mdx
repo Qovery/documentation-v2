@@ -1,0 +1,85 @@
+---
+title: "Role-Based Access Control (RBAC)"
+description: "Configure permissions and access control"
+---
+
+## Built-in Roles
+
+### Organization Level
+
+- **Owner**: Full control over organization
+- **Admin**: Manage resources and users
+- **Billing**: Manage billing and subscriptions
+- **Member**: Access granted projects only
+
+### Project Level
+
+- **Admin**: Full control over project
+- **Developer**: Deploy and manage services
+- **Viewer**: Read-only access
+
+### Environment Level
+
+- **Admin**: Full control
+- **Developer**: Deploy applications
+- **Viewer**: Read-only
+
+## Custom Roles
+
+Create custom roles with specific permissions:
+
+```hcl
+resource "qovery_custom_role" "devops" {
+  name = "DevOps Engineer"
+  
+  permissions = [
+    "deploy_applications",
+    "manage_databases",
+    "view_logs",
+    "manage_environment_variables"
+  ]
+}
+```
+
+## Permission Matrix
+
+| Action | Owner | Admin | Developer | Viewer |
+|--------|-------|-------|-----------|--------|
+| Create resources | ✓ | ✓ | ✓ | ✗ |
+| Deploy applications | ✓ | ✓ | ✓ | ✗ |
+| Delete resources | ✓ | ✓ | ✗ | ✗ |
+| Manage users | ✓ | ✓ | ✗ | ✗ |
+| View logs | ✓ | ✓ | ✓ | ✓ |
+| View metrics | ✓ | ✓ | ✓ | ✓ |
+
+## Team Management
+
+Organize users into teams:
+
+```hcl
+resource "qovery_team" "backend" {
+  name = "Backend Team"
+  
+  members = [
+    "user1@example.com",
+    "user2@example.com"
+  ]
+  
+  projects = [
+    {
+      project_id = "proj-123"
+      role       = "DEVELOPER"
+    }
+  ]
+}
+```
+
+## Access Policies
+
+Define granular access policies:
+
+- IP allowlisting
+- Time-based access
+- Conditional access
+- Resource-specific permissions
+

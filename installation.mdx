@@ -1,0 +1,449 @@
+---
+title: "Installation"
+description: "Install and set up Qovery on your cloud infrastructure"
+---
+
+## Prerequisites
+
+Before installing Qovery, ensure you have:
+
+<AccordionGroup>
+  <Accordion title="Cloud Provider Account">
+    - AWS account with admin access, or
+    - Google Cloud Platform project with owner access, or
+    - Azure subscription with contributor access
+  </Accordion>
+
+  <Accordion title="Domain Name (Optional)">
+    A domain name for custom URLs (you can use Qovery-provided domains initially)
+  </Accordion>
+
+  <Accordion title="Git Provider">
+    - GitHub, GitLab, or Bitbucket account
+    - Repository access for applications you want to deploy
+  </Accordion>
+</AccordionGroup>
+
+## Installation Methods
+
+<CardGroup cols={2}>
+  <Card title="Qovery Console" icon="browser">
+    Easiest way - guided setup through web interface
+  </Card>
+  <Card title="Terraform" icon="code">
+    Infrastructure as Code approach for automation
+  </Card>
+  <Card title="CLI" icon="terminal">
+    Command-line installation for scripting
+  </Card>
+  <Card title="Existing Cluster" icon="server">
+    Connect your existing Kubernetes cluster
+  </Card>
+</CardGroup>
+
+## Quick Start Installation
+
+### Step 1: Sign Up
+
+1. Go to [console.qovery.com](https://console.qovery.com)
+2. Sign up with your email or Git provider
+3. Verify your email address
+
+### Step 2: Connect Cloud Provider
+
+<Tabs>
+  <Tab title="AWS">
+    <Steps>
+      <Step title="AWS Credentials">
+        You'll need AWS credentials with the following permissions:
+        - EC2, EKS, VPC, IAM, S3, RDS access
+        - CloudFormation stack creation
+      </Step>
+
+      <Step title="Run CloudFormation">
+        Qovery provides a CloudFormation template:
+
+        ```bash
+        # Via AWS Console
+        1. Navigate to CloudFormation in AWS Console
+        2. Create new stack
+        3. Use Qovery-provided template URL
+        4. Follow the wizard
+        ```
+
+        Or use AWS CLI:
+
+        ```bash
+        aws cloudformation create-stack \
+          --stack-name qovery-permissions \
+          --template-url https://qovery-cloudformation.s3.amazonaws.com/qovery-iam.yaml \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+        ```
+      </Step>
+
+      <Step title="Add Credentials">
+        In Qovery Console:
+        1. Go to Organization Settings → Cloud Providers
+        2. Click "Add AWS Account"
+        3. Enter your AWS Access Key ID and Secret
+        4. Qovery validates the permissions
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="GCP">
+    <Steps>
+      <Step title="Service Account">
+        Create a service account with required permissions:
+
+        ```bash
+        gcloud iam service-accounts create qovery-sa \
+          --display-name="Qovery Service Account"
+
+        gcloud projects add-iam-policy-binding PROJECT_ID \
+          --member="serviceAccount:qovery-sa@PROJECT_ID.iam.gserviceaccount.com" \
+          --role="roles/owner"
+
+        gcloud iam service-accounts keys create key.json \
+          --iam-account=qovery-sa@PROJECT_ID.iam.gserviceaccount.com
+        ```
+      </Step>
+
+      <Step title="Upload Credentials">
+        In Qovery Console:
+        1. Go to Organization Settings → Cloud Providers
+        2. Click "Add GCP Project"
+        3. Upload the service account JSON key file
+        4. Qovery validates the permissions
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Azure">
+    <Steps>
+      <Step title="Service Principal">
+        Create a service principal:
+
+        ```bash
+        az ad sp create-for-rbac \
+          --name qovery-sp \
+          --role Contributor \
+          --scopes /subscriptions/YOUR_SUBSCRIPTION_ID
+        ```
+
+        Save the output (appId, password, tenant).
+      </Step>
+
+      <Step title="Add Credentials">
+        In Qovery Console:
+        1. Go to Organization Settings → Cloud Providers
+        2. Click "Add Azure Subscription"
+        3. Enter subscription ID, client ID, client secret, tenant ID
+        4. Qovery validates the permissions
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+### Step 3: Create Cluster
+
+<Steps>
+  <Step title="Cluster Configuration">
+    In Qovery Console:
+    1. Navigate to Clusters
+    2. Click "Create Cluster"
+    3. Select your cloud provider
+    4. Choose region
+  </Step>
+
+  <Step title="Cluster Settings">
+    Configure your cluster:
+
+    - **Name**: Production, Staging, Development
+    - **Region**: Select closest to your users
+    - **Kubernetes Version**: Latest stable (recommended)
+    - **Node Instance Type**: Choose based on workload
+    - **Min/Max Nodes**: Configure auto-scaling range
+    - **Disk Size**: Storage per node
+  </Step>
+
+  <Step title="Create">
+    Click "Create Cluster"
+
+    Qovery will:
+    - Provision Kubernetes cluster (EKS/GKE/AKS)
+    - Configure networking and security
+    - Install Qovery Engine
+    - Set up monitoring and logging
+    - Configure ingress controller
+
+    This takes 15-30 minutes.
+  </Step>
+</Steps>
+
+### Step 4: Connect Git Provider
+
+<Tabs>
+  <Tab title="GitHub">
+    1. Go to Organization Settings → Git Providers
+    2. Click "Connect GitHub"
+    3. Authorize Qovery GitHub App
+    4. Select repositories to access
+  </Tab>
+
+  <Tab title="GitLab">
+    1. Go to Organization Settings → Git Providers
+    2. Click "Connect GitLab"
+    3. Enter GitLab Personal Access Token
+    4. Qovery can now access your repositories
+  </Tab>
+
+  <Tab title="Bitbucket">
+    1. Go to Organization Settings → Git Providers
+    2. Click "Connect Bitbucket"
+    3. Authorize Qovery
+    4. Grant repository access
+  </Tab>
+</Tabs>
+
+### Step 5: Deploy Your First Application
+
+You're ready to deploy! Follow the [Quickstart Guide](/quickstart).
+
+## Advanced Installation
+
+### Terraform Installation
+
+For infrastructure as code approach:
+
+```hcl
+terraform {
+  required_providers {
+    qovery = {
+      source  = "qovery/qovery"
+      version = "~> 0.45.0"
+    }
+  }
+}
+
+provider "qovery" {
+  token = var.qovery_api_token
+}
+
+# Create cluster
+resource "qovery_cluster" "production" {
+  organization_id = var.organization_id
+  name            = "production"
+  description     = "Production Kubernetes cluster"
+  cloud_provider  = "AWS"
+  region          = "us-east-1"
+
+  kubernetes = {
+    version = "1.28"
+  }
+
+  instance_type     = "t3.medium"
+  min_running_nodes = 3
+  max_running_nodes = 10
+  disk_size         = 50
+}
+```
+
+See [Terraform Provider documentation](/terraform/overview) for details.
+
+### CLI Installation
+
+Install via CLI:
+
+```bash
+# Install Qovery CLI
+brew install qovery-cli
+
+# Authenticate
+qovery auth
+
+# Create cluster
+qovery cluster create \
+  --name production \
+  --cloud-provider aws \
+  --region us-east-1 \
+  --instance-type t3.medium
+```
+
+See [CLI documentation](/cli/overview) for details.
+
+### Existing Cluster
+
+Connect your existing Kubernetes cluster:
+
+<Steps>
+  <Step title="Prerequisites">
+    Your cluster must meet these requirements:
+    - Kubernetes 1.24+
+    - kubectl access with admin privileges
+    - Ingress controller (or Qovery can install one)
+    - At least 3 nodes
+  </Step>
+
+  <Step title="Generate Install Command">
+    In Qovery Console:
+    1. Navigate to Clusters
+    2. Click "Connect Existing Cluster"
+    3. Copy the provided kubectl command
+  </Step>
+
+  <Step title="Install Qovery Engine">
+    Run the command in your cluster:
+
+    ```bash
+    kubectl apply -f https://api.qovery.com/install/YOUR_TOKEN
+    ```
+
+    This installs:
+    - Qovery Engine deployment
+    - Required CRDs and RBAC
+    - Monitoring agents
+  </Step>
+
+  <Step title="Verify">
+    Check installation:
+
+    ```bash
+    kubectl get pods -n qovery
+    ```
+
+    All pods should be in Running state.
+  </Step>
+</Steps>
+
+## Post-Installation
+
+### Configure DNS
+
+<AccordionGroup>
+  <Accordion title="Custom Domain">
+    To use your own domain:
+
+    1. Get the load balancer address from Qovery
+    2. Add DNS records:
+       - A record for root domain
+       - CNAME for wildcard: `*.yourdomain.com`
+    3. Configure in Qovery Console under Cluster Settings
+  </Accordion>
+
+  <Accordion title="Qovery Domain">
+    Qovery provides free domains:
+    - Format: `*.qovery.io`
+    - Automatic SSL certificates
+    - No DNS configuration needed
+  </Accordion>
+</AccordionGroup>
+
+### SSL Certificates
+
+Qovery automatically provisions SSL certificates:
+
+- **Let's Encrypt** - Free certificates via cert-manager
+- **Auto-renewal** - Certificates renewed automatically
+- **Custom Certificates** - Upload your own certificates (enterprise)
+
+### Configure Monitoring
+
+Qovery includes built-in monitoring:
+
+- **Metrics** - CPU, memory, network usage
+- **Logs** - Centralized log aggregation
+- **Alerts** - Configure alert rules (coming soon)
+
+Optional: Integrate external monitoring:
+
+```yaml
+# Example: Datadog integration
+integrations:
+  datadog:
+    api_key: YOUR_DATADOG_API_KEY
+    enabled: true
+```
+
+### Set Up Backups
+
+Configure automated backups:
+
+1. Go to Cluster Settings → Backups
+2. Configure backup schedule (daily recommended)
+3. Set retention period (30 days recommended)
+4. Test restore process
+
+## Troubleshooting
+
+### Cluster Creation Failed
+
+<AccordionGroup>
+  <Accordion title="Insufficient Permissions">
+    **Error**: "Access Denied" or "Insufficient Permissions"
+
+    **Solution**: Verify your cloud provider credentials have all required permissions. Review the IAM policy/service account permissions.
+  </Accordion>
+
+  <Accordion title="Quota Exceeded">
+    **Error**: "Quota exceeded for resource"
+
+    **Solution**: Request quota increase from your cloud provider or choose a different region.
+  </Accordion>
+
+  <Accordion title="Network Issues">
+    **Error**: "VPC creation failed" or "Subnet conflict"
+
+    **Solution**: Ensure IP ranges don't conflict with existing VPCs. Customize VPC CIDR in advanced settings.
+  </Accordion>
+</AccordionGroup>
+
+### Connection Issues
+
+```bash
+# Test cluster connectivity
+qovery cluster status --cluster production
+
+# Check Qovery Engine logs
+kubectl logs -n qovery -l app=qovery-engine
+
+# Verify DNS resolution
+nslookup yourdomain.com
+
+# Test application endpoint
+curl https://your-app.yourdomain.com
+```
+
+### Getting Help
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book" href="/">
+    Browse complete documentation
+  </Card>
+  <Card title="Discord Community" icon="discord" href="https://discord.qovery.com">
+    Join our Discord for support
+  </Card>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/Qovery/engine/issues">
+    Report bugs or feature requests
+  </Card>
+  <Card title="Support" icon="life-ring" href="mailto:support@qovery.com">
+    Contact support team
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Deploy your first application
+  </Card>
+  <Card title="Configuration" icon="sliders" href="/configuration/overview">
+    Learn about configuration options
+  </Card>
+  <Card title="Security" icon="shield" href="/security/overview">
+    Secure your infrastructure
+  </Card>
+  <Card title="CLI Guide" icon="terminal" href="/cli/overview">
+    Use the Qovery CLI
+  </Card>
+</CardGroup>

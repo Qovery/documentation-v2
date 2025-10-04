@@ -1,0 +1,52 @@
+---
+title: "Databases"
+description: "Configure and manage databases"
+---
+
+## Supported Databases
+
+- PostgreSQL
+- MySQL / MariaDB
+- MongoDB
+- Redis
+- Elasticsearch
+
+## Creating a Database
+
+```hcl
+resource "qovery_database" "postgres" {
+  environment_id = qovery_environment.prod.id
+  name           = "main-db"
+  type           = "POSTGRESQL"
+  version        = "15"
+  mode           = "MANAGED"  # or "CONTAINER"
+  
+  cpu     = 500
+  memory  = 1024
+  storage = 20  # GB
+}
+```
+
+## Database Modes
+
+- **Managed**: Cloud provider managed service (RDS, Cloud SQL)
+- **Container**: Database running in your cluster
+
+## Connection Info
+
+Automatically injected as environment variables:
+
+```bash
+DATABASE_HOST=postgres-xyz.internal
+DATABASE_PORT=5432
+DATABASE_NAME=main-db
+DATABASE_USER=user
+DATABASE_PASSWORD=<secret>
+```
+
+## Backups
+
+- Automatic daily backups
+- Point-in-time recovery
+- Configurable retention period
+

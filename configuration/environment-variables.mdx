@@ -1,0 +1,65 @@
+---
+title: "Environment Variables"
+description: "Manage environment variables and secrets"
+---
+
+## Types
+
+### Environment Variables
+
+Non-sensitive configuration:
+
+```bash
+NODE_ENV=production
+API_URL=https://api.example.com
+```
+
+### Secrets
+
+Sensitive data (encrypted at rest):
+
+```bash
+DATABASE_PASSWORD=<encrypted>
+API_KEY=<encrypted>
+```
+
+## Scopes
+
+- **Built-in**: System variables (automatically injected)
+- **Environment**: Available to all services in environment
+- **Service**: Specific to one application/container
+
+## Configuration
+
+### Via Console
+
+1. Navigate to service → Environment Variables
+2. Add key-value pairs
+3. Mark as secret if sensitive
+
+### Via Terraform
+
+```hcl
+environment_variables = [
+  {
+    key   = "NODE_ENV"
+    value = "production"
+  }
+]
+
+secrets = [
+  {
+    key   = "API_KEY"
+    value = var.api_key
+  }
+]
+```
+
+## Variable Interpolation
+
+Reference other services:
+
+```
+DATABASE_URL=${database.host}:${database.port}
+```
+
