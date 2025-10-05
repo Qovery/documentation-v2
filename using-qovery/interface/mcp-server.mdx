@@ -5,21 +5,41 @@ description: "Use Qovery with AI assistants through the Model Context Protocol"
 
 ## Overview
 
-The Qovery MCP (Model Context Protocol) Server enables AI assistants like Claude, GPT-4, and others to interact with your Qovery infrastructure. This integration allows you to manage deployments, troubleshoot issues, and query infrastructure status through natural language conversations with AI assistants.
+The Qovery MCP (Model Context Protocol) Server enables AI assistants like Claude, GPT-4, and others to interact with your Qovery infrastructure through the **Qovery AI Copilot** - an agentic AI system designed specifically for DevOps automation. This integration allows you to manage deployments, troubleshoot issues, and query infrastructure status through natural language conversations.
 
 <Info>
-MCP is an open protocol developed by Anthropic that standardizes how AI assistants interact with external tools and data sources.
+The Qovery MCP Server is powered by the **Qovery AI Copilot**, an agentic agent that understands DevOps workflows and can autonomously execute complex infrastructure tasks. [Learn more about how we built it →](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond)
 </Info>
+
+**Key Features**:
+- **Agentic AI**: Not just a chatbot - the Copilot can plan and execute multi-step operations autonomously
+- **DevOps Intelligence**: Built-in understanding of deployment workflows, troubleshooting, and best practices
+- **MCP Integration**: Uses the open Model Context Protocol developed by Anthropic
+- **Production-Ready**: Designed for real-world DevOps automation, not just queries
+
+## Qovery AI Copilot: An Agentic Approach
+
+Unlike traditional chatbots that simply answer questions, the Qovery AI Copilot is an **agentic AI system** that can:
+
+- **Plan**: Break down complex requests into actionable steps
+- **Execute**: Autonomously perform multiple operations to achieve goals
+- **Reason**: Understand context and make intelligent decisions
+- **Learn**: Adapt to your infrastructure patterns and preferences
+- **Troubleshoot**: Analyze logs, metrics, and events to diagnose issues
+
+The Copilot uses the Model Context Protocol (MCP) to communicate with AI assistants, enabling natural language control over your infrastructure while maintaining the intelligence needed for production DevOps workflows.
+
+[Read the technical deep-dive →](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond)
 
 ## What is MCP?
 
-Model Context Protocol (MCP) is an open standard that enables AI assistants to:
+Model Context Protocol (MCP) is an open standard developed by Anthropic that enables AI assistants to:
 - Access external tools and APIs
 - Read and write data from various sources
 - Execute commands in connected systems
 - Provide context-aware responses
 
-With Qovery's MCP Server, AI assistants gain the ability to manage your entire DevOps infrastructure through conversational interfaces.
+The Qovery MCP Server bridges the Qovery AI Copilot with MCP-compatible AI assistants, giving you conversational control over your entire DevOps infrastructure.
 
 ## Capabilities
 
@@ -323,12 +343,16 @@ to use a smaller instance type."
 ## Advantages
 
 <CardGroup cols={2}>
+  <Card title="Agentic Intelligence" icon="brain">
+    Not just answers - autonomous planning and execution of complex workflows
+  </Card>
+
   <Card title="Natural Language" icon="comments">
     Manage infrastructure through conversation, no complex commands
   </Card>
 
-  <Card title="AI-Assisted Troubleshooting" icon="robot">
-    Get intelligent recommendations for debugging issues
+  <Card title="DevOps Expertise" icon="robot">
+    Built-in understanding of deployment patterns and troubleshooting
   </Card>
 
   <Card title="Faster Workflows" icon="bolt">
@@ -339,12 +363,16 @@ to use a smaller instance type."
     No need to memorize CLI commands or API endpoints
   </Card>
 
-  <Card title="Context-Aware" icon="brain">
+  <Card title="Context-Aware" icon="telescope">
     AI understands your infrastructure and provides relevant suggestions
   </Card>
 
-  <Card title="Multi-Action Requests" icon="list-check">
-    Execute multiple operations in a single conversation turn
+  <Card title="Multi-Step Operations" icon="list-check">
+    Autonomously complete multi-step tasks in a single request
+  </Card>
+
+  <Card title="Production-Ready" icon="shield-check">
+    Designed for real-world DevOps automation, not just demos
   </Card>
 </CardGroup>
 
@@ -415,6 +443,10 @@ to use a smaller instance type."
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Agentic AI Deep-Dive" icon="brain" href="https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond">
+    Read how we built the Qovery AI Copilot
+  </Card>
+
   <Card title="API Documentation" icon="book" href="/api-reference/introduction">
     Learn about the underlying Qovery API
   </Card>
@@ -430,11 +462,16 @@ to use a smaller instance type."
   <Card title="GitHub Repository" icon="github" href="https://github.com/Qovery/mcp-server">
     Source code and examples
   </Card>
+
+  <Card title="Web Interface" icon="browser" href="/using-qovery/interface/web-interface">
+    Qovery Console documentation
+  </Card>
 </CardGroup>
 
 ## Resources
 
-- [Model Context Protocol](https://modelcontextprotocol.io)
-- [Qovery MCP Server GitHub](https://github.com/Qovery/mcp-server)
-- [Claude Desktop](https://claude.ai/desktop)
-- [Qovery API Documentation](/api-reference/introduction)
+- [How We Built an Agentic DevOps Copilot](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond) - Technical deep-dive
+- [Model Context Protocol](https://modelcontextprotocol.io) - MCP specification
+- [Qovery MCP Server GitHub](https://github.com/Qovery/mcp-server) - Source code
+- [Claude Desktop](https://claude.ai/desktop) - MCP-compatible AI assistant
+- [Qovery API Documentation](/api-reference/introduction) - Underlying API reference
