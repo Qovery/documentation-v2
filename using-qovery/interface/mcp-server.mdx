@@ -1,14 +1,20 @@
 ---
 title: "MCP Server"
-description: "Use Qovery with AI assistants through the Model Context Protocol"
+description: "Use Qovery AI Copilot with AI assistants through the Model Context Protocol"
 ---
+
+<Note>
+**Documentation Moved**: Complete MCP Server documentation, setup instructions, and usage guides are now available in the [Copilot section](/copilot/mcp-server).
+
+This page provides a brief overview. For detailed setup, configuration, and troubleshooting, visit the [Copilot MCP Server page](/copilot/mcp-server).
+</Note>
 
 ## Overview
 
-The Qovery MCP (Model Context Protocol) Server enables AI assistants like Claude, GPT-4, and others to interact with your Qovery infrastructure through the **Qovery AI Copilot** - an agentic AI system designed specifically for DevOps automation. This integration allows you to manage deployments, troubleshoot issues, and query infrastructure status through natural language conversations.
+The Qovery MCP (Model Context Protocol) Server enables AI assistants like Claude Desktop to interact with your Qovery infrastructure through the **Qovery AI Copilot** - an agentic AI system designed specifically for DevOps automation. This integration allows you to manage deployments, troubleshoot issues, and query infrastructure status through natural language conversations.
 
 <Info>
-The Qovery MCP Server is powered by the **Qovery AI Copilot**, an agentic agent that understands DevOps workflows and can autonomously execute complex infrastructure tasks. [Learn more about how we built it →](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond)
+The Qovery MCP Server is powered by the **Qovery AI Copilot**, an agentic agent that understands DevOps workflows and can autonomously execute complex infrastructure tasks. [Learn more →](/copilot/overview)
 </Info>
 
 **Key Features**:
@@ -71,33 +77,47 @@ When you connect the Qovery MCP Server to an AI assistant, you can:
   </Card>
 </CardGroup>
 
-## Installation
+## Quick Links
+
+<CardGroup cols={2}>
+  <Card title="Complete Documentation" icon="book" href="/copilot/mcp-server">
+    Full MCP Server setup and configuration guide
+  </Card>
+
+  <Card title="Getting Started with Copilot" icon="rocket" href="/copilot/getting-started">
+    Learn how to use Qovery AI Copilot
+  </Card>
+
+  <Card title="What is Agentic AI?" icon="brain" href="/copilot/what-is-agentic-ai">
+    Understand the technology behind Copilot
+  </Card>
+
+  <Card title="View Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
+    Explore what Copilot can do
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+For complete installation instructions, visit the [MCP Server Setup page](/copilot/mcp-server).
 
 ### Prerequisites
 
 - Node.js 18+ or Python 3.10+
 - Qovery API token
-- AI assistant that supports MCP (Claude Desktop, custom implementations)
+- Claude Desktop or other MCP-compatible client
 
-### Install via NPM
+### Basic Setup
 
-```bash
-npm install -g @qovery/mcp-server
-```
+<Steps>
+  <Step title="Install MCP Server">
+    ```bash
+    npm install -g @qovery/mcp-server
+    ```
+  </Step>
 
-### Install via Python
-
-```bash
-pip install qovery-mcp-server
-```
-
-### Configure with Claude Desktop
-
-Add to your Claude Desktop configuration:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+  <Step title="Configure Claude Desktop">
+    Add to your Claude Desktop configuration file
 
 ```json
 {

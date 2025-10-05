@@ -128,42 +128,6 @@
         ]
       },
       {
-        "tab": "Copilot",
-        "icon": "robot",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "copilot/overview",
-              "copilot/what-is-agentic-ai"
-            ]
-          },
-          {
-            "group": "Getting Started",
-            "pages": [
-              "copilot/getting-started",
-              "copilot/mcp-server"
-            ]
-          },
-          {
-            "group": "Capabilities",
-            "pages": [
-              "copilot/capabilities/infrastructure-management",
-              "copilot/capabilities/deployment-automation",
-              "copilot/capabilities/optimization",
-              "copilot/capabilities/troubleshooting"
-            ]
-          },
-          {
-            "group": "Examples",
-            "pages": [
-              "copilot/examples/common-tasks",
-              "copilot/examples/advanced-workflows"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Integrations",
         "icon": "plug",
         "groups": [
