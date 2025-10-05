@@ -116,7 +116,8 @@
               "guides/use-cases/production-environment-management",
               "guides/use-cases/cloud-migration-and-scaling",
               "guides/use-cases/ephemeral-environment",
-              "guides/use-cases/multi-kubernetes-clusters-management"
+              "guides/use-cases/multi-kubernetes-clusters-management",
+              "guides/use-cases/disaster-recovery"
             ]
           },
           {

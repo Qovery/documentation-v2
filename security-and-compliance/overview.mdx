@@ -3,25 +3,93 @@ title: "Security Overview"
 description: "Qovery security architecture, encryption, and backup capabilities"
 ---
 
+## Security is Paramount
+
+**Qovery is designed so your data always stays within your own infrastructure.**
+
+This core design principle ensures maximum security and control. Your infrastructure is never exposed, all data remains on your infrastructure, all processes run on your infrastructure, and security is pen-tested regularly by independent agencies.
+
+<Info>
+Qovery operates as a control plane that only transfers metadata using gRPC/TLS. All your application data, databases, and workloads remain exclusively within your cloud infrastructure.
+</Info>
+
 ## Security Architecture
 
-Qovery is built with security as a core principle, implementing defense-in-depth strategies across all layers of the platform.
-
 <CardGroup cols={2}>
-  <Card title="Zero Trust Architecture" icon="shield-halved">
-    No implicit trust - every request is authenticated and authorized
+  <Card title="Your Infrastructure Not Exposed" icon="shield">
+    Your infrastructure is never exposed to external access. Qovery control plane only receives metadata via encrypted gRPC/TLS connections.
   </Card>
 
-  <Card title="Least Privilege Access" icon="key">
-    Users and services have minimum required permissions
+  <Card title="Data On Your Infrastructure" icon="server">
+    All data stays within your cloud account (AWS, GCP, Azure, Scaleway). Qovery never stores or processes your application data.
   </Card>
 
-  <Card title="End-to-End Encryption" icon="lock">
-    Data encrypted at rest and in transit
+  <Card title="Processes On Your Infrastructure" icon="microchip">
+    All application processes run on your Kubernetes clusters. Qovery only manages configuration and orchestration.
   </Card>
 
-  <Card title="Audit Logging" icon="file-lines">
-    Complete audit trail of all actions and changes
+  <Card title="Pen-Tested Regularly" icon="bug">
+    Security is pen-tested regularly by independent security agencies to ensure the highest standards.
+  </Card>
+</CardGroup>
+
+## How Qovery Works Securely
+
+```mermaid
+graph TB
+    Control[Qovery Control Plane<br/>metadata only via gRPC/TLS]
+
+    subgraph Your Infrastructure
+        Engine[Qovery Engine]
+        K8s[Kubernetes]
+        AWS[AWS / GCP / Azure / Scaleway]
+
+        Engine -->|Manages| K8s
+        K8s -->|Runs On| AWS
+    end
+
+    Control -.->|Metadata Only<br/>gRPC/TLS| Engine
+
+    style Control fill:#642DFF,color:#fff
+    style Engine fill:#7D55FF,color:#fff
+    style K8s fill:#326CE5,color:#fff
+    style AWS fill:#FF9900,color:#000
+```
+
+**Architecture Principles**:
+- **Control Plane Separation**: Qovery's control plane is separate from your data plane
+- **Metadata Only**: Only configuration and status metadata transits to Qovery
+- **Encrypted Communication**: All communication uses gRPC over TLS
+- **Your Cloud Account**: All resources provisioned in your cloud account
+- **No Data Access**: Qovery never has access to your application data or databases
+
+## Compliance & Certifications
+
+Qovery maintains industry-leading security certifications and compliance standards:
+
+<CardGroup cols={3}>
+  <Card title="AWS Partner" icon="aws">
+    AWS Partner Network member with validated infrastructure expertise
+  </Card>
+
+  <Card title="AICPA SOC 2" icon="shield-check">
+    SOC 2 Type II certified for security, availability, and confidentiality
+  </Card>
+
+  <Card title="GDPR" icon="gavel">
+    Fully compliant with European data protection regulations
+  </Card>
+
+  <Card title="HIPAA Compliance" icon="hospital">
+    Healthcare data protection standards compliance
+  </Card>
+
+  <Card title="HDS" icon="briefcase-medical">
+    French health data hosting certification
+  </Card>
+
+  <Card title="DORA" icon="landmark">
+    Digital Operational Resilience Act compliance
   </Card>
 </CardGroup>
 
