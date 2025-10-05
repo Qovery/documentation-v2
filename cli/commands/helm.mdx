@@ -1,0 +1,85 @@
+---
+title: "qovery helm"
+description: "Helm chart management commands"
+---
+
+## Overview
+
+Manage Helm charts within your Qovery environment.
+
+## Commands
+
+### List Helm Charts
+
+List all Helm charts in current environment:
+
+```bash
+qovery helm list
+```
+
+### Deploy Helm Chart
+
+Deploy or update a Helm chart:
+
+```bash
+qovery helm deploy --helm "helm-id"
+```
+
+### Stop Helm Chart
+
+Stop a Helm chart:
+
+```bash
+qovery helm stop --helm "helm-id"
+```
+
+### Restart Helm Chart
+
+Restart a Helm chart:
+
+```bash
+qovery helm restart --helm "helm-id"
+```
+
+### Delete Helm Chart
+
+Delete a Helm chart:
+
+```bash
+qovery helm delete --helm "helm-id"
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--helm` | Helm chart ID or name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Deploy Helm Chart
+
+```bash
+# List Helm charts
+qovery helm list
+
+# Deploy Helm chart
+qovery helm deploy --helm "redis-cluster"
+
+# Check deployment status
+qovery status
+```
+
+### Restart Helm Chart
+
+```bash
+# Restart Helm chart
+qovery helm restart --helm "redis-cluster"
+```
+
+## Related Commands
+
+- [`qovery status`](/cli/commands/status) - Check Helm chart status
+- [`qovery log`](/cli/commands/log) - View Helm chart logs

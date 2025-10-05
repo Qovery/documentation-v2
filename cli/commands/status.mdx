@@ -1,0 +1,138 @@
+---
+title: "qovery status"
+description: "Check service and environment status"
+---
+
+## Overview
+
+Check the status of your services, environments, and deployments.
+
+## Commands
+
+### Environment Status
+
+Check status of all services in current environment:
+
+```bash
+qovery status
+```
+
+Status for specific environment:
+
+```bash
+qovery status --environment "env-id"
+```
+
+### Watch Status
+
+Continuously watch status updates:
+
+```bash
+qovery status --watch
+```
+
+Watch with refresh interval:
+
+```bash
+qovery status --watch --interval 5s
+```
+
+### Detailed Status
+
+Get detailed JSON output:
+
+```bash
+qovery status --format json
+```
+
+YAML output:
+
+```bash
+qovery status --format yaml
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--environment` | Environment ID or name |
+| `--watch` | Continuously watch status |
+| `--interval` | Refresh interval for watch mode |
+| `--format` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Monitor Deployment
+
+```bash
+# Deploy application
+qovery application deploy --application "my-api"
+
+# Watch deployment progress
+qovery status --watch
+```
+
+### Check Environment Health
+
+```bash
+# Check all services
+qovery status
+
+# Example output:
+# SERVICE          TYPE         STATUS    LAST UPDATE
+# my-api           Application  Running   2 minutes ago
+# postgres-main    Database     Running   1 hour ago
+# redis-cache      Container    Running   30 minutes ago
+```
+
+### Export Status for CI/CD
+
+```bash
+# Get JSON status
+qovery status --format json > status.json
+
+# Parse in CI/CD
+if [ $(jq -r '.status' status.json) == "DEPLOYED" ]; then
+  echo "Deployment successful"
+fi
+```
+
+### Watch Multiple Deployments
+
+```bash
+# Start deployments
+qovery environment deploy
+
+# Watch all services
+qovery status --watch --interval 3s
+```
+
+## Status Values
+
+| Status | Description |
+|--------|-------------|
+| `BUILDING` | Service is being built |
+| `DEPLOYING` | Service is being deployed |
+| `RUNNING` | Service is running normally |
+| `READY` | Service is ready and healthy |
+| `WARNING` | Service has warnings |
+| `ERROR` | Service has errors |
+| `STOPPED` | Service is stopped |
+| `DELETING` | Service is being deleted |
+
+## Tips
+
+<Tip>
+Use `--watch` during deployments to monitor progress in real-time.
+</Tip>
+
+<Tip>
+The `--format json` output is useful for scripting and CI/CD integrations.
+</Tip>
+
+## Related Commands
+
+- [`qovery log`](/cli/commands/log) - View service logs
+- [`qovery application`](/cli/commands/application) - Manage applications
+- [`qovery environment`](/cli/commands/environment) - Manage environments

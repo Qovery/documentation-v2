@@ -1,0 +1,88 @@
+---
+title: "qovery job"
+description: "Job management commands"
+---
+
+## Overview
+
+Manage jobs (cronjobs and lifecycle jobs) within your Qovery environment.
+
+## Commands
+
+### List Jobs
+
+List all jobs in current environment:
+
+```bash
+qovery job list
+```
+
+### Deploy Job
+
+Deploy or update a job:
+
+```bash
+qovery job deploy --job "job-id"
+```
+
+### Run Job
+
+Manually trigger a job execution:
+
+```bash
+qovery job run --job "job-id"
+```
+
+### Stop Job
+
+Stop a running job:
+
+```bash
+qovery job stop --job "job-id"
+```
+
+### Delete Job
+
+Delete a job:
+
+```bash
+qovery job delete --job "job-id"
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--job` | Job ID or name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Run Cronjob Manually
+
+```bash
+# List jobs
+qovery job list
+
+# Manually trigger cronjob
+qovery job run --job "backup-cronjob"
+
+# View job logs
+qovery log --job "backup-cronjob"
+```
+
+### Deploy Lifecycle Job
+
+```bash
+# Deploy lifecycle job
+qovery job deploy --job "db-migration"
+
+# Check status
+qovery status
+```
+
+## Related Commands
+
+- [`qovery log`](/cli/commands/log) - View job logs
+- [`qovery status`](/cli/commands/status) - Check job status

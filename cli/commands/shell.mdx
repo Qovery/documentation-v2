@@ -1,0 +1,148 @@
+---
+title: "qovery shell"
+description: "Shell access and command execution"
+---
+
+## Overview
+
+Execute commands in running application or container instances, or open an interactive shell session.
+
+## Commands
+
+### Interactive Shell
+
+Open interactive shell in application:
+
+```bash
+qovery shell --application "app-id"
+```
+
+Open shell in specific pod:
+
+```bash
+qovery shell --application "app-id" --pod "pod-name"
+```
+
+### Execute Command
+
+Run a single command:
+
+```bash
+qovery shell --application "app-id" --command "ls -la"
+```
+
+Run multiple commands:
+
+```bash
+qovery shell --application "app-id" --command "cd /app && npm run migrate"
+```
+
+### Port Forward
+
+Forward local port to application:
+
+```bash
+qovery port-forward \
+  --application "app-id" \
+  --port 8080:8080
+```
+
+Forward to different local port:
+
+```bash
+qovery port-forward \
+  --application "app-id" \
+  --port 3000:8080
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--application` | Application ID or name |
+| `--container` | Container ID or name |
+| `--command` | Command to execute |
+| `--pod` | Specific pod name |
+| `--port` | Port forwarding (local:remote) |
+| `--help` | Show help |
+
+## Examples
+
+### Debug Application
+
+```bash
+# Open interactive shell
+qovery shell --application "my-api"
+
+# Inside the shell:
+$ ls -la
+$ cat config.json
+$ env | grep DATABASE
+$ exit
+```
+
+### Run Database Migrations
+
+```bash
+# Execute migration command
+qovery shell \
+  --application "my-api" \
+  --command "npm run migrate"
+```
+
+### Check Application Files
+
+```bash
+# List application files
+qovery shell \
+  --application "my-api" \
+  --command "ls -lah /app"
+
+# Check environment variables
+qovery shell \
+  --application "my-api" \
+  --command "env"
+```
+
+### Access Database
+
+```bash
+# Forward PostgreSQL port
+qovery port-forward \
+  --database "postgres-main" \
+  --port 5432:5432
+
+# In another terminal, connect with psql
+psql -h localhost -p 5432 -U user -d database
+```
+
+### Debug Container
+
+```bash
+# Shell into container
+qovery shell --container "nginx-proxy"
+
+# Run diagnostics
+qovery shell \
+  --container "nginx-proxy" \
+  --command "nginx -t"
+```
+
+## Tips
+
+<Tip>
+Use interactive shell for exploratory debugging and one-off commands.
+</Tip>
+
+<Tip>
+Port forwarding is useful for accessing databases or services locally without exposing them publicly.
+</Tip>
+
+<Warning>
+Be careful when executing commands in production environments. Changes are not persistent across pod restarts.
+</Warning>
+
+## Related Commands
+
+- [`qovery log`](/cli/commands/log) - View application logs
+- [`qovery application`](/cli/commands/application) - Manage applications

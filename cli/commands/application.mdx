@@ -1,0 +1,164 @@
+---
+title: "qovery application"
+description: "Application management commands"
+---
+
+## Overview
+
+Deploy and manage applications within your Qovery environment.
+
+## Commands
+
+### List Applications
+
+List all applications in current environment:
+
+```bash
+qovery application list
+```
+
+### Deploy Application
+
+Deploy specific application:
+
+```bash
+qovery application deploy --application "app-id"
+```
+
+Deploy with specific commit:
+
+```bash
+qovery application deploy \
+  --application "app-id" \
+  --commit "abc123def"
+```
+
+Deploy with tag:
+
+```bash
+qovery application deploy \
+  --application "app-id" \
+  --tag "v1.2.0"
+```
+
+### Redeploy Application
+
+Redeploy the same version:
+
+```bash
+qovery application redeploy --application "app-id"
+```
+
+### Stop Application
+
+Stop a running application:
+
+```bash
+qovery application stop --application "app-id"
+```
+
+### Restart Application
+
+Restart an application:
+
+```bash
+qovery application restart --application "app-id"
+```
+
+### Delete Application
+
+Delete an application:
+
+```bash
+qovery application delete --application "app-id"
+```
+
+### Update Application
+
+Update application configuration:
+
+```bash
+qovery application update \
+  --application "app-id" \
+  --cpu 1000 \
+  --memory 1024
+```
+
+### Cancel Deployment
+
+Cancel an ongoing deployment:
+
+```bash
+qovery application cancel --application "app-id"
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--application` | Application ID or name |
+| `--commit` | Git commit SHA to deploy |
+| `--tag` | Git tag to deploy |
+| `--cpu` | CPU allocation in millicores |
+| `--memory` | Memory allocation in MB |
+| `--instances` | Number of instances |
+| `--output` | Output format (table, json, yaml) |
+| `--watch` | Watch deployment progress |
+| `--help` | Show help |
+
+## Examples
+
+### Deploy Application
+
+```bash
+# Set context
+qovery context set
+
+# Deploy latest commit
+qovery application deploy --application "my-api"
+
+# Watch deployment
+qovery status --watch
+```
+
+### Deploy Specific Version
+
+```bash
+# Deploy specific commit
+qovery application deploy \
+  --application "my-api" \
+  --commit "a1b2c3d"
+
+# Deploy tagged release
+qovery application deploy \
+  --application "my-api" \
+  --tag "v2.0.0"
+```
+
+### Update Resources
+
+```bash
+# Update CPU and memory
+qovery application update \
+  --application "my-api" \
+  --cpu 2000 \
+  --memory 4096
+
+# Redeploy to apply changes
+qovery application redeploy --application "my-api"
+```
+
+### Rollback Deployment
+
+```bash
+# Deploy previous commit
+qovery application deploy \
+  --application "my-api" \
+  --commit "previous-commit-sha"
+```
+
+## Related Commands
+
+- [`qovery log`](/cli/commands/log) - View application logs
+- [`qovery shell`](/cli/commands/shell) - Access application shell
+- [`qovery status`](/cli/commands/status) - Check application status

@@ -1,0 +1,104 @@
+---
+title: "qovery cluster"
+description: "Cluster management commands"
+---
+
+## Overview
+
+View and manage Kubernetes clusters in your Qovery organization.
+
+## Commands
+
+### List Clusters
+
+List all clusters in current organization:
+
+```bash
+qovery cluster list
+```
+
+### Cluster Status
+
+Get detailed cluster status:
+
+```bash
+qovery cluster status --cluster "cluster-id"
+```
+
+### Cluster Info
+
+Get cluster information:
+
+```bash
+qovery cluster info --cluster "cluster-id"
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--cluster` | Cluster ID or name |
+| `--organization` | Organization ID or name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### List All Clusters
+
+```bash
+# Set organization context
+qovery context set --organization "My Org"
+
+# List clusters
+qovery cluster list
+
+# Example output:
+# NAME           REGION        CLOUD     STATUS    VERSION
+# prod-us-east   us-east-1     AWS       Running   1.28
+# staging-eu     eu-west-1     AWS       Running   1.27
+```
+
+### Check Cluster Status
+
+```bash
+# Get detailed status
+qovery cluster status --cluster "prod-us-east"
+
+# Get JSON output
+qovery cluster status \
+  --cluster "prod-us-east" \
+  --format json
+```
+
+### View Cluster Details
+
+```bash
+# Get cluster info
+qovery cluster info --cluster "prod-us-east"
+```
+
+## Cluster Status Values
+
+| Status | Description |
+|--------|-------------|
+| `RUNNING` | Cluster is operational |
+| `DEPLOYING` | Cluster is being deployed |
+| `WARNING` | Cluster has warnings |
+| `ERROR` | Cluster has errors |
+| `DELETING` | Cluster is being deleted |
+
+## Tips
+
+<Tip>
+Use cluster commands to verify cluster health before deploying applications.
+</Tip>
+
+<Tip>
+Check cluster status regularly to ensure your infrastructure is healthy.
+</Tip>
+
+## Related Commands
+
+- [`qovery context`](/cli/commands/context) - Set cluster context
+- [`qovery environment`](/cli/commands/environment) - Manage environments on cluster

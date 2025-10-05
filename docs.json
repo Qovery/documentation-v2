@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Qovery",
-  "theme": "aspen",
+  "theme": "mint",
   "logo": {
     "light": "/qovery-logo-black.svg",
     "dark": "/qovery-logo-white.svg"
@@ -287,9 +287,21 @@
             ]
           },
           {
-            "group": "Reference",
+            "group": "Commands",
             "pages": [
-              "cli/commands"
+              "cli/commands/auth",
+              "cli/commands/context",
+              "cli/commands/project",
+              "cli/commands/environment",
+              "cli/commands/application",
+              "cli/commands/database",
+              "cli/commands/container",
+              "cli/commands/job",
+              "cli/commands/helm",
+              "cli/commands/log",
+              "cli/commands/shell",
+              "cli/commands/status",
+              "cli/commands/cluster"
             ]
           }
         ]

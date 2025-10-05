@@ -1,0 +1,184 @@
+---
+title: "qovery environment"
+description: "Environment management commands"
+---
+
+## Overview
+
+Manage environments and their lifecycle within your Qovery project.
+
+## Commands
+
+### List Environments
+
+List all environments in current project:
+
+```bash
+qovery environment list
+```
+
+### Create Environment
+
+Create a new environment:
+
+```bash
+qovery environment create \
+  --name "staging" \
+  --cluster "cluster-id" \
+  --mode STAGING
+```
+
+### Deploy Environment
+
+Deploy all services in an environment:
+
+```bash
+qovery environment deploy
+```
+
+Deploy specific environment:
+
+```bash
+qovery environment deploy --environment "env-id"
+```
+
+### Stop Environment
+
+Stop all services in an environment:
+
+```bash
+qovery environment stop
+```
+
+### Delete Environment
+
+Delete an environment:
+
+```bash
+qovery environment delete --environment "env-id"
+```
+
+### Clone Environment
+
+Clone an existing environment:
+
+```bash
+qovery environment clone \
+  --environment "production" \
+  --name "staging-clone"
+```
+
+## Environment Variables
+
+### List Variables
+
+```bash
+qovery environment env list
+```
+
+### Create Variable
+
+```bash
+qovery environment env create \
+  --key "API_KEY" \
+  --value "secret-value" \
+  --scope ENVIRONMENT
+```
+
+Create secret variable:
+
+```bash
+qovery environment env create \
+  --key "DATABASE_PASSWORD" \
+  --value "super-secret" \
+  --scope ENVIRONMENT \
+  --secret
+```
+
+### Update Variable
+
+```bash
+qovery environment env update \
+  --key "API_KEY" \
+  --value "new-value"
+```
+
+### Delete Variable
+
+```bash
+qovery environment env delete --key "API_KEY"
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--name` | Environment name |
+| `--cluster` | Cluster ID |
+| `--mode` | Environment mode (DEVELOPMENT, STAGING, PRODUCTION) |
+| `--environment` | Environment ID or name |
+| `--key` | Variable key |
+| `--value` | Variable value |
+| `--scope` | Variable scope (ENVIRONMENT, PROJECT, BUILT_IN) |
+| `--secret` | Mark variable as secret |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Create and Deploy Environment
+
+```bash
+# Set context
+qovery context set
+
+# Create environment
+qovery environment create \
+  --name "feature-auth" \
+  --mode DEVELOPMENT
+
+# Deploy all services
+qovery environment deploy
+
+# Watch deployment status
+qovery status --watch
+```
+
+### Manage Environment Variables
+
+```bash
+# List all variables
+qovery environment env list
+
+# Add new variable
+qovery environment env create \
+  --key "FEATURE_FLAG_NEW_UI" \
+  --value "enabled"
+
+# Add secret
+qovery environment env create \
+  --key "STRIPE_API_KEY" \
+  --value "sk_test_..." \
+  --secret
+
+# Deploy to apply changes
+qovery environment deploy
+```
+
+### Clone Production to Staging
+
+```bash
+# Clone environment
+qovery environment clone \
+  --environment "production" \
+  --name "staging-test"
+
+# Deploy cloned environment
+qovery environment deploy --environment "staging-test"
+```
+
+## Related Commands
+
+- [`qovery application`](/cli/commands/application) - Manage applications
+- [`qovery database`](/cli/commands/database) - Manage databases
+- [`qovery status`](/cli/commands/status) - Check environment status

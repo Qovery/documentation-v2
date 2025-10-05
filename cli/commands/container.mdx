@@ -1,0 +1,105 @@
+---
+title: "qovery container"
+description: "Container management commands"
+---
+
+## Overview
+
+Manage container services within your Qovery environment. Containers allow you to deploy pre-built Docker images.
+
+## Commands
+
+### List Containers
+
+List all containers in current environment:
+
+```bash
+qovery container list
+```
+
+### Deploy Container
+
+Deploy a container:
+
+```bash
+qovery container deploy --container "container-id"
+```
+
+Deploy with specific image tag:
+
+```bash
+qovery container deploy \
+  --container "container-id" \
+  --tag "v1.2.0"
+```
+
+### Redeploy Container
+
+Redeploy with same image:
+
+```bash
+qovery container redeploy --container "container-id"
+```
+
+### Stop Container
+
+Stop a running container:
+
+```bash
+qovery container stop --container "container-id"
+```
+
+### Restart Container
+
+Restart a container:
+
+```bash
+qovery container restart --container "container-id"
+```
+
+### Delete Container
+
+Delete a container service:
+
+```bash
+qovery container delete --container "container-id"
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--container` | Container ID or name |
+| `--tag` | Image tag to deploy |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Deploy Container
+
+```bash
+# List containers
+qovery container list
+
+# Deploy container
+qovery container deploy --container "nginx-proxy"
+
+# Watch status
+qovery status --watch
+```
+
+### Deploy Specific Image Version
+
+```bash
+# Deploy with specific tag
+qovery container deploy \
+  --container "nginx-proxy" \
+  --tag "1.21-alpine"
+```
+
+## Related Commands
+
+- [`qovery application`](/cli/commands/application) - Manage applications
+- [`qovery log`](/cli/commands/log) - View container logs
+- [`qovery shell`](/cli/commands/shell) - Access container shell

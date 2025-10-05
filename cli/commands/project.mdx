@@ -1,0 +1,90 @@
+---
+title: "qovery project"
+description: "Project management commands"
+---
+
+## Overview
+
+Manage projects within your Qovery organization.
+
+## Commands
+
+### List Projects
+
+List all projects in current organization:
+
+```bash
+qovery project list
+```
+
+### Create Project
+
+Create a new project:
+
+```bash
+qovery project create --name "My Project"
+```
+
+With description:
+
+```bash
+qovery project create \
+  --name "Backend Services" \
+  --description "Microservices for backend APIs"
+```
+
+### Delete Project
+
+Delete a project:
+
+```bash
+qovery project delete --project "project-id"
+```
+
+<Warning>
+Deleting a project will delete all environments and services within it. This action cannot be undone.
+</Warning>
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--name` | Project name |
+| `--description` | Project description |
+| `--project` | Project ID or name |
+| `--organization` | Organization ID or name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Create and Use Project
+
+```bash
+# Set organization context
+qovery context set --organization "My Org"
+
+# Create project
+qovery project create --name "Mobile App"
+
+# List projects to verify
+qovery project list
+
+# Set project context
+qovery context set --project "Mobile App"
+```
+
+### Delete Project
+
+```bash
+# List projects
+qovery project list
+
+# Delete specific project
+qovery project delete --project "old-project-id"
+```
+
+## Related Commands
+
+- [`qovery environment`](/cli/commands/environment) - Manage environments
+- [`qovery context`](/cli/commands/context) - Set project context

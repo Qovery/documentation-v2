@@ -1,0 +1,80 @@
+---
+title: "qovery auth"
+description: "Authentication commands for Qovery CLI"
+---
+
+## Overview
+
+The `auth` command handles authentication with Qovery. You can authenticate using interactive login or API tokens.
+
+## Commands
+
+### Login
+
+Authenticate with Qovery interactively:
+
+```bash
+qovery auth
+```
+
+This will open your browser to complete the authentication flow.
+
+### Login with API Token
+
+Set your API token as an environment variable:
+
+```bash
+export QOVERY_CLI_ACCESS_TOKEN="your-api-token"
+qovery auth
+```
+
+<Info>
+You can generate an API token from the Qovery Console under **Settings** → **API Tokens**.
+</Info>
+
+### Logout
+
+Clear authentication credentials:
+
+```bash
+qovery auth logout
+```
+
+## Examples
+
+### Interactive Login
+
+```bash
+qovery auth
+# Opens browser for authentication
+# Credentials saved locally
+```
+
+### CI/CD Authentication
+
+```bash
+# In your CI/CD environment
+export QOVERY_CLI_ACCESS_TOKEN="${{ secrets.QOVERY_TOKEN }}"
+qovery auth
+qovery application deploy --application "my-app"
+```
+
+### Switch Accounts
+
+```bash
+# Logout from current account
+qovery auth logout
+
+# Login with different account
+qovery auth
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--help` | Show help for auth command |
+
+## Related Commands
+
+- [`qovery context`](/cli/commands/context) - Manage CLI context

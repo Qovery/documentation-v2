@@ -1,0 +1,147 @@
+---
+title: "qovery log"
+description: "Log viewing commands"
+---
+
+## Overview
+
+View and stream logs from your applications, containers, databases, and jobs.
+
+## Commands
+
+### Stream Logs
+
+Stream real-time logs:
+
+```bash
+qovery log
+```
+
+Stream logs for specific service:
+
+```bash
+qovery log --application "app-id"
+```
+
+Follow logs with live updates:
+
+```bash
+qovery log --application "app-id" --follow
+```
+
+Filter logs by keyword:
+
+```bash
+qovery log --application "app-id" --filter "ERROR"
+```
+
+### Historical Logs
+
+Get logs from last hour:
+
+```bash
+qovery log --application "app-id" --since 1h
+```
+
+Get logs from specific time range:
+
+```bash
+qovery log \
+  --application "app-id" \
+  --from "2024-01-01T00:00:00Z" \
+  --to "2024-01-01T23:59:59Z"
+```
+
+Get last N lines:
+
+```bash
+qovery log --application "app-id" --tail 100
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--application` | Application ID or name |
+| `--container` | Container ID or name |
+| `--database` | Database ID or name |
+| `--job` | Job ID or name |
+| `--follow` | Follow log output |
+| `--filter` | Filter logs by keyword |
+| `--since` | Show logs since duration (e.g., 1h, 30m) |
+| `--from` | Show logs from timestamp (ISO 8601) |
+| `--to` | Show logs until timestamp (ISO 8601) |
+| `--tail` | Number of lines to show from end |
+| `--help` | Show help |
+
+## Examples
+
+### Follow Application Logs
+
+```bash
+# Stream logs in real-time
+qovery log --application "my-api" --follow
+
+# Filter for errors
+qovery log --application "my-api" --follow --filter "ERROR"
+```
+
+### Debug Production Issues
+
+```bash
+# Get last hour of logs
+qovery log \
+  --application "my-api" \
+  --since 1h \
+  --filter "exception"
+
+# Get specific time range
+qovery log \
+  --application "my-api" \
+  --from "2024-12-01T10:00:00Z" \
+  --to "2024-12-01T11:00:00Z"
+```
+
+### View Database Logs
+
+```bash
+# Stream database logs
+qovery log --database "postgres-main" --follow
+```
+
+### View Job Logs
+
+```bash
+# View cronjob logs
+qovery log --job "backup-job" --tail 50
+```
+
+### Multiple Filters
+
+```bash
+# Combine flags for precise debugging
+qovery log \
+  --application "my-api" \
+  --since 30m \
+  --filter "ERROR" \
+  --tail 100
+```
+
+## Tips
+
+<Tip>
+Use `--follow` to monitor logs in real-time during deployments or debugging.
+</Tip>
+
+<Tip>
+Combine `--filter` with error levels like "ERROR", "WARN", "FATAL" to quickly find issues.
+</Tip>
+
+<Tip>
+The `--since` flag accepts: `s` (seconds), `m` (minutes), `h` (hours), `d` (days).
+</Tip>
+
+## Related Commands
+
+- [`qovery shell`](/cli/commands/shell) - Execute commands in container
+- [`qovery status`](/cli/commands/status) - Check service status

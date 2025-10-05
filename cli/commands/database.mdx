@@ -1,0 +1,97 @@
+---
+title: "qovery database"
+description: "Database management commands"
+---
+
+## Overview
+
+Manage databases within your Qovery environment.
+
+## Commands
+
+### List Databases
+
+List all databases in current environment:
+
+```bash
+qovery database list
+```
+
+### Deploy Database
+
+Deploy or start a database:
+
+```bash
+qovery database deploy --database "db-id"
+```
+
+### Stop Database
+
+Stop a running database:
+
+```bash
+qovery database stop --database "db-id"
+```
+
+### Restart Database
+
+Restart a database:
+
+```bash
+qovery database restart --database "db-id"
+```
+
+### Delete Database
+
+Delete a database:
+
+```bash
+qovery database delete --database "db-id"
+```
+
+<Warning>
+Deleting a database will permanently delete all data. Make sure you have backups before proceeding.
+</Warning>
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--database` | Database ID or name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Deploy Database
+
+```bash
+# Set context
+qovery context set
+
+# List available databases
+qovery database list
+
+# Deploy database
+qovery database deploy --database "postgres-main"
+
+# Check status
+qovery status
+```
+
+### Stop Database for Maintenance
+
+```bash
+# Stop database
+qovery database stop --database "postgres-main"
+
+# Perform maintenance...
+
+# Restart database
+qovery database deploy --database "postgres-main"
+```
+
+## Related Commands
+
+- [`qovery application`](/cli/commands/application) - Manage applications
+- [`qovery status`](/cli/commands/status) - Check database status

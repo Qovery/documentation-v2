@@ -1,0 +1,103 @@
+---
+title: "qovery context"
+description: "Context management commands for Qovery CLI"
+---
+
+## Overview
+
+The `context` command manages your current working context (organization, project, environment). This allows you to run commands without specifying these parameters every time.
+
+## Commands
+
+### Set Context
+
+Set your working context interactively:
+
+```bash
+qovery context set
+```
+
+Set specific organization:
+
+```bash
+qovery context set --organization "My Organization"
+```
+
+Set specific project:
+
+```bash
+qovery context set --project "My Project"
+```
+
+Set specific environment:
+
+```bash
+qovery context set --environment "production"
+```
+
+### List Contexts
+
+List all available contexts:
+
+```bash
+qovery context list
+```
+
+### Current Context
+
+Display current context:
+
+```bash
+qovery context current
+```
+
+## Examples
+
+### Set Complete Context
+
+```bash
+# Interactive selection
+qovery context set
+
+# Select organization -> project -> environment
+# Context saved for subsequent commands
+```
+
+### Set Organization Only
+
+```bash
+qovery context set --organization "Acme Corp"
+
+# Now you can run commands within this org
+qovery project list
+```
+
+### Check Current Context
+
+```bash
+qovery context current
+# Output:
+# Organization: Acme Corp
+# Project: Backend Services
+# Environment: production
+```
+
+### Reset Context
+
+```bash
+qovery context set
+# Select different org/project/environment
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--organization` | Set organization context |
+| `--project` | Set project context |
+| `--environment` | Set environment context |
+| `--help` | Show help for context command |
+
+## Related Commands
+
+- [`qovery auth`](/cli/commands/auth) - Authenticate with Qovery
