@@ -1,0 +1,199 @@
+---
+title: "qovery port-forward"
+description: "Port forwarding command"
+---
+
+## Overview
+
+Forward a local port to a service container port. This allows you to access services running in your Qovery environment from your local machine.
+
+## Command
+
+```bash
+qovery port-forward
+```
+
+The command will interactively prompt you to select the organization, project, environment, and service to forward to.
+
+## Usage
+
+```bash
+qovery port-forward [flags]
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--organization` | Organization name |
+| `--project` | Project name |
+| `--environment` | Environment name |
+| `--service` | Service name |
+| `--port` | Port mapping (local:remote) |
+| `--pod` | Specific pod name |
+| `--help` | Show help |
+
+## Examples
+
+### Interactive Port Forward
+
+```bash
+# Start port forwarding interactively
+qovery port-forward
+
+# Select organization, project, environment, service
+# Specify local and remote ports when prompted
+```
+
+### Access PostgreSQL Database
+
+```bash
+# Forward PostgreSQL port
+qovery port-forward \
+  --organization "My Org" \
+  --project "Backend" \
+  --environment "production" \
+  --service "postgres-main" \
+  --port 5432:5432
+
+# In another terminal, connect with psql
+psql -h localhost -p 5432 -U myuser -d mydatabase
+```
+
+### Access Application API Locally
+
+```bash
+# Forward application port
+qovery port-forward \
+  --service "my-api" \
+  --port 8080:8080
+
+# Access API on http://localhost:8080
+curl http://localhost:8080/api/health
+```
+
+### Forward to Different Local Port
+
+```bash
+# Forward remote port 3000 to local port 8000
+qovery port-forward \
+  --service "my-app" \
+  --port 8000:3000
+
+# Access on http://localhost:8000
+```
+
+### Forward to Specific Pod
+
+```bash
+# Forward to a specific pod instance
+qovery port-forward \
+  --service "my-app" \
+  --pod "my-app-7d8f9c5b6-xyz12" \
+  --port 8080:8080
+```
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Database Access">
+    Forward database ports to run queries, migrations, or admin tools locally without exposing databases publicly.
+
+    ```bash
+    # PostgreSQL
+    qovery port-forward --service "postgres" --port 5432:5432
+
+    # MySQL
+    qovery port-forward --service "mysql" --port 3306:3306
+
+    # MongoDB
+    qovery port-forward --service "mongodb" --port 27017:27017
+
+    # Redis
+    qovery port-forward --service "redis" --port 6379:6379
+    ```
+  </Accordion>
+
+  <Accordion title="Debugging Applications">
+    Access application debug ports or admin interfaces that aren't exposed publicly.
+
+    ```bash
+    # Access admin panel
+    qovery port-forward --service "my-app" --port 8080:8080
+
+    # Access debug endpoint
+    qovery port-forward --service "my-app" --port 9090:9090
+    ```
+  </Accordion>
+
+  <Accordion title="Local Development">
+    Connect your local development environment to remote services (databases, APIs, microservices).
+
+    ```bash
+    # Forward remote database to local app
+    qovery port-forward --service "postgres" --port 5432:5432
+
+    # Run local app connecting to remote DB
+    DATABASE_URL=postgresql://localhost:5432/mydb npm run dev
+    ```
+  </Accordion>
+
+  <Accordion title="API Testing">
+    Test APIs or services that aren't publicly accessible.
+
+    ```bash
+    # Forward internal API
+    qovery port-forward --service "internal-api" --port 8080:8080
+
+    # Test with curl
+    curl http://localhost:8080/api/test
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Tips
+
+<Tip>
+Port forwarding creates a secure tunnel through Kubernetes. The connection is encrypted and authenticated.
+</Tip>
+
+<Tip>
+Keep the port-forward command running in a terminal window. The tunnel closes when you stop the command (Ctrl+C).
+</Tip>
+
+<Warning>
+Port forwarding is for development and debugging. For production access, use proper ingress, load balancers, or VPN solutions.
+</Warning>
+
+<Warning>
+The connection will drop if the pod restarts. You'll need to restart the port-forward command.
+</Warning>
+
+## Troubleshooting
+
+### Port Already in Use
+
+If the local port is already in use:
+
+```bash
+# Check what's using the port
+lsof -i :8080
+
+# Use a different local port
+qovery port-forward --service "my-app" --port 8081:8080
+```
+
+### Connection Drops
+
+If the connection drops frequently:
+
+```bash
+# Use a specific pod instead of letting Kubernetes choose
+qovery port-forward --service "my-app" --pod "my-app-pod-name" --port 8080:8080
+```
+
+## Related Commands
+
+- [`qovery shell`](/cli/commands/shell) - Execute commands in container
+- [`qovery log`](/cli/commands/log) - View service logs
+- [`qovery status`](/cli/commands/status) - Check service status

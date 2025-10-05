@@ -1,0 +1,78 @@
+---
+title: "qovery service"
+description: "Service management commands"
+---
+
+## Overview
+
+Manage all types of services within your Qovery environment. This is a unified command to list services across applications, containers, databases, jobs, and Helm charts.
+
+## Commands
+
+### List Services
+
+List all services in current environment:
+
+```bash
+qovery service list
+```
+
+This displays all services regardless of type (applications, containers, databases, cronjobs, lifecycle jobs, Helm charts).
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--organization` | Organization name |
+| `--project` | Project name |
+| `--environment` | Environment name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### List All Services
+
+```bash
+# Set context
+qovery context set
+
+# List all services in environment
+qovery service list
+
+# Example output:
+# NAME              TYPE           STATUS
+# my-api            Application    Running
+# postgres-db       Database       Running
+# redis-cache       Container      Running
+# backup-job        Cronjob        Running
+# db-migration      Lifecycle      Completed
+```
+
+### List Services with JSON Output
+
+```bash
+# Get services as JSON for scripting
+qovery service list --format json
+```
+
+## Service Types
+
+The `service list` command displays all the following service types:
+
+- **Application** - Applications built from Git repositories
+- **Container** - Pre-built Docker images
+- **Database** - Managed databases (PostgreSQL, MySQL, MongoDB, Redis, etc.)
+- **Cronjob** - Scheduled jobs
+- **Lifecycle** - Lifecycle jobs (run on specific events)
+- **Helm** - Helm charts
+
+## Related Commands
+
+- [`qovery application`](/cli/commands/application) - Manage applications specifically
+- [`qovery database`](/cli/commands/database) - Manage databases specifically
+- [`qovery container`](/cli/commands/container) - Manage containers specifically
+- [`qovery cronjob`](/cli/commands/cronjob) - Manage cronjobs specifically
+- [`qovery lifecycle`](/cli/commands/lifecycle) - Manage lifecycle jobs specifically
+- [`qovery helm`](/cli/commands/helm) - Manage Helm charts specifically
+- [`qovery status`](/cli/commands/status) - Check service statuses

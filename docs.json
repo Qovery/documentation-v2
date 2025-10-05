@@ -296,12 +296,19 @@
               "cli/commands/application",
               "cli/commands/database",
               "cli/commands/container",
-              "cli/commands/job",
+              "cli/commands/cronjob",
+              "cli/commands/lifecycle",
               "cli/commands/helm",
+              "cli/commands/service",
+              "cli/commands/env",
               "cli/commands/log",
               "cli/commands/shell",
+              "cli/commands/port-forward",
               "cli/commands/status",
-              "cli/commands/cluster"
+              "cli/commands/cluster",
+              "cli/commands/console",
+              "cli/commands/demo",
+              "cli/commands/token"
             ]
           }
         ]

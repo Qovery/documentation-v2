@@ -1,0 +1,125 @@
+---
+title: "qovery lifecycle"
+description: "Lifecycle job management commands"
+---
+
+## Overview
+
+Manage lifecycle jobs within your Qovery environment. Lifecycle jobs run at specific points in your environment lifecycle (e.g., before/after deployment, on start, on stop, on delete).
+
+## Commands
+
+### List Lifecycle Jobs
+
+List all lifecycle jobs in current environment:
+
+```bash
+qovery lifecycle list
+```
+
+### Deploy Lifecycle Job
+
+Deploy or update a lifecycle job:
+
+```bash
+qovery lifecycle deploy
+```
+
+### Redeploy Lifecycle Job
+
+Redeploy an existing lifecycle job:
+
+```bash
+qovery lifecycle redeploy
+```
+
+### Stop Lifecycle Job
+
+Stop a lifecycle job:
+
+```bash
+qovery lifecycle stop
+```
+
+### Delete Lifecycle Job
+
+Delete a lifecycle job:
+
+```bash
+qovery lifecycle delete
+```
+
+### Cancel Deployment
+
+Cancel a lifecycle job deployment:
+
+```bash
+qovery lifecycle cancel
+```
+
+### Clone Lifecycle Job
+
+Clone an existing lifecycle job:
+
+```bash
+qovery lifecycle clone
+```
+
+### Update Lifecycle Job
+
+Update lifecycle job configuration:
+
+```bash
+qovery lifecycle update
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--lifecycle` | Lifecycle job ID or name |
+| `--organization` | Organization name |
+| `--project` | Project name |
+| `--environment` | Environment name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Deploy Database Migration Job
+
+```bash
+# List lifecycle jobs
+qovery lifecycle list
+
+# Deploy migration job
+qovery lifecycle deploy
+
+# Check status
+qovery status
+```
+
+### Run Post-Deployment Script
+
+```bash
+# Deploy lifecycle job that runs after environment deployment
+qovery lifecycle deploy
+
+# View job logs
+qovery log
+```
+
+## Lifecycle Job Types
+
+| Event | Description |
+|-------|-------------|
+| **START** | Runs when environment starts |
+| **STOP** | Runs when environment stops |
+| **DELETE** | Runs before environment deletion |
+| **DEPLOY** | Runs during deployment |
+
+## Related Commands
+
+- [`qovery cronjob`](/cli/commands/cronjob) - Manage scheduled cronjobs
+- [`qovery log`](/cli/commands/log) - View lifecycle job logs
+- [`qovery status`](/cli/commands/status) - Check lifecycle job status

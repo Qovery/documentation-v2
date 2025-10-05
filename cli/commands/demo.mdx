@@ -1,0 +1,106 @@
+---
+title: "qovery demo"
+description: "Try Qovery on your local machine"
+---
+
+## Overview
+
+Try Qovery on your local machine with a demo environment. This command sets up a local Kubernetes cluster and deploys a sample application to help you learn Qovery.
+
+## Command
+
+```bash
+qovery demo
+```
+
+## What It Does
+
+The demo command:
+
+1. **Sets up local Kubernetes** - Creates a local Kubernetes cluster using Docker Desktop or similar
+2. **Installs Qovery** - Deploys Qovery components to the local cluster
+3. **Deploys Sample App** - Deploys a demo application to showcase Qovery features
+4. **Provides Access** - Gives you access to explore Qovery features locally
+
+## Prerequisites
+
+Before running the demo:
+
+- **Docker** - Docker Desktop must be installed and running
+- **Kubectl** - Kubernetes CLI should be available
+- **Sufficient Resources** - At least 4GB RAM available for Docker
+
+## Usage
+
+```bash
+qovery demo [flags]
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--help` | Show help for demo command |
+
+## Examples
+
+### Run Demo
+
+```bash
+# Start Qovery demo
+qovery demo
+
+# Follow the prompts to:
+# - Setup local Kubernetes cluster
+# - Install Qovery
+# - Deploy sample application
+# - Access the demo environment
+```
+
+## What You Can Try
+
+Once the demo is running, you can:
+
+- **Deploy Applications** - Try deploying your own apps
+- **Manage Environments** - Create development/staging environments
+- **View Logs** - Stream real-time logs
+- **Access Shell** - Connect to running containers
+- **Test Databases** - Deploy and connect to databases
+- **Explore Features** - Try all Qovery CLI commands
+
+## Cleanup
+
+To stop and remove the demo environment:
+
+```bash
+# Stop demo (command may vary based on implementation)
+# Refer to demo output for cleanup instructions
+```
+
+## Tips
+
+<Tip>
+The demo runs entirely on your local machine. It's safe to experiment without affecting any cloud resources.
+</Tip>
+
+<Tip>
+Use the demo to learn Qovery CLI commands before working with production environments.
+</Tip>
+
+<Warning>
+Ensure Docker Desktop has sufficient resources allocated (at least 4GB RAM, 2 CPUs).
+</Warning>
+
+## Next Steps
+
+After trying the demo:
+
+1. [Install Qovery](/installation) on your actual cloud infrastructure
+2. [Deploy your first app](/deploy-my-app)
+3. Explore [advanced features](/guides/use-cases/production-environment-management)
+
+## Related Commands
+
+- [`qovery auth`](/cli/commands/auth) - Authenticate with Qovery
+- [`qovery context`](/cli/commands/context) - Set working context
+- [`qovery application deploy`](/cli/commands/application) - Deploy applications

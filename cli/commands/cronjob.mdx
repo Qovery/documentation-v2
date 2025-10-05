@@ -1,0 +1,116 @@
+---
+title: "qovery cronjob"
+description: "Cronjob management commands"
+---
+
+## Overview
+
+Manage cronjobs within your Qovery environment. Cronjobs run on a scheduled basis (similar to cron in Unix/Linux).
+
+## Commands
+
+### List Cronjobs
+
+List all cronjobs in current environment:
+
+```bash
+qovery cronjob list
+```
+
+### Deploy Cronjob
+
+Deploy or update a cronjob:
+
+```bash
+qovery cronjob deploy
+```
+
+### Redeploy Cronjob
+
+Redeploy an existing cronjob:
+
+```bash
+qovery cronjob redeploy
+```
+
+### Stop Cronjob
+
+Stop a cronjob:
+
+```bash
+qovery cronjob stop
+```
+
+### Delete Cronjob
+
+Delete a cronjob:
+
+```bash
+qovery cronjob delete
+```
+
+### Cancel Deployment
+
+Cancel a cronjob deployment:
+
+```bash
+qovery cronjob cancel
+```
+
+### Clone Cronjob
+
+Clone an existing cronjob:
+
+```bash
+qovery cronjob clone
+```
+
+### Update Cronjob
+
+Update cronjob configuration:
+
+```bash
+qovery cronjob update
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--cronjob` | Cronjob ID or name |
+| `--organization` | Organization name |
+| `--project` | Project name |
+| `--environment` | Environment name |
+| `--output` | Output format (table, json, yaml) |
+| `--help` | Show help |
+
+## Examples
+
+### Deploy Cronjob
+
+```bash
+# List cronjobs
+qovery cronjob list
+
+# Deploy cronjob
+qovery cronjob deploy
+
+# View cronjob logs
+qovery log
+```
+
+### Update Cronjob Schedule
+
+```bash
+# Update cronjob configuration
+qovery cronjob update
+
+# Redeploy to apply changes
+qovery cronjob redeploy
+```
+
+## Related Commands
+
+- [`qovery lifecycle`](/cli/commands/lifecycle) - Manage lifecycle jobs
+- [`qovery log`](/cli/commands/log) - View cronjob logs
+- [`qovery status`](/cli/commands/status) - Check cronjob status

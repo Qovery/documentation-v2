@@ -1,0 +1,97 @@
+---
+title: "qovery console"
+description: "Open service in Qovery Console"
+---
+
+## Overview
+
+Opens the selected service in Qovery Console in your browser. This is a quick way to jump from CLI to the web interface for a specific service.
+
+## Command
+
+```bash
+qovery console
+```
+
+The command will interactively prompt you to select the organization, project, environment, and service, then open it in your default browser.
+
+## Usage
+
+```bash
+qovery console [service_url]
+```
+
+You can also provide a Qovery Console service URL directly:
+
+```bash
+qovery console https://console.qovery.com/...
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--organization` | Organization name |
+| `--project` | Project name |
+| `--environment` | Environment name |
+| `--service` | Service name |
+| `--help` | Show help |
+
+## Examples
+
+### Open Service Interactively
+
+```bash
+# Opens interactive selection
+qovery console
+
+# Select:
+# 1. Organization
+# 2. Project
+# 3. Environment
+# 4. Service
+
+# Opens service in browser
+```
+
+### Open Specific Service
+
+```bash
+# Open specific service by providing context
+qovery console \
+  --organization "My Org" \
+  --project "Backend" \
+  --environment "production" \
+  --service "my-api"
+```
+
+### Open from Console URL
+
+```bash
+# Copy URL from browser and open it
+qovery console https://console.qovery.com/organization/abc/project/def/environment/ghi/application/jkl
+```
+
+## Use Cases
+
+- Quickly switch from CLI to web interface
+- View service metrics and logs in Console
+- Access service settings and configuration
+- Review deployment history
+- Manage environment variables via UI
+
+## Tips
+
+<Tip>
+Use `qovery console` when you need to perform actions that are easier in the web interface, like viewing metrics or managing complex configurations.
+</Tip>
+
+<Tip>
+You can bookmark frequently used services in your browser after opening them with `qovery console`.
+</Tip>
+
+## Related Commands
+
+- [`qovery status`](/cli/commands/status) - Check service status
+- [`qovery log`](/cli/commands/log) - View service logs from CLI
+- [`qovery application`](/cli/commands/application) - Manage applications

@@ -1,0 +1,227 @@
+---
+title: "qovery token"
+description: "Generate API token"
+---
+
+## Overview
+
+Generate an API token for authenticating with Qovery programmatically. API tokens are useful for CI/CD pipelines, automation scripts, and integrations.
+
+## Command
+
+```bash
+qovery token
+```
+
+This command generates a new API token that can be used for authentication instead of interactive login.
+
+## Usage
+
+```bash
+qovery token [flags]
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--name` | Token name/description |
+| `--help` | Show help for token command |
+
+## Examples
+
+### Generate Token
+
+```bash
+# Generate new API token
+qovery token
+
+# Copy the token output
+# Token: qov_abc123def456...
+```
+
+### Generate Named Token
+
+```bash
+# Generate token with descriptive name
+qovery token --name "CI/CD Pipeline Token"
+```
+
+## Using API Tokens
+
+### In CI/CD Pipelines
+
+```bash
+# GitHub Actions
+env:
+  QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_TOKEN }}
+
+# GitLab CI
+variables:
+  QOVERY_CLI_ACCESS_TOKEN: $CI_QOVERY_TOKEN
+
+# CircleCI
+environment:
+  QOVERY_CLI_ACCESS_TOKEN: ${QOVERY_TOKEN}
+```
+
+### In Scripts
+
+```bash
+#!/bin/bash
+
+# Set token as environment variable
+export QOVERY_CLI_ACCESS_TOKEN="qov_abc123def456..."
+
+# Authenticate
+qovery auth
+
+# Run commands
+qovery application deploy --application "my-app"
+```
+
+### In Local Development
+
+```bash
+# Add to your shell profile (~/.bashrc, ~/.zshrc)
+export QOVERY_CLI_ACCESS_TOKEN="qov_abc123def456..."
+
+# Or create a .env file
+echo "QOVERY_CLI_ACCESS_TOKEN=qov_abc123def456..." > .env
+source .env
+```
+
+## Security Best Practices
+
+<Warning>
+**Never commit API tokens to version control.** Always use secrets management:
+- GitHub Actions: Use secrets
+- GitLab CI: Use CI/CD variables
+- CircleCI: Use environment variables
+- Local: Use environment variables or secure vaults
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Token Storage">
+    **Do:**
+    - Store tokens in CI/CD secret management
+    - Use environment variables
+    - Use secure vaults (AWS Secrets Manager, HashiCorp Vault)
+    - Rotate tokens regularly
+
+    **Don't:**
+    - Commit tokens to Git
+    - Share tokens in plain text
+    - Use the same token across multiple systems
+    - Store tokens in application code
+  </Accordion>
+
+  <Accordion title="Token Rotation">
+    Regularly rotate API tokens for security:
+
+    ```bash
+    # 1. Generate new token
+    qovery token --name "New Token"
+
+    # 2. Update CI/CD secrets with new token
+
+    # 3. Revoke old token in Qovery Console
+    ```
+  </Accordion>
+
+  <Accordion title="Limited Scope Tokens">
+    Generate separate tokens for different purposes:
+
+    ```bash
+    # Production deployments
+    qovery token --name "Production CI/CD"
+
+    # Staging deployments
+    qovery token --name "Staging CI/CD"
+
+    # Read-only monitoring
+    qovery token --name "Monitoring Read-Only"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Managing Tokens
+
+Tokens can be managed in the Qovery Console:
+
+1. Go to **Settings** → **API Tokens**
+2. View all active tokens
+3. Revoke tokens that are no longer needed
+4. Set expiration dates for tokens
+
+## Token Permissions
+
+API tokens inherit permissions from your user account:
+
+- **Full Access** - Can perform all operations you can perform
+- **Scoped to Organization** - Token permissions apply to specific organization
+- **Audit Trail** - All token actions are logged
+
+## Examples by Use Case
+
+### CI/CD Deployment
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to Qovery
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy Application
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_TOKEN }}
+        run: |
+          qovery auth
+          qovery application deploy --application "my-app"
+```
+
+### Automated Monitoring Script
+
+```bash
+#!/bin/bash
+# monitor.sh
+
+export QOVERY_CLI_ACCESS_TOKEN="${QOVERY_MONITORING_TOKEN}"
+
+qovery auth
+
+# Get status of all services
+qovery status --format json > status.json
+
+# Check for errors
+if jq -e '.services[] | select(.status == "ERROR")' status.json > /dev/null; then
+  echo "ERROR: Services with errors detected"
+  # Send alert
+fi
+```
+
+## Tips
+
+<Tip>
+Generate separate tokens for different environments (production, staging, development) to limit blast radius if a token is compromised.
+</Tip>
+
+<Tip>
+Use descriptive names when generating tokens to easily identify their purpose later.
+</Tip>
+
+## Related Commands
+
+- [`qovery auth`](/cli/commands/auth) - Authenticate with token
+- [`qovery context`](/cli/commands/context) - Set working context
