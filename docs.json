@@ -159,20 +159,6 @@
             ]
           },
           {
-            "group": "Container Registries",
-            "pages": [
-              "integrations/container-registries/overview",
-              "integrations/container-registries/aws-ecr",
-              "integrations/container-registries/docker-hub",
-              "integrations/container-registries/gcp-artifact-registry",
-              "integrations/container-registries/azure-acr",
-              "integrations/container-registries/github-cr",
-              "integrations/container-registries/gitlab-cr",
-              "integrations/container-registries/scaleway-cr",
-              "integrations/container-registries/generic"
-            ]
-          },
-          {
             "group": "Kubernetes",
             "pages": [
               "integrations/kubernetes/overview",
@@ -193,6 +179,16 @@
             ]
           },
           {
+            "group": "Git Providers",
+            "pages": [
+              "integrations/git-providers/overview",
+              "integrations/git-providers/github",
+              "integrations/git-providers/github-enterprise",
+              "integrations/git-providers/gitlab",
+              "integrations/git-providers/bitbucket"
+            ]
+          },
+          {
             "group": "CI/CD",
             "pages": [
               "integrations/ci-cd/overview",
@@ -205,13 +201,17 @@
             ]
           },
           {
-            "group": "Git Providers",
+            "group": "Container Registries",
             "pages": [
-              "integrations/git-providers/overview",
-              "integrations/git-providers/github",
-              "integrations/git-providers/github-enterprise",
-              "integrations/git-providers/gitlab",
-              "integrations/git-providers/bitbucket"
+              "integrations/container-registries/overview",
+              "integrations/container-registries/aws-ecr",
+              "integrations/container-registries/docker-hub",
+              "integrations/container-registries/gcp-artifact-registry",
+              "integrations/container-registries/azure-acr",
+              "integrations/container-registries/github-cr",
+              "integrations/container-registries/gitlab-cr",
+              "integrations/container-registries/scaleway-cr",
+              "integrations/container-registries/generic"
             ]
           },
           {
