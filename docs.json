@@ -122,9 +122,7 @@
           {
             "group": "Others",
             "pages": [
-              "guides/advanced/preview-environments",
-              "guides/advanced/multi-environment-setup",
-              "guides/advanced/ci-cd-integration"
+              "guides/others/aws-vpc-peering"
             ]
           }
         ]
