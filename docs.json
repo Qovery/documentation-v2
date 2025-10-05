@@ -77,10 +77,16 @@
             "group": "Security & Compliance",
             "pages": [
               "security-and-compliance/overview",
-              "security-and-compliance/backup-restore",
-              "security-and-compliance/encryption",
-              "security-and-compliance/gdpr",
-              "security-and-compliance/soc2"
+              {
+                "group": "Compliance",
+                "pages": [
+                  "security-and-compliance/soc2",
+                  "security-and-compliance/gdpr",
+                  "security-and-compliance/dora",
+                  "security-and-compliance/hipaa",
+                  "security-and-compliance/hds"
+                ]
+              }
             ]
           }
         ]

@@ -1,0 +1,544 @@
+---
+title: "HDS Compliance"
+description: "Hébergement de Données de Santé (HDS) readiness with Qovery"
+---
+
+## Overview
+
+Hébergement de Données de Santé (HDS) is a French certification for hosting health data. It is mandatory for any organization hosting health data of French patients or operating healthcare services in France. Qovery provides HDS-ready infrastructure for healthcare organizations operating in France.
+
+<Info>
+**HDS Certification**: HDS (Health Data Hosting) is a French legal requirement under Article L.1111-8 of the Public Health Code. It ensures appropriate security measures for hosting personal health data.
+</Info>
+
+## What is HDS?
+
+HDS certification ensures that hosting providers meet strict requirements for:
+
+<CardGroup cols={2}>
+  <Card title="Data Security" icon="shield">
+    Technical and organizational measures to protect health data
+  </Card>
+
+  <Card title="Confidentiality" icon="user-lock">
+    Ensuring only authorized persons access health data
+  </Card>
+
+  <Card title="Integrity" icon="check-double">
+    Preventing unauthorized modification of health data
+  </Card>
+
+  <Card title="Availability" icon="server">
+    Ensuring health data is accessible when needed
+  </Card>
+</CardGroup>
+
+## HDS Certification Process
+
+HDS certification is delivered by COFRAC-accredited bodies and covers six activities:
+
+<Steps>
+  <Step title="Activity 1: Physical Infrastructure">
+    Provision and maintenance of physical hosting infrastructure
+  </Step>
+
+  <Step title="Activity 2: Virtual Infrastructure">
+    Provision and maintenance of virtual infrastructure platform
+  </Step>
+
+  <Step title="Activity 3: Application Platform">
+    Provision and maintenance of application execution platform
+  </Step>
+
+  <Step title="Activity 4: Virtual Infrastructure Administration">
+    Administration and operation of information system
+  </Step>
+
+  <Step title="Activity 5: Application Platform Administration">
+    Administration and maintenance of application platform
+  </Step>
+
+  <Step title="Activity 6: Data Backup">
+    Backup management and restoration of health data
+  </Step>
+</Steps>
+
+## Qovery HDS-Ready Features
+
+### Infrastructure Requirements
+
+<Tabs>
+  <Tab title="Physical Security">
+    **Data Center Requirements**:
+    - SOC 2 certified facilities
+    - ISO 27001 certified operations
+    - 24/7 physical security
+    - Access control and surveillance
+    - Environmental controls
+
+    **Qovery Partner Data Centers**:
+    - AWS (Paris region: eu-west-3)
+    - GCP (Paris region: europe-west9)
+    - Azure (France Central: francecentral)
+    - Scaleway (Paris: fr-par) - **100% French**
+  </Tab>
+
+  <Tab title="Network Security">
+    **Isolation and Segmentation**:
+    - Dedicated VPC per customer
+    - Private subnets for workloads
+    - Network segmentation
+    - Firewall rules and security groups
+    - DDoS protection
+
+    **Encryption**:
+    - TLS 1.2+ for all communications
+    - IPsec VPN available
+    - Private endpoints for services
+  </Tab>
+
+  <Tab title="Data Protection">
+    **Encryption at Rest**:
+    - AES-256 encryption standard
+    - Database encryption enabled
+    - Volume encryption
+    - Backup encryption
+
+    **Key Management**:
+    - Cloud provider KMS integration
+    - Customer-managed keys available
+    - Automatic key rotation
+    - HSM backing available
+  </Tab>
+</Tabs>
+
+### Access Control
+
+<AccordionGroup>
+  <Accordion title="Authentication" icon="fingerprint">
+    **User Authentication**:
+    - Multi-factor authentication (MFA) required
+    - SSO/SAML 2.0 support
+    - Strong password policies
+    - Session timeout enforcement
+
+    **Service Authentication**:
+    - API tokens with expiration
+    - Certificate-based authentication
+    - Service accounts with limited permissions
+  </Accordion>
+
+  <Accordion title="Authorization" icon="key">
+    **Role-Based Access Control (RBAC)**:
+    - Predefined roles (Owner, Admin, Developer, Viewer)
+    - Custom roles with granular permissions
+    - Resource-level access control
+    - Least privilege principle
+
+    **Access Reviews**:
+    - Regular access audits
+    - Automatic access expiration
+    - Immediate revocation on termination
+  </Accordion>
+
+  <Accordion title="Audit Logging" icon="clipboard-list">
+    **Comprehensive Audit Trail**:
+    - All user actions logged
+    - Authentication events
+    - Resource access and modifications
+    - Configuration changes
+
+    **Log Security**:
+    - Immutable logs (tamper-proof)
+    - Long-term retention (configurable)
+    - Export to SIEM systems
+    - Real-time monitoring
+  </Accordion>
+</AccordionGroup>
+
+### Backup and Disaster Recovery
+
+<Tabs>
+  <Tab title="Automated Backups">
+    **Database Backups**:
+    - Daily automated backups
+    - Configurable schedule (hourly to weekly)
+    - Point-in-time recovery (PITR)
+    - Retention: 7 to 35 days (configurable)
+
+    **Backup Features**:
+    - Encrypted backups (AES-256)
+    - Incremental backups
+    - Multi-region replication available
+    - Backup verification and testing
+  </Tab>
+
+  <Tab title="Disaster Recovery">
+    **High Availability**:
+    - Multi-AZ deployment by default
+    - Automatic failover
+    - Load balancing
+    - Self-healing infrastructure
+
+    **Recovery Objectives**:
+    - RTO: 15-30 minutes (typical)
+    - RPO: < 24 hours (continuous available)
+    - Tested DR procedures
+    - Documented runbooks
+  </Tab>
+
+  <Tab title="Restore Procedures">
+    **Restoration Options**:
+    - Point-in-time recovery
+    - Full database restore
+    - Selective data recovery
+    - Cross-region restoration
+
+    **Testing**:
+    - Regular DR drills
+    - Backup validation
+    - Documented procedures
+    - Success metrics tracking
+  </Tab>
+</Tabs>
+
+## French Data Residency
+
+### Scaleway (100% French Provider)
+
+<Info>
+**Recommended for HDS**: Scaleway is a French cloud provider with 100% of infrastructure in France, making it ideal for strict data residency requirements.
+</Info>
+
+**Scaleway Benefits**:
+- All data centers in France (Paris region)
+- French company subject to French law
+- No data transfer outside France
+- GDPR compliant by default
+- Competitive pricing
+
+**Scaleway Regions**:
+- **fr-par**: Paris, France (3 availability zones)
+
+[Deploy on Scaleway →](/integrations/kubernetes/scaleway/overview)
+
+### Other French Regions
+
+<Tabs>
+  <Tab title="AWS">
+    **eu-west-3 (Paris)**:
+    - 3 Availability Zones
+    - Full range of AWS services
+    - Data residency in France
+    - BAA available for healthcare
+  </Tab>
+
+  <Tab title="GCP">
+    **europe-west9 (Paris)**:
+    - High-performance networking
+    - Data residency in France
+    - Google Cloud healthcare API
+    - CMEK support
+  </Tab>
+
+  <Tab title="Azure">
+    **francecentral (Paris)**:
+    - Paired with francesouth
+    - Microsoft healthcare solutions
+    - Azure Health Data Services
+    - French data residency
+  </Tab>
+</Tabs>
+
+## Organizational Requirements
+
+### Policies and Procedures
+
+<Steps>
+  <Step title="Security Policy">
+    Documented information security policy covering health data protection
+  </Step>
+
+  <Step title="Access Management">
+    Procedures for user provisioning, access reviews, and termination
+  </Step>
+
+  <Step title="Incident Response">
+    Documented incident response plan for security incidents
+  </Step>
+
+  <Step title="Business Continuity">
+    Business continuity and disaster recovery plans
+  </Step>
+
+  <Step title="Data Protection">
+    Procedures for data classification, handling, and disposal
+  </Step>
+
+  <Step title="Third-Party Management">
+    Vendor management and sub-processor assessment procedures
+  </Step>
+</Steps>
+
+### Staff Training
+
+**Required Training Topics**:
+- Data protection and privacy
+- Security awareness
+- Incident response procedures
+- Access control policies
+- Backup and recovery procedures
+
+**Qovery Support**:
+- Security best practices documentation
+- Training materials and webinars
+- Technical support
+- Customer success resources
+
+## Technical Security Measures
+
+### Network Security
+
+<AccordionGroup>
+  <Accordion title="Perimeter Security" icon="shield-halved">
+    **Firewall and Access Control**:
+    - Web Application Firewall (WAF)
+    - DDoS protection
+    - IP allowlisting/denylisting
+    - Rate limiting
+    - Geographic restrictions
+
+    **Network Segmentation**:
+    - VPC isolation
+    - Private subnets for applications
+    - Public subnets for load balancers only
+    - Network policies in Kubernetes
+  </Accordion>
+
+  <Accordion title="Monitoring and Detection" icon="radar">
+    **Security Monitoring**:
+    - Real-time threat detection
+    - Anomaly detection
+    - Intrusion detection systems (IDS)
+    - Log aggregation and analysis
+
+    **Alerting**:
+    - Security event notifications
+    - Suspicious activity alerts
+    - Failed authentication attempts
+    - Configuration changes
+  </Accordion>
+
+  <Accordion title="Vulnerability Management" icon="bug">
+    **Scanning and Patching**:
+    - Regular vulnerability scanning
+    - Automated security updates
+    - Container image scanning
+    - Dependency vulnerability checks
+
+    **Remediation**:
+    - Priority-based patching
+    - Testing before deployment
+    - Rollback procedures
+    - Documentation of fixes
+  </Accordion>
+</AccordionGroup>
+
+### Application Security
+
+**Best Practices**:
+- Secure coding guidelines
+- Input validation and sanitization
+- Output encoding
+- SQL injection prevention
+- XSS protection
+- CSRF tokens
+- Secure session management
+
+**Qovery Features**:
+- Container image scanning
+- Secret management
+- Environment variable encryption
+- Secure defaults
+- Security headers
+
+## Compliance Documentation
+
+### Required Documentation for HDS
+
+<CardGroup cols={2}>
+  <Card title="Security Policy" icon="file-contract">
+    Comprehensive information security policy
+  </Card>
+
+  <Card title="Risk Assessment" icon="triangle-exclamation">
+    Regular risk assessments and mitigation plans
+  </Card>
+
+  <Card title="Procedures" icon="list-check">
+    Documented operational procedures
+  </Card>
+
+  <Card title="Audit Reports" icon="file-certificate">
+    Internal and external audit reports
+  </Card>
+
+  <Card title="Incident Logs" icon="clipboard">
+    Security incident documentation
+  </Card>
+
+  <Card title="Training Records" icon="graduation-cap">
+    Staff training completion records
+  </Card>
+</CardGroup>
+
+### Qovery-Provided Documentation
+
+Available upon request (NDA may be required):
+- Infrastructure architecture diagrams
+- Security controls documentation
+- SOC 2 Type II reports
+- Penetration test results
+- Business continuity plans
+- Data processing agreements (DPA)
+
+## Sub-Processors and Partners
+
+### Qovery Sub-Processors
+
+<Warning>
+HDS requires transparency about all sub-processors handling health data.
+</Warning>
+
+**Infrastructure Providers**:
+- AWS (if using AWS regions)
+- Google Cloud (if using GCP regions)
+- Microsoft Azure (if using Azure regions)
+- Scaleway (if using Scaleway regions)
+
+**Supporting Services**:
+- Authentication providers (if using SSO)
+- Monitoring services (for observability)
+- Backup storage providers
+
+**Sub-Processor Management**:
+- Contractual obligations flow down
+- Regular security assessments
+- Notification of changes
+- Right to object to new sub-processors
+
+## Customer Responsibilities
+
+<Info>
+**Shared Responsibility**: While Qovery provides HDS-ready infrastructure, customers must implement additional controls for full HDS compliance.
+</Info>
+
+<Steps>
+  <Step title="Obtain HDS Certification">
+    Work with COFRAC-accredited certification body for your HDS certification
+  </Step>
+
+  <Step title="Data Classification">
+    Identify and classify health data in your applications
+  </Step>
+
+  <Step title="Application Security">
+    Implement secure coding practices and vulnerability management
+  </Step>
+
+  <Step title="Access Controls">
+    Configure appropriate RBAC and access policies
+  </Step>
+
+  <Step title="Training Program">
+    Train staff on data protection and security requirements
+  </Step>
+
+  <Step title="Documentation">
+    Maintain required policies, procedures, and records
+  </Step>
+
+  <Step title="Audits">
+    Conduct regular internal audits and engage certification body
+  </Step>
+</Steps>
+
+## Getting Started with HDS
+
+<Steps>
+  <Step title="Contact Qovery">
+    Reach out to discuss HDS requirements: sales@qovery.com
+  </Step>
+
+  <Step title="Select French Region">
+    Choose Scaleway (fr-par) or other French regions
+  </Step>
+
+  <Step title="Enable Security Controls">
+    - MFA enforcement
+    - Encryption at rest and in transit
+    - Audit logging
+    - Backup configuration
+  </Step>
+
+  <Step title="Document Compliance">
+    Create required policies and procedures
+  </Step>
+
+  <Step title="Engage Certification Body">
+    Work with COFRAC-accredited body for HDS certification
+  </Step>
+</Steps>
+
+## Professional Services
+
+Qovery offers professional services to help with HDS compliance:
+
+<CardGroup cols={2}>
+  <Card title="Compliance Consulting" icon="user-tie">
+    Expert guidance on HDS requirements and implementation
+  </Card>
+
+  <Card title="Architecture Review" icon="diagram-project">
+    Review and optimize your infrastructure for HDS
+  </Card>
+
+  <Card title="Security Assessment" icon="shield-check">
+    Evaluate current security posture against HDS requirements
+  </Card>
+
+  <Card title="Training" icon="chalkboard-user">
+    Custom training for your team on HDS and security
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Contact Sales" icon="comments">
+    Discuss HDS requirements: sales@qovery.com
+  </Card>
+
+  <Card title="Security Overview" icon="shield" href="/security-and-compliance/overview">
+    Review Qovery's security architecture
+  </Card>
+
+  <Card title="Scaleway Deployment" icon="server" href="/integrations/kubernetes/scaleway/overview">
+    Deploy on 100% French infrastructure
+  </Card>
+
+  <Card title="GDPR Compliance" icon="gavel" href="/security-and-compliance/gdpr">
+    Learn about GDPR compliance features
+  </Card>
+</CardGroup>
+
+## Resources
+
+- [ASIP Santé - HDS Information](https://esante.gouv.fr/labels-certifications/hds) (French)
+- [HDS Certification Requirements](https://esante.gouv.fr/labels-certifications/hds/liste-des-organismes-certifies) (French)
+- [Scaleway Healthcare Solutions](https://www.scaleway.com/en/healthcare/)
+- [French Health Data Hub](https://www.health-data-hub.fr/) (French)
+
+<Info>
+**Disclaimer**: This documentation provides information about Qovery features that support HDS compliance. Customers seeking HDS certification must work with a COFRAC-accredited certification body and implement appropriate organizational and technical measures. Consult with legal and compliance experts for your specific situation.
+</Info>

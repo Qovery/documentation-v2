@@ -1,18 +1,496 @@
 ---
 title: "Security Overview"
-description: "Qovery security and compliance overview"
+description: "Qovery security architecture, encryption, and backup capabilities"
 ---
 
-## Coming Soon
+## Security Architecture
 
-This guide will cover:
-- Security architecture
-- Network security
-- Identity and access management
-- Data encryption
-- Compliance certifications
-- Security best practices
+Qovery is built with security as a core principle, implementing defense-in-depth strategies across all layers of the platform.
+
+<CardGroup cols={2}>
+  <Card title="Zero Trust Architecture" icon="shield-halved">
+    No implicit trust - every request is authenticated and authorized
+  </Card>
+
+  <Card title="Least Privilege Access" icon="key">
+    Users and services have minimum required permissions
+  </Card>
+
+  <Card title="End-to-End Encryption" icon="lock">
+    Data encrypted at rest and in transit
+  </Card>
+
+  <Card title="Audit Logging" icon="file-lines">
+    Complete audit trail of all actions and changes
+  </Card>
+</CardGroup>
+
+## Data Encryption
+
+### Encryption at Rest
+
+All data stored by Qovery is encrypted at rest using industry-standard encryption:
+
+<Tabs>
+  <Tab title="Databases">
+    **Managed Databases**:
+    - AES-256 encryption for all database storage
+    - Automatic encryption enabled by default
+    - Cloud provider managed keys (AWS KMS, Google Cloud KMS, Azure Key Vault)
+    - Support for customer-managed encryption keys (CMEK)
+
+    **Database Examples**:
+    - PostgreSQL, MySQL: Encrypted tablespaces
+    - MongoDB: Encrypted storage engine
+    - Redis: Encrypted snapshots and AOF files
+  </Tab>
+
+  <Tab title="Object Storage">
+    **Application Data**:
+    - S3/GCS/Azure Blob: Server-side encryption (SSE)
+    - AES-256 encryption standard
+    - Encrypted bucket policies enforced
+    - Versioning with encrypted objects
+
+    **Build Artifacts**:
+    - Container images encrypted in registry
+    - Build cache encrypted at rest
+    - Temporary files on encrypted volumes
+  </Tab>
+
+  <Tab title="Secrets">
+    **Secret Management**:
+    - Encrypted with AES-256-GCM
+    - Stored in dedicated secret stores
+    - Envelope encryption (data encrypted with DEK, DEK encrypted with KEK)
+    - Automatic key rotation support
+
+    **Supported Secret Stores**:
+    - Qovery built-in secret store
+    - AWS Secrets Manager
+    - HashiCorp Vault
+    - Doppler
+    - External Secrets Operator
+  </Tab>
+
+  <Tab title="Volumes">
+    **Persistent Storage**:
+    - EBS volumes encrypted (AWS)
+    - Persistent Disks encrypted (GCP)
+    - Azure Disks encrypted (Azure)
+    - Block Storage encrypted (Scaleway)
+
+    **Encryption at Volume Level**:
+    - Automatic encryption for all PersistentVolumeClaims
+    - CSI driver managed encryption
+    - No performance impact
+  </Tab>
+</Tabs>
+
+### Encryption in Transit
+
+All data transmitted through Qovery is encrypted using TLS 1.2 or higher:
+
+<AccordionGroup>
+  <Accordion title="Application Traffic" icon="globe">
+    **HTTPS/TLS**:
+    - Automatic SSL/TLS certificate provisioning via Let's Encrypt
+    - TLS 1.2+ enforced (TLS 1.0/1.1 disabled)
+    - Strong cipher suites only
+    - HSTS enabled by default
+    - Automatic certificate renewal
+
+    **Custom Certificates**:
+    - Upload your own SSL certificates
+    - Wildcard certificate support
+    - Multiple domains per certificate
+    - SNI (Server Name Indication) support
+  </Accordion>
+
+  <Accordion title="API Communication" icon="code">
+    **Qovery API**:
+    - TLS 1.3 support
+    - Certificate pinning
+    - API token authentication
+    - OAuth 2.0 / OIDC integration
+    - Rate limiting and DDoS protection
+
+    **Agent Communication**:
+    - Mutual TLS (mTLS) between control plane and agents
+    - Certificate-based authentication
+    - Encrypted WebSocket connections
+    - Automatic certificate rotation
+  </Accordion>
+
+  <Accordion title="Database Connections" icon="database">
+    **Connection Encryption**:
+    - SSL/TLS enforced for all database connections
+    - Certificate verification enabled
+    - Encrypted connection strings
+    - No plaintext credentials
+
+    **Internal Communication**:
+    - Pod-to-pod encryption via service mesh (optional)
+    - Network policies enforcing encrypted traffic
+    - Private endpoints for managed services
+  </Accordion>
+
+  <Accordion title="Git Integration" icon="code-branch">
+    **Repository Access**:
+    - SSH keys with 4096-bit RSA or Ed25519
+    - HTTPS with personal access tokens
+    - OAuth tokens encrypted at rest
+    - Webhook secrets validated
+  </Accordion>
+</AccordionGroup>
+
+### Key Management
+
+<CardGroup cols={2}>
+  <Card title="Automatic Rotation" icon="rotate">
+    Encryption keys automatically rotated every 90 days
+  </Card>
+
+  <Card title="Cloud Provider KMS" icon="cloud">
+    Integration with AWS KMS, Google Cloud KMS, Azure Key Vault
+  </Card>
+
+  <Card title="Customer Managed Keys" icon="key">
+    Bring your own keys (BYOK) for enterprise customers
+  </Card>
+
+  <Card title="Hardware Security Modules" icon="microchip">
+    HSM backing for key storage on enterprise plans
+  </Card>
+</CardGroup>
+
+## Backup and Restore
+
+Qovery provides comprehensive backup and disaster recovery capabilities:
+
+### Database Backups
+
+<Tabs>
+  <Tab title="Automatic Backups">
+    **Managed Database Backups**:
+    - Automatic daily backups
+    - Configurable backup schedule (hourly, daily, weekly)
+    - Point-in-time recovery (PITR) available
+    - Backup retention: 7 to 35 days (configurable)
+
+    **Backup Process**:
+    - Snapshot-based backups (no downtime)
+    - Incremental backups for efficiency
+    - Encrypted backups (AES-256)
+    - Multi-region backup replication available
+  </Tab>
+
+  <Tab title="Manual Backups">
+    **On-Demand Backups**:
+    - Create backup before major changes
+    - Export to external storage (S3, GCS, Azure Blob)
+    - Backup tagging and labeling
+    - Backup verification and testing
+
+    **Backup via CLI**:
+    ```bash
+    # Create manual backup
+    qovery database backup create --database-id <db-id>
+
+    # List backups
+    qovery database backup list --database-id <db-id>
+
+    # Download backup
+    qovery database backup download --backup-id <backup-id>
+    ```
+  </Tab>
+
+  <Tab title="Restore Options">
+    **Point-in-Time Recovery**:
+    - Restore to any point within retention window
+    - Transaction-level recovery granularity
+    - Create new database from backup
+    - Restore to different environment
+
+    **Restore Process**:
+    1. Select backup or point in time
+    2. Choose target database (new or existing)
+    3. Verify restored data
+    4. Cutover when ready
+
+    **Recovery Time Objective (RTO)**:
+    - Typically 15-30 minutes for small databases (<100GB)
+    - Larger databases may take longer
+  </Tab>
+
+  <Tab title="Disaster Recovery">
+    **Multi-Region DR**:
+    - Cross-region backup replication
+    - Automated failover capabilities (enterprise)
+    - Regular DR testing and validation
+    - Runbook automation
+
+    **Recovery Point Objective (RPO)**:
+    - Continuous: < 1 minute (enterprise)
+    - Standard: 24 hours
+    - Configurable based on requirements
+  </Tab>
+</Tabs>
+
+### Configuration Backups
+
+**Infrastructure State**:
+- Automatic backup of cluster configurations
+- Environment configurations versioned
+- Terraform state backup (if using Terraform)
+- Helm releases tracked
+
+**Backup Locations**:
+- Cloud provider blob storage
+- Encrypted and geo-replicated
+- Immutable backups (WORM storage available)
+
+### Backup Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Test Restores" icon="flask">
+    Regularly test restore procedures to validate backups
+  </Card>
+
+  <Card title="Multiple Copies" icon="copy">
+    Keep backups in multiple regions for disaster recovery
+  </Card>
+
+  <Card title="Retention Policy" icon="calendar">
+    Align retention with compliance requirements (7-35 days standard)
+  </Card>
+
+  <Card title="Monitor Backups" icon="bell">
+    Set up alerts for backup failures or missing backups
+  </Card>
+</CardGroup>
+
+## Network Security
+
+### Isolation and Segmentation
+
+<AccordionGroup>
+  <Accordion title="VPC Isolation" icon="network-wired">
+    - Dedicated VPC per cluster
+    - Private subnets for workloads
+    - Public subnets for load balancers only
+    - Network ACLs and security groups
+    - No cross-account access
+  </Accordion>
+
+  <Accordion title="Namespace Isolation" icon="folder-tree">
+    - Kubernetes namespace per environment
+    - Network policies enforcing isolation
+    - Resource quotas per namespace
+    - RBAC boundaries
+  </Accordion>
+
+  <Accordion title="Service Mesh" icon="diagram-project">
+    - Optional service mesh deployment (Istio/Linkerd)
+    - mTLS between services
+    - Traffic encryption and authentication
+    - Fine-grained authorization policies
+  </Accordion>
+</AccordionGroup>
+
+### Firewall and Access Control
+
+**Ingress Control**:
+- WAF (Web Application Firewall) support
+- DDoS protection via cloud provider
+- IP allowlisting/denylisting
+- Rate limiting per application
+- Geographic restrictions
+
+**Egress Control**:
+- Outbound traffic filtering
+- NAT Gateway for controlled egress
+- Proxy support for compliance
+- Deny-by-default policies
+
+## Identity and Access Management
+
+### Authentication
+
+<Tabs>
+  <Tab title="User Authentication">
+    **Supported Methods**:
+    - Email/password with 2FA
+    - SSO via SAML 2.0
+    - OAuth 2.0 (Google, GitHub, GitLab)
+    - OIDC integration
+
+    **Multi-Factor Authentication**:
+    - TOTP (Time-based One-Time Password)
+    - Authenticator apps (Google Authenticator, Authy)
+    - Hardware tokens (YubiKey) for enterprise
+  </Tab>
+
+  <Tab title="Service Authentication">
+    **API Tokens**:
+    - Personal access tokens
+    - Service account tokens
+    - Scoped permissions per token
+    - Token expiration policies
+    - Automatic token rotation
+
+    **Machine Identity**:
+    - Workload Identity (GCP)
+    - IAM Roles for Service Accounts (AWS)
+    - Managed Identities (Azure)
+  </Tab>
+</Tabs>
+
+### Authorization
+
+**Role-Based Access Control (RBAC)**:
+- Predefined roles: Owner, Admin, Developer, Viewer
+- Custom roles with granular permissions
+- Resource-level permissions
+- Least privilege enforcement
+
+**Permission Model**:
+- Organization-level permissions
+- Project-level permissions
+- Environment-level permissions
+- Service-level permissions
+
+## Audit and Compliance
+
+### Audit Logging
 
 <Info>
-This guide is being created. See [hub.qovery.com](https://hub.qovery.com) for current documentation.
+All actions in Qovery are logged for security and compliance purposes.
 </Info>
+
+**Logged Events**:
+- User authentication (login, logout, MFA)
+- Resource creation, modification, deletion
+- Configuration changes
+- Deployment activities
+- API access
+- Permission changes
+
+**Audit Log Features**:
+- Immutable logs (cannot be altered)
+- Long-term retention (1+ years)
+- Export to SIEM systems
+- Real-time streaming
+- Search and filtering
+
+### Compliance Certifications
+
+Qovery maintains multiple compliance certifications:
+
+<CardGroup cols={3}>
+  <Card title="SOC 2 Type II" icon="shield-check" href="/security-and-compliance/soc2">
+    Annual audit for security controls
+  </Card>
+
+  <Card title="GDPR Compliant" icon="gavel" href="/security-and-compliance/gdpr">
+    European data protection regulation
+  </Card>
+
+  <Card title="DORA Ready" icon="landmark">
+    Digital Operational Resilience Act
+  </Card>
+
+  <Card title="HIPAA Eligible" icon="hospital" href="/security-and-compliance/hipaa">
+    Healthcare data protection
+  </Card>
+
+  <Card title="HDS Ready" icon="briefcase-medical" href="/security-and-compliance/hds">
+    French health data hosting
+  </Card>
+</CardGroup>
+
+[View all compliance certifications →](/security-and-compliance/soc2)
+
+## Security Best Practices
+
+### For Developers
+
+<Steps>
+  <Step title="Use Secret Management">
+    Never hardcode secrets in code or containers - use Qovery secret manager or external providers
+  </Step>
+
+  <Step title="Enable HTTPS">
+    Always use HTTPS for public applications with automatic SSL certificates
+  </Step>
+
+  <Step title="Implement Least Privilege">
+    Grant minimum required permissions to users and service accounts
+  </Step>
+
+  <Step title="Regular Updates">
+    Keep dependencies updated and rebuild containers regularly
+  </Step>
+
+  <Step title="Enable MFA">
+    Require multi-factor authentication for all team members
+  </Step>
+</Steps>
+
+### For Operations
+
+<Steps>
+  <Step title="Network Segmentation">
+    Use network policies to isolate workloads and environments
+  </Step>
+
+  <Step title="Monitor Security Events">
+    Set up alerts for suspicious activities and failed authentications
+  </Step>
+
+  <Step title="Regular Backups">
+    Test backup and restore procedures quarterly
+  </Step>
+
+  <Step title="Patch Management">
+    Keep clusters and nodes updated with latest security patches
+  </Step>
+
+  <Step title="Security Scanning">
+    Scan container images for vulnerabilities before deployment
+  </Step>
+</Steps>
+
+## Incident Response
+
+**Security Incident Process**:
+1. Detection: Automated monitoring and alerting
+2. Analysis: Security team investigates
+3. Containment: Isolate affected resources
+4. Eradication: Remove threat
+5. Recovery: Restore normal operations
+6. Post-Incident: Review and improve
+
+**Contact for Security Issues**:
+- Email: security@qovery.com
+- For vulnerabilities: [Responsible Disclosure Policy](https://www.qovery.com/security)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SOC 2 Compliance" icon="shield-check" href="/security-and-compliance/soc2">
+    Learn about Qovery's SOC 2 Type II certification
+  </Card>
+
+  <Card title="GDPR Compliance" icon="gavel" href="/security-and-compliance/gdpr">
+    GDPR compliance features and data protection
+  </Card>
+
+  <Card title="Backup Configuration" icon="clock-rotate-left" href="/using-qovery/configuration/database">
+    Configure backup schedules for databases
+  </Card>
+
+  <Card title="Secret Management" icon="key" href="/integrations/secret-managers/overview">
+    Integrate external secret managers
+  </Card>
+</CardGroup>
