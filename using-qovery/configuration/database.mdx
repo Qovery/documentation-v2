@@ -3,16 +3,531 @@ title: "Database"
 description: "Configure and manage databases"
 ---
 
-## Coming Soon
+## Overview
 
-This guide will cover:
-- Supported database types
-- Creating managed databases
-- Database configuration
-- Backup and restore
-- Scaling databases
-- Connecting applications to databases
+Qovery provides managed database services that you can deploy alongside your applications. Databases are automatically configured with connection credentials and can be connected to your applications through environment variables.
+
+## Supported Database Types
+
+Qovery supports the most popular database engines:
+
+<CardGroup cols={2}>
+  <Card title="PostgreSQL" icon="database">
+    Powerful open-source relational database with advanced features
+  </Card>
+
+  <Card title="MySQL" icon="database">
+    Popular open-source relational database management system
+  </Card>
+
+  <Card title="MongoDB" icon="database">
+    Document-oriented NoSQL database for flexible data models
+  </Card>
+
+  <Card title="Redis" icon="database">
+    In-memory data store for caching and real-time applications
+  </Card>
+</CardGroup>
+
+## Database Modes
+
+Qovery offers two deployment modes for databases:
+
+### Container Mode
 
 <Info>
-This guide is being created. See [Connect Database](/guides/getting-started/connect-database) for basics.
+**Best for**: Development, testing, and non-critical workloads
 </Info>
+
+Databases deployed as containers on your Kubernetes cluster:
+
+**Characteristics**:
+- Single instance deployment
+- Runs on Kubernetes nodes
+- Lower cost
+- Ideal for development and testing
+- Quick to provision
+- No cloud provider fees
+
+**Limitations**:
+- Not highly available
+- Limited to single instance
+- Manual backup management
+
+### Managed Mode
+
+<Info>
+**Best for**: Production workloads requiring high availability
+</Info>
+
+Fully managed databases provided by your cloud provider (AWS RDS, GCP Cloud SQL, Azure Database, Scaleway Database):
+
+**Characteristics**:
+- High availability and reliability
+- Automatic backups
+- Point-in-time recovery
+- Automatic updates and patches
+- Multi-AZ deployment options
+- Cloud provider SLA
+
+**Limitations**:
+- Higher cost
+- Limited configuration access
+- Provider-specific features
+
+<Warning>
+For production workloads, **Managed Mode is strongly recommended** to ensure data reliability and availability.
+</Warning>
+
+## Creating a Database
+
+<Steps>
+  <Step title="Navigate to Environment">
+    Go to your project and select the environment where you want to add a database
+  </Step>
+
+  <Step title="Add Database">
+    Click **Create** → **Database**
+  </Step>
+
+  <Step title="Select Database Type">
+    Choose from PostgreSQL, MySQL, MongoDB, or Redis
+  </Step>
+
+  <Step title="Configure Database">
+    **General Configuration**:
+    - **Name**: Database identifier (e.g., `my-db`, `cache-redis`)
+    - **Description**: Optional description
+    - **Version**: Select database engine version
+    - **Mode**: Container or Managed
+
+    **Mode-Specific Settings**:
+
+    For **Container Mode**:
+    - CPU allocation (default: 250m)
+    - Memory allocation (default: 256 MB)
+    - Storage size (default: 10 GB)
+
+    For **Managed Mode**:
+    - Instance type (e.g., `db.t3.micro`, `db.t3.small`)
+    - Storage size
+    - Storage type (SSD/HDD)
+    - Multi-AZ deployment (optional)
+  </Step>
+
+  <Step title="Configure Accessibility">
+    - **Private**: Only accessible within the environment (recommended)
+    - **Public**: Accessible from the internet (requires strong credentials)
+  </Step>
+
+  <Step title="Create">
+    Click **Create Database** to provision
+  </Step>
+</Steps>
+
+<Tip>
+For a step-by-step tutorial, see [Connect Your First Database](/guides/getting-started/connect-database).
+</Tip>
+
+## Database Configuration
+
+### Resource Allocation
+
+**Container Mode**:
+```yaml
+CPU: 250m - 2000m
+Memory: 256 MB - 8 GB
+Storage: 10 GB - 500 GB
+```
+
+**Managed Mode** (depends on cloud provider):
+```yaml
+Instance Types:
+- Small: db.t3.micro, db.t3.small
+- Medium: db.t3.medium, db.m5.large
+- Large: db.m5.xlarge, db.m5.2xlarge
+
+Storage: 20 GB - 16 TB (depending on instance type)
+```
+
+### Version Selection
+
+Choose the database version based on your needs:
+
+<CardGroup cols={2}>
+  <Card title="PostgreSQL" icon="database">
+    Versions: 11, 12, 13, 14, 15, 16
+  </Card>
+
+  <Card title="MySQL" icon="database">
+    Versions: 5.7, 8.0, 8.1
+  </Card>
+
+  <Card title="MongoDB" icon="database">
+    Versions: 4.4, 5.0, 6.0, 7.0
+  </Card>
+
+  <Card title="Redis" icon="database">
+    Versions: 6.0, 6.2, 7.0, 7.2
+  </Card>
+</CardGroup>
+
+<Warning>
+Version upgrades may require maintenance windows. Always test upgrades in non-production environments first.
+</Warning>
+
+### Accessibility
+
+**Private Access** (Recommended):
+- Database only accessible from services within the same environment
+- More secure
+- Lower latency
+- No public internet exposure
+
+**Public Access** (Use with caution):
+- Database accessible from anywhere via internet
+- Requires strong authentication
+- Use for:
+  - External access during development
+  - Migration scenarios
+  - External tools/dashboards
+
+## Connection Credentials
+
+Qovery automatically generates and injects connection credentials as environment variables in your applications.
+
+### Auto-Generated Environment Variables
+
+For a database named `my-db`, Qovery creates:
+
+```bash
+# Full connection URI
+QOVERY_DATABASE_MY_DB_CONNECTION_URI=postgresql://user:pass@host:5432/dbname
+
+# Individual components
+QOVERY_DATABASE_MY_DB_HOST=xxx.xxx.xxx.xxx
+QOVERY_DATABASE_MY_DB_PORT=5432
+QOVERY_DATABASE_MY_DB_USERNAME=qovery
+QOVERY_DATABASE_MY_DB_PASSWORD=xxx
+QOVERY_DATABASE_MY_DB_DATABASE=my_db
+```
+
+### Using Credentials in Your Application
+
+<CodeGroup>
+```javascript Node.js
+// Using connection URI
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.QOVERY_DATABASE_MY_DB_CONNECTION_URI
+});
+
+// Using individual variables
+const pool = new Pool({
+  host: process.env.QOVERY_DATABASE_MY_DB_HOST,
+  port: process.env.QOVERY_DATABASE_MY_DB_PORT,
+  user: process.env.QOVERY_DATABASE_MY_DB_USERNAME,
+  password: process.env.QOVERY_DATABASE_MY_DB_PASSWORD,
+  database: process.env.QOVERY_DATABASE_MY_DB_DATABASE
+});
+```
+
+```python Python
+import os
+import psycopg2
+
+# Using connection URI
+conn = psycopg2.connect(
+    os.environ['QOVERY_DATABASE_MY_DB_CONNECTION_URI']
+)
+
+# Using individual variables
+conn = psycopg2.connect(
+    host=os.environ['QOVERY_DATABASE_MY_DB_HOST'],
+    port=os.environ['QOVERY_DATABASE_MY_DB_PORT'],
+    user=os.environ['QOVERY_DATABASE_MY_DB_USERNAME'],
+    password=os.environ['QOVERY_DATABASE_MY_DB_PASSWORD'],
+    database=os.environ['QOVERY_DATABASE_MY_DB_DATABASE']
+)
+```
+
+```go Go
+import (
+    "database/sql"
+    "os"
+    _ "github.com/lib/pq"
+)
+
+// Using connection URI
+db, err := sql.Open("postgres", os.Getenv("QOVERY_DATABASE_MY_DB_CONNECTION_URI"))
+
+// Using individual variables
+connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s",
+    os.Getenv("QOVERY_DATABASE_MY_DB_HOST"),
+    os.Getenv("QOVERY_DATABASE_MY_DB_PORT"),
+    os.Getenv("QOVERY_DATABASE_MY_DB_USERNAME"),
+    os.Getenv("QOVERY_DATABASE_MY_DB_PASSWORD"),
+    os.Getenv("QOVERY_DATABASE_MY_DB_DATABASE"))
+db, err := sql.Open("postgres", connStr)
+```
+</CodeGroup>
+
+## Alternative Database Solutions
+
+If Qovery's built-in database options don't meet your requirements, you have alternatives:
+
+### 1. External Database on Dedicated VPC
+
+Connect to an existing database hosted on your own infrastructure:
+
+<Steps>
+  <Step title="Set up VPC Peering">
+    Configure VPC peering between your Qovery cluster and your database VPC
+  </Step>
+
+  <Step title="Add Connection Variables">
+    Manually add database connection details as environment variables
+  </Step>
+
+  <Step title="Configure Security Groups">
+    Allow traffic from Qovery cluster to your database
+  </Step>
+</Steps>
+
+<Info>
+Learn more: [AWS VPC Peering Guide](/guides/others/aws-vpc-peering)
+</Info>
+
+### 2. Custom Database via Lifecycle Jobs
+
+Use lifecycle jobs to provision custom database configurations:
+
+```yaml
+# Example: Create RDS instance with specific settings
+lifecycle_job:
+  name: create-custom-db
+  on: deploy
+  script: |
+    aws rds create-db-instance \
+      --db-instance-identifier my-custom-db \
+      --db-instance-class db.r5.large \
+      --engine postgres \
+      --master-username admin \
+      --master-user-password ${DB_PASSWORD}
+```
+
+### 3. Terraform Integration
+
+Use Terraform to create and manage databases:
+
+<Steps>
+  <Step title="Create Terraform Configuration">
+    Define your database infrastructure in Terraform
+  </Step>
+
+  <Step title="Deploy via Lifecycle Job">
+    Use lifecycle job to run Terraform commands
+  </Step>
+
+  <Step title="Export Connection Details">
+    Output database credentials to Qovery environment variables
+  </Step>
+</Steps>
+
+<Info>
+Learn more: [Terraform Integration](/integrations/terraform/overview)
+</Info>
+
+## Managing Databases
+
+### Clone Database
+
+Create a copy of an existing database:
+
+<Steps>
+  <Step title="Select Database">
+    Go to the database you want to clone
+  </Step>
+
+  <Step title="Clone">
+    Click **Actions** → **Clone**
+  </Step>
+
+  <Step title="Configure Clone">
+    - New database name
+    - Target environment
+    - Clone data (optional)
+  </Step>
+</Steps>
+
+### Upgrade Database Version
+
+<Warning>
+Always backup your data before upgrading database versions.
+</Warning>
+
+<Steps>
+  <Step title="Test in Non-Production">
+    Clone database to staging and test upgrade
+  </Step>
+
+  <Step title="Schedule Maintenance Window">
+    Plan for potential downtime during upgrade
+  </Step>
+
+  <Step title="Upgrade Version">
+    Go to database settings → Change version → Deploy
+  </Step>
+
+  <Step title="Verify Application">
+    Test application connectivity and functionality
+  </Step>
+</Steps>
+
+### Delete Database
+
+<Warning>
+Deleting a database is **non-recoverable**. All data will be permanently deleted.
+</Warning>
+
+Before deleting:
+1. **Backup your data**
+2. Stop all applications using the database
+3. Verify you're deleting the correct database
+
+To delete:
+1. Go to database settings
+2. Click **Delete Database**
+3. Type database name to confirm
+4. Click **Confirm Delete**
+
+## Cloud Provider Support
+
+<Tabs>
+  <Tab title="AWS">
+    **Managed Databases**:
+    - RDS PostgreSQL
+    - RDS MySQL
+    - DocumentDB (MongoDB-compatible)
+    - ElastiCache (Redis)
+
+    **Regions**: All AWS regions supported by Qovery
+  </Tab>
+
+  <Tab title="GCP">
+    **Managed Databases**:
+    - Cloud SQL PostgreSQL
+    - Cloud SQL MySQL
+    - Cloud Memorystore (Redis)
+
+    **Regions**: All GCP regions supported by Qovery
+  </Tab>
+
+  <Tab title="Azure">
+    **Managed Databases**:
+    - Azure Database for PostgreSQL
+    - Azure Database for MySQL
+    - Azure Cache for Redis
+
+    **Regions**: All Azure regions supported by Qovery
+  </Tab>
+
+  <Tab title="Scaleway">
+    **Managed Databases**:
+    - Scaleway Database PostgreSQL
+    - Scaleway Database MySQL
+    - Scaleway Database Redis
+
+    **Regions**: All Scaleway regions supported by Qovery
+  </Tab>
+</Tabs>
+
+## Important Considerations
+
+<AccordionGroup>
+  <Accordion title="Do Not Modify Managed Databases Directly">
+    **Never modify managed database settings directly in your cloud provider console**. Always use Qovery to manage database configuration.
+
+    Modifying settings outside Qovery can cause:
+    - Configuration drift
+    - Deployment failures
+    - Loss of Qovery management
+    - Inconsistent state
+  </Accordion>
+
+  <Accordion title="Version Upgrades">
+    Database version upgrades may have maintenance windows that cause temporary unavailability. Plan upgrades accordingly:
+    - Test in staging first
+    - Schedule during low-traffic periods
+    - Notify users of potential downtime
+    - Have rollback plan ready
+  </Accordion>
+
+  <Accordion title="Backup Strategy">
+    **Container Mode**:
+    - Manual backups required
+    - Use lifecycle jobs or external tools
+    - Regular backup schedule recommended
+
+    **Managed Mode**:
+    - Automatic backups by cloud provider
+    - Point-in-time recovery available
+    - Retention period configurable
+  </Accordion>
+
+  <Accordion title="Data Deletion">
+    When deleting databases:
+    - Data is permanently removed
+    - No recovery possible
+    - Always backup critical data first
+    - Consider cloning to archive environment
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Managed Mode for Production" icon="shield-check">
+    Always use managed databases for production workloads to ensure reliability and automatic backups
+  </Card>
+
+  <Card title="Keep Databases Private" icon="lock">
+    Use private accessibility unless public access is absolutely required for security
+  </Card>
+
+  <Card title="Right-Size Resources" icon="gauge">
+    Start with smaller instances and scale up based on actual usage patterns
+  </Card>
+
+  <Card title="Test Version Upgrades" icon="vial">
+    Always test database upgrades in staging before applying to production
+  </Card>
+
+  <Card title="Monitor Performance" icon="chart-line">
+    Use database metrics to identify performance issues and optimize queries
+  </Card>
+
+  <Card title="Regular Backups" icon="floppy-disk">
+    Implement regular backup strategy even with managed databases for extra safety
+  </Card>
+</CardGroup>
+
+## Related Topics
+
+<CardGroup cols={2}>
+  <Card title="Connect Database Guide" href="/guides/getting-started/connect-database">
+    Step-by-step guide to connecting your first database
+  </Card>
+
+  <Card title="Environment Variables" href="/using-qovery/configuration/environment">
+    Learn about environment variable management
+  </Card>
+
+  <Card title="VPC Peering" href="/guides/others/aws-vpc-peering">
+    Connect to external databases via VPC peering
+  </Card>
+
+  <Card title="Lifecycle Jobs" href="/using-qovery/configuration/lifecycle-job">
+    Use lifecycle jobs for custom database provisioning
+  </Card>
+</CardGroup>
