@@ -85,9 +85,18 @@ Qovery AI Copilot uses an agentic architecture that processes natural language r
 ```mermaid
 graph TB
     User[User Request] -->|Natural Language| Copilot[Qovery AI Copilot]
+
+    %% Knowledge Sources
+    Docs[Qovery Documentation] -.->|Reference| Copilot
+    DW[Data Warehouse] -.->|Historical Data| Copilot
+
     Copilot -->|1. Understand Intent| Planning[Planning Engine]
     Planning -->|2. Break Down| Tasks[Task Sequencing]
     Tasks -->|3. Execute| Tools[Qovery API Tools]
+
+    %% Query historical data when needed
+    Tools -.->|Query History| DW
+
     Tools -->|4. Perform Actions| QoveryAPI[Qovery API]
     QoveryAPI -->|Manage| Infrastructure[Your Infrastructure]
     Infrastructure -->|Kubernetes| K8s[AWS/GCP/Azure/Scaleway]
@@ -104,7 +113,30 @@ graph TB
     style Tasks fill:#9E83FF,color:#fff
     style Tools fill:#BFB1FF,color:#000
     style Infrastructure fill:#370087,color:#fff
+    style Docs fill:#E2C9C6,color:#000
+    style DW fill:#E2C9C6,color:#000
 ```
+
+### Knowledge Sources
+
+Qovery AI Copilot has access to comprehensive knowledge sources to provide accurate and contextual responses:
+
+<CardGroup cols={2}>
+  <Card title="Qovery Documentation" icon="book">
+    Complete access to all Qovery documentation for accurate guidance on features, configurations, and best practices
+  </Card>
+
+  <Card title="Data Warehouse" icon="database">
+    Historical data and operations from your infrastructure for trend analysis, usage patterns, and informed decision-making
+  </Card>
+</CardGroup>
+
+This knowledge enables the Copilot to:
+- Answer questions about Qovery features and capabilities
+- Provide best practice recommendations
+- Analyze historical trends and patterns
+- Make data-driven optimization suggestions
+- Understand your infrastructure's evolution over time
 
 ### Agentic Architecture Phases
 
