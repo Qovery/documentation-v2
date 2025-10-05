@@ -80,7 +80,35 @@ Unlike traditional chatbots that simply answer questions, Qovery AI Copilot is a
 
 ## How It Works
 
-Qovery AI Copilot uses an agentic architecture that evolved through four phases:
+Qovery AI Copilot uses an agentic architecture that processes natural language requests and autonomously executes infrastructure operations:
+
+```mermaid
+graph TB
+    User[User Request] -->|Natural Language| Copilot[Qovery AI Copilot]
+    Copilot -->|1. Understand Intent| Planning[Planning Engine]
+    Planning -->|2. Break Down| Tasks[Task Sequencing]
+    Tasks -->|3. Execute| Tools[Qovery API Tools]
+    Tools -->|4. Perform Actions| QoveryAPI[Qovery API]
+    QoveryAPI -->|Manage| Infrastructure[Your Infrastructure]
+    Infrastructure -->|Kubernetes| K8s[AWS/GCP/Azure/Scaleway]
+    QoveryAPI -->|5. Return Results| Tools
+    Tools -->|6. Validate State| Validation[State Validation]
+    Validation -->|Success| Memory[Conversation Memory]
+    Validation -->|Failure| Retry[Retry Logic]
+    Retry --> Tools
+    Memory -->|7. Respond| User
+    Memory -.->|Context| Copilot
+
+    style Copilot fill:#642DFF,color:#fff
+    style Planning fill:#7D55FF,color:#fff
+    style Tasks fill:#9E83FF,color:#fff
+    style Tools fill:#BFB1FF,color:#000
+    style Infrastructure fill:#370087,color:#fff
+```
+
+### Agentic Architecture Phases
+
+The Copilot evolved through four phases to become a true agentic system:
 
 ### 1. Basic Agent Phase
 - Understands user intent
@@ -112,33 +140,29 @@ Read the technical deep-dive: [How We Built an Agentic DevOps Copilot](https://w
 **Early Access**: Qovery AI Copilot is available online and on demand. Contact [Qovery Support](mailto:support@qovery.com) to request early access.
 </Note>
 
-You can interact with Qovery AI Copilot through multiple interfaces:
+You can interact with Qovery AI Copilot through two interfaces:
 
 <Tabs>
+  <Tab title="Web Console (Beta)">
+    Use Qovery AI Copilot directly in the Qovery Web Console.
+
+    - Integrated chat interface
+    - Natural language interaction
+    - Full automation capabilities
+    - Maintains conversation context
+    - No additional setup required
+    - **Requires early access** - contact support@qovery.com
+  </Tab>
+
   <Tab title="MCP Server (Beta)">
-    Use Qovery AI Copilot directly in Claude Desktop or other MCP-compatible clients.
+    Use Qovery AI Copilot in Claude Desktop or other MCP-compatible clients.
 
     - Natural language interaction
     - Full automation capabilities
     - Maintains conversation context
+    - Works from any MCP-compatible AI assistant
     - **Requires early access** - contact support@qovery.com
     - [Setup Guide →](/copilot/mcp-server)
-  </Tab>
-
-  <Tab title="API (Coming Soon)">
-    Programmatic access to Copilot capabilities via REST API.
-
-    - Integrate into custom tools
-    - Automate workflows
-    - Build custom interfaces
-  </Tab>
-
-  <Tab title="CLI (Coming Soon)">
-    Command-line interface for Copilot interactions.
-
-    - Terminal-based workflows
-    - Script automation
-    - CI/CD integration
   </Tab>
 </Tabs>
 
