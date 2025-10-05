@@ -5,228 +5,449 @@ description: "Connect Qovery with your favorite tools and cloud providers"
 
 ## Overview
 
-Qovery integrates with the most popular tools and services in the cloud-native ecosystem. Connect your existing infrastructure, CI/CD pipelines, container registries, and more to create a seamless DevOps workflow.
+Qovery integrates seamlessly with the most popular tools and services in the cloud-native ecosystem. Connect your existing infrastructure, CI/CD pipelines, container registries, observability tools, and more to create a complete DevOps workflow.
 
 ## Integration Categories
 
 <CardGroup cols={2}>
-  <Card title="Container Registries" icon="box" href="/integrations/container-registries/overview">
-    Connect Docker Hub, ECR, GCR, ACR, and private registries
-  </Card>
-
-  <Card title="Cloud Providers" icon="cloud" href="/integrations/cloud-providers/overview">
-    Deploy on AWS, GCP, Azure, Scaleway, or any Kubernetes cluster
-  </Card>
-
-  <Card title="CI/CD" icon="arrows-rotate" href="/integrations/ci-cd/overview">
-    Integrate with GitHub Actions, GitLab CI, CircleCI, and Jenkins
+  <Card title="Kubernetes" icon="dharmachakra" href="/integrations/kubernetes/overview">
+    Deploy on AWS EKS, GCP GKE, Azure AKS, Scaleway, or any Kubernetes cluster
   </Card>
 
   <Card title="Git Providers" icon="code-branch" href="/integrations/git-providers/overview">
-    Connect GitHub, GitLab, and Bitbucket repositories
+    Connect GitHub, GitHub Enterprise, GitLab, and Bitbucket repositories
+  </Card>
+
+  <Card title="CI/CD" icon="arrows-rotate" href="/integrations/ci-cd/overview">
+    Qovery Deploy, GitHub Actions, GitLab CI, CircleCI, and Jenkins
+  </Card>
+
+  <Card title="Container Registries" icon="box" href="/integrations/container-registries/overview">
+    Connect Docker Hub, ECR, GCR, ACR, GitHub CR, and private registries
   </Card>
 
   <Card title="Secret Managers" icon="key" href="/integrations/secret-managers/overview">
-    Use Doppler, AWS Secrets Manager, and more
+    Integrate Doppler, AWS Secrets Manager, and External Secrets Operator
+  </Card>
+
+  <Card title="Terraform" icon="code" href="/integrations/terraform/overview">
+    Deploy Terraform modules from Git with automatic state management
   </Card>
 
   <Card title="Helm Repositories" icon="helm" href="/integrations/helm/overview">
-    Deploy charts from any Helm repository
+    Deploy any Helm chart from public or private repositories
   </Card>
 
   <Card title="Observability" icon="chart-line" href="/integrations/observability/overview">
-    Monitor with built-in tools or integrate Datadog, Grafana
+    Qovery Observe, Datadog, New Relic, Prometheus, Grafana, and more
   </Card>
 
   <Card title="Webhooks" icon="webhook" href="/integrations/webhooks">
-    Get notified about deployments and events
+    Get real-time notifications about deployments and events
   </Card>
 </CardGroup>
 
-## Quick Start
+## Popular Integration Paths
 
-### Connect a Git Repository
+<Tabs>
+  <Tab title="AWS Full Stack">
+    **Complete AWS Integration**:
+
+    - **EKS**: Qovery-managed or BYOK Kubernetes clusters
+    - **ECR**: Private container registry
+    - **RDS**: Managed databases (PostgreSQL, MySQL)
+    - **S3**: Object storage for artifacts
+    - **Secrets Manager**: Centralized secret management
+    - **CloudWatch**: Logging and monitoring
+
+    Perfect for organizations already on AWS or requiring enterprise-grade infrastructure.
+
+    [Get started with AWS EKS →](/integrations/kubernetes/eks/overview)
+  </Tab>
+
+  <Tab title="GitHub + Kubernetes">
+    **GitOps Workflow**:
+
+    - **GitHub**: Source code management
+    - **GitHub Actions**: CI/CD pipelines with Qovery Deploy
+    - **GitHub Container Registry**: Store container images
+    - **Kubernetes**: Deploy on any managed or self-hosted cluster
+    - **Preview Environments**: Automatic environments for pull requests
+
+    Ideal for teams using GitHub for version control and collaboration.
+
+    [Connect GitHub →](/integrations/git-providers/github)
+  </Tab>
+
+  <Tab title="Multi-Cloud">
+    **Flexible Multi-Cloud Setup**:
+
+    - **Development**: Scaleway Kapsule (cost-effective)
+    - **Staging**: GCP GKE (fast provisioning)
+    - **Production**: AWS EKS (enterprise features)
+    - **Disaster Recovery**: Azure AKS (geographic redundancy)
+
+    Avoid vendor lock-in and optimize costs across different environments.
+
+    [Explore Kubernetes options →](/integrations/kubernetes/overview)
+  </Tab>
+
+  <Tab title="Full Observability">
+    **Complete Monitoring Stack**:
+
+    - **Qovery Observe**: Built-in logs, metrics, and events
+    - **Datadog**: Advanced APM and distributed tracing
+    - **Prometheus + Grafana**: Custom metrics and dashboards
+    - **New Relic**: Application performance monitoring
+
+    Choose the right observability tool for each environment.
+
+    [Setup observability →](/integrations/observability/overview)
+  </Tab>
+</Tabs>
+
+## Quick Start Guides
+
+### 1. Connect Your Infrastructure
 
 <Steps>
-  <Step title="Navigate to Organization Settings">
-    Go to your organization settings in the Qovery Console
+  <Step title="Choose Kubernetes Platform">
+    Select your Kubernetes deployment option:
+    - **Qovery-Managed**: Automated cluster on AWS, GCP, Azure, or Scaleway
+    - **BYOK**: Connect your existing Kubernetes cluster
+    - **Local**: Docker Desktop for development
+
+    [Kubernetes Setup →](/integrations/kubernetes/overview)
   </Step>
 
-  <Step title="Select Git Provider">
-    Click on **Git Providers** and choose your provider (GitHub, GitLab, or Bitbucket)
+  <Step title="Connect Git Repository">
+    1. Go to Organization Settings → Git Providers
+    2. Select GitHub, GitLab, or Bitbucket
+    3. Authorize Qovery to access repositories
+    4. Your repos are now available for deployments
+
+    [Git Providers Guide →](/integrations/git-providers/overview)
   </Step>
 
-  <Step title="Authorize Access">
-    Follow the OAuth flow to authorize Qovery to access your repositories
-  </Step>
+  <Step title="Optional: Add Container Registry">
+    Connect external registries:
+    - Docker Hub for public images
+    - ECR/GCR/ACR for cloud-native workflows
+    - Private registries for internal images
 
-  <Step title="Start Deploying">
-    Your repositories are now available when creating applications
+    [Registry Setup →](/integrations/container-registries/overview)
   </Step>
 </Steps>
 
-### Connect a Container Registry
+### 2. Set Up CI/CD
 
 <Steps>
-  <Step title="Go to Organization Settings">
-    Navigate to **Settings** → **Container Registries**
+  <Step title="Choose CI/CD Approach">
+    **Option A: Qovery Deploy** (Zero config)
+    - Built-in build optimization
+    - Auto-deploy on Git push
+    - Build insights (coming soon)
+
+    **Option B: External CI/CD** (Full control)
+    - GitHub Actions, GitLab CI, CircleCI, Jenkins
+    - Build in CI, deploy with Qovery
+    - Run tests and security scans
   </Step>
 
-  <Step title="Add Registry">
-    Click **Add Registry** and select your registry type
-  </Step>
+  <Step title="Configure Deployment">
+    - Enable auto-deploy for automatic deployments
+    - Or use Qovery CLI in your CI/CD pipeline
+    - Set up preview environments for PRs
 
-  <Step title="Provide Credentials">
-    Enter registry URL and authentication credentials
-  </Step>
-
-  <Step title="Deploy Images">
-    Deploy container images from your connected registry
+    [CI/CD Integration →](/integrations/ci-cd/overview)
   </Step>
 </Steps>
 
-## Popular Integrations
+### 3. Add Observability
 
-### AWS
+<Steps>
+  <Step title="Start with Qovery Observe">
+    Built-in observability with zero configuration:
+    - Real-time log streaming
+    - CPU, memory, network metrics
+    - Kubernetes events
+    - 90-day retention (with package)
+  </Step>
 
-Complete AWS integration for enterprise deployments:
+  <Step title="Optional: Add External Tools">
+    Deploy via Helm for advanced features:
+    - Datadog for full-stack APM
+    - New Relic for application monitoring
+    - Prometheus + Grafana for custom metrics
+    - Elastic for log analysis
 
-- **EKS**: Managed Kubernetes clusters
-- **ECR**: Container image registry
-- **RDS**: Managed databases (PostgreSQL, MySQL)
-- **S3**: Object storage for backups and artifacts
-- **Secrets Manager**: Centralized secret management
-- **CloudWatch**: Logging and monitoring
+    [Observability Options →](/integrations/observability/overview)
+  </Step>
+</Steps>
 
-[Learn more →](/integrations/cloud-providers/aws)
+## Integration Highlights
 
-### GitHub
+### Kubernetes Integration
 
-Full GitHub integration for GitOps workflows:
+Deploy applications on any Kubernetes platform with Qovery's unified interface:
 
-- **GitHub Repositories**: Deploy from any repository
-- **GitHub Actions**: CI/CD integration with Qovery CLI
-- **GitHub Container Registry**: Store and deploy container images
-- **Preview Environments**: Automatic environments for pull requests
+<AccordionGroup>
+  <Accordion title="Qovery-Managed Kubernetes" icon="wand-magic-sparkles">
+    **Zero Configuration Management**:
+    - Automated cluster provisioning
+    - Managed upgrades and patches
+    - Auto-scaling configuration
+    - Built-in best practices
+    - Monitoring and logging setup
 
-[Learn more →](/integrations/git-providers/github)
+    **Supported Platforms**:
+    - AWS EKS
+    - Google GKE
+    - Azure AKS
+    - Scaleway Kapsule
 
-### Docker Hub
+    [Learn more →](/integrations/kubernetes/overview)
+  </Accordion>
 
-Use Docker Hub for container images:
+  <Accordion title="Bring Your Own Kubernetes (BYOK)" icon="server">
+    **Connect Any Cluster**:
+    - Existing cloud-managed clusters
+    - Self-managed Kubernetes
+    - On-premise deployments
+    - EKS Anywhere
+    - Docker Desktop (local dev)
 
-- **Public Images**: Deploy from Docker Hub's public registry
-- **Private Repositories**: Connect your Docker Hub account
-- **Official Images**: Use verified images for databases and services
+    Full control over your infrastructure while Qovery manages deployments.
 
-[Learn more →](/integrations/container-registries/docker-hub)
+    [BYOK Guide →](/integrations/kubernetes/byok)
+  </Accordion>
+</AccordionGroup>
 
-## Multi-Cloud Support
+### Terraform Module Deployment
 
-Qovery supports multiple cloud providers, allowing you to:
-
-- **Avoid Vendor Lock-in**: Switch providers without changing your workflow
-- **Multi-Cloud Deployments**: Deploy different environments on different clouds
-- **Hybrid Cloud**: Combine cloud and on-premise Kubernetes clusters
-- **Disaster Recovery**: Replicate across multiple cloud providers
-
-### Supported Cloud Providers
-
-| Provider | Kubernetes Service | Container Registry | Managed Databases | Object Storage |
-|----------|-------------------|-------------------|-------------------|----------------|
-| **AWS** | EKS | ECR | RDS | S3 |
-| **Google Cloud** | GKE | Artifact Registry | Cloud SQL | Cloud Storage |
-| **Azure** | AKS | ACR | Azure Database | Blob Storage |
-| **Scaleway** | Kapsule | Container Registry | Managed Databases | Object Storage |
-| **Self-Managed** | Any Kubernetes | Any Registry | Container Mode | Any S3-compatible |
-
-## Infrastructure as Code
-
-Qovery integrates with Infrastructure as Code tools:
-
-### Terraform Provider
-
-Manage Qovery resources with Terraform:
+Deploy and manage Terraform modules directly from Git:
 
 ```hcl
-resource "qovery_application" "my_app" {
-  name = "my-application"
-  environment_id = qovery_environment.production.id
+# Deploy AWS infrastructure with Terraform on Qovery
+resource "qovery_helm" "terraform_module" {
+  environment_id = qovery_environment.prod.id
+  name           = "infrastructure"
 
-  git_repository = {
-    url = "https://github.com/my-org/my-app"
-    branch = "main"
+  source = {
+    git = {
+      url    = "https://github.com/my-org/terraform-modules"
+      branch = "main"
+      path   = "aws/vpc"
+    }
   }
 
-  build_mode = "DOCKER"
-  dockerfile_path = "Dockerfile"
+  # Qovery manages state automatically
+  # Variables injected securely
+  # Outputs available as environment variables
 }
 ```
 
-[View Terraform docs →](/terraform/overview)
+**Features**:
+- Automatic state management
+- Secure variable injection
+- Plan & apply workflow
+- Drift detection
+- Terragrunt support (coming soon)
+
+[Terraform Integration →](/integrations/terraform/overview)
+
+### Qovery Deploy (Built-in CI/CD)
+
+Optimized container image builds with intelligent caching:
+
+**Features**:
+- BuildKit for parallel builds
+- Automatic layer caching
+- Spot instance optimization
+- Build insights (coming soon)
+- Multi-platform builds (ARM/x86)
+
+**Build Optimization Insights** (Coming Soon):
+- Image size reduction recommendations
+- Build speed improvements
+- Security vulnerability scanning
+- Cost optimization suggestions
+
+[Qovery Deploy Guide →](/integrations/ci-cd/qovery-deploy)
+
+## Multi-Cloud Strategy
+
+### Avoid Vendor Lock-in
+
+Deploy across multiple cloud providers without changing your workflow:
+
+| Use Case | Recommended Setup |
+|----------|------------------|
+| **Cost Optimization** | Dev on Scaleway, Prod on AWS |
+| **Geographic Distribution** | US on AWS, EU on GCP, Asia on Azure |
+| **Disaster Recovery** | Primary on AWS, Backup on GCP |
+| **Compliance** | Data residency per region/country |
+| **Development** | Local Docker Desktop, Cloud staging/prod |
+
+### Provider Comparison
+
+| Provider | Best For | Kubernetes | Pricing | Regions |
+|----------|----------|------------|---------|---------|
+| **AWS EKS** | Enterprise, most services | Excellent | $$$ | Most regions globally |
+| **GCP GKE** | Data/ML workloads | Excellent | $$ | Good global coverage |
+| **Azure AKS** | Microsoft ecosystem | Excellent | $$ | Good global coverage |
+| **Scaleway** | Cost-conscious, EU data | Good | $ | Europe only |
+| **BYOK** | Maximum control | Depends | Your cost | Anywhere |
+
+[Compare Kubernetes options →](/integrations/kubernetes/overview)
+
+## Infrastructure as Code
+
+### Terraform Provider
+
+Manage your entire Qovery infrastructure as code:
+
+```hcl
+# Complete application stack
+resource "qovery_environment" "prod" {
+  project_id = var.project_id
+  cluster_id = var.cluster_id
+  name       = "production"
+  mode       = "PRODUCTION"
+}
+
+resource "qovery_database" "postgres" {
+  environment_id = qovery_environment.prod.id
+  name           = "main-db"
+  type           = "POSTGRESQL"
+  version        = "15"
+  mode           = "MANAGED"
+}
+
+resource "qovery_application" "api" {
+  environment_id = qovery_environment.prod.id
+  name           = "api"
+
+  git_repository = {
+    url    = "https://github.com/my-org/api"
+    branch = "main"
+  }
+
+  # Database connection automatically injected
+  depends_on = [qovery_database.postgres]
+}
+```
+
+[View Terraform examples →](/terraform/examples)
 
 ### Qovery CLI
 
-Automate deployments with the CLI:
+Automate deployments and manage resources programmatically:
 
 ```bash
 # Deploy application
-qovery application deploy --application-name my-app
+qovery application deploy --application-name api --watch
 
-# Create environment
-qovery environment create --name staging
+# Create and deploy environment
+qovery environment create --name staging --clone-from production
 
-# Clone environment
-qovery environment clone --from production --to staging-test
+# Port forward for debugging
+qovery port-forward --application api --port 8080:3000
+
+# Execute commands in container
+qovery shell --application api
 ```
 
-[View CLI docs →](/cli/overview)
+[CLI Documentation →](/cli/overview)
 
 ## API & SDKs
 
-Integrate Qovery programmatically:
+Build custom integrations with Qovery:
 
-- **REST API**: Full API access to all Qovery features
-- **Go SDK**: Official Golang client library
-- **TypeScript SDK**: Official TypeScript/JavaScript client
-- **OpenAPI Specification**: Generate clients for any language
+<CardGroup cols={3}>
+  <Card title="REST API" icon="brackets-curly">
+    Full API access to all features
+    - OpenAPI 3.0 specification
+    - Authentication with API tokens
+    - Rate limiting: 1000 req/min
+  </Card>
 
-[Explore API →](/api-reference/introduction)
+  <Card title="Go SDK" icon="golang">
+    Official Golang client
+    - Type-safe API client
+    - Full feature coverage
+    - Well documented
+  </Card>
 
-## Integration Support
+  <Card title="TypeScript SDK" icon="js">
+    Official TypeScript/JavaScript client
+    - Promise-based API
+    - TypeScript types included
+    - Node.js and browser support
+  </Card>
+</CardGroup>
 
-### Community Integrations
+[API Reference →](/api-reference/introduction)
 
-Qovery's extensibility allows integration with any tool that supports:
+## Community & Extensions
 
-- **Helm Charts**: Deploy any Helm chart from public or private repositories
-- **Container Images**: Use any OCI-compliant container registry
-- **Kubernetes**: Works with any CNCF-certified Kubernetes distribution
-- **Webhooks**: Send events to any webhook-compatible service
+### Helm Charts
 
-### Need Help?
+Deploy any application available as a Helm chart:
 
-- **Documentation**: Detailed guides for each integration
-- **Community Forum**: Get help from the Qovery community
-- **Support**: Contact support for enterprise assistance
-- **Feature Requests**: Suggest new integrations on GitHub
+- **Databases**: PostgreSQL, MySQL, MongoDB, Redis
+- **Observability**: Prometheus, Grafana, Datadog, New Relic
+- **Storage**: MinIO, Longhorn, Rook-Ceph
+- **Messaging**: RabbitMQ, Kafka, NATS
+- **Security**: Vault, cert-manager, external-secrets
+
+[Helm Integration →](/integrations/helm/overview)
+
+### Custom Integrations
+
+Extend Qovery with:
+
+- **Webhooks**: Send events to any HTTP endpoint
+- **API**: Build custom tooling and automation
+- **CLI**: Script complex workflows
+- **Terraform**: Integrate with existing IaC
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book">
+    Detailed guides for each integration with examples and best practices
+  </Card>
+
+  <Card title="Community" icon="users">
+    Join our community forum to get help and share knowledge
+  </Card>
+
+  <Card title="Support" icon="headset">
+    Enterprise support available for Business and Enterprise plans
+  </Card>
+
+  <Card title="Feature Requests" icon="lightbulb">
+    Suggest new integrations on our GitHub repository
+  </Card>
+</CardGroup>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Container Registries" icon="box" href="/integrations/container-registries/overview">
-    Connect your container registry
+  <Card title="Setup Kubernetes" icon="dharmachakra" href="/integrations/kubernetes/overview">
+    Deploy on managed or self-hosted Kubernetes
   </Card>
 
-  <Card title="Cloud Providers" icon="cloud" href="/integrations/cloud-providers/overview">
-    Set up your cloud provider
+  <Card title="Connect Git" icon="code-branch" href="/integrations/git-providers/overview">
+    Link your GitHub, GitLab, or Bitbucket repos
   </Card>
 
-  <Card title="CI/CD Integration" icon="arrows-rotate" href="/integrations/ci-cd/overview">
-    Automate with CI/CD pipelines
+  <Card title="Configure CI/CD" icon="arrows-rotate" href="/integrations/ci-cd/overview">
+    Automate builds and deployments
   </Card>
 
-  <Card title="Git Providers" icon="code-branch" href="/integrations/git-providers/overview">
-    Connect your Git repositories
+  <Card title="Add Observability" icon="chart-line" href="/integrations/observability/overview">
+    Monitor your applications
   </Card>
 </CardGroup>

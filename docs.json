@@ -45,18 +45,8 @@
               "what-is-qovery",
               "how-it-works",
               "basic-concepts",
+              "installation",
               "deploy-my-app"
-            ]
-          },
-          {
-            "group": "Installation",
-            "pages": [
-              "installation/aws",
-              "installation/gcp",
-              "installation/azure",
-              "installation/scaleway",
-              "installation/kubernetes",
-              "installation/local"
             ]
           },
           {
@@ -82,23 +72,6 @@
             ]
           },
           {
-            "group": "Deployment",
-            "pages": [
-              "using-qovery/deployment/overview",
-              "using-qovery/deployment/auto-deploy",
-              "using-qovery/deployment/ci-cd",
-              "using-qovery/deployment/deployment-pipeline",
-              "using-qovery/deployment/logs"
-            ]
-          },
-          {
-            "group": "Observability",
-            "pages": [
-              "using-qovery/observability/monitoring",
-              "using-qovery/observability/logs"
-            ]
-          },
-          {
             "group": "Security & Compliance",
             "pages": [
               "security-and-compliance/overview",
@@ -106,14 +79,6 @@
               "security-and-compliance/encryption",
               "security-and-compliance/gdpr",
               "security-and-compliance/soc2"
-            ]
-          },
-          {
-            "group": "Troubleshooting",
-            "pages": [
-              "using-qovery/troubleshoot/cluster",
-              "using-qovery/troubleshoot/service-deployment",
-              "using-qovery/troubleshoot/service-run"
             ]
           }
         ]
