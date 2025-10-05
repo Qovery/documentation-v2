@@ -19,6 +19,16 @@ qovery auth
 
 This will open your browser to complete the authentication flow.
 
+### Headless Login
+
+For environments without a browser (CI/CD, servers), use headless mode:
+
+```bash
+qovery auth --headless
+```
+
+This will provide a URL that you can open manually to complete authentication.
+
 ### Login with API Token
 
 Set your API token as an environment variable:
@@ -50,6 +60,15 @@ qovery auth
 # Credentials saved locally
 ```
 
+### Headless Authentication
+
+```bash
+qovery auth --headless
+# Displays URL: https://auth.qovery.com/...
+# Copy and paste URL in a browser
+# Complete authentication manually
+```
+
 ### CI/CD Authentication
 
 ```bash
@@ -57,6 +76,16 @@ qovery auth
 export QOVERY_CLI_ACCESS_TOKEN="${{ secrets.QOVERY_TOKEN }}"
 qovery auth
 qovery application deploy --application "my-app"
+```
+
+### Server/Remote Authentication
+
+```bash
+# On a remote server without browser
+qovery auth --headless
+# Copy the displayed URL
+# Open URL on your local machine
+# Authentication will be saved on the server
 ```
 
 ### Switch Accounts
@@ -73,6 +102,7 @@ qovery auth
 
 | Flag | Description |
 |------|-------------|
+| `--headless` | Headless mode for environments without a browser (provides URL to copy/paste) |
 | `--help` | Show help for auth command |
 
 ## Related Commands
