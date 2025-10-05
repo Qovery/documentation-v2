@@ -1,415 +1,155 @@
 ---
 title: "How It Works"
-description: "Understand the architecture and workflow of Qovery"
+description: "Understand how Qovery extends Kubernetes into a production-ready super orchestrator"
 ---
 
-## Architecture Overview
+## Overview
 
-Qovery operates as a control plane that orchestrates your cloud infrastructure. Here's how the components work together:
+Qovery works on top of Kubernetes and extends it into a production-ready super orchestrator. By adding powerful automation, management capabilities, and developer-friendly interfaces on top of Kubernetes, Qovery transforms it into a complete DevOps Automation Platform.
 
-```mermaid
-graph LR
-    A[Your Git Repository] --> B[Qovery Control Plane]
-    B --> C[Qovery Engine]
-    C --> D[Kubernetes Cluster]
-    D --> E[Your Cloud Account<br/>AWS/GCP/Azure]
-```
+<img src="/images/qovery-architecture.svg" alt="Qovery Architecture - Five products running on Kubernetes across multiple cloud providers" />
 
-## Core Components
+## Kubernetes as the Foundation
 
-### 1. Qovery Control Plane
+Kubernetes is a powerful container orchestration platform, but it was designed for infrastructure operators, not developers. Qovery extends Kubernetes with:
 
-The control plane is the brain of Qovery, hosted and managed by Qovery:
+- **Developer Experience** - Self-service deployment without Kubernetes expertise
+- **Production Readiness** - Built-in security, monitoring, and compliance
+- **Multi-Cloud Support** - Deploy to AWS, Google Cloud, Azure, or Scaleway
+- **Infrastructure Orchestration** - Manage not just containers, but databases, storage, and any cloud resource via Terraform
 
-- **Web Console** - User interface for managing infrastructure
-- **API Server** - REST API for programmatic access
-- **Orchestration Engine** - Coordinates deployments and updates
-- **State Management** - Tracks infrastructure state
-- **Authentication** - User and API token management
+## The Super Orchestrator
 
-<Note>
-The control plane only stores metadata and configuration. Your code, data, and applications run entirely in your own cloud infrastructure.
-</Note>
+Qovery turns Kubernetes into a super orchestrator that manages:
 
-### 2. Qovery Engine
+<CardGroup cols={2}>
+  <Card title="Provision" icon="/logos/provision.svg">
+    **Infrastructure Management**
 
-The engine is the open-source deployment component that runs in your cluster:
-
-- **Deployment Executor** - Executes deployment plans
-- **Health Monitoring** - Tracks application and service health
-- **Log Aggregation** - Collects logs from applications
-- **Metrics Collection** - Gathers performance metrics
-- **Agent Communication** - Reports status back to control plane
-
-<Info>
-Qovery Engine is open source and available on [GitHub](https://github.com/Qovery/engine).
-</Info>
-
-### 3. Kubernetes Cluster
-
-Your applications run on Kubernetes in your cloud account:
-
-- Managed by you (EKS, GKE, AKS) or provisioned by Qovery
-- Full control over cluster configuration
-- Standard Kubernetes resources (Deployments, Services, etc.)
-- Access via kubectl if needed
-
-## Deployment Workflow
-
-Here's what happens when you deploy an application:
-
-<Steps>
-  <Step title="Code Push">
-    You push code to your Git repository (GitHub, GitLab, Bitbucket).
-  </Step>
-
-  <Step title="Webhook Trigger">
-    Git provider sends a webhook to Qovery control plane.
-  </Step>
-
-  <Step title="Build Initiation">
-    Qovery initiates a build in your cluster:
-    - Clones repository
-    - Detects language/framework
-    - Builds container image
-    - Pushes to container registry
-  </Step>
-
-  <Step title="Deployment">
-    Qovery Engine deploys to Kubernetes:
-    - Updates Kubernetes manifests
-    - Applies configurations
-    - Manages rolling updates
-    - Configures networking and ingress
-  </Step>
-
-  <Step title="Health Checks">
-    Monitors deployment health:
-    - Waits for pods to be ready
-    - Runs health checks
-    - Reports status to control plane
-  </Step>
-
-  <Step title="Live">
-    Application is running and accessible.
-  </Step>
-</Steps>
-
-## Build Process
-
-### Automatic Detection
-
-Qovery automatically detects how to build your application:
-
-```mermaid
-graph TD
-    A[Repository] --> B{Dockerfile?}
-    B -->|Yes| C[Docker Build]
-    B -->|No| D{Buildpacks?}
-    D -->|Detected| E[Buildpack Build]
-    D -->|Not Detected| F[Configure Manually]
-```
-
-### Build Methods
-
-<Tabs>
-  <Tab title="Dockerfile">
-    If a Dockerfile is present, Qovery uses it to build your container:
-
-    ```dockerfile
-    FROM node:18-alpine
-    WORKDIR /app
-    COPY package*.json ./
-    RUN npm install
-    COPY . .
-    EXPOSE 3000
-    CMD ["npm", "start"]
-    ```
-  </Tab>
-
-  <Tab title="Buildpacks">
-    Cloud Native Buildpacks automatically detect and build your application:
-
-    - Auto-detects Node.js, Python, Go, Java, Ruby, PHP
-    - Installs dependencies automatically
-    - Optimizes container images
-    - Security updates included
-  </Tab>
-
-  <Tab title="Pre-built Image">
-    Use an existing container image from any registry:
-
-    ```
-    registry.example.com/my-app:v1.0.0
-    ```
-  </Tab>
-</Tabs>
-
-## Networking
-
-### Ingress & Load Balancing
-
-```mermaid
-graph LR
-    Internet[Internet] --> LB[Load Balancer]
-    LB --> Ingress[Ingress Controller]
-    Ingress --> Service1[Service: App 1]
-    Ingress --> Service2[Service: App 2]
-    Service1 --> Pod1[Pods]
-    Service2 --> Pod2[Pods]
-```
-
-### Domain & SSL
-
-- **Automatic HTTPS** - Free SSL certificates via Let's Encrypt
-- **Custom Domains** - Use your own domain names
-- **DNS Management** - Automatic DNS configuration
-- **CDN Integration** - Optional CDN for static assets
-
-### Internal Networking
-
-Applications within the same environment can communicate via:
-
-- **Service Names** - `my-database:5432`
-- **Environment Variables** - Automatically injected
-- **Network Policies** - Secure by default
-
-## Environment Management
-
-### Environment Types
-
-<CardGroup cols={3}>
-  <Card title="Development" icon="code">
-    For active development with frequent updates
+    Install and manage Kubernetes clusters across multiple clouds. Provision infrastructure resources using Terraform directly from Kubernetes.
   </Card>
-  <Card title="Staging" icon="flask">
-    Pre-production testing environment
+
+  <Card title="Deploy" icon="/logos/deploy.svg">
+    **Application Delivery**
+
+    Deploy applications, databases, and services with GitOps workflows. Automatic builds, rolling updates, and rollbacks.
   </Card>
-  <Card title="Production" icon="rocket">
-    Live environment with high availability
+
+  <Card title="Observe" icon="/logos/observe.svg">
+    **Unified Observability**
+
+    Get visibility into your entire stack with correlated metrics, logs, and events across applications and infrastructure.
+  </Card>
+
+  <Card title="Optimize" icon="/logos/optimize.svg">
+    **Cost Control**
+
+    Monitor and optimize Kubernetes and application costs with intelligent recommendations and automation.
+  </Card>
+
+  <Card title="Secure" icon="/logos/secure.svg">
+    **Security & Compliance**
+
+    Enforce security best practices and meet compliance standards (SOC2, GDPR, HIPAA, HDS, DORA).
   </Card>
 </CardGroup>
 
-### Environment Lifecycle
+## Your Infrastructure, Your Control
 
-```mermaid
-graph LR
-    A[Create] --> B[Configure]
-    B --> C[Deploy]
-    C --> D[Running]
-    D --> E{Update?}
-    E -->|Yes| C
-    E -->|No| F[Stop]
-    F --> G[Delete]
-```
+Unlike traditional PaaS solutions, Qovery runs on **your own Kubernetes clusters** in **your cloud accounts**:
 
-### Preview Environments
+- **Full Ownership** - Complete control over your infrastructure
+- **No Vendor Lock-in** - Standard Kubernetes underneath
+- **Cost Transparency** - Direct cloud provider billing
+- **Data Sovereignty** - Your data stays in your infrastructure
 
-Qovery can automatically create temporary environments for pull requests:
+## How Qovery Extends Kubernetes
 
-1. Open a PR in your repository
-2. Qovery creates a new environment
-3. Deploys your PR code
-4. Provides a unique URL for testing
-5. Deletes environment when PR is merged/closed
+### 1. Developer-Friendly Abstraction
 
-## Database Management
+Qovery provides multiple interfaces to work with Kubernetes without requiring deep Kubernetes knowledge:
 
-### Provisioning
+- **Web Console** - Visual interface for managing applications
+- **CLI** - Command-line interface for automation
+- **Terraform Provider** - Infrastructure as Code
+- **REST API** - Programmatic access
+- **MCP Server** - AI Copilot integration with agentic capabilities
 
-Qovery manages database lifecycle:
+### 2. Production-Ready Features
+
+Qovery adds enterprise features that Kubernetes doesn't provide out of the box:
+
+- **Automatic HTTPS** - Free SSL certificates with Let's Encrypt
+- **GitOps Workflow** - Automatic deployments from Git
+- **Preview Environments** - Temporary environments for pull requests
+- **Database Management** - Provision and manage databases alongside applications
+- **Secrets Management** - Encrypted secret storage with audit logging
+- **Cost Tracking** - Real-time visibility into resource costs
+
+### 3. Universal Infrastructure Orchestration
+
+Qovery uses Kubernetes as a universal control plane for managing **any cloud resource**, not just containers:
+
+- **Databases** - AWS RDS, Cloud SQL, Azure Database
+- **Storage** - S3 buckets, Cloud Storage, Azure Blob
+- **Networking** - VPCs, load balancers, DNS
+- **Serverless** - Lambda functions, Cloud Functions, Cloudflare Workers
+- **Analytics** - BigQuery, Redshift, data pipelines
+- **Any Terraform Module** - Deploy any cloud resource via Terraform
+
+This means you can manage your entire cloud infrastructure—from containers to databases to serverless functions—through a single unified platform orchestrated by Kubernetes.
+
+## Simple Workflow
+
+Here's how it works in practice:
 
 <Steps>
-  <Step title="Creation">
-    Select database type and version (PostgreSQL, MySQL, MongoDB, Redis, etc.)
+  <Step title="Connect Your Git Repository">
+    Link your GitHub, GitLab, or Bitbucket repository to Qovery
   </Step>
 
-  <Step title="Configuration">
-    Set resources (CPU, memory, storage) and configuration parameters
+  <Step title="Configure Your Application">
+    Define your application settings, environment variables, and dependencies
   </Step>
 
-  <Step title="Deployment">
-    Qovery provisions the database:
-    - Managed service (AWS RDS, Cloud SQL) or
-    - Container-based database in your cluster
+  <Step title="Deploy">
+    Push your code to Git. Qovery automatically builds, tests, and deploys to Kubernetes
   </Step>
 
-  <Step title="Connection">
-    Credentials automatically injected into your applications via environment variables
-  </Step>
-
-  <Step title="Backups">
-    Automatic daily backups with point-in-time recovery
+  <Step title="Monitor & Scale">
+    Track performance, scale resources, and optimize costs—all from the Qovery interface
   </Step>
 </Steps>
 
-### Connection Management
+## Key Benefits
 
-Applications receive database credentials via environment variables:
+<AccordionGroup>
+  <Accordion title="For Developers">
+    **Self-Service Platform**: Deploy without waiting for DevOps. GitOps workflow with automatic deployments. Preview environments for every pull request.
+  </Accordion>
 
-```bash
-DATABASE_HOST=postgres-xyz.internal
-DATABASE_PORT=5432
-DATABASE_NAME=myapp
-DATABASE_USER=app_user
-DATABASE_PASSWORD=<auto-generated-secret>
-```
+  <Accordion title="For Platform Teams">
+    **Standardization & Control**: Enforce best practices across all teams. Multi-cluster management. Cost visibility and optimization.
+  </Accordion>
 
-## Secrets Management
-
-### Secret Storage
-
-```mermaid
-graph TD
-    A[Developer] --> B[Qovery Console/API]
-    B --> C[Encrypted Storage]
-    C --> D[Kubernetes Secrets]
-    D --> E[Application Pods]
-```
-
-### Security Features
-
-- **Encryption at Rest** - All secrets encrypted in database
-- **Encryption in Transit** - TLS for all communications
-- **Access Control** - RBAC for secret management
-- **Audit Logging** - Track all secret access
-- **No Plaintext** - Never displayed in logs or UI after creation
-
-## Monitoring & Observability
-
-### Built-in Monitoring
-
-Qovery provides integrated monitoring:
-
-- **Metrics** - CPU, memory, network usage
-- **Logs** - Centralized log aggregation
-- **Events** - Deployment events and status changes
-- **Alerts** - Configurable alerting (coming soon)
-
-### Integration Points
-
-Connect external monitoring tools:
-
-- **Prometheus** - Metrics export
-- **Datadog** - APM integration
-- **New Relic** - Performance monitoring
-- **Sentry** - Error tracking
-
-## Scaling
-
-### Horizontal Scaling
-
-Automatically scale the number of instances:
-
-```yaml
-min_instances: 1
-max_instances: 10
-target_cpu_percentage: 70
-```
-
-### Vertical Scaling
-
-Adjust resources per instance:
-
-```yaml
-cpu: 500     # 0.5 CPU cores
-memory: 1024 # 1 GB RAM
-```
-
-### Auto-Scaling
-
-Qovery automatically scales based on:
-
-- **CPU Usage** - Scale when CPU exceeds threshold
-- **Memory Usage** - Scale when memory exceeds threshold
-- **Custom Metrics** - Scale based on custom metrics (coming soon)
-
-## High Availability
-
-### Production Configurations
-
-For production environments, Qovery ensures:
-
-- **Multiple Replicas** - Run multiple instances across availability zones
-- **Health Checks** - Automatic restart of unhealthy instances
-- **Rolling Updates** - Zero-downtime deployments
-- **Rollback** - Automatic rollback on failed deployments
-
-### Disaster Recovery
-
-- **Automated Backups** - Daily backups of databases
-- **Point-in-Time Recovery** - Restore to any point in time
-- **Infrastructure as Code** - Recreate entire stack from configuration
-- **Multi-Region** - Deploy across multiple regions (enterprise)
-
-## GitOps Workflow
-
-Qovery follows GitOps principles:
-
-```mermaid
-graph LR
-    A[Git Repository] -->|Push| B[Qovery]
-    B -->|Build| C[Container Registry]
-    C -->|Deploy| D[Kubernetes]
-    D -->|Monitor| B
-    B -->|Status| A
-```
-
-### Benefits
-
-- **Version Control** - All changes tracked in Git
-- **Reproducibility** - Recreate any environment state
-- **Collaboration** - Use PR workflow for infrastructure changes
-- **Audit Trail** - Complete history of changes
-
-## Security Architecture
-
-### Network Security
-
-```mermaid
-graph TD
-    Internet[Internet] --> WAF[Web Application Firewall]
-    WAF --> LB[Load Balancer]
-    LB --> Ingress[Ingress]
-    Ingress --> Apps[Applications]
-    Apps -.->|Isolated| DB[Databases]
-```
-
-### Security Layers
-
-1. **Network Policies** - Restrict pod-to-pod communication
-2. **TLS Everywhere** - Encrypted traffic by default
-3. **Private Networking** - Databases not exposed to internet
-4. **RBAC** - Role-based access control
-5. **Secret Encryption** - All secrets encrypted
-
-## Performance Optimization
-
-### Caching
-
-- **Build Caching** - Speed up container builds
-- **Dependency Caching** - Cache npm, pip, maven dependencies
-- **Container Registry** - Use nearby registry for faster pulls
-
-### Resource Optimization
-
-- **Right-sizing** - Recommendations for resource allocation
-- **Spot Instances** - Use spot instances for cost savings
-- **Node Affinity** - Optimize pod placement
+  <Accordion title="For Enterprises">
+    **Security & Compliance**: Meet SOC2, GDPR, HIPAA, HDS, and DORA requirements. Full audit trail. Role-based access control.
+  </Accordion>
+</AccordionGroup>
 
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Basic Concepts" icon="book" href="/basic-concepts">
+    Learn core concepts and terminology
+  </Card>
   <Card title="Installation" icon="download" href="/installation">
     Install Qovery on your infrastructure
   </Card>
-  <Card title="Configuration" icon="sliders" href="/configuration/overview">
-    Learn about configuration options
-  </Card>
-  <Card title="Security" icon="shield" href="/security/overview">
-    Understand security features
-  </Card>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
+  <Card title="Deploy Your App" icon="rocket" href="/deploy-my-app">
     Deploy your first application
+  </Card>
+  <Card title="Security & Compliance" icon="shield" href="/security-and-compliance/overview">
+    Understand security features
   </Card>
 </CardGroup>
