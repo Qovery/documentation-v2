@@ -104,15 +104,16 @@
             ]
           },
           {
-            "group": "Applications",
+            "group": "Use Cases",
             "pages": [
-              "guides/applications/deploy-web-application",
-              "guides/applications/configure-custom-domain",
-              "guides/applications/manage-environment-variables"
+              "guides/use-cases/production-environment-management",
+              "guides/use-cases/cloud-migration-and-scaling",
+              "guides/use-cases/ephemeral-environment",
+              "guides/use-cases/multi-kubernetes-clusters-management"
             ]
           },
           {
-            "group": "Advanced",
+            "group": "Others",
             "pages": [
               "guides/advanced/preview-environments",
               "guides/advanced/multi-environment-setup",

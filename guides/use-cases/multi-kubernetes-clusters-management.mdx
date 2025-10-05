@@ -1,0 +1,1074 @@
+---
+title: "Multi Kubernetes Clusters Management"
+description: "Manage multiple Kubernetes clusters across clouds and regions from a single platform"
+---
+
+## Overview
+
+Managing multiple Kubernetes clusters is essential for organizations with complex infrastructure needs, including multi-region deployments, disaster recovery, compliance requirements, and workload isolation. Qovery provides a unified platform to manage clusters across AWS, GCP, Azure, and Scaleway from a single interface.
+
+<Info>
+**Unified Management**: Deploy and manage applications across multiple Kubernetes clusters without switching tools or learning different cloud provider APIs.
+</Info>
+
+## Why Multiple Clusters?
+
+<CardGroup cols={2}>
+  <Card title="Geographic Distribution" icon="globe">
+    Reduce latency by deploying closer to users worldwide
+  </Card>
+
+  <Card title="High Availability" icon="shield">
+    Increase resilience with cross-region redundancy
+  </Card>
+
+  <Card title="Compliance" icon="scale-balanced">
+    Meet data residency and regulatory requirements
+  </Card>
+
+  <Card title="Isolation" icon="lock">
+    Separate production, staging, and development workloads
+  </Card>
+
+  <Card title="Cost Optimization" icon="dollar-sign">
+    Leverage regional pricing and spot instance availability
+  </Card>
+
+  <Card title="Multi-Cloud Strategy" icon="cloud">
+    Avoid vendor lock-in with multi-cloud deployment
+  </Card>
+</CardGroup>
+
+## Cluster Organization Strategies
+
+### By Environment
+
+<Tabs>
+  <Tab title="Environment Isolation">
+    **Separate Clusters per Environment**:
+    - **Production**: Dedicated high-availability cluster
+    - **Staging**: Production-like for final testing
+    - **Development**: Shared cluster for dev work
+    - **QA**: Testing and quality assurance
+
+    **Benefits**:
+    - Complete isolation between environments
+    - Different security policies per environment
+    - Independent scaling and resource allocation
+    - Reduced blast radius of issues
+
+    **Example Structure**:
+    ```
+    Organization: Acme Corp
+    ├── Cluster: production-us-east
+    │   ├── Project: ecommerce
+    │   │   └── Environment: production
+    │   └── Project: analytics
+    │       └── Environment: production
+    ├── Cluster: staging-us-east
+    │   ├── Project: ecommerce
+    │   │   └── Environment: staging
+    │   └── Project: analytics
+    │       └── Environment: staging
+    └── Cluster: development-us-east
+        ├── Project: ecommerce
+        │   ├── Environment: dev-alice
+        │   ├── Environment: dev-bob
+        │   └── Environment: dev-charlie
+        └── Project: analytics
+            └── Environment: dev-shared
+    ```
+  </Tab>
+
+  <Tab title="Shared Cluster with Namespaces">
+    **Single Cluster, Multiple Environments**:
+    - All environments in one cluster
+    - Kubernetes namespaces for isolation
+    - Resource quotas per environment
+    - Network policies for security
+
+    **Benefits**:
+    - Lower infrastructure costs
+    - Simplified cluster management
+    - Better resource utilization
+    - Faster environment provisioning
+
+    **When to Use**:
+    - Smaller organizations
+    - Cost-sensitive deployments
+    - Development/staging only
+    - Non-critical workloads
+
+    **Limitations**:
+    - Shared control plane
+    - Less isolation
+    - Resource contention possible
+    - Single point of failure
+  </Tab>
+
+  <Tab title="Hybrid Approach">
+    **Dedicated Production, Shared Non-Production**:
+    - Production: Dedicated cluster(s)
+    - Staging: Dedicated smaller cluster
+    - Dev/QA: Shared cluster
+
+    **Benefits**:
+    - Balance cost and isolation
+    - Production fully isolated
+    - Lower cost for non-production
+    - Flexibility for different needs
+
+    **Example**:
+    ```yaml
+    clusters:
+      - name: production
+        environment_types:
+          - production
+        instance_type: m5.2xlarge
+        min_nodes: 3
+        max_nodes: 20
+
+      - name: staging
+        environment_types:
+          - staging
+        instance_type: m5.xlarge
+        min_nodes: 2
+        max_nodes: 10
+
+      - name: development
+        environment_types:
+          - development
+          - qa
+          - preview
+        instance_type: m5.large
+        min_nodes: 2
+        max_nodes: 15
+    ```
+  </Tab>
+</Tabs>
+
+### By Geography
+
+<AccordionGroup>
+  <Accordion title="Multi-Region Deployment" icon="earth-americas">
+    **Global Presence**:
+    - US East (Virginia)
+    - US West (Oregon)
+    - EU West (Ireland)
+    - EU Central (Frankfurt)
+    - Asia Pacific (Tokyo)
+    - Asia Pacific (Sydney)
+
+    **Routing Strategy**:
+    - **DNS-based**: Route53, Cloud DNS with geo-routing
+    - **Load balancer**: Global load balancing
+    - **CDN**: CloudFront, CloudFlare for static content
+    - **Service mesh**: Istio multi-cluster for advanced routing
+
+    **Configuration Example**:
+    ```yaml
+    # Global deployment configuration
+    regions:
+      - name: us-east
+        cluster: production-us-east-1
+        weight: 40
+        failover: us-west-2
+
+      - name: us-west
+        cluster: production-us-west-2
+        weight: 30
+        failover: us-east-1
+
+      - name: eu-west
+        cluster: production-eu-west-1
+        weight: 30
+        failover: eu-central-1
+
+    routing:
+      policy: geo-proximity
+      health_check:
+        enabled: true
+        interval: 30s
+        timeout: 5s
+    ```
+  </Accordion>
+
+  <Accordion title="Active-Active Setup" icon="circle-check">
+    **All Regions Active**:
+    - All clusters serve production traffic
+    - Load distributed based on proximity
+    - Automatic failover between regions
+    - Data synchronization across regions
+
+    **Data Strategy**:
+    - **Multi-region databases**: Aurora Global, Cloud Spanner
+    - **Data replication**: Cross-region async replication
+    - **Conflict resolution**: Last-write-wins or custom logic
+    - **Caching**: Regional cache with invalidation
+
+    **Benefits**:
+    - Optimal performance globally
+    - High availability
+    - Read/write from any region
+    - No single point of failure
+
+    **Challenges**:
+    - Complex data synchronization
+    - Higher costs
+    - Consistency trade-offs
+    - Operational complexity
+  </Accordion>
+
+  <Accordion title="Active-Passive Setup" icon="rotate">
+    **Primary with Failover**:
+    - Primary region serves all traffic
+    - Secondary region(s) on standby
+    - Automatic or manual failover
+    - Data replicated to secondary
+
+    **Configuration**:
+    ```yaml
+    failover:
+      primary: us-east-1
+      secondary: us-west-2
+      mode: automatic
+      health_check:
+        endpoint: /health
+        threshold: 3  # Failed checks before failover
+        interval: 10s
+      data_sync:
+        method: async_replication
+        lag_threshold: 60s  # Max acceptable lag
+    ```
+
+    **Benefits**:
+    - Simpler than active-active
+    - Lower costs (secondary can be smaller)
+    - Easier data consistency
+    - Clear primary/secondary roles
+
+    **Limitations**:
+    - Higher latency for distant users
+    - Unused capacity in secondary
+    - Failover time (30s - 5min)
+    - Manual failback often required
+  </Accordion>
+</AccordionGroup>
+
+### By Workload Type
+
+<Tabs>
+  <Tab title="Compute-Intensive">
+    **Dedicated Cluster for CPU-Heavy Workloads**:
+    - Machine learning training
+    - Video encoding
+    - Scientific computing
+    - Batch processing
+
+    **Cluster Configuration**:
+    ```yaml
+    cluster:
+      name: compute-cluster
+      instance_types:
+        - c5.4xlarge   # Compute optimized
+        - c5.9xlarge
+        - c5.18xlarge
+      autoscaling:
+        enabled: true
+        min_nodes: 2
+        max_nodes: 50
+      spot_instances:
+        enabled: true
+        max_percentage: 80  # 80% spot, 20% on-demand
+    ```
+  </Tab>
+
+  <Tab title="Memory-Intensive">
+    **Dedicated Cluster for Memory-Heavy Workloads**:
+    - In-memory databases (Redis, Memcached)
+    - Large caching layers
+    - Real-time analytics
+    - High-memory processing
+
+    **Cluster Configuration**:
+    ```yaml
+    cluster:
+      name: memory-cluster
+      instance_types:
+        - r5.2xlarge   # Memory optimized
+        - r5.4xlarge
+        - r5.8xlarge
+      autoscaling:
+        enabled: true
+        min_nodes: 3
+        max_nodes: 20
+    ```
+  </Tab>
+
+  <Tab title="GPU Workloads">
+    **Dedicated Cluster for GPU-Accelerated Workloads**:
+    - Machine learning inference
+    - Deep learning training
+    - Graphics rendering
+    - Cryptocurrency mining
+
+    **Cluster Configuration**:
+    ```yaml
+    cluster:
+      name: gpu-cluster
+      instance_types:
+        - p3.2xlarge    # NVIDIA V100
+        - p3.8xlarge
+        - p4d.24xlarge  # NVIDIA A100
+      autoscaling:
+        enabled: true
+        min_nodes: 0  # Scale to zero when not in use
+        max_nodes: 10
+      taints:
+        - key: nvidia.com/gpu
+          effect: NoSchedule
+    ```
+  </Tab>
+
+  <Tab title="Stateful Services">
+    **Dedicated Cluster for Databases and Stateful Apps**:
+    - Databases
+    - Message queues
+    - File storage services
+    - Stateful applications
+
+    **Cluster Configuration**:
+    ```yaml
+    cluster:
+      name: stateful-cluster
+      instance_types:
+        - m5.xlarge
+        - m5.2xlarge
+      storage:
+        type: gp3
+        iops: 3000
+        throughput: 125
+      autoscaling:
+        enabled: false  # Fixed size for predictability
+        nodes: 5
+      backup:
+        enabled: true
+        schedule: "0 */6 * * *"  # Every 6 hours
+    ```
+  </Tab>
+</Tabs>
+
+## Multi-Cluster Deployment Patterns
+
+### Blue/Green Deployment
+
+<Steps>
+  <Step title="Deploy New Version to Green Cluster">
+    Deploy the new application version to the green cluster while blue serves production traffic
+
+    ```bash
+    # Deploy to green cluster
+    qovery application deploy \
+      --cluster green-cluster \
+      --environment production \
+      --version v2.0.0
+    ```
+  </Step>
+
+  <Step title="Test Green Cluster">
+    Validate the new version in the green cluster before switching traffic
+
+    - Run smoke tests
+    - Performance testing
+    - Integration testing
+    - Manual validation
+  </Step>
+
+  <Step title="Switch Traffic to Green">
+    Update DNS or load balancer to route traffic to green cluster
+
+    ```bash
+    # Update global load balancer
+    qovery cluster set-traffic-weight \
+      --cluster green-cluster \
+      --weight 100
+
+    # Blue cluster weight automatically goes to 0
+    ```
+  </Step>
+
+  <Step title="Monitor and Rollback if Needed">
+    Monitor the green cluster and rollback to blue if issues arise
+
+    ```bash
+    # Quick rollback if issues
+    qovery cluster set-traffic-weight \
+      --cluster blue-cluster \
+      --weight 100
+    ```
+  </Step>
+
+  <Step title="Decommission Blue Cluster">
+    After green cluster is stable, update blue cluster for next deployment
+  </Step>
+</Steps>
+
+### Canary Deployment
+
+<AccordionGroup>
+  <Accordion title="Phase 1: Deploy to Canary Cluster" icon="1">
+    Deploy new version to small canary cluster (5-10% of capacity)
+
+    ```yaml
+    deployment:
+      strategy: canary
+      phases:
+        - name: canary
+          clusters:
+            - canary-cluster
+          traffic_percentage: 5
+          duration: 30m
+          success_criteria:
+            error_rate_max: 1%
+            p95_latency_max: 200ms
+    ```
+  </Accordion>
+
+  <Accordion title="Phase 2: Monitor Metrics" icon="2">
+    Monitor canary cluster for issues:
+    - Error rates
+    - Latency percentiles
+    - Resource utilization
+    - Business metrics
+
+    **Automatic Rollback**:
+    ```yaml
+    rollback:
+      automatic: true
+      conditions:
+        - error_rate > 1%
+        - p95_latency > 200ms
+        - cpu_usage > 90%
+    ```
+  </Accordion>
+
+  <Accordion title="Phase 3: Gradual Rollout" icon="3">
+    Gradually increase traffic to new version:
+    - 5% for 30 minutes
+    - 25% for 1 hour
+    - 50% for 2 hours
+    - 100% when validated
+
+    ```yaml
+    phases:
+      - traffic: 5%
+        duration: 30m
+      - traffic: 25%
+        duration: 1h
+      - traffic: 50%
+        duration: 2h
+      - traffic: 100%
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Multi-Cloud Deployment
+
+<Tabs>
+  <Tab title="Primary + Backup">
+    **AWS Primary, GCP Backup**:
+    ```yaml
+    deployment:
+      primary:
+        provider: aws
+        cluster: production-aws-us-east-1
+        traffic: 100%
+
+      backup:
+        provider: gcp
+        cluster: production-gcp-us-east1
+        traffic: 0%
+        mode: hot-standby
+        sync:
+          database: async_replication
+          storage: cross_region_replication
+    ```
+
+    **Benefits**:
+    - Cloud provider redundancy
+    - Protect against provider outages
+    - Leverage best features of each cloud
+    - Negotiate better pricing
+  </Tab>
+
+  <Tab title="Distributed Load">
+    **Split Traffic Across Clouds**:
+    ```yaml
+    deployment:
+      aws:
+        cluster: production-aws-us-east-1
+        traffic: 50%
+        regions:
+          - us-east-1
+          - us-west-2
+
+      gcp:
+        cluster: production-gcp-us-central1
+        traffic: 30%
+        regions:
+          - us-central1
+          - us-west1
+
+      azure:
+        cluster: production-azure-eastus
+        traffic: 20%
+        regions:
+          - eastus
+          - westus2
+    ```
+
+    **Routing**:
+    - Geographic proximity
+    - Cloud provider availability
+    - Cost optimization
+    - Performance characteristics
+  </Tab>
+</Tabs>
+
+## Cluster Configuration Management
+
+### Infrastructure as Code
+
+<Tabs>
+  <Tab title="Terraform">
+    **Qovery Terraform Provider**:
+    ```hcl
+    # Configure multiple clusters
+    resource "qovery_cluster" "production_us" {
+      organization_id = var.organization_id
+      name           = "production-us-east-1"
+      cloud_provider = "AWS"
+      region         = "us-east-1"
+
+      instance_type  = "m5.xlarge"
+      min_nodes      = 3
+      max_nodes      = 20
+
+      features {
+        vpc_mode = "VPC_SUBNET"
+      }
+    }
+
+    resource "qovery_cluster" "production_eu" {
+      organization_id = var.organization_id
+      name           = "production-eu-west-1"
+      cloud_provider = "AWS"
+      region         = "eu-west-1"
+
+      instance_type  = "m5.xlarge"
+      min_nodes      = 3
+      max_nodes      = 20
+
+      features {
+        vpc_mode = "VPC_SUBNET"
+      }
+    }
+
+    # Deploy application to multiple clusters
+    resource "qovery_application" "web_app" {
+      for_each = toset([
+        qovery_cluster.production_us.id,
+        qovery_cluster.production_eu.id
+      ])
+
+      environment_id = qovery_environment.production[each.key].id
+      name          = "web-app"
+      git_repository {
+        url    = "https://github.com/org/app"
+        branch = "main"
+      }
+
+      instances = {
+        min = 3
+        max = 10
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="CLI Automation">
+    **Bash Scripts for Cluster Management**:
+    ```bash
+    #!/bin/bash
+    # deploy-multi-cluster.sh
+
+    CLUSTERS=(
+      "production-us-east-1"
+      "production-us-west-2"
+      "production-eu-west-1"
+    )
+
+    VERSION=$1
+
+    for cluster in "${CLUSTERS[@]}"; do
+      echo "Deploying to $cluster..."
+
+      qovery application deploy \
+        --cluster "$cluster" \
+        --environment production \
+        --version "$VERSION" \
+        --wait
+
+      if [ $? -ne 0 ]; then
+        echo "Deployment to $cluster failed!"
+        exit 1
+      fi
+
+      echo "Deployment to $cluster succeeded"
+      sleep 60  # Wait between deployments
+    done
+
+    echo "All deployments completed successfully"
+    ```
+  </Tab>
+
+  <Tab title="API Integration">
+    **Python Script for Advanced Orchestration**:
+    ```python
+    import qovery
+    from concurrent.futures import ThreadPoolExecutor
+
+    client = qovery.Client(api_token=API_TOKEN)
+
+    clusters = [
+        "production-us-east-1",
+        "production-us-west-2",
+        "production-eu-west-1",
+    ]
+
+    def deploy_to_cluster(cluster_name):
+        """Deploy application to a single cluster"""
+        cluster = client.get_cluster(cluster_name)
+        app = cluster.get_application("web-app")
+
+        # Deploy new version
+        deployment = app.deploy(version="v2.0.0")
+
+        # Wait for deployment to complete
+        deployment.wait()
+
+        # Verify health
+        if app.health_check():
+            print(f"✅ {cluster_name} deployment successful")
+            return True
+        else:
+            print(f"❌ {cluster_name} deployment failed")
+            app.rollback()
+            return False
+
+    # Deploy to all clusters in parallel
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        results = list(executor.map(deploy_to_cluster, clusters))
+
+    if all(results):
+        print("🎉 All deployments successful!")
+    else:
+        print("⚠️  Some deployments failed")
+    ```
+  </Tab>
+</Tabs>
+
+### Centralized Configuration
+
+<AccordionGroup>
+  <Accordion title="Shared Configuration Repository" icon="code-branch">
+    **Git Repository Structure**:
+    ```
+    infrastructure/
+    ├── clusters/
+    │   ├── production-us-east-1/
+    │   │   ├── cluster.yaml
+    │   │   └── applications.yaml
+    │   ├── production-us-west-2/
+    │   │   ├── cluster.yaml
+    │   │   └── applications.yaml
+    │   └── production-eu-west-1/
+    │       ├── cluster.yaml
+    │       └── applications.yaml
+    ├── shared/
+    │   ├── base-config.yaml
+    │   ├── secrets.yaml (encrypted)
+    │   └── policies.yaml
+    └── scripts/
+        ├── deploy.sh
+        ├── rollback.sh
+        └── validate.sh
+    ```
+
+    **Benefits**:
+    - Single source of truth
+    - Version controlled
+    - Code review process
+    - Audit trail
+    - Disaster recovery
+  </Accordion>
+
+  <Accordion title="Configuration Templating" icon="file-code">
+    **Helm-like Templating**:
+    ```yaml
+    # base-template.yaml
+    apiVersion: v1
+    kind: Application
+    metadata:
+      name: {{ .Values.appName }}
+      cluster: {{ .Values.cluster }}
+    spec:
+      replicas: {{ .Values.replicas }}
+      resources:
+        cpu: {{ .Values.resources.cpu }}
+        memory: {{ .Values.resources.memory }}
+      environment:
+        {{ range .Values.envVars }}
+        - name: {{ .name }}
+          value: {{ .value }}
+        {{ end }}
+    ```
+
+    **Values per Cluster**:
+    ```yaml
+    # values-us-east-1.yaml
+    cluster: production-us-east-1
+    replicas: 10
+    resources:
+      cpu: 2000m
+      memory: 4Gi
+
+    # values-eu-west-1.yaml
+    cluster: production-eu-west-1
+    replicas: 5
+    resources:
+      cpu: 2000m
+      memory: 4Gi
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring and Observability
+
+### Centralized Monitoring
+
+<CardGroup cols={2}>
+  <Card title="Qovery Observe" icon="chart-mixed" href="/integrations/observability/qovery-observe">
+    Built-in multi-cluster monitoring dashboard
+  </Card>
+
+  <Card title="Datadog" icon="chart-line" href="/integrations/observability/datadog">
+    Unified view across all clusters and clouds
+  </Card>
+
+  <Card title="Prometheus + Grafana" icon="chart-area">
+    Self-hosted monitoring with federation
+  </Card>
+
+  <Card title="CloudWatch/Stackdriver" icon="cloud">
+    Native cloud provider monitoring
+  </Card>
+</CardGroup>
+
+### Key Metrics
+
+<Tabs>
+  <Tab title="Cluster Health">
+    **Metrics to Track**:
+    - Node status (ready/not ready)
+    - Resource utilization (CPU, memory, disk)
+    - Pod status across clusters
+    - Cluster API responsiveness
+    - Control plane health
+
+    **Alerts**:
+    ```yaml
+    alerts:
+      - name: cluster_node_down
+        condition: node_status == "NotReady"
+        duration: 5m
+        severity: critical
+
+      - name: cluster_high_cpu
+        condition: cluster_cpu_usage > 80%
+        duration: 10m
+        severity: warning
+    ```
+  </Tab>
+
+  <Tab title="Application Performance">
+    **Cross-Cluster Metrics**:
+    - Request rate per cluster
+    - Error rate comparison
+    - Latency percentiles (p50, p95, p99)
+    - Deployment status
+    - Traffic distribution
+
+    **Dashboards**:
+    - Global overview (all clusters)
+    - Per-cluster details
+    - Per-application metrics
+    - Geographic heat maps
+    - Cost analysis
+  </Tab>
+
+  <Tab title="Data Sync Status">
+    **Replication Metrics**:
+    - Database replication lag
+    - Object storage sync status
+    - Cache invalidation success
+    - Conflict resolution stats
+
+    **Monitoring**:
+    ```yaml
+    replication_monitoring:
+      - source: us-east-1
+        destination: eu-west-1
+        max_lag: 60s
+        alert_on_lag: true
+
+      - source: us-east-1
+        destination: us-west-2
+        max_lag: 30s
+        alert_on_lag: true
+    ```
+  </Tab>
+</Tabs>
+
+## Security and Compliance
+
+<AccordionGroup>
+  <Accordion title="Multi-Cluster RBAC" icon="shield">
+    **Centralized Access Control**:
+    ```yaml
+    # Organization-level roles
+    roles:
+      - name: cluster-admin
+        clusters: ["*"]
+        permissions:
+          - clusters.create
+          - clusters.delete
+          - clusters.update
+          - applications.*
+
+      - name: developer
+        clusters: ["development-*", "staging-*"]
+        permissions:
+          - applications.deploy
+          - applications.view
+          - logs.read
+
+      - name: operator
+        clusters: ["production-*"]
+        permissions:
+          - applications.view
+          - logs.read
+          - metrics.read
+          - alerts.manage
+    ```
+
+    **Per-Cluster Policies**:
+    - Production: Strict access, MFA required
+    - Staging: Moderate access
+    - Development: Open access for developers
+  </Accordion>
+
+  <Accordion title="Network Segmentation" icon="network-wired">
+    **Cluster Isolation**:
+    - Separate VPCs per cluster
+    - Private subnets for workloads
+    - VPC peering for inter-cluster communication
+    - Network policies within clusters
+    - Service mesh for secure inter-cluster traffic
+
+    **Configuration**:
+    ```yaml
+    network:
+      production_us_east:
+        vpc_cidr: 10.0.0.0/16
+        private_subnets:
+          - 10.0.1.0/24
+          - 10.0.2.0/24
+        peering:
+          - cluster: production_us_west
+            allowed_traffic: database_replication
+
+      production_us_west:
+        vpc_cidr: 10.1.0.0/16
+        private_subnets:
+          - 10.1.1.0/24
+          - 10.1.2.0/24
+    ```
+  </Accordion>
+
+  <Accordion title="Compliance Management" icon="scale-balanced">
+    **Per-Region Compliance**:
+    - **US**: HIPAA, SOC 2
+    - **EU**: GDPR, DORA
+    - **France**: HDS
+    - **Canada**: PIPEDA
+
+    **Data Residency**:
+    ```yaml
+    compliance:
+      eu_clusters:
+        data_residency: EU
+        transfer_restrictions:
+          - no_us_transfer
+          - encryption_required
+        certifications:
+          - GDPR
+          - ISO27001
+
+      us_clusters:
+        data_residency: US
+        certifications:
+          - HIPAA
+          - SOC2
+          - FISMA
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Cost Management
+
+### Multi-Cluster Cost Optimization
+
+<CardGroup cols={2}>
+  <Card title="Right-Sizing" icon="gauge">
+    Monitor and adjust cluster sizes based on actual usage
+  </Card>
+
+  <Card title="Regional Pricing" icon="dollar-sign">
+    Deploy to cost-effective regions where possible
+  </Card>
+
+  <Card title="Spot Instances" icon="tags">
+    Use spot instances for non-critical clusters (dev/staging)
+  </Card>
+
+  <Card title="Auto-Scaling" icon="chart-line">
+    Scale clusters down during off-peak hours
+  </Card>
+
+  <Card title="Reserved Capacity" icon="calendar">
+    Commit to reserved instances for predictable clusters
+  </Card>
+
+  <Card title="Resource Quotas" icon="limit">
+    Set limits to prevent runaway costs
+  </Card>
+</CardGroup>
+
+### Cost Allocation
+
+```yaml
+# Tag clusters for cost tracking
+clusters:
+  - name: production-us-east-1
+    tags:
+      environment: production
+      region: us-east-1
+      team: platform
+      cost_center: engineering
+
+  - name: development-shared
+    tags:
+      environment: development
+      region: us-east-1
+      team: engineering
+      cost_center: rd
+
+# Set budgets and alerts
+budgets:
+  - cluster: production-us-east-1
+    monthly_limit: 5000
+    alert_at: 80
+
+  - cluster: development-shared
+    monthly_limit: 1000
+    alert_at: 90
+    stop_at: 100
+```
+
+## Disaster Recovery
+
+<Steps>
+  <Step title="Define RTO and RPO">
+    - **RTO** (Recovery Time Objective): 15 minutes
+    - **RPO** (Recovery Point Objective): 5 minutes
+  </Step>
+
+  <Step title="Multi-Region Deployment">
+    Deploy to at least 2 geographically separated regions
+  </Step>
+
+  <Step title="Data Replication">
+    Set up cross-region database replication and storage sync
+  </Step>
+
+  <Step title="Automated Failover">
+    Configure health checks and automatic traffic routing
+  </Step>
+
+  <Step title="Regular DR Drills">
+    Test failover procedures quarterly
+  </Step>
+</Steps>
+
+## Best Practices
+
+<Steps>
+  <Step title="Standardize Cluster Configuration">
+    Use templates and IaC for consistent cluster setup
+  </Step>
+
+  <Step title="Centralize Monitoring">
+    Single pane of glass for all clusters
+  </Step>
+
+  <Step title="Automate Deployments">
+    Use CI/CD for consistent, repeatable deployments
+  </Step>
+
+  <Step title="Implement GitOps">
+    All configuration changes through Git
+  </Step>
+
+  <Step title="Regular Audits">
+    Review cluster usage, costs, and security regularly
+  </Step>
+
+  <Step title="Document Everything">
+    Maintain up-to-date documentation for all clusters
+  </Step>
+
+  <Step title="Test Disaster Recovery">
+    Regular drills to ensure failover works
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation Guide" icon="download" href="/installation">
+    Set up your first Kubernetes cluster
+  </Card>
+
+  <Card title="Production Management" icon="server" href="/guides/use-cases/production-environment-management">
+    Configure production-grade infrastructure
+  </Card>
+
+  <Card title="Terraform Provider" icon="code" href="/using-qovery/interface/terraform-provider">
+    Manage clusters with Infrastructure as Code
+  </Card>
+
+  <Card title="CLI Reference" icon="terminal" href="/cli/overview">
+    Command-line tools for cluster management
+  </Card>
+</CardGroup>

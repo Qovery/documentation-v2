@@ -1,0 +1,826 @@
+---
+title: "Ephemeral Environments"
+description: "Create on-demand temporary environments for development, testing, and preview"
+---
+
+## Overview
+
+Ephemeral environments are temporary, isolated environments that are automatically created for specific purposes (like feature development or testing) and destroyed when no longer needed. They provide developers with production-like environments without the cost and complexity of maintaining permanent infrastructure.
+
+<Info>
+**Preview Environments**: Qovery automatically creates preview environments for each pull request, giving teams instant feedback on changes before merging to production.
+</Info>
+
+## Benefits of Ephemeral Environments
+
+<CardGroup cols={2}>
+  <Card title="Faster Development" icon="rocket">
+    Test changes in isolation without affecting other developers
+  </Card>
+
+  <Card title="Cost Savings" icon="dollar-sign">
+    Pay only for environments when they're in use
+  </Card>
+
+  <Card title="Improved Testing" icon="flask">
+    Test in production-like environments before deployment
+  </Card>
+
+  <Card title="Better Collaboration" icon="users">
+    Stakeholders can review changes in live environments
+  </Card>
+
+  <Card title="Reduced Risk" icon="shield">
+    Catch issues early before they reach production
+  </Card>
+
+  <Card title="Faster Feedback" icon="comments">
+    Get immediate feedback from team members and stakeholders
+  </Card>
+</CardGroup>
+
+## Types of Ephemeral Environments
+
+### Preview Environments
+
+<Tabs>
+  <Tab title="Pull Request Environments">
+    **Automatic Creation**:
+    - New environment for each pull request
+    - Automatically deployed when PR is created
+    - Updated on each commit to the PR
+    - Destroyed when PR is merged or closed
+
+    **Use Cases**:
+    - Code review with live preview
+    - QA testing before merge
+    - Stakeholder demos
+    - Integration testing
+
+    **Configuration**:
+    ```yaml
+    # .qovery.yml
+    application:
+      name: my-app
+      preview_environments:
+        enabled: true
+        on_pull_request: true
+        auto_delete_on_close: true
+        timeout: 7d  # Auto-delete after 7 days
+    ```
+  </Tab>
+
+  <Tab title="Branch Environments">
+    **Feature Branch Environments**:
+    - Deploy specific branches automatically
+    - Multiple feature branches simultaneously
+    - Independent testing environments
+    - Isolated from other development work
+
+    **Configuration**:
+    ```yaml
+    application:
+      name: my-app
+      branches:
+        - main
+        - staging
+        - feature/*  # Deploy all feature branches
+      preview_environments:
+        enabled: true
+        branches:
+          - feature/*
+          - hotfix/*
+    ```
+
+    **Benefits**:
+    - Early detection of integration issues
+    - Parallel development on multiple features
+    - Long-lived feature development
+    - A/B testing different approaches
+  </Tab>
+
+  <Tab title="Commit Environments">
+    **Per-Commit Deployment**:
+    - Deploy specific commits for testing
+    - Useful for debugging specific changes
+    - Rollback testing
+    - Reproduce issues from specific versions
+
+    **Use Cases**:
+    - Bug reproduction
+    - Historical testing
+    - Compliance auditing
+    - Customer-specific versions
+  </Tab>
+</Tabs>
+
+### Developer Environments
+
+<AccordionGroup>
+  <Accordion title="Personal Dev Environments" icon="user">
+    **Individual Developer Spaces**:
+    - Each developer gets isolated environment
+    - Test changes without affecting team
+    - Experiment with new features safely
+    - Learn production setup
+
+    **Creation Methods**:
+    ```bash
+    # Via Qovery CLI
+    qovery environment create \
+      --name dev-john \
+      --clone-from staging \
+      --mode development
+
+    # Automatic from Git branch
+    git checkout -b feature/my-feature
+    git push origin feature/my-feature
+    # Environment automatically created
+    ```
+
+    **Resource Optimization**:
+    - Use smaller instance sizes
+    - Auto-sleep after inactivity
+    - Shared development cluster
+    - Spot instances for cost savings
+  </Accordion>
+
+  <Accordion title="On-Demand Environments" icon="bolt">
+    **Create When Needed**:
+    - Manual creation via console/CLI
+    - API-driven creation from tools
+    - Slack bot commands
+    - Scheduled creation
+
+    **Example: Slack Integration**:
+    ```
+    /qovery create-env feature-xyz
+    # Creates environment in seconds
+    # Returns URL when ready
+    ```
+
+    **Lifecycle Management**:
+    - Auto-delete after X hours/days
+    - Manual deletion by owner
+    - Idle detection and cleanup
+    - Cost limits and quotas
+  </Accordion>
+
+  <Accordion title="Pair Programming Environments" icon="users">
+    **Shared Development**:
+    - Collaborative coding sessions
+    - Remote pair programming
+    - Training and onboarding
+    - Troubleshooting sessions
+
+    **Features**:
+    - Real-time log streaming
+    - Shared environment access
+    - Live reload on code changes
+    - Terminal access (optional)
+  </Accordion>
+</AccordionGroup>
+
+### Testing Environments
+
+<Tabs>
+  <Tab title="QA Environments">
+    **Dedicated Testing**:
+    - Created for QA testing cycles
+    - Stable for duration of testing
+    - Seeded with test data
+    - Destroyed after testing complete
+
+    **Test Data Management**:
+    ```bash
+    # Clone production data (sanitized)
+    qovery database clone \
+      --from production-db \
+      --to qa-db \
+      --sanitize-pii
+
+    # Or use synthetic test data
+    qovery lifecycle-job run \
+      --name seed-test-data \
+      --environment qa-env
+    ```
+  </Tab>
+
+  <Tab title="Performance Testing">
+    **Load Testing Environments**:
+    - Scaled to match production
+    - Isolated to avoid affecting others
+    - Instrumented for metrics collection
+    - Destroyed after test completion
+
+    **Setup**:
+    ```yaml
+    environment:
+      name: perf-test
+      mode: production  # Production-like resources
+      instances:
+        min: 10  # Match production scale
+        max: 20
+      monitoring:
+        enabled: true
+        detailed_metrics: true
+    ```
+  </Tab>
+
+  <Tab title="Integration Testing">
+    **Multi-Service Testing**:
+    - Full stack deployment
+    - All microservices running
+    - Integrated with dependencies
+    - Automated test execution
+
+    **CI/CD Integration**:
+    ```yaml
+    # GitHub Actions example
+    name: Integration Tests
+    on: pull_request
+
+    jobs:
+      integration-test:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+
+          - name: Deploy to ephemeral environment
+            uses: Qovery/qovery-action@v1
+            with:
+              qovery_api_token: ${{ secrets.QOVERY_TOKEN }}
+              environment_name: pr-${{ github.event.number }}
+
+          - name: Run integration tests
+            run: npm run test:integration
+            env:
+              TEST_URL: ${{ steps.deploy.outputs.url }}
+
+          - name: Cleanup environment
+            if: always()
+            run: qovery environment delete pr-${{ github.event.number }}
+    ```
+  </Tab>
+</Tabs>
+
+## Setting Up Preview Environments
+
+### Basic Configuration
+
+<Steps>
+  <Step title="Enable Preview Environments">
+    Configure automatic preview environment creation in Qovery
+
+    **Via Console**:
+    1. Navigate to Environment settings
+    2. Enable "Preview Environments"
+    3. Configure triggers (PR creation, branch push)
+    4. Set lifecycle policies (auto-delete)
+
+    **Via Configuration File**:
+    ```yaml
+    # .qovery.yml
+    version: "1.0"
+    applications:
+      - name: web-app
+        git:
+          repo: https://github.com/org/repo
+          branch: main
+        preview_environments:
+          enabled: true
+          triggers:
+            - pull_request
+          lifecycle:
+            auto_delete_on_close: true
+            auto_delete_after: 7d
+            auto_stop_after: 24h
+    ```
+  </Step>
+
+  <Step title="Configure Environment Template">
+    Define the blueprint for ephemeral environments
+
+    **Environment Variables**:
+    ```yaml
+    environment_variables:
+      - name: APP_ENV
+        value: preview
+      - name: DATABASE_URL
+        value_from_secret: PREVIEW_DB_URL
+      - name: PREVIEW_MODE
+        value: "true"
+    ```
+
+    **Resource Limits**:
+    ```yaml
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+    instances:
+      min: 1
+      max: 2
+    ```
+  </Step>
+
+  <Step title="Set Up Database Strategy">
+    Choose how to handle databases in preview environments
+
+    **Option 1: Shared Database**:
+    - Single database for all preview environments
+    - Use prefixes/schemas to isolate data
+    - Lower cost, faster creation
+    - Risk of data conflicts
+
+    **Option 2: Isolated Database per Preview**:
+    - Each preview gets its own database
+    - Complete isolation
+    - Higher cost, slower creation
+    - Better for testing migrations
+
+    **Option 3: Database Snapshot**:
+    - Clone from production snapshot (sanitized)
+    - Realistic data for testing
+    - Moderate cost and creation time
+    - Best balance for most use cases
+
+    ```yaml
+    databases:
+      - name: preview-db
+        type: postgresql
+        version: "15"
+        mode: CONTAINER  # Lightweight for preview
+        storage: 10GB
+        lifecycle:
+          delete_on_environment_delete: true
+    ```
+  </Step>
+
+  <Step title="Configure DNS and Networking">
+    Set up automatic domain names for preview environments
+
+    **Automatic Subdomain**:
+    ```
+    # Pattern: {env-name}.{base-domain}
+    pr-123.preview.myapp.com
+    feature-xyz.preview.myapp.com
+    dev-john.dev.myapp.com
+    ```
+
+    **Custom Domain Pattern**:
+    ```yaml
+    domains:
+      - name: ${QOVERY_ENVIRONMENT_NAME}.preview.myapp.com
+        generate_certificate: true
+    ```
+  </Step>
+</Steps>
+
+### Advanced Configurations
+
+<AccordionGroup>
+  <Accordion title="Conditional Deployments" icon="code-branch">
+    **Deploy Based on Criteria**:
+    ```yaml
+    preview_environments:
+      enabled: true
+      conditions:
+        # Only create for PRs with label
+        labels:
+          - deploy-preview
+        # Skip for draft PRs
+        skip_draft: true
+        # Only for specific paths
+        paths:
+          - src/**
+          - api/**
+        # Exclude certain paths
+        exclude_paths:
+          - docs/**
+          - README.md
+    ```
+
+    **Benefits**:
+    - Reduce unnecessary environments
+    - Lower costs
+    - Faster feedback on relevant changes
+    - Better resource utilization
+  </Accordion>
+
+  <Accordion title="Environment Seeding" icon="seedling">
+    **Populate with Test Data**:
+    ```yaml
+    # Lifecycle job runs after environment creation
+    lifecycle_jobs:
+      - name: seed-data
+        on:
+          - ENVIRONMENT_CREATED
+        image: my-seeder:latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Seeding database..."
+            node seed.js
+        environment_variables:
+          - name: DATABASE_URL
+            value_from_secret: DATABASE_URL
+    ```
+
+    **Use Cases**:
+    - Demo data for stakeholders
+    - Test data for QA
+    - Anonymized production data
+    - Synthetic data generation
+  </Accordion>
+
+  <Accordion title="Integration with External Services" icon="plug">
+    **Third-Party Service Mocking**:
+    - Mock payment processors in preview
+    - Sandbox email/SMS services
+    - Test OAuth providers
+    - Staging external APIs
+
+    **Example Configuration**:
+    ```yaml
+    environment_variables:
+      - name: STRIPE_KEY
+        value: sk_test_preview_key
+      - name: SENDGRID_KEY
+        value: SG.test_preview_key
+      - name: AUTH0_DOMAIN
+        value: dev-preview.auth0.com
+      - name: EXTERNAL_API_URL
+        value: https://sandbox.external-api.com
+    ```
+  </Accordion>
+
+  <Accordion title="Cost Controls" icon="dollar-sign">
+    **Limit Spending on Ephemeral Environments**:
+    ```yaml
+    preview_environments:
+      cost_controls:
+        # Maximum concurrent environments
+        max_concurrent: 10
+        # Auto-stop after inactivity
+        auto_stop_after: 2h
+        # Auto-delete after time
+        auto_delete_after: 7d
+        # Resource quotas
+        resources:
+          max_cpu: 2000m
+          max_memory: 4Gi
+        # Use spot instances
+        use_spot_instances: true
+    ```
+
+    **Strategies**:
+    - Limit concurrent preview environments
+    - Use smaller instance sizes
+    - Auto-stop inactive environments
+    - Aggressive cleanup policies
+    - Spot/preemptible instances
+    - Shared resources where possible
+  </Accordion>
+</AccordionGroup>
+
+## Lifecycle Management
+
+### Automatic Lifecycle Policies
+
+<Tabs>
+  <Tab title="Auto-Creation">
+    **Triggers**:
+    - Pull request opened
+    - Branch pushed to Git
+    - Label added to PR
+    - Manual trigger via API
+    - Scheduled creation
+
+    **Configuration**:
+    ```yaml
+    lifecycle:
+      creation:
+        triggers:
+          - pull_request_opened
+          - pull_request_labeled
+          - branch_pushed
+        labels:
+          - deploy-preview
+          - needs-testing
+    ```
+  </Tab>
+
+  <Tab title="Auto-Update">
+    **Update Triggers**:
+    - New commit pushed to PR
+    - Label changed
+    - Configuration file updated
+    - Manual trigger
+
+    **Rolling Updates**:
+    ```yaml
+    lifecycle:
+      updates:
+        strategy: rolling
+        on:
+          - commit_pushed
+          - configuration_changed
+        max_unavailable: 0  # Zero-downtime updates
+    ```
+  </Tab>
+
+  <Tab title="Auto-Stop">
+    **Idle Detection**:
+    ```yaml
+    lifecycle:
+      auto_stop:
+        enabled: true
+        after_inactivity: 2h
+        exclude_hours:
+          - 09:00-18:00  # Don't stop during work hours
+        exclude_days:
+          - monday
+          - tuesday
+          - wednesday
+          - thursday
+          - friday
+    ```
+
+    **Benefits**:
+    - Reduce costs for unused environments
+    - Quick restart when needed
+    - Preserve environment state
+    - Configurable based on work schedule
+  </Tab>
+
+  <Tab title="Auto-Delete">
+    **Deletion Triggers**:
+    ```yaml
+    lifecycle:
+      auto_delete:
+        on_pr_closed: true
+        on_pr_merged: true
+        after_days: 7
+        after_inactivity: 72h
+        keep_logs: true  # Retain logs after deletion
+        notify_before: 24h  # Warning before deletion
+    ```
+
+    **Cleanup Strategy**:
+    - Delete on PR close/merge
+    - Delete after time limit
+    - Delete after inactivity
+    - Manual deletion override
+    - Preserve logs for debugging
+  </Tab>
+</Tabs>
+
+### Manual Lifecycle Control
+
+<AccordionGroup>
+  <Accordion title="CLI Commands" icon="terminal">
+    ```bash
+    # Create environment
+    qovery environment create \
+      --name dev-feature-xyz \
+      --clone-from staging
+
+    # Stop environment (preserve state)
+    qovery environment stop dev-feature-xyz
+
+    # Start stopped environment
+    qovery environment start dev-feature-xyz
+
+    # Delete environment
+    qovery environment delete dev-feature-xyz
+
+    # List all environments
+    qovery environment list
+
+    # Get environment status
+    qovery environment status dev-feature-xyz
+    ```
+  </Accordion>
+
+  <Accordion title="API Control" icon="code">
+    ```javascript
+    // Create ephemeral environment
+    const response = await fetch(
+      'https://api.qovery.com/environment',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: 'pr-123',
+          clone_from: 'staging',
+          mode: 'DEVELOPMENT',
+          ttl: '7d'  // Auto-delete after 7 days
+        })
+      }
+    );
+
+    // Delete environment
+    await fetch(
+      `https://api.qovery.com/environment/${envId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${apiToken}`
+        }
+      }
+    );
+    ```
+  </Accordion>
+
+  <Accordion title="Slack Bot" icon="slack">
+    **Bot Commands**:
+    ```
+    # Create environment
+    /qovery create pr-123
+
+    # Stop environment
+    /qovery stop pr-123
+
+    # Start environment
+    /qovery start pr-123
+
+    # Delete environment
+    /qovery delete pr-123
+
+    # List my environments
+    /qovery list
+
+    # Get environment URL
+    /qovery url pr-123
+    ```
+
+    **Notifications**:
+    - Environment created
+    - Deployment succeeded/failed
+    - Environment stopped
+    - Environment will be deleted (warning)
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Steps>
+  <Step title="Use Environment Templates">
+    Define reusable templates for consistent environment creation
+  </Step>
+
+  <Step title="Implement Cost Controls">
+    Set limits on concurrent environments and automatic cleanup
+  </Step>
+
+  <Step title="Optimize Resource Usage">
+    Use smaller instances and shared resources for ephemeral environments
+  </Step>
+
+  <Step title="Automate Everything">
+    Automatically create, update, and delete environments based on Git events
+  </Step>
+
+  <Step title="Seed with Test Data">
+    Populate environments with realistic test data automatically
+  </Step>
+
+  <Step title="Monitor and Alert">
+    Track environment creation, usage, and costs
+  </Step>
+
+  <Step title="Document Workflows">
+    Provide clear instructions for team members on using preview environments
+  </Step>
+
+  <Step title="Regular Cleanup Audits">
+    Periodically review and clean up forgotten environments
+  </Step>
+</Steps>
+
+## Cost Optimization
+
+<CardGroup cols={2}>
+  <Card title="Shared Resources" icon="share-nodes">
+    Use shared databases and services where isolation isn't critical
+  </Card>
+
+  <Card title="Smaller Instances" icon="compress">
+    Preview environments rarely need production-sized resources
+  </Card>
+
+  <Card title="Auto-Stop/Delete" icon="clock">
+    Aggressively cleanup unused environments
+  </Card>
+
+  <Card title="Spot Instances" icon="dollar-sign">
+    Use spot/preemptible instances for 60-80% cost savings
+  </Card>
+
+  <Card title="Limit Concurrent" icon="layer-group">
+    Cap maximum number of concurrent preview environments
+  </Card>
+
+  <Card title="Container Mode" icon="box">
+    Use containerized databases instead of managed services
+  </Card>
+</CardGroup>
+
+### Cost Tracking
+
+```yaml
+# Track costs by tags
+tags:
+  environment_type: ephemeral
+  team: engineering
+  cost_center: development
+  auto_cleanup: "true"
+
+# Set budgets and alerts
+budget:
+  monthly_limit: 500  # USD
+  alert_at: 80  # Alert at 80% of budget
+  stop_at: 100  # Stop creating new envs at 100%
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Environment Creation Fails" icon="circle-xmark">
+    **Common Causes**:
+    - Resource quotas exceeded
+    - Invalid configuration
+    - Network/firewall issues
+    - Git repository access
+
+    **Solutions**:
+    - Check resource limits and quotas
+    - Validate configuration file
+    - Verify Git credentials
+    - Review cluster capacity
+    - Check Qovery logs for details
+  </Accordion>
+
+  <Accordion title="Slow Environment Creation" icon="hourglass">
+    **Optimization Strategies**:
+    - Use smaller container images
+    - Enable image caching
+    - Use container mode for databases
+    - Pre-warm base environments
+    - Optimize build process
+
+    **Expected Times**:
+    - Simple app: 2-5 minutes
+    - With database: 5-10 minutes
+    - Complex multi-service: 10-15 minutes
+  </Accordion>
+
+  <Accordion title="Environment Not Accessible" icon="link-slash">
+    **Check**:
+    - Deployment status (running?)
+    - Health checks passing
+    - DNS propagation
+    - Firewall rules
+    - SSL certificate provisioned
+
+    **Debug**:
+    ```bash
+    # Check status
+    qovery environment status pr-123
+
+    # View logs
+    qovery log --environment pr-123
+
+    # Check application health
+    qovery application status my-app --environment pr-123
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Preview Environments Guide" icon="eye" href="/guides/advanced/preview-environments">
+    Detailed guide on setting up preview environments
+  </Card>
+
+  <Card title="Multi-Environment Setup" icon="layer-group" href="/guides/advanced/multi-environment-setup">
+    Manage development, staging, and production environments
+  </Card>
+
+  <Card title="CI/CD Integration" icon="rotate" href="/guides/advanced/ci-cd-integration">
+    Integrate ephemeral environments with your CI/CD pipeline
+  </Card>
+
+  <Card title="CLI Reference" icon="terminal" href="/cli/commands">
+    Complete CLI command reference
+  </Card>
+</CardGroup>
