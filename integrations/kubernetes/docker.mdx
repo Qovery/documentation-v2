@@ -1,0 +1,97 @@
+---
+title: "Docker Desktop for Local Development"
+description: "Use Docker Desktop Kubernetes with Qovery for local development"
+---
+
+## Overview
+
+Docker Desktop includes a local Kubernetes cluster perfect for development and testing. Connect it to Qovery to develop and test applications locally before deploying to cloud environments.
+
+## Supported Local Kubernetes
+
+<CardGroup cols={3}>
+  <Card title="Docker Desktop" icon="docker">
+    Mac, Windows, Linux - Built-in Kubernetes
+  </Card>
+
+  <Card title="Minikube" icon="dharmachakra">
+    Lightweight K8s - Cross-platform
+  </Card>
+
+  <Card title="Kind" icon="boxes-stacked">
+    K8s in Docker - Fast, lightweight
+  </Card>
+</CardGroup>
+
+## Docker Desktop Setup
+
+<Steps>
+  <Step title="Enable Kubernetes">
+    1. Open Docker Desktop
+    2. Settings → Kubernetes
+    3. Check "Enable Kubernetes"
+    4. Click "Apply & Restart"
+    5. Wait for Kubernetes to start (green icon)
+  </Step>
+
+  <Step title="Verify Installation">
+    ```bash
+    kubectl cluster-info
+    kubectl get nodes
+    ```
+  </Step>
+
+  <Step title="Install Nginx Ingress">
+    ```bash
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+    ```
+  </Step>
+
+  <Step title="Connect to Qovery">
+    Follow BYOK setup to connect local cluster
+  </Step>
+</Steps>
+
+## Use Cases
+
+- **Local Development**: Develop and test locally
+- **CI/CD Testing**: Ephemeral clusters in pipelines
+- **Learning**: Safe environment for experimentation
+- **Preview Environments**: Test before cloud deployment
+
+## Limitations
+
+<Warning>
+Local Kubernetes is **NOT for production**:
+- Single node (no high availability)
+- Limited resources
+- Loses data on restart
+- Performance limitations
+</Warning>
+
+## Resource Requirements
+
+**Minimum**: 4 GB RAM, 2 CPUs, 20 GB disk
+**Recommended**: 8 GB RAM, 4 CPUs, 50 GB disk
+
+Configure in Docker Desktop Settings → Resources
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy First App" icon="rocket" href="/deploy-my-app">
+    Deploy your first application locally
+  </Card>
+
+  <Card title="BYOK Setup" icon="plug" href="/integrations/kubernetes/byok">
+    Connect local cluster to Qovery
+  </Card>
+
+  <Card title="Cloud Deployment" icon="cloud" href="/integrations/kubernetes/overview">
+    Move to cloud when ready
+  </Card>
+
+  <Card title="Local Installation" icon="book" href="/installation/local">
+    Detailed local setup guide
+  </Card>
+</CardGroup>

@@ -1,0 +1,413 @@
+---
+title: "Kubernetes Integrations"
+description: "Deploy on managed or self-managed Kubernetes clusters"
+---
+
+## Overview
+
+Qovery works with any Kubernetes cluster, whether managed by cloud providers or self-managed. Choose between **Qovery-managed clusters** (fully automated) or **Bring Your Own Kubernetes (BYOK)** for maximum control.
+
+## Deployment Options
+
+<CardGroup cols={2}>
+  <Card title="Qovery-Managed" icon="wand-magic-sparkles">
+    **Zero Configuration**
+
+    Qovery provisions and manages your Kubernetes cluster on your cloud provider account. Automated updates, scaling, and maintenance.
+
+    ✅ AWS EKS
+    ✅ GCP GKE
+    ✅ Azure AKS
+    ✅ Scaleway Kapsule
+  </Card>
+
+  <Card title="Bring Your Own Kubernetes (BYOK)" icon="server">
+    **Full Control**
+
+    Connect your existing Kubernetes cluster to Qovery. You manage the cluster, Qovery manages deployments.
+
+    ✅ Any Kubernetes 1.24+
+    ✅ Self-managed clusters
+    ✅ On-premise
+    ✅ Edge locations
+  </Card>
+</CardGroup>
+
+## Supported Platforms
+
+<Tabs>
+  <Tab title="Managed Kubernetes">
+    ### AWS EKS
+    <Card title="Amazon EKS" icon="aws" href="/integrations/kubernetes/eks/overview">
+      - **Qovery-managed**: Full automation
+      - **BYOK**: Connect existing EKS cluster
+      - **EKS Anywhere**: On-premise with AWS tooling
+      - Regions: All AWS regions
+      - Features: Auto-scaling, spot instances, Graviton support
+    </Card>
+
+    ### GCP GKE
+    <Card title="Google GKE" icon="google" href="/integrations/kubernetes/gke/overview">
+      - **Qovery-managed**: Full automation
+      - **BYOK**: Connect existing GKE cluster
+      - Regions: All GCP regions
+      - Features: Auto-scaling, preemptible VMs, Autopilot mode
+    </Card>
+
+    ### Azure AKS
+    <Card title="Azure AKS" icon="microsoft" href="/integrations/kubernetes/aks/overview">
+      - **Qovery-managed**: Full automation
+      - **BYOK**: Connect existing AKS cluster
+      - Regions: All Azure regions
+      - Features: Auto-scaling, spot instances, Virtual Nodes
+    </Card>
+
+    ### Scaleway Kapsule
+    <Card title="Scaleway Kapsule" icon="server" href="/integrations/kubernetes/scaleway/overview">
+      - **Qovery-managed**: Full automation
+      - **BYOK**: Connect existing Kapsule cluster
+      - Regions: Paris, Amsterdam, Warsaw
+      - Features: Cost-effective, European data sovereignty
+    </Card>
+  </Tab>
+
+  <Tab title="Self-Managed">
+    ### Generic Kubernetes (BYOK)
+    <Card title="Any Kubernetes Cluster" icon="dharmachakra" href="/integrations/kubernetes/byok">
+      Connect any Kubernetes cluster to Qovery:
+      - Self-managed Kubernetes
+      - On-premise clusters
+      - Edge locations
+      - Kubernetes 1.24+
+      - kubectl access required
+    </Card>
+
+    ### EKS Anywhere
+    <Card title="AWS EKS Anywhere" icon="server" href="/integrations/kubernetes/eks-anywhere">
+      Run AWS EKS on your own infrastructure:
+      - On-premise data centers
+      - Edge locations
+      - AWS tooling and support
+      - Consistent with EKS
+    </Card>
+
+    ### Docker (Local Development)
+    <Card title="Docker Desktop" icon="docker" href="/integrations/kubernetes/docker">
+      Local Kubernetes for development:
+      - Docker Desktop (Mac/Windows)
+      - Minikube
+      - Kind (Kubernetes in Docker)
+      - Local testing before cloud deployment
+    </Card>
+  </Tab>
+</Tabs>
+
+## Comparison
+
+| Platform | Qovery-Managed | BYOK | Auto-Scaling | Spot/Preemptible | Best For |
+|----------|----------------|------|--------------|------------------|----------|
+| **AWS EKS** | ✅ | ✅ | ✅ | ✅ | Most popular, wide region coverage |
+| **GCP GKE** | ✅ | ✅ | ✅ | ✅ | Google Cloud users, Autopilot mode |
+| **Azure AKS** | ✅ | ✅ | ✅ | ✅ | Microsoft ecosystem integration |
+| **Scaleway Kapsule** | ✅ | ✅ | ✅ | ❌ | Cost-effective, EU data sovereignty |
+| **EKS Anywhere** | ❌ | ✅ | Manual | ❌ | On-premise with AWS tooling |
+| **Generic K8s** | ❌ | ✅ | Manual | ❌ | Maximum control, any infrastructure |
+| **Docker (Local)** | ❌ | ✅ | ❌ | ❌ | Local development and testing |
+
+## Qovery-Managed vs BYOK
+
+<Tabs>
+  <Tab title="Qovery-Managed">
+    **What Qovery Manages**:
+    - ✅ Cluster provisioning and setup
+    - ✅ Kubernetes version upgrades
+    - ✅ Node pool management
+    - ✅ Auto-scaling configuration
+    - ✅ Security patches
+    - ✅ Monitoring and logging setup
+    - ✅ Network configuration
+    - ✅ SSL/TLS certificates
+
+    **Benefits**:
+    - Zero cluster management overhead
+    - Automated best practices
+    - Fast setup (15-30 minutes)
+    - Optimized for Qovery workloads
+    - Included in Qovery pricing
+
+    **Best For**:
+    - Teams without Kubernetes expertise
+    - Startups and small teams
+    - Rapid deployment needs
+    - Standard use cases
+  </Tab>
+
+  <Tab title="BYOK (Bring Your Own)">
+    **What You Manage**:
+    - ✅ Cluster provisioning
+    - ✅ Kubernetes version upgrades
+    - ✅ Node pool management
+    - ✅ Security and compliance
+    - ✅ Network policies
+    - ✅ Backup and disaster recovery
+
+    **What Qovery Manages**:
+    - ✅ Application deployments
+    - ✅ Environment management
+    - ✅ Secret management
+    - ✅ CI/CD pipelines
+
+    **Benefits**:
+    - Full cluster control
+    - Custom configurations
+    - Meet specific compliance requirements
+    - Use existing clusters
+    - Multi-tenant setups
+
+    **Best For**:
+    - Enterprise with existing clusters
+    - Specific compliance needs (HIPAA, PCI-DSS)
+    - Custom networking requirements
+    - Multi-tenancy requirements
+  </Tab>
+</Tabs>
+
+## Features by Platform
+
+<AccordionGroup>
+  <Accordion title="AWS EKS" icon="aws">
+    **Qovery-Managed Features**:
+    - Automated EKS cluster creation
+    - VPC and subnet configuration
+    - IAM roles and policies
+    - Auto-scaling with Karpenter
+    - Spot instance support
+    - Graviton (ARM) instance support
+    - Multi-AZ deployment
+    - Integrated with AWS services (RDS, S3, etc.)
+
+    **Versions**: 1.24, 1.25, 1.26, 1.27, 1.28, 1.29
+    **Regions**: All AWS regions
+    **Node Types**: EC2 (On-Demand, Spot), Fargate, Graviton
+  </Accordion>
+
+  <Accordion title="GCP GKE" icon="google">
+    **Qovery-Managed Features**:
+    - Automated GKE cluster creation
+    - VPC and subnet configuration
+    - Service accounts and IAM
+    - Auto-scaling with Cluster Autoscaler
+    - Preemptible VM support
+    - GKE Autopilot option
+    - Multi-zone deployment
+    - Integrated with GCP services (Cloud SQL, GCS, etc.)
+
+    **Versions**: 1.24, 1.25, 1.26, 1.27, 1.28, 1.29
+    **Regions**: All GCP regions
+    **Node Types**: Standard, Preemptible, Spot, Autopilot
+  </Accordion>
+
+  <Accordion title="Azure AKS" icon="microsoft">
+    **Qovery-Managed Features**:
+    - Automated AKS cluster creation
+    - VNet and subnet configuration
+    - Managed identities
+    - Auto-scaling with Cluster Autoscaler
+    - Spot instance support
+    - Virtual Nodes (ACI integration)
+    - Multi-zone deployment
+    - Integrated with Azure services (SQL, Storage, etc.)
+
+    **Versions**: 1.24, 1.25, 1.26, 1.27, 1.28, 1.29
+    **Regions**: All Azure regions
+    **Node Types**: Standard, Spot, Virtual Nodes
+  </Accordion>
+
+  <Accordion title="Scaleway Kapsule" icon="server">
+    **Qovery-Managed Features**:
+    - Automated Kapsule cluster creation
+    - Private network configuration
+    - Auto-scaling with Cluster Autoscaler
+    - Cost-effective pricing
+    - European data centers
+    - GDPR compliance
+    - Integrated with Scaleway services (Database, Object Storage)
+
+    **Versions**: 1.24, 1.25, 1.26, 1.27, 1.28
+    **Regions**: Paris (PAR1, PAR2), Amsterdam (AMS1), Warsaw (WAW1)
+    **Node Types**: DEV1, GP1, PRO2 (various sizes)
+  </Accordion>
+
+  <Accordion title="EKS Anywhere" icon="building">
+    **BYOK Features**:
+    - AWS EKS on your infrastructure
+    - Consistent with EKS API
+    - AWS support and tooling
+    - On-premise or edge deployment
+    - VMware vSphere support
+    - Bare metal support
+
+    **Requirements**:
+    - Kubernetes 1.24+
+    - kubectl access
+    - Qovery agent installation
+    - Network connectivity to Qovery
+  </Accordion>
+
+  <Accordion title="Generic Kubernetes (BYOK)" icon="dharmachakra">
+    **Supported Distributions**:
+    - Vanilla Kubernetes
+    - Rancher
+    - OpenShift
+    - k3s
+    - Tanzu
+    - Any certified Kubernetes
+
+    **Requirements**:
+    - Kubernetes 1.24+
+    - kubectl admin access
+    - LoadBalancer support (MetalLB for on-premise)
+    - Ingress controller
+    - Storage class (for persistent volumes)
+    - Network connectivity to Qovery Control Plane
+  </Accordion>
+
+  <Accordion title="Docker (Local)" icon="docker">
+    **Local Development Options**:
+    - Docker Desktop (Mac/Windows): Built-in Kubernetes
+    - Minikube: Lightweight Kubernetes
+    - Kind: Kubernetes in Docker
+    - k3d: Lightweight k3s in Docker
+
+    **Use Cases**:
+    - Local development and testing
+    - CI/CD pipelines (ephemeral environments)
+    - Learning Kubernetes
+    - Pre-production validation
+
+    **Limitations**:
+    - Not for production workloads
+    - Limited resources
+    - Single-node (typically)
+    - No high availability
+  </Accordion>
+</AccordionGroup>
+
+## Getting Started
+
+<Steps>
+  <Step title="Choose Platform">
+    Select your Kubernetes platform based on:
+    - Cloud provider preference
+    - Existing infrastructure
+    - Compliance requirements
+    - Budget constraints
+    - Geographic requirements
+  </Step>
+
+  <Step title="Choose Deployment Mode">
+    **Qovery-Managed**: For fast setup and zero maintenance
+    **BYOK**: For control and custom configurations
+  </Step>
+
+  <Step title="Follow Platform Guide">
+    Click on your platform below for detailed setup instructions
+  </Step>
+
+  <Step title="Deploy Applications">
+    Once cluster is ready, start deploying applications
+  </Step>
+</Steps>
+
+## Platform Guides
+
+<CardGroup cols={2}>
+  <Card title="AWS EKS" icon="aws" href="/integrations/kubernetes/eks/overview">
+    Deploy on Amazon EKS with Qovery-managed or BYOK
+  </Card>
+
+  <Card title="GCP GKE" icon="google" href="/integrations/kubernetes/gke/overview">
+    Deploy on Google GKE with Qovery-managed or BYOK
+  </Card>
+
+  <Card title="Azure AKS" icon="microsoft" href="/integrations/kubernetes/aks/overview">
+    Deploy on Azure AKS with Qovery-managed or BYOK
+  </Card>
+
+  <Card title="Scaleway Kapsule" icon="server" href="/integrations/kubernetes/scaleway/overview">
+    Deploy on Scaleway Kapsule with Qovery-managed or BYOK
+  </Card>
+
+  <Card title="EKS Anywhere" icon="building" href="/integrations/kubernetes/eks-anywhere">
+    Connect EKS Anywhere clusters (BYOK)
+  </Card>
+
+  <Card title="Generic Kubernetes" icon="dharmachakra" href="/integrations/kubernetes/byok">
+    Connect any Kubernetes cluster (BYOK)
+  </Card>
+
+  <Card title="Docker Local" icon="docker" href="/integrations/kubernetes/docker">
+    Set up local development with Docker Desktop
+  </Card>
+</CardGroup>
+
+## Cost Considerations
+
+| Platform | Qovery-Managed Cost | Cluster Cost (Your Account) | Total Monthly (Example) |
+|----------|---------------------|----------------------------|------------------------|
+| **AWS EKS** | Included in Qovery plan | ~$73 control plane + instances | ~$150-500+ |
+| **GCP GKE** | Included in Qovery plan | Free control plane + instances | ~$100-400+ |
+| **Azure AKS** | Included in Qovery plan | Free control plane + instances | ~$100-400+ |
+| **Scaleway** | Included in Qovery plan | Free control plane + instances | ~$50-200+ |
+| **BYOK** | Included in Qovery plan | Your cluster costs | Variable |
+
+*Instance costs vary based on node types, count, and usage*
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Start with Qovery-Managed" icon="wand-magic-sparkles">
+    Begin with Qovery-managed for fastest time to value. Migrate to BYOK later if needed.
+  </Card>
+
+  <Card title="Use Production-Grade Settings" icon="shield-check">
+    - Enable multi-AZ/zone deployment
+    - Use auto-scaling
+    - Set up monitoring and alerts
+    - Configure backup and disaster recovery
+  </Card>
+
+  <Card title="Optimize Costs" icon="dollar-sign">
+    - Use spot/preemptible instances for non-critical workloads
+    - Right-size node instances
+    - Enable cluster auto-scaling
+    - Use node pools with different instance types
+  </Card>
+
+  <Card title="Plan for Growth" icon="chart-line">
+    - Start small, scale as needed
+    - Use auto-scaling from day one
+    - Monitor resource usage
+    - Review and optimize regularly
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation Guides" icon="rocket" href="/installation/aws">
+    Step-by-step installation guides
+  </Card>
+
+  <Card title="Cluster Configuration" icon="sliders" href="/using-qovery/configuration/clusters">
+    Configure and manage your clusters
+  </Card>
+
+  <Card title="Deploy Your First App" icon="play" href="/deploy-my-app">
+    Deploy your first application
+  </Card>
+
+  <Card title="Multi-Cloud Strategy" icon="globe" href="/guides/advanced/multi-environment-setup">
+    Learn about multi-cloud deployments
+  </Card>
+</CardGroup>

@@ -173,15 +173,23 @@
             ]
           },
           {
-            "group": "Cloud Providers",
+            "group": "Kubernetes",
             "pages": [
-              "integrations/cloud-providers/overview",
-              "integrations/cloud-providers/aws",
-              "integrations/cloud-providers/gcp",
-              "integrations/cloud-providers/azure",
-              "integrations/cloud-providers/scaleway",
-              "integrations/cloud-providers/kubernetes",
-              "integrations/cloud-providers/on-premise"
+              "integrations/kubernetes/overview",
+              {
+                "group": "AWS EKS",
+                "pages": [
+                  "integrations/kubernetes/eks/overview",
+                  "integrations/kubernetes/eks/managed",
+                  "integrations/kubernetes/eks/byok"
+                ]
+              },
+              "integrations/kubernetes/gke/overview",
+              "integrations/kubernetes/aks/overview",
+              "integrations/kubernetes/scaleway/overview",
+              "integrations/kubernetes/eks-anywhere",
+              "integrations/kubernetes/byok",
+              "integrations/kubernetes/docker"
             ]
           },
           {

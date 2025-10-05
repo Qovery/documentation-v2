@@ -1,0 +1,84 @@
+---
+title: "Qovery-Managed EKS"
+description: "Fully automated Amazon EKS cluster provisioning and management"
+---
+
+## Overview
+
+Qovery-managed EKS provides zero-configuration Kubernetes clusters on AWS. Qovery creates, configures, and maintains your EKS cluster with best practices built-in.
+
+## Quick Start
+
+<Steps>
+  <Step title="Connect AWS Account">
+    Organization Settings → Cloud Providers → Add AWS Account
+    - Provide AWS credentials (Access Key/Secret or IAM Role)
+    - Select region for cluster
+  </Step>
+
+  <Step title="Create Cluster">
+    Settings → Clusters → Create Cluster
+    - Name: `production-eks`
+    - Provider: AWS
+    - Region: `us-east-1`
+    - Click **Create**
+  </Step>
+
+  <Step title="Wait for Provisioning">
+    Cluster creation takes 20-30 minutes:
+    - VPC and networking setup
+    - EKS control plane creation
+    - Worker node provisioning
+    - Qovery components installation
+  </Step>
+
+  <Step title="Deploy Applications">
+    Once cluster is ready, start deploying applications
+  </Step>
+</Steps>
+
+## What Qovery Creates
+
+- ✅ EKS cluster (latest stable Kubernetes)
+- ✅ VPC with public/private subnets across 3 AZs
+- ✅ NAT Gateways for internet access
+- ✅ Security groups and IAM roles
+- ✅ Karpenter for auto-scaling
+- ✅ AWS Load Balancer Controller
+- ✅ EBS CSI driver
+- ✅ Metrics server
+- ✅ Qovery agent and observability stack
+
+## Configuration Options
+
+### Cluster Settings
+
+**Instance Types**:
+- General Purpose: t3, m5, m6i, m6g (Graviton)
+- Compute Optimized: c5, c6i, c6g (Graviton)
+- Memory Optimized: r5, r6i, r6g (Graviton)
+
+**Auto-Scaling**:
+- Min nodes: 1
+- Max nodes: 100
+- Karpenter automatically provisions optimal instances
+
+**Spot Instances**:
+- Enable Spot instances for cost savings (60-90% off)
+- Qovery handles interruptions gracefully
+- Mix of Spot and On-Demand for reliability
+
+### Network Settings
+
+**VPC Configuration**:
+- CIDR: /16 (65,536 IPs)
+- 3 public subnets (load balancers)
+- 3 private subnets (pods)
+- NAT Gateways per AZ
+
+**Access**:
+- Public endpoint (default)
+- Private endpoint (enterprise feature)
+- VPN access for private endpoints
+
+For detailed AWS installation guide, see [AWS Installation](/installation/aws).

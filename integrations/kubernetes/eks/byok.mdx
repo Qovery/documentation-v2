@@ -1,0 +1,282 @@
+---
+title: "Bring Your Own EKS Cluster (BYOK)"
+description: "Connect your existing Amazon EKS cluster to Qovery"
+---
+
+## Overview
+
+Bring Your Own Kubernetes (BYOK) allows you to connect your existing EKS cluster to Qovery. You maintain full control over your cluster while Qovery manages application deployments.
+
+## Prerequisites
+
+<Check>Existing EKS cluster (Kubernetes 1.24+)</Check>
+<Check>kubectl access with cluster-admin permissions</Check>
+<Check>AWS credentials for Qovery to access your cluster</Check>
+<Check>EBS CSI driver installed</Check>
+<Check>Load Balancer Controller or Nginx Ingress</Check>
+
+## Setup
+
+<Steps>
+  <Step title="Get Qovery Agent Manifests">
+    In Qovery Console:
+    1. Settings → Clusters → Add Cluster
+    2. Select "Bring Your Own Kubernetes"
+    3. Choose "AWS EKS"
+    4. Download Helm values or kubectl manifests
+  </Step>
+
+  <Step title="Install Qovery Agent">
+    Using Helm (recommended):
+    ```bash
+    helm repo add qovery https://helm.qovery.com
+    helm repo update
+
+    helm install qovery-agent qovery/qovery-agent \
+      --namespace qovery \
+      --create-namespace \
+      --values qovery-values.yaml
+    ```
+
+    Or using kubectl:
+    ```bash
+    kubectl apply -f qovery-agent.yaml
+    ```
+  </Step>
+
+  <Step title="Verify Connection">
+    Check agent status:
+    ```bash
+    kubectl get pods -n qovery
+    # qovery-agent-* should be Running
+    ```
+
+    In Qovery Console, cluster should show as "Connected"
+  </Step>
+
+  <Step title="Deploy Applications">
+    Start deploying applications to your BYOK cluster
+  </Step>
+</Steps>
+
+## What Qovery Installs
+
+**Qovery Agent**:
+- Manages application deployments
+- Communicates with Qovery Control Plane
+- Handles secrets and configuration
+
+**Optional Components** (if not present):
+- Nginx Ingress Controller
+- Cert-Manager (for SSL certificates)
+- External-DNS (for domain management)
+- Metrics Server
+
+## Requirements
+
+### Kubernetes Version
+
+- Minimum: 1.24
+- Recommended: 1.27+
+- Maximum: 1.29
+
+### Required Addons
+
+<Tabs>
+  <Tab title="Storage">
+    **EBS CSI Driver**:
+    ```bash
+    # Install EBS CSI driver
+    kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.25"
+    ```
+
+    **Storage Class**:
+    ```yaml
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: gp3
+      annotations:
+        storageclass.kubernetes.io/is-default-class: "true"
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+    ```
+  </Tab>
+
+  <Tab title="Load Balancer">
+    **AWS Load Balancer Controller** (recommended):
+    ```bash
+    helm repo add eks https://aws.github.io/eks-charts
+    helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+      -n kube-system \
+      --set clusterName=your-cluster-name
+    ```
+
+    **Or Nginx Ingress Controller**:
+    ```bash
+    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+    helm install nginx-ingress ingress-nginx/ingress-nginx
+    ```
+  </Tab>
+
+  <Tab title="Metrics">
+    **Metrics Server**:
+    ```bash
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+    ```
+
+    Verify:
+    ```bash
+    kubectl top nodes
+    ```
+  </Tab>
+</Tabs>
+
+### IAM Permissions
+
+Qovery needs IAM permissions for:
+- Creating/managing Load Balancers
+- Managing Route 53 DNS records (if using)
+- ECR access (if using ECR)
+
+Example IAM policy:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:*",
+        "ec2:Describe*",
+        "route53:*",
+        "acm:Describe*",
+        "acm:List*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+## Cluster Configuration
+
+### Resource Requirements
+
+**Minimum**:
+- 2 nodes (t3.medium or larger)
+- 4 vCPUs total
+- 8 GB RAM total
+
+**Recommended**:
+- 3+ nodes across multiple AZs
+- Auto-scaling enabled
+- Mix of On-Demand and Spot instances
+
+### Networking
+
+**VPC Requirements**:
+- Private subnets for pods
+- Public subnets for load balancers
+- NAT Gateway or NAT instance
+- Internet Gateway
+
+**Security Groups**:
+- Allow traffic from load balancers to nodes
+- Allow pod-to-pod communication
+- Allow Qovery agent outbound to Qovery API
+
+### DNS Configuration
+
+**Option 1**: External-DNS (automated)
+```bash
+helm install external-dns bitnami/external-dns \
+  --set provider=aws \
+  --set aws.zoneType=public \
+  --set txtOwnerId=my-cluster
+```
+
+**Option 2**: Manual DNS management
+- Create DNS records manually for each application
+- Point to load balancer DNS name
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Separate Namespaces" icon="folder-tree">
+    - Use dedicated namespace for Qovery (`qovery`)
+    - Separate namespaces per environment
+    - Apply resource quotas
+    - Network policies for isolation
+  </Card>
+
+  <Card title="Access Control" icon="key">
+    - Create dedicated service account for Qovery
+    - Use RBAC for least privilege
+    - Rotate credentials regularly
+    - Audit access logs
+  </Card>
+
+  <Card title="High Availability" icon="shield">
+    - Multi-AZ node distribution
+    - Multiple replicas for Qovery agent
+    - Pod disruption budgets
+    - Regular backups
+  </Card>
+
+  <Card title="Monitoring" icon="chart-line">
+    - Enable CloudWatch Container Insights
+    - Set up alerts for Qovery agent
+    - Monitor cluster resource usage
+    - Track application health
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Agent Not Connecting">
+    **Solutions**:
+    - Verify agent pods are running: `kubectl get pods -n qovery`
+    - Check agent logs: `kubectl logs -n qovery -l app=qovery-agent`
+    - Ensure outbound internet access from cluster
+    - Verify API token is correct
+  </Accordion>
+
+  <Accordion title="Deployments Failing">
+    **Solutions**:
+    - Check node capacity and resources
+    - Verify storage class exists and works
+    - Ensure load balancer controller is working
+    - Check for network policy blocking traffic
+  </Accordion>
+
+  <Accordion title="Load Balancers Not Creating">
+    **Solutions**:
+    - Verify AWS Load Balancer Controller is installed
+    - Check IAM permissions for load balancer creation
+    - Ensure proper subnet tags (kubernetes.io/role/elb)
+    - Review controller logs
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy Application" icon="rocket" href="/deploy-my-app">
+    Deploy your first application
+  </Card>
+
+  <Card title="Cluster Configuration" icon="sliders" href="/using-qovery/configuration/clusters">
+    Configure cluster settings
+  </Card>
+
+  <Card title="Qovery-Managed EKS" icon="wand-magic-sparkles" href="/integrations/kubernetes/eks/managed">
+    Consider Qovery-managed for easier management
+  </Card>
+
+  <Card title="Kubernetes Documentation" icon="book" href="/installation/kubernetes">
+    Generic Kubernetes BYOK guide
+  </Card>
+</CardGroup>
