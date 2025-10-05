@@ -1,0 +1,123 @@
+/* Qovery Brand Customization */
+
+/* Import Roboto Flex and Roboto Mono from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300;8..144,400;8..144,500;8..144,600;8..144,700&family=Roboto+Mono:wght@400;500;600;700&display=swap');
+
+/* Apply Roboto Flex globally */
+body {
+  font-family: 'Roboto Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 600;
+}
+
+/* Code and monospace elements */
+code, pre, .code, .monospace {
+  font-family: 'Roboto Mono', 'Courier New', monospace !important;
+}
+
+/* Primary brand color - Qovery Purple */
+:root {
+  --qovery-purple: #642DFF;
+  --qovery-purple-80: #7D55FF;
+  --qovery-purple-60: #9E83FF;
+  --qovery-purple-40: #BFB1FF;
+  --qovery-purple-20: #DFD8FF;
+
+  --dark-purple: #370087;
+  --dark-purple-80: #5B24A3;
+  --dark-purple-60: #7E55B8;
+  --dark-purple-40: #A187CC;
+  --dark-purple-20: #C4B8DF;
+
+  --black-qovery: #151B2B;
+  --black-qovery-80: #424753;
+  --black-qovery-60: #6F737C;
+  --black-qovery-40: #9C9FA5;
+  --black-qovery-20: #C9CBCE;
+
+  /* Secondary colors */
+  --sky: #E2C9C6;
+  --orchid: #C318FF;
+  --orchid-80: #CF46FF;
+  --coral: #FF8A7A;
+  --coral-60: #FFA99E;
+  --fuscia: #FF0099;
+  --fuscia-40: #FF66BB;
+  --plum: #AB64D5;
+  --plum-20: #E8D8F4;
+}
+
+/* Light mode customization */
+[data-theme="light"] {
+  --primary-color: var(--qovery-purple);
+  --background-color: #FFFFFF;
+  --text-color: var(--black-qovery);
+}
+
+/* Dark mode customization */
+[data-theme="dark"] {
+  --primary-color: var(--qovery-purple);
+  --background-color: var(--black-qovery);
+  --text-color: #FFFFFF;
+}
+
+/* Links and interactive elements */
+a {
+  color: var(--qovery-purple) !important;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--qovery-purple-60) !important;
+}
+
+/* Buttons */
+button, .button {
+  background-color: var(--qovery-purple) !important;
+  transition: background-color 0.2s ease;
+}
+
+button:hover, .button:hover {
+  background-color: var(--dark-purple) !important;
+}
+
+/* Code blocks */
+pre {
+  background-color: var(--black-qovery) !important;
+  border-radius: 8px;
+}
+
+/* Dark mode code blocks */
+[data-theme="dark"] pre {
+  background-color: #1a2332 !important;
+}
+
+/* Callout customization */
+.callout {
+  border-left: 4px solid var(--qovery-purple);
+}
+
+/* Cards */
+.card {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 45, 255, 0.15);
+}
+
+/* Navigation sidebar */
+.sidebar {
+  font-family: 'Roboto Flex', sans-serif !important;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
