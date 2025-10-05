@@ -1,0 +1,783 @@
+---
+title: "Any Terraform Module"
+description: "Deploy any cloud resource using Terraform with Qovery as the orchestrator"
+---
+
+## Overview
+
+Qovery's Terraform integration is not limited to specific services. Using Kubernetes as a universal orchestrator, you can deploy **any** Terraform module or cloud resource alongside your applications. From databases and storage to machine learning infrastructure, networking components, and SaaS integrations—if Terraform supports it, Qovery can orchestrate it.
+
+<Info>
+**Universal Infrastructure Orchestration**: Qovery uses Kubernetes not just for containers, but as a universal control plane for managing any cloud resource via Terraform, Crossplane, or other Infrastructure as Code tools.
+</Info>
+
+## Supported Resources
+
+Qovery can orchestrate deployment of any Terraform resource across all major cloud providers and SaaS platforms:
+
+### Cloud Providers
+
+<CardGroup cols={2}>
+  <Card title="AWS" icon="aws">
+    500+ services including EC2, Lambda, DynamoDB, ECS, SageMaker, and more
+  </Card>
+
+  <Card title="Google Cloud" icon="google">
+    200+ services including Compute Engine, Cloud Run, Dataflow, Vertex AI
+  </Card>
+
+  <Card title="Azure" icon="microsoft">
+    200+ services including VMs, Functions, Cosmos DB, Synapse Analytics
+  </Card>
+
+  <Card title="Other Clouds" icon="cloud">
+    DigitalOcean, Linode, OVH, Oracle Cloud, IBM Cloud, Alibaba Cloud
+  </Card>
+</CardGroup>
+
+### Infrastructure Categories
+
+<AccordionGroup>
+  <Accordion title="Compute" icon="server">
+    - Virtual machines (EC2, Compute Engine, Azure VMs)
+    - Serverless functions (Lambda, Cloud Functions, Azure Functions)
+    - Container services (ECS, Cloud Run, Container Instances)
+    - Batch processing (AWS Batch, Cloud Dataflow)
+    - HPC clusters
+  </Accordion>
+
+  <Accordion title="Databases & Storage" icon="database">
+    - Relational databases (RDS, Cloud SQL, Cosmos DB)
+    - NoSQL databases (DynamoDB, Firestore, MongoDB Atlas)
+    - Data warehouses (Redshift, BigQuery, Snowflake)
+    - Object storage (S3, GCS, Azure Blob)
+    - File storage (EFS, Filestore, Azure Files)
+    - Block storage (EBS, Persistent Disks)
+  </Accordion>
+
+  <Accordion title="Networking" icon="network-wired">
+    - VPCs and subnets
+    - Load balancers (ALB, NLB, Cloud Load Balancing)
+    - CDN (CloudFront, Cloud CDN, Azure CDN)
+    - DNS (Route53, Cloud DNS, Azure DNS)
+    - VPN and Direct Connect
+    - API Gateways
+    - Service mesh (Istio, Linkerd, Consul)
+  </Accordion>
+
+  <Accordion title="Security & Identity" icon="shield">
+    - IAM roles and policies
+    - Secrets management (Secrets Manager, Secret Manager, Key Vault)
+    - Encryption keys (KMS, Cloud KMS, Key Vault)
+    - Certificates (ACM, Certificate Manager)
+    - WAF and DDoS protection
+    - Security groups and firewalls
+  </Accordion>
+
+  <Accordion title="Analytics & ML" icon="chart-line">
+    - Data lakes (S3 + Glue, Cloud Storage + Dataproc)
+    - ETL pipelines (Glue, Dataflow, Data Factory)
+    - ML platforms (SageMaker, Vertex AI, Azure ML)
+    - Streaming analytics (Kinesis, Dataflow, Stream Analytics)
+    - Business intelligence tools
+  </Accordion>
+
+  <Accordion title="Monitoring & Observability" icon="eye">
+    - CloudWatch, Cloud Monitoring, Azure Monitor
+    - Datadog, New Relic, Grafana Cloud
+    - Log aggregation (CloudWatch Logs, Cloud Logging)
+    - Distributed tracing
+    - Synthetic monitoring
+  </Accordion>
+
+  <Accordion title="SaaS & External Services" icon="plug">
+    - Auth0, Okta
+    - Stripe, PayPal
+    - Twilio, SendGrid
+    - GitHub, GitLab
+    - PagerDuty, Opsgenie
+    - Slack, Discord
+    - Any service with Terraform provider
+  </Accordion>
+</AccordionGroup>
+
+## How It Works
+
+### Deployment Methods
+
+<Tabs>
+  <Tab title="Lifecycle Jobs">
+    Run Terraform as a lifecycle job triggered by environment events
+
+    ```yaml
+    # .qovery.yml
+    version: "1.0"
+    lifecycle_jobs:
+      - name: provision-infrastructure
+        image: hashicorp/terraform:latest
+        on:
+          - ENVIRONMENT_START
+        commands:
+          - /bin/sh
+          - -c
+          - |
+            cd /workspace/terraform
+            terraform init
+            terraform apply -auto-approve
+        environment_variables:
+          - name: TF_VAR_environment
+            value: ${QOVERY_ENVIRONMENT_NAME}
+    ```
+
+    **When to Use**:
+    - Provision infrastructure on environment creation
+    - One-time setup tasks
+    - Environment-specific resources
+  </Tab>
+
+  <Tab title="Cronjobs">
+    Schedule regular Terraform operations
+
+    ```yaml
+    cronjobs:
+      - name: terraform-drift-detection
+        schedule: "0 */6 * * *"  # Every 6 hours
+        image: hashicorp/terraform:latest
+        commands:
+          - /bin/sh
+          - -c
+          - |
+            terraform plan -detailed-exitcode
+            if [ $? -eq 2 ]; then
+              echo "Drift detected! Sending alert..."
+              # Send notification
+            fi
+    ```
+
+    **When to Use**:
+    - Drift detection
+    - Regular cost analysis
+    - Compliance checks
+    - Scheduled updates
+  </Tab>
+
+  <Tab title="Helm Charts">
+    Use Terraform Operator via Helm
+
+    ```yaml
+    helm:
+      - name: terraform-operator
+        source:
+          repository: https://helm.releases.hashicorp.com
+          chart: terraform
+          version: 1.0.0
+        values:
+          terraform:
+            version: "1.6.0"
+            modules:
+              - name: infrastructure
+                source: ./modules/infrastructure
+    ```
+
+    **When to Use**:
+    - Continuous reconciliation
+    - GitOps workflows
+    - Long-running infrastructure management
+  </Tab>
+
+  <Tab title="Crossplane">
+    Manage infrastructure as Kubernetes Custom Resources
+
+    ```yaml
+    # RDS instance as Kubernetes resource
+    apiVersion: database.aws.crossplane.io/v1beta1
+    kind: RDSInstance
+    metadata:
+      name: production-db
+    spec:
+      forProvider:
+        region: us-east-1
+        dbInstanceClass: db.t3.large
+        engine: postgres
+    ```
+
+    **When to Use**:
+    - Kubernetes-native approach
+    - Policy-based management
+    - Multi-cloud abstractions
+  </Tab>
+</Tabs>
+
+## Example Use Cases
+
+### Multi-Cloud Database Setup
+
+<Tabs>
+  <Tab title="Terraform Config">
+    ```hcl
+    # multi-cloud-db.tf
+    # AWS RDS
+    resource "aws_db_instance" "primary" {
+      count = var.cloud_provider == "aws" ? 1 : 0
+
+      identifier     = "${var.environment}-db"
+      engine         = "postgres"
+      engine_version = "15.3"
+      instance_class = var.instance_class
+
+      allocated_storage = var.storage_gb
+      storage_encrypted = true
+
+      username = var.db_username
+      password = var.db_password
+
+      vpc_security_group_ids = [aws_security_group.db[0].id]
+      db_subnet_group_name   = aws_db_subnet_group.main[0].name
+    }
+
+    # Google Cloud SQL
+    resource "google_sql_database_instance" "primary" {
+      count = var.cloud_provider == "gcp" ? 1 : 0
+
+      name             = "${var.environment}-db"
+      database_version = "POSTGRES_15"
+      region           = var.gcp_region
+
+      settings {
+        tier = var.instance_class
+
+        backup_configuration {
+          enabled    = true
+          start_time = "03:00"
+        }
+
+        ip_configuration {
+          ipv4_enabled    = false
+          private_network = var.gcp_network
+        }
+      }
+    }
+
+    # Azure Database
+    resource "azurerm_postgresql_flexible_server" "primary" {
+      count = var.cloud_provider == "azure" ? 1 : 0
+
+      name                = "${var.environment}-db"
+      resource_group_name = var.azure_resource_group
+      location            = var.azure_location
+
+      administrator_login    = var.db_username
+      administrator_password = var.db_password
+
+      sku_name   = var.instance_class
+      storage_mb = var.storage_gb * 1024
+      version    = "15"
+
+      backup_retention_days = 7
+      geo_redundant_backup_enabled = true
+    }
+
+    # Universal output
+    output "db_endpoint" {
+      value = (
+        var.cloud_provider == "aws" ? aws_db_instance.primary[0].endpoint :
+        var.cloud_provider == "gcp" ? google_sql_database_instance.primary[0].connection_name :
+        azurerm_postgresql_flexible_server.primary[0].fqdn
+      )
+    }
+    ```
+  </Tab>
+
+  <Tab title="Deploy">
+    ```yaml
+    lifecycle_jobs:
+      - name: provision-database
+        image: hashicorp/terraform:latest
+        on:
+          - ENVIRONMENT_START
+        commands:
+          - /bin/sh
+          - -c
+          - |
+            terraform init
+            terraform apply -auto-approve \
+              -var="cloud_provider=${CLOUD_PROVIDER}" \
+              -var="environment=${QOVERY_ENVIRONMENT_NAME}"
+        environment_variables:
+          - name: CLOUD_PROVIDER
+            value: aws  # or gcp, azure
+          - name: AWS_ACCESS_KEY_ID
+            secret: true
+          - name: AWS_SECRET_ACCESS_KEY
+            secret: true
+          - name: GOOGLE_CREDENTIALS
+            secret: true
+          - name: ARM_CLIENT_ID
+            secret: true
+          - name: ARM_CLIENT_SECRET
+            secret: true
+    ```
+  </Tab>
+</Tabs>
+
+### Machine Learning Infrastructure
+
+```hcl
+# ml-infrastructure.tf
+# SageMaker training job
+resource "aws_sagemaker_training_job" "model" {
+  training_job_name = "${var.environment}-training"
+
+  role_arn = aws_iam_role.sagemaker.arn
+
+  algorithm_specification {
+    training_image     = var.training_image
+    training_input_mode = "File"
+  }
+
+  input_data_config {
+    channel_name = "training"
+    data_source {
+      s3_data_source {
+        s3_data_type = "S3Prefix"
+        s3_uri       = "s3://${var.training_bucket}/data/"
+        s3_data_distribution_type = "FullyReplicated"
+      }
+    }
+  }
+
+  output_data_config {
+    s3_output_path = "s3://${var.model_bucket}/models/"
+  }
+
+  resource_config {
+    instance_type   = var.instance_type
+    instance_count  = var.instance_count
+    volume_size_in_gb = 50
+  }
+
+  stopping_condition {
+    max_runtime_in_seconds = 86400
+  }
+}
+
+# Model endpoint for inference
+resource "aws_sagemaker_endpoint" "model" {
+  name                 = "${var.environment}-endpoint"
+  endpoint_config_name = aws_sagemaker_endpoint_configuration.model.name
+}
+
+resource "aws_sagemaker_endpoint_configuration" "model" {
+  name = "${var.environment}-endpoint-config"
+
+  production_variants {
+    variant_name           = "primary"
+    model_name            = aws_sagemaker_model.model.name
+    initial_instance_count = var.endpoint_instances
+    instance_type         = var.endpoint_instance_type
+  }
+}
+
+# Vertex AI for GCP
+resource "google_vertex_ai_endpoint" "model" {
+  count = var.cloud_provider == "gcp" ? 1 : 0
+
+  display_name = "${var.environment}-endpoint"
+  location     = var.gcp_region
+}
+```
+
+### CDN and Edge Network
+
+```hcl
+# cdn-setup.tf
+# Cloudflare + AWS CloudFront + Fastly
+resource "cloudflare_zone" "main" {
+  zone = var.domain
+  plan = "pro"
+}
+
+resource "cloudflare_record" "cdn" {
+  zone_id = cloudflare_zone.main.id
+  name    = "cdn"
+  type    = "CNAME"
+  value   = aws_cloudfront_distribution.main.domain_name
+  proxied = true
+}
+
+resource "aws_cloudfront_distribution" "main" {
+  enabled = true
+
+  origin {
+    domain_name = aws_s3_bucket.assets.bucket_regional_domain_name
+    origin_id   = "S3-origin"
+
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.main.cloudfront_access_identity_path
+    }
+  }
+
+  default_cache_behavior {
+    target_origin_id       = "S3-origin"
+    viewer_protocol_policy = "redirect-to-https"
+    compress              = true
+
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD"]
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    min_ttl     = 0
+    default_ttl = 3600
+    max_ttl     = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate.main.arn
+    ssl_support_method  = "sni-only"
+  }
+}
+
+# Fastly service for even faster edge
+resource "fastly_service_v1" "app" {
+  name = "${var.environment}-app"
+
+  domain {
+    name = "app.${var.domain}"
+  }
+
+  backend {
+    address = var.origin_host
+    name    = "origin"
+    port    = 443
+    use_ssl = true
+  }
+
+  vcl {
+    name    = "main"
+    content = file("${path.module}/fastly.vcl")
+    main    = true
+  }
+}
+```
+
+### Event-Driven Architecture
+
+```hcl
+# event-driven.tf
+# AWS EventBridge + SNS + SQS
+resource "aws_cloudwatch_event_rule" "events" {
+  name           = "${var.environment}-app-events"
+  description    = "Capture application events"
+  event_bus_name = aws_cloudwatch_event_bus.main.name
+
+  event_pattern = jsonencode({
+    source      = ["app.${var.environment}"]
+    detail-type = ["Order Created", "Payment Processed"]
+  })
+}
+
+resource "aws_cloudwatch_event_target" "sns" {
+  rule      = aws_cloudwatch_event_rule.events.name
+  target_id = "SendToSNS"
+  arn       = aws_sns_topic.events.arn
+}
+
+resource "aws_sqs_queue" "order_processing" {
+  name                       = "${var.environment}-order-processing"
+  delay_seconds              = 0
+  max_message_size           = 262144
+  message_retention_seconds  = 86400
+  receive_wait_time_seconds  = 10
+  visibility_timeout_seconds = 300
+
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.dlq.arn
+    maxReceiveCount     = 3
+  })
+}
+
+resource "aws_sns_topic_subscription" "sqs" {
+  topic_arn = aws_sns_topic.events.arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.order_processing.arn
+}
+
+# Google Pub/Sub equivalent
+resource "google_pubsub_topic" "events" {
+  count = var.cloud_provider == "gcp" ? 1 : 0
+  name  = "${var.environment}-events"
+}
+
+resource "google_pubsub_subscription" "processing" {
+  count = var.cloud_provider == "gcp" ? 1 : 0
+
+  name  = "${var.environment}-processing"
+  topic = google_pubsub_topic.events[0].name
+
+  ack_deadline_seconds = 20
+
+  retry_policy {
+    minimum_backoff = "10s"
+    maximum_backoff = "600s"
+  }
+
+  dead_letter_policy {
+    dead_letter_topic     = google_pubsub_topic.dlq[0].id
+    max_delivery_attempts = 5
+  }
+}
+```
+
+### SaaS Integrations
+
+```hcl
+# saas-integrations.tf
+# Datadog monitors
+resource "datadog_monitor" "app_errors" {
+  name    = "${var.environment} - High Error Rate"
+  type    = "metric alert"
+  message = "Error rate is above threshold @pagerduty"
+
+  query = "avg(last_5m):sum:app.errors{env:${var.environment}} > 100"
+
+  thresholds = {
+    critical = 100
+    warning  = 50
+  }
+
+  notify_no_data = true
+  require_full_window = false
+}
+
+# PagerDuty service
+resource "pagerduty_service" "app" {
+  name                    = "${var.environment} Application"
+  auto_resolve_timeout    = 14400
+  acknowledgement_timeout = 600
+  escalation_policy       = pagerduty_escalation_policy.oncall.id
+
+  incident_urgency_rule {
+    type = "constant"
+    urgency = "high"
+  }
+}
+
+# Auth0 application
+resource "auth0_client" "app" {
+  name                = "${var.environment} Application"
+  app_type           = "regular_web"
+  callbacks          = ["https://${var.domain}/callback"]
+  allowed_logout_urls = ["https://${var.domain}"]
+  grant_types        = ["authorization_code", "refresh_token"]
+
+  jwt_configuration {
+    alg = "RS256"
+  }
+}
+
+# Stripe webhook
+resource "stripe_webhook_endpoint" "app" {
+  url = "https://api.${var.domain}/webhooks/stripe"
+
+  enabled_events = [
+    "charge.succeeded",
+    "charge.failed",
+    "customer.subscription.created",
+    "customer.subscription.updated",
+    "customer.subscription.deleted",
+  ]
+}
+
+# GitHub repository
+resource "github_repository" "app" {
+  name        = "${var.environment}-app"
+  description = "Application for ${var.environment}"
+
+  visibility = "private"
+  has_issues = true
+  has_wiki   = false
+
+  template {
+    owner      = var.github_org
+    repository = "app-template"
+  }
+}
+```
+
+## Best Practices
+
+<Steps>
+  <Step title="Use Remote State">
+    Always use remote state backend (S3, GCS, Terraform Cloud)
+
+    ```hcl
+    terraform {
+      backend "s3" {
+        bucket         = "terraform-state"
+        key            = "${var.environment}/terraform.tfstate"
+        region         = "us-east-1"
+        encrypt        = true
+        dynamodb_table = "terraform-lock"
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Module Organization">
+    Structure Terraform code in reusable modules
+
+    ```
+    terraform/
+    ├── modules/
+    │   ├── database/
+    │   ├── networking/
+    │   └── compute/
+    ├── environments/
+    │   ├── production/
+    │   ├── staging/
+    │   └── development/
+    └── shared/
+    ```
+  </Step>
+
+  <Step title="Environment Variables">
+    Use environment-specific variables
+
+    ```hcl
+    variable "environment" {
+      description = "Environment name"
+      type        = string
+    }
+
+    variable "config" {
+      description = "Environment-specific configuration"
+      type = map(object({
+        instance_type = string
+        replica_count = number
+      }))
+
+      default = {
+        production = {
+          instance_type = "large"
+          replica_count = 3
+        }
+        staging = {
+          instance_type = "medium"
+          replica_count = 2
+        }
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Outputs for Applications">
+    Export outputs for application consumption
+
+    ```hcl
+    output "connection_info" {
+      value = {
+        endpoint = aws_rds_instance.main.endpoint
+        port     = aws_rds_instance.main.port
+        database = aws_rds_instance.main.db_name
+      }
+      description = "Database connection information"
+    }
+    ```
+  </Step>
+
+  <Step title="State Management">
+    Implement proper state locking and versioning
+
+    ```hcl
+    terraform {
+      required_version = ">= 1.5.0"
+
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = "~> 5.0"
+        }
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="State Lock Issues" icon="lock">
+    ```bash
+    # Force unlock if stuck
+    terraform force-unlock <LOCK_ID>
+
+    # Check lock info
+    terraform force-unlock -help
+    ```
+  </Accordion>
+
+  <Accordion title="Provider Authentication" icon="key">
+    Ensure credentials are properly configured:
+    ```yaml
+    environment_variables:
+      - name: AWS_ACCESS_KEY_ID
+        secret: true
+      - name: AWS_SECRET_ACCESS_KEY
+        secret: true
+      - name: GOOGLE_CREDENTIALS
+        secret: true
+      - name: ARM_CLIENT_ID
+        secret: true
+      - name: ARM_CLIENT_SECRET
+        secret: true
+      - name: CLOUDFLARE_API_TOKEN
+        secret: true
+    ```
+  </Accordion>
+
+  <Accordion title="Import Existing Resources" icon="download">
+    ```bash
+    # Import existing resource into state
+    terraform import aws_s3_bucket.existing bucket-name
+
+    # Generate configuration from import
+    terraform show
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Terraform Overview" icon="code" href="/integrations/terraform/overview">
+    Complete Terraform integration guide
+  </Card>
+
+  <Card title="AWS RDS" icon="database" href="/integrations/terraform/aws-rds">
+    Example: Deploy RDS database
+  </Card>
+
+  <Card title="Lifecycle Jobs" icon="rotate" href="/using-qovery/configuration/lifecycle-job">
+    Run Terraform as lifecycle jobs
+  </Card>
+
+  <Card title="Cronjobs" icon="clock" href="/using-qovery/configuration/cronjob">
+    Schedule Terraform operations
+  </Card>
+</CardGroup>
+
+<Info>
+**No Limits**: If Terraform can provision it, Qovery can orchestrate it. From the simplest S3 bucket to complex multi-cloud architectures with hundreds of resources—Qovery provides the platform to manage it all.
+</Info>

@@ -1,0 +1,903 @@
+---
+title: "Google BigQuery"
+description: "Deploy and manage Google BigQuery datasets using Terraform with Qovery as the orchestrator"
+---
+
+## Overview
+
+Deploy Google BigQuery—Google Cloud's serverless data warehouse—using Terraform, orchestrated by Qovery through Kubernetes. Provision analytics infrastructure alongside your applications, managing datasets, tables, and scheduled queries from a unified platform.
+
+<Info>
+**Data Warehouse Orchestration**: Qovery uses Kubernetes as a universal orchestrator to manage not just containers, but any cloud resource including BigQuery datasets, tables, views, and data transfer jobs.
+</Info>
+
+## Why BigQuery?
+
+<CardGroup cols={2}>
+  <Card title="Serverless" icon="server">
+    No infrastructure to manage, scales automatically
+  </Card>
+
+  <Card title="Petabyte Scale" icon="database">
+    Query terabytes in seconds, petabytes in minutes
+  </Card>
+
+  <Card title="Cost Effective" icon="dollar-sign">
+    Pay only for queries run and data stored
+  </Card>
+
+  <Card title="Real-Time Analytics" icon="chart-line">
+    Streaming inserts with millisecond latency
+  </Card>
+
+  <Card title="Standard SQL" icon="code">
+    Use familiar SQL syntax with ANSI SQL 2011
+  </Card>
+
+  <Card title="Built-in ML" icon="brain">
+    BigQuery ML for machine learning models
+  </Card>
+</CardGroup>
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Analytics Warehouse" icon="warehouse">
+    - Centralized data repository
+    - Business intelligence dashboards
+    - Ad-hoc analysis and reporting
+    - Historical data analysis
+    - Data aggregation from multiple sources
+  </Accordion>
+
+  <Accordion title="Event Data Pipeline" icon="chart-mixed">
+    - Application event tracking
+    - User behavior analysis
+    - Product analytics
+    - Real-time streaming analytics
+    - Funnel analysis
+  </Accordion>
+
+  <Accordion title="Log Analysis" icon="file-lines">
+    - Application log aggregation
+    - Security log analysis
+    - Audit trail querying
+    - Performance monitoring
+    - Cost analysis from cloud logs
+  </Accordion>
+
+  <Accordion title="Machine Learning" icon="robot">
+    - Feature engineering
+    - Model training with BigQuery ML
+    - Batch predictions
+    - A/B test analysis
+    - Recommendation systems
+  </Accordion>
+</AccordionGroup>
+
+## Quick Start
+
+### Basic Dataset and Table Setup
+
+<Steps>
+  <Step title="Create Terraform Configuration">
+    ```hcl
+    # bigquery.tf
+    provider "google" {
+      project = var.project_id
+      region  = var.region
+    }
+
+    # Dataset
+    resource "google_bigquery_dataset" "analytics" {
+      dataset_id                 = "${var.environment}_analytics"
+      friendly_name              = "${var.environment} Analytics"
+      description                = "Analytics data for ${var.environment}"
+      location                   = var.location
+      default_table_expiration_ms = 7776000000  # 90 days
+
+      labels = {
+        environment = var.environment
+        managed_by  = "qovery"
+      }
+
+      access {
+        role          = "OWNER"
+        user_by_email = var.owner_email
+      }
+
+      access {
+        role          = "READER"
+        special_group = "projectReaders"
+      }
+    }
+
+    # Events table
+    resource "google_bigquery_table" "events" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "events"
+
+      time_partitioning {
+        type  = "DAY"
+        field = "event_timestamp"
+      }
+
+      clustering = ["event_name", "user_id"]
+
+      schema = jsonencode([
+        {
+          name        = "event_id"
+          type        = "STRING"
+          mode        = "REQUIRED"
+          description = "Unique event identifier"
+        },
+        {
+          name        = "event_name"
+          type        = "STRING"
+          mode        = "REQUIRED"
+          description = "Event name"
+        },
+        {
+          name        = "event_timestamp"
+          type        = "TIMESTAMP"
+          mode        = "REQUIRED"
+          description = "Event timestamp"
+        },
+        {
+          name        = "user_id"
+          type        = "STRING"
+          mode        = "NULLABLE"
+          description = "User identifier"
+        },
+        {
+          name = "event_params"
+          type = "RECORD"
+          mode = "REPEATED"
+          fields = [
+            {
+              name = "key"
+              type = "STRING"
+              mode = "NULLABLE"
+            },
+            {
+              name = "value"
+              type = "STRING"
+              mode = "NULLABLE"
+            }
+          ]
+        },
+        {
+          name        = "user_properties"
+          type        = "JSON"
+          mode        = "NULLABLE"
+          description = "User properties as JSON"
+        }
+      ])
+
+      labels = {
+        environment = var.environment
+        type        = "events"
+      }
+    }
+
+    # Users table
+    resource "google_bigquery_table" "users" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "users"
+
+      schema = jsonencode([
+        {
+          name        = "user_id"
+          type        = "STRING"
+          mode        = "REQUIRED"
+          description = "Unique user identifier"
+        },
+        {
+          name        = "created_at"
+          type        = "TIMESTAMP"
+          mode        = "REQUIRED"
+        },
+        {
+          name        = "email"
+          type        = "STRING"
+          mode        = "NULLABLE"
+        },
+        {
+          name        = "country"
+          type        = "STRING"
+          mode        = "NULLABLE"
+        },
+        {
+          name        = "properties"
+          type        = "JSON"
+          mode        = "NULLABLE"
+        }
+      ])
+    }
+
+    # View for daily active users
+    resource "google_bigquery_table" "dau" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "daily_active_users"
+
+      view {
+        query = <<-SQL
+          SELECT
+            DATE(event_timestamp) as date,
+            COUNT(DISTINCT user_id) as daily_active_users
+          FROM
+            `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.${google_bigquery_table.events.table_id}`
+          WHERE
+            event_name = 'session_start'
+          GROUP BY
+            date
+          ORDER BY
+            date DESC
+        SQL
+
+        use_legacy_sql = false
+      }
+    }
+
+    output "dataset_id" {
+      value       = google_bigquery_dataset.analytics.dataset_id
+      description = "BigQuery dataset ID"
+    }
+
+    output "events_table" {
+      value       = "${google_bigquery_dataset.analytics.dataset_id}.${google_bigquery_table.events.table_id}"
+      description = "Events table full name"
+    }
+    ```
+  </Step>
+
+  <Step title="Deploy via Lifecycle Job">
+    ```yaml
+    # .qovery.yml
+    version: "1.0"
+    lifecycle_jobs:
+      - name: provision-bigquery
+        image: hashicorp/terraform:latest
+        on:
+          - ENVIRONMENT_START
+        commands:
+          - /bin/sh
+          - -c
+          - |
+            cd /workspace/terraform/bigquery
+            terraform init
+            terraform apply -auto-approve \
+              -var="project_id=${GCP_PROJECT_ID}" \
+              -var="environment=${QOVERY_ENVIRONMENT_NAME}" \
+              -var="location=${GCP_LOCATION}" \
+              -var="owner_email=${OWNER_EMAIL}"
+
+            # Export dataset ID
+            terraform output -raw dataset_id > /qovery/dataset_id.txt
+        environment_variables:
+          - name: GOOGLE_CREDENTIALS
+            secret: true
+          - name: GCP_PROJECT_ID
+            value: my-project-id
+          - name: GCP_LOCATION
+            value: US
+          - name: OWNER_EMAIL
+            value: admin@example.com
+    ```
+  </Step>
+
+  <Step title="Send Data from Application">
+    ```python
+    # Python application example
+    from google.cloud import bigquery
+    import os
+    from datetime import datetime
+
+    client = bigquery.Client(project=os.environ['GCP_PROJECT_ID'])
+    dataset_id = os.environ['BIGQUERY_DATASET']
+
+    def track_event(event_name, user_id, properties=None):
+        """Send event to BigQuery"""
+        table_id = f"{dataset_id}.events"
+
+        rows_to_insert = [{
+            "event_id": str(uuid.uuid4()),
+            "event_name": event_name,
+            "event_timestamp": datetime.utcnow().isoformat(),
+            "user_id": user_id,
+            "event_params": [
+                {"key": k, "value": str(v)}
+                for k, v in (properties or {}).items()
+            ]
+        }]
+
+        errors = client.insert_rows_json(table_id, rows_to_insert)
+        if errors:
+            print(f"Errors inserting rows: {errors}")
+        else:
+            print(f"Event tracked: {event_name}")
+
+    # Usage
+    track_event("page_view", "user123", {
+        "page": "/products",
+        "referrer": "google"
+    })
+    ```
+
+    ```javascript
+    // Node.js application example
+    const { BigQuery } = require('@google-cloud/bigquery');
+
+    const bigquery = new BigQuery({
+      projectId: process.env.GCP_PROJECT_ID
+    });
+
+    async function trackEvent(eventName, userId, properties = {}) {
+      const datasetId = process.env.BIGQUERY_DATASET;
+      const tableId = 'events';
+
+      const row = {
+        event_id: crypto.randomUUID(),
+        event_name: eventName,
+        event_timestamp: new Date().toISOString(),
+        user_id: userId,
+        event_params: Object.entries(properties).map(([key, value]) => ({
+          key,
+          value: String(value)
+        }))
+      };
+
+      await bigquery
+        .dataset(datasetId)
+        .table(tableId)
+        .insert([row]);
+
+      console.log(`Event tracked: ${eventName}`);
+    }
+
+    // Usage
+    await trackEvent('page_view', 'user123', {
+      page: '/products',
+      referrer: 'google'
+    });
+    ```
+  </Step>
+</Steps>
+
+## Advanced Configurations
+
+### Data Pipeline with Scheduled Queries
+
+<Tabs>
+  <Tab title="Scheduled Query">
+    ```hcl
+    # scheduled-queries.tf
+    resource "google_bigquery_data_transfer_config" "daily_aggregation" {
+      display_name           = "Daily User Aggregation"
+      location              = var.location
+      data_source_id        = "scheduled_query"
+      schedule              = "every day 02:00"
+      destination_dataset_id = google_bigquery_dataset.analytics.dataset_id
+
+      params = {
+        query = <<-SQL
+          INSERT INTO `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.daily_metrics`
+          (date, metric_name, metric_value)
+          SELECT
+            CURRENT_DATE() - 1 as date,
+            'dau' as metric_name,
+            COUNT(DISTINCT user_id) as metric_value
+          FROM
+            `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.events`
+          WHERE
+            DATE(event_timestamp) = CURRENT_DATE() - 1
+            AND event_name = 'session_start'
+        SQL
+
+        destination_table_name_template = "daily_metrics"
+        write_disposition              = "WRITE_APPEND"
+      }
+
+      email_preferences {
+        enable_failure_email = true
+      }
+    }
+
+    # Materialized view for faster queries
+    resource "google_bigquery_table" "user_sessions_mv" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "user_sessions_mv"
+
+      materialized_view {
+        query = <<-SQL
+          SELECT
+            user_id,
+            DATE(event_timestamp) as date,
+            COUNT(*) as event_count,
+            MIN(event_timestamp) as session_start,
+            MAX(event_timestamp) as session_end
+          FROM
+            `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.events`
+          WHERE
+            event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
+          GROUP BY
+            user_id, date
+        SQL
+
+        enable_refresh = true
+        refresh_interval_ms = 3600000  # 1 hour
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="ETL Job">
+    ```yaml
+    # .qovery.yml - Scheduled ETL job
+    cronjobs:
+      - name: bigquery-etl
+        schedule: "0 3 * * *"  # Daily at 3 AM
+        image: google/cloud-sdk:alpine
+        commands:
+          - /bin/sh
+          - -c
+          - |
+            # Run data quality checks
+            bq query --use_legacy_sql=false "
+              SELECT
+                COUNT(*) as row_count,
+                COUNT(DISTINCT user_id) as unique_users,
+                MIN(event_timestamp) as min_timestamp,
+                MAX(event_timestamp) as max_timestamp
+              FROM
+                \`${GCP_PROJECT_ID}.${DATASET_ID}.events\`
+              WHERE
+                DATE(event_timestamp) = CURRENT_DATE() - 1
+            "
+
+            # Run aggregation
+            bq query --use_legacy_sql=false --destination_table="${DATASET_ID}.daily_summary" --append_table "
+              SELECT
+                CURRENT_DATE() - 1 as date,
+                event_name,
+                COUNT(*) as event_count,
+                COUNT(DISTINCT user_id) as unique_users
+              FROM
+                \`${GCP_PROJECT_ID}.${DATASET_ID}.events\`
+              WHERE
+                DATE(event_timestamp) = CURRENT_DATE() - 1
+              GROUP BY
+                event_name
+            "
+        environment_variables:
+          - name: GOOGLE_CREDENTIALS
+            secret: true
+          - name: GCP_PROJECT_ID
+            value: my-project-id
+          - name: DATASET_ID
+            value: production_analytics
+    ```
+  </Tab>
+</Tabs>
+
+### External Tables (Data Lake Integration)
+
+<Tabs>
+  <Tab title="External Table from GCS">
+    ```hcl
+    # external-table.tf
+    resource "google_bigquery_table" "logs_external" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "logs_external"
+
+      external_data_configuration {
+        autodetect    = false
+        source_format = "NEWLINE_DELIMITED_JSON"
+
+        source_uris = [
+          "gs://${var.logs_bucket}/logs/*.json"
+        ]
+
+        schema = jsonencode([
+          {
+            name = "timestamp"
+            type = "TIMESTAMP"
+            mode = "REQUIRED"
+          },
+          {
+            name = "level"
+            type = "STRING"
+            mode = "REQUIRED"
+          },
+          {
+            name = "message"
+            type = "STRING"
+            mode = "REQUIRED"
+          },
+          {
+            name = "metadata"
+            type = "JSON"
+            mode = "NULLABLE"
+          }
+        ])
+
+        # Hive partitioning for date-based partitions
+        hive_partitioning_options {
+          mode                     = "AUTO"
+          source_uri_prefix        = "gs://${var.logs_bucket}/logs/"
+          require_partition_filter = true
+        }
+      }
+    }
+
+    # Query external data
+    resource "google_bigquery_table" "logs_view" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "logs_recent"
+
+      view {
+        query = <<-SQL
+          SELECT
+            *
+          FROM
+            `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.logs_external`
+          WHERE
+            timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
+        SQL
+
+        use_legacy_sql = false
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Federated Query (Cloud SQL)">
+    ```hcl
+    # federated-query.tf
+    resource "google_bigquery_connection" "cloudsql" {
+      connection_id = "cloudsql-connection"
+      location      = var.location
+      friendly_name = "Cloud SQL Connection"
+
+      cloud_sql {
+        instance_id = var.cloudsql_instance
+        database    = var.cloudsql_database
+        type        = "POSTGRES"
+        credential {
+          username = var.cloudsql_username
+          password = var.cloudsql_password
+        }
+      }
+    }
+
+    # External table pointing to Cloud SQL
+    resource "google_bigquery_table" "users_federated" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "users_federated"
+
+      external_data_configuration {
+        connection_id = google_bigquery_connection.cloudsql.name
+        source_format = "CLOUD_SQL"
+
+        # SQL query to execute on Cloud SQL
+        schema = jsonencode([
+          { name = "user_id", type = "STRING" },
+          { name = "email", type = "STRING" },
+          { name = "created_at", type = "TIMESTAMP" }
+        ])
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BigQuery ML Model
+
+<Tabs>
+  <Tab title="Create ML Model">
+    ```hcl
+    # ml-model.tf
+    resource "google_bigquery_routine" "predict_churn" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      routine_id = "churn_model"
+      routine_type = "PROCEDURE"
+      language = "SQL"
+
+      definition_body = <<-SQL
+        -- Create and train model
+        CREATE OR REPLACE MODEL `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.churn_prediction`
+        OPTIONS(
+          model_type='LOGISTIC_REG',
+          input_label_cols=['churned'],
+          auto_class_weights=TRUE
+        ) AS
+        SELECT
+          user_id,
+          days_since_signup,
+          total_sessions,
+          avg_session_duration,
+          feature_usage_count,
+          last_activity_days_ago,
+          IF(last_activity_days_ago > 30, TRUE, FALSE) as churned
+        FROM
+          `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.user_features`
+        WHERE
+          days_since_signup > 7;
+
+        -- Evaluate model
+        SELECT
+          *
+        FROM
+          ML.EVALUATE(MODEL `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.churn_prediction`);
+      SQL
+    }
+
+    # Scheduled prediction
+    resource "google_bigquery_data_transfer_config" "daily_predictions" {
+      display_name           = "Daily Churn Predictions"
+      location              = var.location
+      data_source_id        = "scheduled_query"
+      schedule              = "every day 04:00"
+      destination_dataset_id = google_bigquery_dataset.analytics.dataset_id
+
+      params = {
+        query = <<-SQL
+          INSERT INTO `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.churn_predictions`
+          (prediction_date, user_id, churn_probability, predicted_churn)
+          SELECT
+            CURRENT_DATE() as prediction_date,
+            user_id,
+            predicted_churned_probs[OFFSET(0)].prob as churn_probability,
+            predicted_churned as predicted_churn
+          FROM
+            ML.PREDICT(
+              MODEL `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.churn_prediction`,
+              (
+                SELECT *
+                FROM `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.user_features_current`
+              )
+            )
+          WHERE
+            predicted_churned_probs[OFFSET(0)].prob > 0.5
+        SQL
+
+        destination_table_name_template = "churn_predictions"
+        write_disposition              = "WRITE_APPEND"
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Use Predictions">
+    ```python
+    # Use predictions in application
+    from google.cloud import bigquery
+
+    def get_users_at_risk():
+        """Get users with high churn probability"""
+        client = bigquery.Client()
+
+        query = """
+            SELECT
+                user_id,
+                churn_probability,
+                user_email
+            FROM
+                `my-project.production_analytics.churn_predictions` p
+            JOIN
+                `my-project.production_analytics.users` u
+            USING (user_id)
+            WHERE
+                prediction_date = CURRENT_DATE()
+                AND churn_probability > 0.7
+            ORDER BY
+                churn_probability DESC
+            LIMIT 100
+        """
+
+        results = client.query(query).result()
+
+        # Send retention emails
+        for row in results:
+            send_retention_email(
+                row.user_email,
+                churn_risk=row.churn_probability
+            )
+    ```
+  </Tab>
+</Tabs>
+
+## Access Control and Security
+
+<AccordionGroup>
+  <Accordion title="IAM Roles" icon="user-lock">
+    ```hcl
+    # iam.tf
+    resource "google_bigquery_dataset_iam_member" "reader" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      role       = "roles/bigquery.dataViewer"
+      member     = "serviceAccount:${var.app_service_account}"
+    }
+
+    resource "google_bigquery_dataset_iam_member" "editor" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      role       = "roles/bigquery.dataEditor"
+      member     = "serviceAccount:${var.etl_service_account}"
+    }
+
+    # Row-level security
+    resource "google_bigquery_table" "filtered_events" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "events_filtered"
+
+      view {
+        query = <<-SQL
+          SELECT
+            *
+          FROM
+            `${var.project_id}.${google_bigquery_dataset.analytics.dataset_id}.events`
+          WHERE
+            -- Only show data for the user's region
+            user_region = SESSION_USER()
+        SQL
+
+        use_legacy_sql = false
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Column-Level Security" icon="lock">
+    ```hcl
+    resource "google_bigquery_table" "users_secure" {
+      dataset_id = google_bigquery_dataset.analytics.dataset_id
+      table_id   = "users_secure"
+
+      schema = jsonencode([
+        {
+          name        = "user_id"
+          type        = "STRING"
+          mode        = "REQUIRED"
+        },
+        {
+          name        = "email"
+          type        = "STRING"
+          mode        = "NULLABLE"
+          # Restrict access to email column
+          policyTags = {
+            names = [google_data_catalog_policy_tag.pii.name]
+          }
+        },
+        {
+          name        = "phone"
+          type        = "STRING"
+          mode        = "NULLABLE"
+          policyTags = {
+            names = [google_data_catalog_policy_tag.pii.name]
+          }
+        }
+      ])
+    }
+
+    # Policy tag for PII
+    resource "google_data_catalog_policy_tag" "pii" {
+      taxonomy     = google_data_catalog_taxonomy.security.id
+      display_name = "PII"
+      description  = "Personally Identifiable Information"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Data Encryption" icon="shield">
+    ```hcl
+    # Customer-managed encryption keys
+    resource "google_kms_crypto_key" "bigquery" {
+      name     = "bigquery-key"
+      key_ring = google_kms_key_ring.main.id
+
+      lifecycle {
+        prevent_destroy = true
+      }
+    }
+
+    resource "google_bigquery_dataset" "encrypted" {
+      dataset_id = "${var.environment}_analytics_encrypted"
+      location   = var.location
+
+      default_encryption_configuration {
+        kms_key_name = google_kms_crypto_key.bigquery.id
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Cost Optimization
+
+<CardGroup cols={2}>
+  <Card title="Partitioning" icon="layer-group">
+    Partition large tables by date to reduce query costs
+  </Card>
+
+  <Card title="Clustering" icon="sitemap">
+    Cluster data by frequently queried columns
+  </Card>
+
+  <Card title="Materialized Views" icon="eye">
+    Pre-compute expensive queries
+  </Card>
+
+  <Card title="Query Optimization" icon="gauge-high">
+    Avoid SELECT *, use LIMIT for testing
+  </Card>
+</CardGroup>
+
+**Cost Controls**:
+```hcl
+# Set query cost limits
+resource "google_bigquery_dataset" "analytics" {
+  dataset_id = "analytics"
+
+  access {
+    role          = "READER"
+    user_by_email = var.analyst_email
+
+    # Limit queries to 10TB per day
+    dataset {
+      dataset {
+        project_id = var.project_id
+        dataset_id = "analytics"
+      }
+      target_types = ["VIEWS"]
+    }
+  }
+}
+```
+
+## Monitoring
+
+```hcl
+# monitoring.tf
+resource "google_monitoring_alert_policy" "query_cost" {
+  display_name = "BigQuery High Query Cost"
+  combiner     = "OR"
+
+  conditions {
+    display_name = "Query cost exceeds threshold"
+
+    condition_threshold {
+      filter          = "resource.type=\"bigquery_project\" AND metric.type=\"bigquery.googleapis.com/query/scanned_bytes\""
+      duration        = "60s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 1099511627776  # 1TB
+
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_RATE"
+      }
+    }
+  }
+
+  notification_channels = [google_monitoring_notification_channel.email.id]
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Any Terraform Module" icon="infinity" href="/integrations/terraform/others">
+    Deploy any Terraform resource with Qovery
+  </Card>
+
+  <Card title="AWS S3" icon="bucket" href="/integrations/terraform/aws-s3">
+    Set up S3 buckets for data lakes
+  </Card>
+
+  <Card title="Cronjobs" icon="clock" href="/using-qovery/configuration/cronjob">
+    Schedule ETL jobs
+  </Card>
+
+  <Card title="Terraform Overview" icon="code" href="/integrations/terraform/overview">
+    Learn more about Terraform integration
+  </Card>
+</CardGroup>

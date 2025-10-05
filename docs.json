@@ -221,7 +221,12 @@
           {
             "group": "Terraform",
             "pages": [
-              "integrations/terraform/overview"
+              "integrations/terraform/overview",
+              "integrations/terraform/aws-rds",
+              "integrations/terraform/aws-s3",
+              "integrations/terraform/cloudflare-worker",
+              "integrations/terraform/google-bigquery",
+              "integrations/terraform/others"
             ]
           },
           {

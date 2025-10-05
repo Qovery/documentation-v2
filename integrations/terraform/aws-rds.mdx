@@ -1,0 +1,849 @@
+---
+title: "AWS RDS"
+description: "Deploy and manage AWS RDS databases using Terraform with Qovery as the orchestrator"
+---
+
+## Overview
+
+Deploy AWS RDS (Relational Database Service) instances using Terraform, orchestrated by Qovery through Kubernetes. This approach gives you the flexibility to provision and manage cloud-native database services while leveraging Qovery's deployment automation and lifecycle management.
+
+<Info>
+**Kubernetes as Orchestrator**: Qovery uses Kubernetes as a universal orchestrator to manage not just containers, but any cloud resource via Terraform, Helm, or other tools. This unified approach simplifies infrastructure management.
+</Info>
+
+## Why Deploy RDS via Qovery?
+
+<CardGroup cols={2}>
+  <Card title="Unified Platform" icon="layer-group">
+    Manage applications and infrastructure from one place
+  </Card>
+
+  <Card title="GitOps Workflow" icon="code-branch">
+    Version control and peer review for database changes
+  </Card>
+
+  <Card title="Automated Provisioning" icon="wand-magic-sparkles">
+    Deploy databases alongside applications automatically
+  </Card>
+
+  <Card title="Environment Parity" icon="clone">
+    Identical database setup across dev, staging, production
+  </Card>
+
+  <Card title="Lifecycle Management" icon="rotate">
+    Create, update, and destroy databases as needed
+  </Card>
+
+  <Card title="Cost Control" icon="dollar-sign">
+    Ephemeral databases for preview environments
+  </Card>
+</CardGroup>
+
+## Deployment Methods
+
+### Method 1: Terraform via Lifecycle Job
+
+Deploy RDS using Terraform scripts executed as a Qovery Lifecycle Job.
+
+<Steps>
+  <Step title="Create Terraform Configuration">
+    Create your RDS Terraform configuration
+
+    ```hcl
+    # rds.tf
+    provider "aws" {
+      region = var.aws_region
+    }
+
+    resource "aws_db_subnet_group" "main" {
+      name       = "${var.environment}-db-subnet"
+      subnet_ids = var.subnet_ids
+
+      tags = {
+        Name        = "${var.environment}-db-subnet"
+        Environment = var.environment
+        ManagedBy   = "Qovery"
+      }
+    }
+
+    resource "aws_security_group" "rds" {
+      name        = "${var.environment}-rds-sg"
+      description = "Security group for RDS database"
+      vpc_id      = var.vpc_id
+
+      ingress {
+        from_port   = 5432
+        to_port     = 5432
+        protocol    = "tcp"
+        cidr_blocks = [var.vpc_cidr]
+      }
+
+      egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+
+      tags = {
+        Name        = "${var.environment}-rds-sg"
+        Environment = var.environment
+        ManagedBy   = "Qovery"
+      }
+    }
+
+    resource "aws_db_instance" "main" {
+      identifier     = "${var.environment}-postgres"
+      engine         = "postgres"
+      engine_version = "15.3"
+      instance_class = var.instance_class
+
+      allocated_storage     = var.allocated_storage
+      max_allocated_storage = var.max_allocated_storage
+      storage_type         = "gp3"
+      storage_encrypted    = true
+
+      db_name  = var.database_name
+      username = var.master_username
+      password = var.master_password
+
+      db_subnet_group_name   = aws_db_subnet_group.main.name
+      vpc_security_group_ids = [aws_security_group.rds.id]
+
+      multi_az               = var.multi_az
+      publicly_accessible    = false
+
+      backup_retention_period = var.backup_retention_days
+      backup_window          = "03:00-04:00"
+      maintenance_window     = "sun:04:00-sun:05:00"
+
+      skip_final_snapshot       = var.skip_final_snapshot
+      final_snapshot_identifier = "${var.environment}-postgres-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
+
+      enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
+
+      tags = {
+        Name        = "${var.environment}-postgres"
+        Environment = var.environment
+        ManagedBy   = "Qovery"
+      }
+    }
+
+    output "db_endpoint" {
+      value       = aws_db_instance.main.endpoint
+      description = "RDS instance endpoint"
+    }
+
+    output "db_name" {
+      value       = aws_db_instance.main.db_name
+      description = "Database name"
+    }
+    ```
+
+    ```hcl
+    # variables.tf
+    variable "aws_region" {
+      description = "AWS region"
+      type        = string
+      default     = "us-east-1"
+    }
+
+    variable "environment" {
+      description = "Environment name"
+      type        = string
+    }
+
+    variable "vpc_id" {
+      description = "VPC ID"
+      type        = string
+    }
+
+    variable "vpc_cidr" {
+      description = "VPC CIDR block"
+      type        = string
+    }
+
+    variable "subnet_ids" {
+      description = "List of subnet IDs for DB subnet group"
+      type        = list(string)
+    }
+
+    variable "instance_class" {
+      description = "RDS instance class"
+      type        = string
+      default     = "db.t3.medium"
+    }
+
+    variable "allocated_storage" {
+      description = "Initial storage allocation in GB"
+      type        = number
+      default     = 100
+    }
+
+    variable "max_allocated_storage" {
+      description = "Maximum storage for autoscaling in GB"
+      type        = number
+      default     = 500
+    }
+
+    variable "database_name" {
+      description = "Database name"
+      type        = string
+    }
+
+    variable "master_username" {
+      description = "Master username"
+      type        = string
+    }
+
+    variable "master_password" {
+      description = "Master password"
+      type        = string
+      sensitive   = true
+    }
+
+    variable "multi_az" {
+      description = "Enable Multi-AZ"
+      type        = bool
+      default     = false
+    }
+
+    variable "backup_retention_days" {
+      description = "Backup retention period in days"
+      type        = number
+      default     = 7
+    }
+
+    variable "skip_final_snapshot" {
+      description = "Skip final snapshot on deletion"
+      type        = bool
+      default     = false
+    }
+    ```
+  </Step>
+
+  <Step title="Create Lifecycle Job in Qovery">
+    Configure a Lifecycle Job to run Terraform
+
+    **Via Qovery Console**:
+    1. Navigate to your environment
+    2. Click "Add Service" → "Lifecycle Job"
+    3. Name: `provision-rds`
+    4. Docker image: `hashicorp/terraform:latest`
+    5. Add your Terraform files (Git repository or inline)
+    6. Set trigger: `ON_ENVIRONMENT_START`
+
+    **Via .qovery.yml**:
+    ```yaml
+    version: "1.0"
+    lifecycle_jobs:
+      - name: provision-rds
+        image: hashicorp/terraform:latest
+        on:
+          - ENVIRONMENT_START
+        commands:
+          - /bin/sh
+          - -c
+          - |
+            cd /workspace
+            terraform init
+            terraform apply -auto-approve \
+              -var="environment=${QOVERY_ENVIRONMENT_NAME}" \
+              -var="vpc_id=${AWS_VPC_ID}" \
+              -var="vpc_cidr=${AWS_VPC_CIDR}" \
+              -var="subnet_ids=[\"${AWS_SUBNET_1}\",\"${AWS_SUBNET_2}\"]" \
+              -var="database_name=${DB_NAME}" \
+              -var="master_username=${DB_USERNAME}" \
+              -var="master_password=${DB_PASSWORD}"
+        environment_variables:
+          - name: AWS_ACCESS_KEY_ID
+            secret: true
+          - name: AWS_SECRET_ACCESS_KEY
+            secret: true
+          - name: AWS_VPC_ID
+            value: vpc-xxxxx
+          - name: AWS_VPC_CIDR
+            value: 10.0.0.0/16
+          - name: AWS_SUBNET_1
+            value: subnet-xxxxx
+          - name: AWS_SUBNET_2
+            value: subnet-yyyyy
+          - name: DB_NAME
+            value: myapp
+          - name: DB_USERNAME
+            value: admin
+          - name: DB_PASSWORD
+            secret: true
+    ```
+  </Step>
+
+  <Step title="Store Terraform State">
+    Configure remote state storage for Terraform
+
+    ```hcl
+    # backend.tf
+    terraform {
+      backend "s3" {
+        bucket         = "my-terraform-state"
+        key            = "rds/${var.environment}/terraform.tfstate"
+        region         = "us-east-1"
+        encrypt        = true
+        dynamodb_table = "terraform-lock"
+      }
+    }
+    ```
+
+    Or use Terraform Cloud:
+    ```hcl
+    terraform {
+      cloud {
+        organization = "my-org"
+        workspaces {
+          name = "rds-${var.environment}"
+        }
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Connect Application to RDS">
+    Use the RDS endpoint in your application
+
+    ```yaml
+    applications:
+      - name: web-app
+        environment_variables:
+          - name: DATABASE_URL
+            value: postgresql://${DB_USERNAME}:${DB_PASSWORD}@${RDS_ENDPOINT}:5432/${DB_NAME}
+          - name: DB_HOST
+            value: ${RDS_ENDPOINT}
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_NAME
+            value: ${DB_NAME}
+          - name: DB_USERNAME
+            secret: true
+          - name: DB_PASSWORD
+            secret: true
+    ```
+  </Step>
+</Steps>
+
+### Method 2: Terraform via Helm Chart
+
+Use the Terraform Helm provider to deploy RDS.
+
+<Tabs>
+  <Tab title="Helm Values">
+    ```yaml
+    # terraform-rds-values.yaml
+    terraform:
+      image: hashicorp/terraform:latest
+
+      backend:
+        type: s3
+        config:
+          bucket: my-terraform-state
+          key: rds/${environment}/terraform.tfstate
+          region: us-east-1
+          encrypt: true
+
+      variables:
+        environment: production
+        vpc_id: vpc-xxxxx
+        vpc_cidr: 10.0.0.0/16
+        subnet_ids:
+          - subnet-xxxxx
+          - subnet-yyyyy
+        instance_class: db.r5.xlarge
+        allocated_storage: 100
+        multi_az: true
+        backup_retention_days: 30
+
+      secrets:
+        aws_access_key_id: ${AWS_ACCESS_KEY_ID}
+        aws_secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+        master_password: ${DB_MASTER_PASSWORD}
+    ```
+  </Tab>
+
+  <Tab title="Deploy via Qovery">
+    ```yaml
+    # .qovery.yml
+    version: "1.0"
+    helm:
+      - name: terraform-rds
+        source:
+          repository: https://charts.example.com
+          chart: terraform-operator
+          version: 1.0.0
+        values_file: terraform-rds-values.yaml
+        timeout: 600
+    ```
+  </Tab>
+</Tabs>
+
+### Method 3: Crossplane (Infrastructure as Kubernetes Resources)
+
+Use Crossplane to provision RDS as Kubernetes custom resources.
+
+<Tabs>
+  <Tab title="Install Crossplane">
+    ```yaml
+    # .qovery.yml
+    helm:
+      - name: crossplane
+        source:
+          repository: https://charts.crossplane.io/stable
+          chart: crossplane
+          version: 1.14.0
+        values:
+          provider:
+            packages:
+              - xpkg.upbound.io/crossplane-contrib/provider-aws:v0.45.0
+    ```
+  </Tab>
+
+  <Tab title="RDS Composition">
+    ```yaml
+    # rds-composition.yaml
+    apiVersion: database.aws.crossplane.io/v1beta1
+    kind: RDSInstance
+    metadata:
+      name: production-postgres
+      namespace: default
+    spec:
+      forProvider:
+        region: us-east-1
+        dbInstanceClass: db.t3.medium
+        masterUsername: admin
+        allocatedStorage: 100
+        engine: postgres
+        engineVersion: "15.3"
+        skipFinalSnapshotBeforeDeletion: false
+        publiclyAccessible: false
+        storageEncrypted: true
+        multiAZ: true
+        backupRetentionPeriod: 7
+        dbSubnetGroupName: my-db-subnet-group
+        vpcSecurityGroupIds:
+          - sg-xxxxx
+      writeConnectionSecretToRef:
+        namespace: default
+        name: rds-connection
+    ```
+  </Tab>
+
+  <Tab title="Application Connection">
+    ```yaml
+    # application deployment with RDS connection
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: web-app
+    spec:
+      containers:
+      - name: app
+        image: my-app:latest
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: rds-connection
+              key: endpoint
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rds-connection
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rds-connection
+              key: password
+    ```
+  </Tab>
+</Tabs>
+
+## RDS Configuration Examples
+
+### Production Setup
+
+```hcl
+# production-rds.tf
+module "production_rds" {
+  source = "./modules/rds"
+
+  environment         = "production"
+  instance_class      = "db.r5.2xlarge"
+  allocated_storage   = 500
+  max_allocated_storage = 2000
+
+  multi_az            = true
+  backup_retention_days = 30
+
+  # High availability
+  deletion_protection = true
+  skip_final_snapshot = false
+
+  # Performance Insights
+  performance_insights_enabled = true
+  performance_insights_retention_period = 7
+
+  # Enhanced Monitoring
+  monitoring_interval = 60
+  monitoring_role_arn = aws_iam_role.rds_monitoring.arn
+
+  # Encryption
+  storage_encrypted = true
+  kms_key_id       = aws_kms_key.rds.arn
+
+  tags = {
+    Environment = "production"
+    Criticality = "high"
+    BackupPolicy = "daily"
+  }
+}
+```
+
+### Development Setup
+
+```hcl
+# development-rds.tf
+module "development_rds" {
+  source = "./modules/rds"
+
+  environment         = "development"
+  instance_class      = "db.t3.medium"
+  allocated_storage   = 20
+
+  multi_az            = false
+  backup_retention_days = 7
+
+  # Allow deletion for dev
+  deletion_protection = false
+  skip_final_snapshot = true
+
+  # Cost optimization
+  storage_encrypted = false
+  performance_insights_enabled = false
+
+  tags = {
+    Environment = "development"
+    Criticality = "low"
+    AutoShutdown = "true"
+  }
+}
+```
+
+### Read Replica
+
+```hcl
+# read-replica.tf
+resource "aws_db_instance" "read_replica" {
+  identifier             = "${var.environment}-postgres-replica"
+  replicate_source_db    = aws_db_instance.main.identifier
+  instance_class         = var.replica_instance_class
+
+  publicly_accessible    = false
+  skip_final_snapshot    = true
+
+  # Can be in different region for DR
+  availability_zone      = var.replica_az
+
+  tags = {
+    Name        = "${var.environment}-postgres-replica"
+    Environment = var.environment
+    Type        = "read-replica"
+  }
+}
+```
+
+## Environment-Specific Configurations
+
+<Tabs>
+  <Tab title="Production">
+    ```yaml
+    rds_config:
+      instance_class: db.r5.2xlarge
+      allocated_storage: 500
+      multi_az: true
+      backup_retention_days: 30
+      deletion_protection: true
+      performance_insights: true
+      enhanced_monitoring: true
+      storage_encrypted: true
+      auto_minor_version_upgrade: false
+    ```
+  </Tab>
+
+  <Tab title="Staging">
+    ```yaml
+    rds_config:
+      instance_class: db.t3.large
+      allocated_storage: 100
+      multi_az: true
+      backup_retention_days: 7
+      deletion_protection: false
+      performance_insights: true
+      enhanced_monitoring: false
+      storage_encrypted: true
+      auto_minor_version_upgrade: true
+    ```
+  </Tab>
+
+  <Tab title="Development">
+    ```yaml
+    rds_config:
+      instance_class: db.t3.medium
+      allocated_storage: 20
+      multi_az: false
+      backup_retention_days: 1
+      deletion_protection: false
+      performance_insights: false
+      enhanced_monitoring: false
+      storage_encrypted: false
+      auto_minor_version_upgrade: true
+    ```
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Security" icon="shield">
+    - Always use VPC for network isolation
+    - Never make RDS publicly accessible
+    - Use IAM database authentication when possible
+    - Enable encryption at rest (KMS)
+    - Use SSL/TLS for connections
+    - Rotate credentials regularly
+    - Use AWS Secrets Manager for credentials
+  </Accordion>
+
+  <Accordion title="High Availability" icon="server">
+    - Enable Multi-AZ for production
+    - Configure read replicas for read scaling
+    - Set appropriate backup retention
+    - Test restore procedures regularly
+    - Use cross-region replicas for DR
+    - Monitor replication lag
+  </Accordion>
+
+  <Accordion title="Performance" icon="gauge-high">
+    - Choose appropriate instance class
+    - Enable Performance Insights
+    - Monitor slow query logs
+    - Use connection pooling (RDS Proxy)
+    - Optimize database parameters
+    - Regular VACUUM for PostgreSQL
+  </Accordion>
+
+  <Accordion title="Cost Optimization" icon="dollar-sign">
+    - Right-size instance classes
+    - Use reserved instances for production
+    - Enable storage autoscaling
+    - Delete unused snapshots
+    - Use t3/t4g instances for dev/test
+    - Stop dev databases during off-hours
+  </Accordion>
+
+  <Accordion title="Backup and Recovery" icon="clock-rotate-left">
+    - Automated daily backups
+    - 30-day retention for production
+    - Test restore procedures quarterly
+    - Use manual snapshots before major changes
+    - Cross-region snapshot copies for DR
+    - Document recovery procedures
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring and Alerts
+
+<Tabs>
+  <Tab title="CloudWatch Metrics">
+    ```hcl
+    # cloudwatch-alarms.tf
+    resource "aws_cloudwatch_metric_alarm" "database_cpu" {
+      alarm_name          = "${var.environment}-rds-cpu"
+      comparison_operator = "GreaterThanThreshold"
+      evaluation_periods  = "2"
+      metric_name         = "CPUUtilization"
+      namespace           = "AWS/RDS"
+      period              = "300"
+      statistic           = "Average"
+      threshold           = "80"
+      alarm_description   = "RDS CPU utilization"
+      alarm_actions       = [aws_sns_topic.alerts.arn]
+
+      dimensions = {
+        DBInstanceIdentifier = aws_db_instance.main.id
+      }
+    }
+
+    resource "aws_cloudwatch_metric_alarm" "database_memory" {
+      alarm_name          = "${var.environment}-rds-memory"
+      comparison_operator = "LessThanThreshold"
+      evaluation_periods  = "2"
+      metric_name         = "FreeableMemory"
+      namespace           = "AWS/RDS"
+      period              = "300"
+      statistic           = "Average"
+      threshold           = "536870912"  # 512 MB
+      alarm_description   = "RDS available memory"
+      alarm_actions       = [aws_sns_topic.alerts.arn]
+
+      dimensions = {
+        DBInstanceIdentifier = aws_db_instance.main.id
+      }
+    }
+
+    resource "aws_cloudwatch_metric_alarm" "database_storage" {
+      alarm_name          = "${var.environment}-rds-storage"
+      comparison_operator = "LessThanThreshold"
+      evaluation_periods  = "1"
+      metric_name         = "FreeStorageSpace"
+      namespace           = "AWS/RDS"
+      period              = "300"
+      statistic           = "Average"
+      threshold           = "10737418240"  # 10 GB
+      alarm_description   = "RDS available storage"
+      alarm_actions       = [aws_sns_topic.alerts.arn]
+
+      dimensions = {
+        DBInstanceIdentifier = aws_db_instance.main.id
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Performance Insights">
+    ```hcl
+    resource "aws_db_instance" "main" {
+      # ... other config ...
+
+      performance_insights_enabled = true
+      performance_insights_retention_period = 7
+      performance_insights_kms_key_id = aws_kms_key.rds.arn
+    }
+    ```
+
+    Monitor:
+    - Database load (average active sessions)
+    - Top SQL queries
+    - Wait events
+    - Resource utilization
+  </Tab>
+
+  <Tab title="Enhanced Monitoring">
+    ```hcl
+    resource "aws_iam_role" "rds_monitoring" {
+      name = "rds-monitoring-role"
+
+      assume_role_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [{
+          Action = "sts:AssumeRole"
+          Effect = "Allow"
+          Principal = {
+            Service = "monitoring.rds.amazonaws.com"
+          }
+        }]
+      })
+    }
+
+    resource "aws_iam_role_policy_attachment" "rds_monitoring" {
+      role       = aws_iam_role.rds_monitoring.name
+      policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+    }
+
+    resource "aws_db_instance" "main" {
+      # ... other config ...
+
+      monitoring_interval = 60
+      monitoring_role_arn = aws_iam_role.rds_monitoring.arn
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Connection Issues" icon="plug-circle-xmark">
+    **Symptoms**: Cannot connect to RDS from application
+
+    **Checks**:
+    1. Security group allows ingress from application
+    2. Database is in correct VPC subnet
+    3. Network ACLs allow traffic
+    4. Credentials are correct
+    5. Database is in "available" state
+
+    **Debug**:
+    ```bash
+    # Test connection from within cluster
+    kubectl run -it --rm debug --image=postgres:15 --restart=Never -- \
+      psql -h <RDS_ENDPOINT> -U <USERNAME> -d <DATABASE>
+    ```
+  </Accordion>
+
+  <Accordion title="Terraform Apply Fails" icon="triangle-exclamation">
+    **Common Causes**:
+    - Insufficient IAM permissions
+    - Invalid parameter combinations
+    - Resource limits exceeded
+    - State lock conflict
+
+    **Solutions**:
+    ```bash
+    # Check Terraform plan first
+    terraform plan
+
+    # Force unlock if stuck
+    terraform force-unlock <LOCK_ID>
+
+    # Refresh state
+    terraform refresh
+
+    # Import existing resources
+    terraform import aws_db_instance.main <DB_IDENTIFIER>
+    ```
+  </Accordion>
+
+  <Accordion title="Performance Issues" icon="gauge">
+    **Investigation**:
+    1. Check Performance Insights
+    2. Review slow query logs
+    3. Monitor connection count
+    4. Check for blocking queries
+    5. Review CloudWatch metrics
+
+    **Solutions**:
+    - Add read replicas
+    - Upgrade instance class
+    - Optimize queries and indexes
+    - Implement connection pooling
+    - Adjust parameter group settings
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Terraform Overview" icon="code" href="/integrations/terraform/overview">
+    Learn more about Terraform integration
+  </Card>
+
+  <Card title="AWS S3" icon="bucket" href="/integrations/terraform/aws-s3">
+    Deploy S3 buckets with Qovery
+  </Card>
+
+  <Card title="Lifecycle Jobs" icon="rotate" href="/using-qovery/configuration/lifecycle-job">
+    Configure lifecycle jobs for infrastructure
+  </Card>
+
+  <Card title="Database Configuration" icon="database" href="/using-qovery/configuration/database">
+    Managed database services in Qovery
+  </Card>
+</CardGroup>
