@@ -26,6 +26,14 @@
     {
       "name": "Console",
       "url": "https://console.qovery.com"
+    },
+    {
+      "name": "Roadmap",
+      "url": "https://roadmap.qovery.com"
+    },
+    {
+      "name": "Website",
+      "url": "https://www.qovery.com"
     }
   ],
   "topbarCtaButton": {
