@@ -1,16 +1,27 @@
 /* Fix card icon sizes for product logos */
 .card-icon img,
 .card img[src*="/logos/"] {
-  max-width: 96px !important;
-  max-height: 96px !important;
-  width: 96px !important;
-  height: 96px !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
+  width: 64px !important;
+  height: 64px !important;
 }
 
 /* Ensure icons maintain aspect ratio */
 [class*="CardIcon"] img,
 [class*="card-icon"] img {
-  max-width: 96px !important;
-  max-height: 96px !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
   object-fit: contain !important;
+}
+
+/* Ensure proper spacing for card content */
+.card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.card-icon {
+  margin-bottom: 12px !important;
 }
