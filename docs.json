@@ -54,6 +54,8 @@
             "pages": [
               "using-qovery/interface/web-interface",
               "using-qovery/interface/cli",
+              "using-qovery/interface/terraform-provider",
+              "using-qovery/interface/mcp-server",
               "using-qovery/interface/rest-api"
             ]
           },
