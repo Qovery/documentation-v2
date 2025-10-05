@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 726 327" fill="none">
+  <rect width="100" height="60" x="13" y="13" fill="#E6F4FF" stroke="#1890FF" stroke-width="2" rx="8"/>
+  <text x="63" y="43" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1890FF">Provision</text>
+  <rect width="100" height="60" x="163" y="13" fill="#FFF7E6" stroke="#FA8C16" stroke-width="2" rx="8"/>
+  <text x="213" y="43" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#FA8C16">Deploy</text>
+  <rect width="100" height="60" x="313" y="13" fill="#F6FFED" stroke="#52C41A" stroke-width="2" rx="8"/>
+  <text x="363" y="43" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#52C41A">Observe</text>
+  <rect width="100" height="60" x="463" y="13" fill="#FFF0F6" stroke="#EB2F96" stroke-width="2" rx="8"/>
+  <text x="513" y="43" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#EB2F96">Optimize</text>
+  <rect width="100" height="60" x="613" y="13" fill="#F9F0FF" stroke="#722ED1" stroke-width="2" rx="8"/>
+  <text x="663" y="43" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#722ED1">Secure</text>
+  <line x1="63" y1="73" x2="63" y2="113" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="213" y1="73" x2="213" y2="113" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="363" y1="73" x2="363" y2="113" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="513" y1="73" x2="513" y2="113" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="663" y1="73" x2="663" y2="113" stroke="#8C8C8C" stroke-width="2"/>
+  <rect width="700" height="60" x="13" y="113" fill="#642DFF" rx="8"/>
+  <text x="363" y="148" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white">Qovery</text>
+  <line x1="363" y1="173" x2="363" y2="213" stroke="#8C8C8C" stroke-width="2"/>
+  <rect width="700" height="60" x="13" y="213" fill="#326CE5" rx="8"/>
+  <text x="363" y="248" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white">Kubernetes</text>
+  <line x1="113" y1="273" x2="113" y2="303" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="263" y1="273" x2="263" y2="303" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="463" y1="273" x2="463" y2="303" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="613" y1="273" x2="613" y2="303" stroke="#8C8C8C" stroke-width="2"/>
+  <g transform="translate(63, 283)">
+    <rect width="100" height="30" fill="white" stroke="#E8E8E8" rx="4"/>
+    <text x="50" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#252F3E">AWS</text>
+  </g>
+  <g transform="translate(213, 283)">
+    <rect width="100" height="30" fill="white" stroke="#E8E8E8" rx="4"/>
+    <text x="50" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#4285F4">Google Cloud</text>
+  </g>
+  <g transform="translate(413, 283)">
+    <rect width="100" height="30" fill="white" stroke="#E8E8E8" rx="4"/>
+    <text x="50" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#0078D4">Azure</text>
+  </g>
+  <g transform="translate(563, 283)">
+    <rect width="100" height="30" fill="white" stroke="#E8E8E8" rx="4"/>
+    <text x="50" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#4F0599">Scaleway</text>
+  </g>
+</svg>
