@@ -119,19 +119,21 @@ For complete installation instructions, visit the [MCP Server Setup page](/copil
   <Step title="Configure Claude Desktop">
     Add to your Claude Desktop configuration file
 
-```json
-{
-  "mcpServers": {
-    "qovery": {
-      "command": "npx",
-      "args": ["-y", "@qovery/mcp-server"],
-      "env": {
-        "QOVERY_API_TOKEN": "your-api-token-here"
+    ```json
+    {
+      "mcpServers": {
+        "qovery": {
+          "command": "npx",
+          "args": ["-y", "@qovery/mcp-server"],
+          "env": {
+            "QOVERY_API_TOKEN": "your-api-token-here"
+          }
+        }
       }
     }
-  }
-}
-```
+    ```
+  </Step>
+</Steps>
 
 ### Authentication
 
