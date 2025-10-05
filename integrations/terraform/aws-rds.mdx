@@ -230,51 +230,22 @@ Deploy RDS using Terraform scripts executed as a Qovery Lifecycle Job.
     2. Click "Add Service" → "Lifecycle Job"
     3. Name: `provision-rds`
     4. Docker image: `hashicorp/terraform:latest`
-    5. Add your Terraform files (Git repository or inline)
+    5. Add your Terraform files (Git repository)
     6. Set trigger: `ON_ENVIRONMENT_START`
-
-    **Via .qovery.yml**:
-    ```yaml
-    version: "1.0"
-    lifecycle_jobs:
-      - name: provision-rds
-        image: hashicorp/terraform:latest
-        on:
-          - ENVIRONMENT_START
-        commands:
-          - /bin/sh
-          - -c
-          - |
-            cd /workspace
-            terraform init
-            terraform apply -auto-approve \
-              -var="environment=${QOVERY_ENVIRONMENT_NAME}" \
-              -var="vpc_id=${AWS_VPC_ID}" \
-              -var="vpc_cidr=${AWS_VPC_CIDR}" \
-              -var="subnet_ids=[\"${AWS_SUBNET_1}\",\"${AWS_SUBNET_2}\"]" \
-              -var="database_name=${DB_NAME}" \
-              -var="master_username=${DB_USERNAME}" \
-              -var="master_password=${DB_PASSWORD}"
-        environment_variables:
-          - name: AWS_ACCESS_KEY_ID
-            secret: true
-          - name: AWS_SECRET_ACCESS_KEY
-            secret: true
-          - name: AWS_VPC_ID
-            value: vpc-xxxxx
-          - name: AWS_VPC_CIDR
-            value: 10.0.0.0/16
-          - name: AWS_SUBNET_1
-            value: subnet-xxxxx
-          - name: AWS_SUBNET_2
-            value: subnet-yyyyy
-          - name: DB_NAME
-            value: myapp
-          - name: DB_USERNAME
-            value: admin
-          - name: DB_PASSWORD
-            secret: true
-    ```
+    7. Configure command:
+       ```bash
+       cd /workspace
+       terraform init
+       terraform apply -auto-approve \
+         -var="environment=${QOVERY_ENVIRONMENT_NAME}" \
+         -var="vpc_id=${AWS_VPC_ID}" \
+         -var="vpc_cidr=${AWS_VPC_CIDR}" \
+         -var="subnet_ids=[\"${AWS_SUBNET_1}\",\"${AWS_SUBNET_2}\"]" \
+         -var="database_name=${DB_NAME}" \
+         -var="master_username=${DB_USERNAME}" \
+         -var="master_password=${DB_PASSWORD}"
+       ```
+    8. Add environment variables (mark sensitive ones as secrets)
   </Step>
 
   <Step title="Store Terraform State">
@@ -369,7 +340,7 @@ Use the Terraform Helm provider to deploy RDS.
 
   <Tab title="Deploy via Qovery">
     ```yaml
-    # .qovery.yml
+    # Qovery Configuration
     version: "1.0"
     helm:
       - name: terraform-rds
@@ -390,7 +361,7 @@ Use Crossplane to provision RDS as Kubernetes custom resources.
 <Tabs>
   <Tab title="Install Crossplane">
     ```yaml
-    # .qovery.yml
+    # Qovery Configuration
     helm:
       - name: crossplane
         source:

@@ -253,7 +253,7 @@ Deploy Google BigQuery—Google Cloud's serverless data warehouse—using Terraf
 
   <Step title="Deploy via Lifecycle Job">
     ```yaml
-    # .qovery.yml
+    # Qovery Configuration
     version: "1.0"
     lifecycle_jobs:
       - name: provision-bigquery
@@ -433,7 +433,7 @@ Deploy Google BigQuery—Google Cloud's serverless data warehouse—using Terraf
 
   <Tab title="ETL Job">
     ```yaml
-    # .qovery.yml - Scheduled ETL job
+    # Qovery Configuration - Scheduled ETL job
     cronjobs:
       - name: bigquery-etl
         schedule: "0 3 * * *"  # Daily at 3 AM
