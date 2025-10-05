@@ -1,0 +1,16 @@
+/* Fix card icon sizes for product logos */
+.card-icon img,
+.card img[src*="/logos/"] {
+  max-width: 48px !important;
+  max-height: 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+}
+
+/* Ensure icons maintain aspect ratio */
+[class*="CardIcon"] img,
+[class*="card-icon"] img {
+  max-width: 48px !important;
+  max-height: 48px !important;
+  object-fit: contain !important;
+}
