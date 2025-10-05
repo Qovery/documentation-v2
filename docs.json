@@ -137,9 +137,30 @@
                   "integrations/kubernetes/eks/byok"
                 ]
               },
-              "integrations/kubernetes/gke/overview",
-              "integrations/kubernetes/aks/overview",
-              "integrations/kubernetes/scaleway/overview",
+              {
+                "group": "Google GKE",
+                "pages": [
+                  "integrations/kubernetes/gke/overview",
+                  "integrations/kubernetes/gke/managed",
+                  "integrations/kubernetes/gke/byok"
+                ]
+              },
+              {
+                "group": "Azure AKS",
+                "pages": [
+                  "integrations/kubernetes/aks/overview",
+                  "integrations/kubernetes/aks/managed",
+                  "integrations/kubernetes/aks/byok"
+                ]
+              },
+              {
+                "group": "Scaleway Kapsule",
+                "pages": [
+                  "integrations/kubernetes/scaleway/overview",
+                  "integrations/kubernetes/scaleway/managed",
+                  "integrations/kubernetes/scaleway/byok"
+                ]
+              },
               "integrations/kubernetes/eks-anywhere",
               "integrations/kubernetes/byok",
               "integrations/kubernetes/docker"

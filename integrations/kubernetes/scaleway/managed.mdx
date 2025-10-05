@@ -1,0 +1,108 @@
+---
+title: "Qovery-Managed Scaleway Kapsule"
+description: "Fully automated Scaleway Kapsule cluster provisioning and management"
+---
+
+## Overview
+
+Qovery-managed Scaleway Kapsule provides zero-configuration Kubernetes clusters on Scaleway. Qovery creates, configures, and maintains your Kapsule cluster with best practices built-in.
+
+## Quick Start
+
+<Steps>
+  <Step title="Connect Scaleway Account">
+    Organization Settings → Cloud Providers → Add Scaleway Account
+    - Provide Scaleway access key and secret key
+    - Select region for cluster
+  </Step>
+
+  <Step title="Create Cluster">
+    Settings → Clusters → Create Cluster
+    - Name: `production-kapsule`
+    - Provider: Scaleway
+    - Region: `fr-par` (Paris) or `nl-ams` (Amsterdam) or `pl-waw` (Warsaw)
+    - Click **Create**
+  </Step>
+
+  <Step title="Wait for Provisioning">
+    Cluster creation takes 15-20 minutes:
+    - VPC creation
+    - Kapsule cluster creation
+    - Node pool provisioning
+    - Load balancer setup
+    - Qovery components installation
+  </Step>
+
+  <Step title="Deploy Applications">
+    Once cluster is ready, start deploying applications
+  </Step>
+</Steps>
+
+## What Qovery Creates
+
+- ✅ Scaleway Kapsule cluster (latest stable Kubernetes)
+- ✅ VPC with private networking
+- ✅ Multiple node pools across availability zones
+- ✅ Cluster autoscaler
+- ✅ Scaleway Load Balancer
+- ✅ Block Storage CSI driver
+- ✅ Metrics server
+- ✅ Qovery agent and observability stack
+
+## Configuration Options
+
+### Cluster Settings
+
+**Instance Types**:
+- Development: DEV1-S, DEV1-M, DEV1-L, DEV1-XL
+- General Purpose: GP1-XS, GP1-S, GP1-M, GP1-L, GP1-XL
+- Production: PRO2-XXS to PRO2-XXL
+- Enterprise: ENT1 series
+
+**Auto-Scaling**:
+- Min nodes: 1
+- Max nodes: 100
+- Cluster autoscaler automatically provisions optimal instances
+- Node pools per availability zone
+
+**Cost Optimization**:
+- Competitive pricing (up to 50% less than major cloud providers)
+- No NAT Gateway costs
+- Free internal traffic
+- Predictable billing
+
+### Network Settings
+
+**VPC Configuration**:
+- Private VPC with /22 CIDR (1,024 IPs)
+- Multi-AZ deployment (up to 3 zones)
+- Private network for pod communication
+- Public IPs for load balancers only
+
+**Access**:
+- Public endpoint (default)
+- Private endpoint available
+- IP restrictions for API access
+- VPN integration support
+
+For detailed Scaleway installation guide, see [Scaleway Installation](/installation/scaleway).
+
+## Why Choose Scaleway?
+
+<CardGroup cols={2}>
+  <Card title="Cost-Effective" icon="dollar-sign">
+    Competitive pricing with transparent billing and no hidden costs
+  </Card>
+
+  <Card title="European Data Centers" icon="location-dot">
+    100% European infrastructure, GDPR-compliant by default
+  </Card>
+
+  <Card title="Fast Provisioning" icon="bolt">
+    Quick cluster creation (15-20 minutes)
+  </Card>
+
+  <Card title="Eco-Friendly" icon="leaf">
+    Powered by renewable energy with carbon-neutral commitment
+  </Card>
+</CardGroup>

@@ -1,0 +1,87 @@
+---
+title: "Qovery-Managed GKE"
+description: "Fully automated Google GKE cluster provisioning and management"
+---
+
+## Overview
+
+Qovery-managed GKE provides zero-configuration Kubernetes clusters on Google Cloud Platform. Qovery creates, configures, and maintains your GKE cluster with best practices built-in.
+
+## Quick Start
+
+<Steps>
+  <Step title="Connect GCP Project">
+    Organization Settings → Cloud Providers → Add GCP Project
+    - Upload service account JSON key
+    - Select region for cluster
+  </Step>
+
+  <Step title="Create Cluster">
+    Settings → Clusters → Create Cluster
+    - Name: `production-gke`
+    - Provider: GCP
+    - Region: `us-central1`
+    - Click **Create**
+  </Step>
+
+  <Step title="Wait for Provisioning">
+    Cluster creation takes 15-20 minutes:
+    - VPC and networking setup
+    - GKE control plane creation
+    - Worker node provisioning
+    - Qovery components installation
+  </Step>
+
+  <Step title="Deploy Applications">
+    Once cluster is ready, start deploying applications
+  </Step>
+</Steps>
+
+## What Qovery Creates
+
+- ✅ GKE cluster (latest stable Kubernetes)
+- ✅ VPC with custom subnet across multiple zones
+- ✅ Cloud NAT for outbound connectivity
+- ✅ IAM service accounts and bindings
+- ✅ Cluster autoscaler
+- ✅ GCE Ingress or Nginx Ingress
+- ✅ Compute Engine persistent disk CSI driver
+- ✅ Metrics server
+- ✅ Qovery agent and observability stack
+
+## Configuration Options
+
+### Cluster Settings
+
+**Machine Types**:
+- General Purpose: n1, n2, n2d, e2
+- Compute Optimized: c2, c2d
+- Memory Optimized: m1, m2, m3
+- Accelerator Optimized: a2 (GPU workloads)
+
+**Auto-Scaling**:
+- Min nodes: 1
+- Max nodes: 100
+- Cluster autoscaler automatically provisions optimal machines
+- Node pools per zone for high availability
+
+**Preemptible VMs**:
+- Enable preemptible VMs for cost savings (up to 80% off)
+- Qovery handles interruptions gracefully
+- Mix of preemptible and standard for reliability
+
+### Network Settings
+
+**VPC Configuration**:
+- Custom VPC with /20 subnet (4,096 IPs)
+- Multi-zone deployment (3 zones in region)
+- Private Google Access enabled
+- Cloud NAT for outbound traffic
+
+**Access**:
+- Public endpoint (default)
+- Private endpoint (enterprise feature)
+- Authorized networks for API access
+- VPC-native cluster (alias IPs)
+
+For detailed GCP installation guide, see [GCP Installation](/installation/gcp).

@@ -1,0 +1,303 @@
+---
+title: "Bring Your Own Scaleway Kapsule Cluster (BYOK)"
+description: "Connect your existing Scaleway Kapsule cluster to Qovery"
+---
+
+## Overview
+
+Bring Your Own Kubernetes (BYOK) allows you to connect your existing Scaleway Kapsule cluster to Qovery. You maintain full control over your cluster while Qovery manages application deployments.
+
+## Prerequisites
+
+<Check>Existing Scaleway Kapsule cluster (Kubernetes 1.24+)</Check>
+<Check>kubectl access with cluster-admin permissions</Check>
+<Check>Scaleway API credentials for Qovery</Check>
+<Check>Block Storage CSI driver installed</Check>
+<Check>Load Balancer configuration</Check>
+
+## Setup
+
+<Steps>
+  <Step title="Get Qovery Agent Manifests">
+    In Qovery Console:
+    1. Settings → Clusters → Add Cluster
+    2. Select "Bring Your Own Kubernetes"
+    3. Choose "Scaleway Kapsule"
+    4. Download Helm values or kubectl manifests
+  </Step>
+
+  <Step title="Install Qovery Agent">
+    Using Helm (recommended):
+    ```bash
+    helm repo add qovery https://helm.qovery.com
+    helm repo update
+
+    helm install qovery-agent qovery/qovery-agent \
+      --namespace qovery \
+      --create-namespace \
+      --values qovery-values.yaml
+    ```
+
+    Or using kubectl:
+    ```bash
+    kubectl apply -f qovery-agent.yaml
+    ```
+  </Step>
+
+  <Step title="Verify Connection">
+    Check agent status:
+    ```bash
+    kubectl get pods -n qovery
+    # qovery-agent-* should be Running
+    ```
+
+    In Qovery Console, cluster should show as "Connected"
+  </Step>
+
+  <Step title="Deploy Applications">
+    Start deploying applications to your BYOK cluster
+  </Step>
+</Steps>
+
+## What Qovery Installs
+
+**Qovery Agent**:
+- Manages application deployments
+- Communicates with Qovery Control Plane
+- Handles secrets and configuration
+
+**Optional Components** (if not present):
+- Nginx Ingress Controller
+- Cert-Manager (for SSL certificates)
+- External-DNS (for domain management)
+- Metrics Server
+
+## Requirements
+
+### Kubernetes Version
+
+- Minimum: 1.24
+- Recommended: 1.27+
+- Maximum: 1.29
+
+### Required Addons
+
+<Tabs>
+  <Tab title="Storage">
+    **Scaleway Block Storage CSI Driver**:
+
+    Kapsule clusters have this enabled by default. Verify:
+    ```bash
+    kubectl get csidriver block.csi.scaleway.com
+    ```
+
+    **Storage Class**:
+    ```yaml
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+      name: scw-bssd
+      annotations:
+        storageclass.kubernetes.io/is-default-class: "true"
+    provisioner: block.csi.scaleway.com
+    parameters:
+      type: sbs_volume
+      encrypted: "true"
+    ```
+  </Tab>
+
+  <Tab title="Load Balancer">
+    **Scaleway Load Balancer** (default for Kapsule):
+
+    Automatically configured for Service type LoadBalancer.
+
+    Verify Load Balancer Controller:
+    ```bash
+    kubectl get deployment -n kube-system scaleway-cloud-controller-manager
+    ```
+
+    **Or Nginx Ingress Controller**:
+    ```bash
+    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+    helm install nginx-ingress ingress-nginx/ingress-nginx \
+      --set controller.service.type=LoadBalancer
+    ```
+  </Tab>
+
+  <Tab title="Metrics">
+    **Metrics Server**:
+
+    Usually pre-installed on Kapsule. Verify:
+    ```bash
+    kubectl top nodes
+    ```
+
+    If not installed:
+    ```bash
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+    ```
+  </Tab>
+</Tabs>
+
+### Scaleway IAM Permissions
+
+Qovery needs Scaleway IAM permissions for:
+- Creating/managing Load Balancers
+- Managing DNS records (if using Scaleway DNS)
+- Container Registry access (if using Scaleway Registry)
+
+Required API scopes:
+- `LoadBalancerFullAccess`
+- `DNSFullAccess` (if using Scaleway DNS)
+- `ContainerRegistryReadOnly` (if using registry)
+
+```bash
+# Create API key with appropriate permissions
+# Via Scaleway Console: IAM → API Keys → Generate API Key
+# Assign organization-level permissions or project-specific scopes
+```
+
+## Cluster Configuration
+
+### Resource Requirements
+
+**Minimum**:
+- 2 nodes (DEV1-M or larger)
+- 4 vCPUs total
+- 8 GB RAM total
+
+**Recommended**:
+- 3+ nodes across multiple availability zones
+- Auto-scaling enabled
+- Use GP1 or PRO2 instance types for production
+
+### Networking
+
+**VPC Requirements**:
+- Private VPC for node communication
+- Public IPs for load balancers
+- Firewall rules configured for ingress
+- Security Groups allowing required traffic
+
+**Private Network**:
+- Nodes on private network
+- Load balancers on public network
+- No NAT gateway needed (free internal traffic)
+
+### DNS Configuration
+
+**Option 1**: External-DNS with Scaleway DNS (automated)
+```bash
+helm install external-dns bitnami/external-dns \
+  --set provider=scaleway \
+  --set scaleway.scwAccessKey=YOUR_ACCESS_KEY \
+  --set scaleway.scwSecretKey=YOUR_SECRET_KEY \
+  --set txtOwnerId=my-cluster
+```
+
+**Option 2**: Manual DNS management
+- Create DNS records manually for each application
+- Point to load balancer public IP
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Separate Namespaces" icon="folder-tree">
+    - Use dedicated namespace for Qovery (`qovery`)
+    - Separate namespaces per environment
+    - Apply resource quotas
+    - Network policies for isolation
+  </Card>
+
+  <Card title="Access Control" icon="key">
+    - Create dedicated API key for Qovery
+    - Use RBAC for least privilege
+    - Project-level API scopes (not organization-wide)
+    - Rotate API keys regularly
+  </Card>
+
+  <Card title="High Availability" icon="shield">
+    - Multi-AZ node distribution
+    - Pod disruption budgets
+    - Regular backups to Scaleway Object Storage
+    - Block Storage snapshots
+  </Card>
+
+  <Card title="Monitoring" icon="chart-line">
+    - Enable Scaleway Observability (Cockpit)
+    - Set up alerts for Qovery agent
+    - Monitor cluster resource usage
+    - Track application health
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Agent Not Connecting">
+    **Solutions**:
+    - Verify agent pods are running: `kubectl get pods -n qovery`
+    - Check agent logs: `kubectl logs -n qovery -l app=qovery-agent`
+    - Ensure outbound internet access
+    - Verify API token is correct
+    - Check security group rules
+  </Accordion>
+
+  <Accordion title="Deployments Failing">
+    **Solutions**:
+    - Check node capacity and resources
+    - Verify storage class exists and works
+    - Ensure ingress controller is working
+    - Check for network policy blocking traffic
+    - Review Scaleway Cockpit logs
+  </Accordion>
+
+  <Accordion title="Load Balancers Not Creating">
+    **Solutions**:
+    - Verify Scaleway Cloud Controller Manager is running
+    - Check IAM permissions for load balancer creation
+    - Ensure security groups allow health check traffic
+    - Review load balancer annotations
+    - Check Scaleway Console for errors
+  </Accordion>
+</AccordionGroup>
+
+## Cost Optimization Tips
+
+<CardGroup cols={2}>
+  <Card title="Use Development Instances" icon="flask">
+    Use DEV1 series for dev/test environments (lower cost)
+  </Card>
+
+  <Card title="Right-Size Nodes" icon="sliders">
+    Start with GP1-M and scale as needed
+  </Card>
+
+  <Card title="Enable Autoscaling" icon="arrows-maximize">
+    Scale down during off-hours automatically
+  </Card>
+
+  <Card title="Use Block Storage Efficiently" icon="database">
+    Delete unused volumes and enable compression
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy Application" icon="rocket" href="/deploy-my-app">
+    Deploy your first application
+  </Card>
+
+  <Card title="Cluster Configuration" icon="sliders" href="/using-qovery/configuration/clusters">
+    Configure cluster settings
+  </Card>
+
+  <Card title="Qovery-Managed Kapsule" icon="wand-magic-sparkles" href="/integrations/kubernetes/scaleway/managed">
+    Consider Qovery-managed for easier management
+  </Card>
+
+  <Card title="Kubernetes Documentation" icon="book" href="/installation/kubernetes">
+    Generic Kubernetes BYOK guide
+  </Card>
+</CardGroup>

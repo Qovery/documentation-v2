@@ -1,0 +1,89 @@
+---
+title: "Qovery-Managed AKS"
+description: "Fully automated Azure AKS cluster provisioning and management"
+---
+
+## Overview
+
+Qovery-managed AKS provides zero-configuration Kubernetes clusters on Microsoft Azure. Qovery creates, configures, and maintains your AKS cluster with best practices built-in.
+
+## Quick Start
+
+<Steps>
+  <Step title="Connect Azure Subscription">
+    Organization Settings → Cloud Providers → Add Azure Subscription
+    - Provide service principal credentials
+    - Subscription ID, Client ID, Client Secret, Tenant ID
+    - Select region for cluster
+  </Step>
+
+  <Step title="Create Cluster">
+    Settings → Clusters → Create Cluster
+    - Name: `production-aks`
+    - Provider: Azure
+    - Region: `eastus`
+    - Click **Create**
+  </Step>
+
+  <Step title="Wait for Provisioning">
+    Cluster creation takes 20-25 minutes:
+    - Resource group creation
+    - VNet and networking setup
+    - AKS control plane creation
+    - Node pool provisioning
+    - Qovery components installation
+  </Step>
+
+  <Step title="Deploy Applications">
+    Once cluster is ready, start deploying applications
+  </Step>
+</Steps>
+
+## What Qovery Creates
+
+- ✅ AKS cluster (latest stable Kubernetes)
+- ✅ VNet with subnets across availability zones
+- ✅ NAT Gateway for outbound connectivity
+- ✅ Azure AD integration and RBAC
+- ✅ Cluster autoscaler
+- ✅ Azure Load Balancer or Application Gateway
+- ✅ Azure Disk CSI driver
+- ✅ Metrics server
+- ✅ Qovery agent and observability stack
+
+## Configuration Options
+
+### Cluster Settings
+
+**VM Sizes**:
+- General Purpose: Standard_D, Standard_DS, Standard_B
+- Compute Optimized: Standard_F, Standard_FX
+- Memory Optimized: Standard_E, Standard_M
+- GPU: Standard_NC, Standard_ND, Standard_NV
+
+**Auto-Scaling**:
+- Min nodes: 1
+- Max nodes: 100
+- Cluster autoscaler automatically provisions optimal VMs
+- Multiple node pools for different workload types
+
+**Spot VMs**:
+- Enable Spot VMs for cost savings (up to 80% off)
+- Qovery handles evictions gracefully
+- Mix of Spot and regular VMs for reliability
+
+### Network Settings
+
+**VNet Configuration**:
+- VNet with /16 CIDR (65,536 IPs)
+- Subnet for nodes with /20 CIDR
+- Subnet for pods with /16 CIDR (Azure CNI)
+- NAT Gateway for outbound traffic
+
+**Access**:
+- Public endpoint (default)
+- Private cluster (enterprise feature)
+- Authorized IP ranges for API server
+- Azure AD integration
+
+For detailed Azure installation guide, see [Azure Installation](/installation/azure).
