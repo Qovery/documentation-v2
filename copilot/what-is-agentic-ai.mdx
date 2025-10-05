@@ -1,0 +1,287 @@
+---
+title: "What is Agentic AI?"
+description: "Understanding the technology behind Qovery AI Copilot"
+---
+
+## From Chatbots to Agents
+
+Traditional chatbots respond to questions with answers. **Agentic AI** goes much further—it can plan, execute, and adapt to achieve complex goals autonomously.
+
+## The Evolution
+
+### Traditional Chatbots
+
+```
+User: "What's the status of my app?"
+Bot: "Your app is running with 3 replicas"
+```
+
+✅ Answers questions
+❌ Can't take action
+❌ No planning capabilities
+❌ No error recovery
+
+### Agentic AI
+
+```
+User: "My app is slow, please investigate and fix it"
+Agent:
+1. Checks application metrics
+2. Analyzes logs for errors
+3. Identifies resource bottleneck
+4. Suggests increasing CPU allocation
+5. Waits for approval
+6. Applies the change
+7. Monitors the improvement
+8. Reports results
+```
+
+✅ Understands complex goals
+✅ Plans multiple steps
+✅ Executes autonomously
+✅ Recovers from errors
+✅ Validates results
+
+## Key Characteristics of Agentic AI
+
+### 1. Goal-Oriented
+
+Agentic AI focuses on **achieving outcomes**, not just responding to prompts.
+
+<Tabs>
+  <Tab title="Chatbot Behavior">
+    **User**: "Show me production logs"
+
+    **Chatbot**: Displays logs
+
+    **User**: "Filter for errors"
+
+    **Chatbot**: Shows filtered logs
+
+    **User**: "What's causing them?"
+
+    **Chatbot**: Attempts to explain
+
+    *Requires multiple back-and-forth interactions*
+  </Tab>
+
+  <Tab title="Agentic AI Behavior">
+    **User**: "Investigate production errors"
+
+    **Agent**:
+    1. Retrieves production logs
+    2. Filters for error patterns
+    3. Analyzes root causes
+    4. Checks related services
+    5. Identifies the issue
+    6. Proposes solutions
+
+    *Autonomous, goal-driven investigation*
+  </Tab>
+</Tabs>
+
+### 2. Planning & Reasoning
+
+Agentic AI can break down complex tasks into actionable steps.
+
+**Example Request**: "Create a staging environment similar to production"
+
+**Agent's Plan**:
+```
+1. Query production environment configuration
+2. Identify all services and dependencies
+3. Create new staging environment
+4. Clone each service with modified settings
+5. Adjust resource allocations (lower for staging)
+6. Configure environment variables
+7. Validate connectivity between services
+8. Run health checks
+9. Report completion
+```
+
+### 3. Tool Use
+
+Agentic AI can interact with multiple tools and APIs to accomplish tasks.
+
+**Available Tools** for Qovery AI Copilot:
+- List/create/update/delete environments
+- Deploy/stop/restart applications
+- Query logs and metrics
+- Manage databases and services
+- Configure networking and secrets
+- Analyze costs and usage
+
+### 4. Error Recovery
+
+When something goes wrong, agentic AI can diagnose and retry.
+
+**Example Scenario**:
+
+```
+User: "Deploy version 2.0 to production"
+
+Agent: Deploying application...
+⚠️  Deployment failed: Health check timeout
+
+Agent: Analyzing failure...
+- Checking logs: Found connection error to database
+- Validating database status: Database is stopped
+- Root cause identified: Database not running
+
+Agent: Starting database...
+✓ Database is now running
+
+Agent: Retrying deployment...
+✓ Deployment successful
+
+Agent: "Deployment complete. The issue was the database
+       was stopped. I started it and successfully deployed v2.0."
+```
+
+### 5. Context Awareness
+
+Agentic AI maintains conversation context and understands references.
+
+```
+User: "Show me production environment"
+Agent: [Shows production environment details]
+
+User: "Clone it to staging"
+Agent: [Understands "it" refers to production environment]
+      [Creates staging clone automatically]
+
+User: "Now deploy the latest commit there"
+Agent: [Understands "there" means the new staging environment]
+      [Deploys without needing explicit environment name]
+```
+
+## How Qovery AI Copilot Implements Agentic Behavior
+
+### Dynamic Planning
+
+Instead of hardcoded workflows, Qovery AI Copilot:
+
+1. **Analyzes** your request
+2. **Plans** the sequence of operations needed
+3. **Executes** each step
+4. **Validates** intermediate results
+5. **Adapts** if something fails
+
+### Stateless Tools
+
+Each capability is a standalone tool:
+
+- `list_environments()`
+- `deploy_application()`
+- `get_logs()`
+- `update_resources()`
+
+The agent orchestrates these tools dynamically based on your needs.
+
+### Resilience Mechanisms
+
+- **Retry Logic**: Automatically retries failed operations
+- **State Validation**: Checks if each step succeeded
+- **Error Analysis**: Understands why failures occurred
+- **Alternative Paths**: Tries different approaches if initial plan fails
+
+### Conversation Memory
+
+- Remembers previous interactions
+- Understands context and references
+- Builds on prior work in the conversation
+- Maintains awareness of your infrastructure state
+
+## Real-World Examples
+
+### Simple Task
+
+**Request**: "Deploy my API to production"
+
+**Chatbot Response**: "Please provide the application ID and environment ID"
+
+**Agentic AI Response**:
+```
+1. Searching for applications named "api"...
+2. Found: "customer-api" in your account
+3. Locating production environment...
+4. Found: "production" environment
+5. Deploying customer-api to production...
+6. ✓ Deployment initiated
+7. Monitoring deployment status...
+8. ✓ Deployment successful
+9. Application is live at https://api.example.com
+```
+
+### Complex Workflow
+
+**Request**: "Optimize costs by stopping inactive staging environments"
+
+**Agentic AI Execution**:
+```
+1. Listing all staging environments...
+2. Checking activity for each environment:
+   - feature-auth: Last activity 2 hours ago (active)
+   - feature-payment: Last activity 3 days ago (inactive)
+   - feature-search: Last activity 1 week ago (inactive)
+3. Identifying environments inactive > 6 hours:
+   - feature-payment
+   - feature-search
+4. Calculating potential monthly savings: $240
+5. Stopping inactive environments:
+   - ✓ Stopped feature-payment
+   - ✓ Stopped feature-search
+6. Summary: Stopped 2 environments, estimated savings $240/month
+```
+
+### Troubleshooting
+
+**Request**: "Why is my app returning 500 errors?"
+
+**Agentic AI Investigation**:
+```
+1. Identifying the application...
+2. Checking recent deployments: Last deployed 15 minutes ago
+3. Analyzing application logs:
+   - Found 47 errors in last 10 minutes
+   - Error: "Cannot connect to database"
+4. Checking database status: Database is running
+5. Checking network connectivity...
+6. Found issue: Security group blocking database port
+7. Diagnosis: Recent infrastructure change blocked database access
+8. Recommended fix: Update security group rules
+9. Would you like me to apply the fix?
+```
+
+## The Future of Agentic AI in DevOps
+
+Agentic AI is transforming how we interact with infrastructure:
+
+- **Natural Language Operations**: Describe what you want, not how to do it
+- **Autonomous Problem-Solving**: AI handles complex workflows end-to-end
+- **Continuous Learning**: Systems improve based on your patterns
+- **Proactive Assistance**: AI suggests optimizations before you ask
+
+<Info>
+**Qovery's Vision**: "We're not building another chatbot. We're building DevOps automation with a brain."
+</Info>
+
+## Learn More
+
+<CardGroup cols={2}>
+  <Card title="Get Started" icon="rocket" href="/copilot/getting-started">
+    Start using Qovery AI Copilot
+  </Card>
+
+  <Card title="Technical Blog" icon="book" href="https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond">
+    Read the technical deep-dive
+  </Card>
+
+  <Card title="View Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
+    See what Copilot can do
+  </Card>
+
+  <Card title="Examples" icon="code" href="/copilot/examples/common-tasks">
+    Learn from practical examples
+  </Card>
+</CardGroup>

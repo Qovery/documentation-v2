@@ -1,0 +1,376 @@
+---
+title: "Advanced Workflows"
+description: "Complex multi-step automation scenarios with Qovery AI Copilot"
+---
+
+## Multi-Step Deployments
+
+### Progressive Deployment Pipeline
+
+```
+You: "Deploy the new version to dev, then staging, then production - but only if tests pass at each stage"
+
+Copilot:
+1. Deploys to dev environment
+2. Runs automated tests
+3. If tests pass, deploys to staging
+4. Runs staging tests
+5. Waits for approval before production
+6. Deploys to production
+7. Monitors production health
+```
+
+### Blue-Green Deployment
+
+```
+You: "Set up a blue-green deployment for my-api in production"
+
+Copilot:
+1. Creates green environment (copy of blue)
+2. Deploys new version to green
+3. Runs health checks on green
+4. Switches traffic to green
+5. Monitors for issues
+6. Keeps blue as backup
+```
+
+### Canary Deployment
+
+```
+You: "Deploy version 2.0 as a canary to 10% of production traffic"
+
+Copilot:
+1. Deploys new version alongside current
+2. Configures traffic split (90% old, 10% new)
+3. Monitors error rates
+4. Gradually increases traffic if healthy
+5. Rolls back if errors spike
+```
+
+## Complex Infrastructure Changes
+
+### Multi-Environment Setup
+
+```
+You: "Create a complete staging infrastructure that mirrors production but with half the resources"
+
+Copilot:
+1. Analyzes production infrastructure
+2. Creates staging environment
+3. Clones all services
+4. Reduces resource allocations by 50%
+5. Adjusts database sizes
+6. Configures networking
+7. Sets up monitoring
+8. Validates complete setup
+```
+
+### Infrastructure Migration
+
+```
+You: "Migrate all staging environments from cluster-east to cluster-west"
+
+Copilot:
+1. Lists all staging environments
+2. For each environment:
+   - Creates new environment in cluster-west
+   - Deploys all services
+   - Migrates data
+   - Validates functionality
+   - Switches DNS/routing
+   - Deletes old environment
+3. Reports migration summary
+```
+
+## Automated Optimization
+
+### Cost Optimization Workflow
+
+```
+You: "Analyze my infrastructure and implement cost savings where possible"
+
+Copilot:
+1. Analyzes all environments
+2. Identifies underutilized resources
+3. Finds idle services
+4. Suggests optimizations:
+   - Right-size over-provisioned services
+   - Stop inactive environments
+   - Use spot instances where appropriate
+   - Consolidate low-traffic services
+5. Implements approved optimizations
+6. Reports projected monthly savings
+```
+
+### Performance Optimization
+
+```
+You: "Optimize the performance of my production stack"
+
+Copilot:
+1. Analyzes performance metrics
+2. Identifies bottlenecks
+3. Reviews configurations
+4. Suggests improvements:
+   - Increase resources for constrained services
+   - Optimize database queries
+   - Add caching layers
+   - Adjust auto-scaling rules
+5. Implements approved changes
+6. Monitors impact
+```
+
+## Disaster Recovery
+
+### Automated Backup and Restore
+
+```
+You: "Backup production, make breaking changes to staging, then restore if needed"
+
+Copilot:
+1. Takes snapshot of production state
+2. Applies changes to staging
+3. Monitors for issues
+4. If problems detected:
+   - Automatically restores from snapshot
+   - Documents what went wrong
+   - Suggests fixes
+```
+
+### Multi-Region Failover
+
+```
+You: "If production goes down, automatically failover to DR region"
+
+Copilot:
+1. Monitors production health
+2. If failure detected:
+   - Validates DR environment is healthy
+   - Switches DNS to DR region
+   - Notifies team
+   - Provides status dashboard
+3. When production recovers:
+   - Syncs data
+   - Fails back to primary
+```
+
+## Batch Operations
+
+### Bulk Environment Management
+
+```
+You: "For all feature branches older than 2 weeks: stop them if inactive, delete them if older than 1 month"
+
+Copilot:
+1. Lists all feature branch environments
+2. Checks last activity for each
+3. Categorizes by age and activity
+4. Stops inactive 2-week-old environments
+5. Deletes 1-month-old environments
+6. Generates cleanup report
+7. Calculates cost savings
+```
+
+### Mass Configuration Updates
+
+```
+You: "Update the API_VERSION environment variable to 2.0 across all environments"
+
+Copilot:
+1. Lists all environments
+2. For each environment:
+   - Finds services with API_VERSION
+   - Updates value to 2.0
+   - Triggers redeployment
+   - Waits for healthy status
+3. Reports success/failures
+```
+
+## CI/CD Integration
+
+### Automated Release Pipeline
+
+```
+You: "When a new tag is pushed, automatically deploy to staging, run tests, and notify Slack"
+
+Copilot:
+1. Sets up webhook for new tags
+2. On tag event:
+   - Deploys to staging
+   - Waits for deployment
+   - Runs integration tests
+   - If tests pass:
+     - Notifies Slack with success
+     - Creates production deployment plan
+   - If tests fail:
+     - Rolls back staging
+     - Notifies Slack with failure details
+     - Logs for review
+```
+
+### Hotfix Workflow
+
+```
+You: "I need to deploy a hotfix immediately - bypass normal pipeline"
+
+Copilot:
+1. Identifies hotfix branch
+2. Creates emergency deployment plan
+3. Deploys directly to production
+4. Monitors closely for issues
+5. Documents hotfix deployment
+6. Reminds to backport to main
+```
+
+## Data Migration
+
+### Zero-Downtime Migration
+
+```
+You: "Migrate the database from PostgreSQL 13 to 15 with zero downtime"
+
+Copilot:
+1. Creates new PostgreSQL 15 database
+2. Sets up replication from old to new
+3. Monitors replication lag
+4. When in sync:
+   - Switches application to new database
+   - Monitors for errors
+   - Keeps old database as backup
+5. After validation period:
+   - Removes old database
+   - Updates documentation
+```
+
+### Data Archival
+
+```
+You: "Archive all data from environments deleted more than 3 months ago"
+
+Copilot:
+1. Identifies deleted environments
+2. Locates associated data
+3. Creates archive storage
+4. Exports data to archive
+5. Verifies archive integrity
+6. Removes from active storage
+7. Updates inventory
+```
+
+## Compliance & Auditing
+
+### Compliance Scan
+
+```
+You: "Audit all production services for security compliance"
+
+Copilot:
+1. Scans all production services
+2. Checks:
+   - Environment variables not hardcoded
+   - No public database access
+   - HTTPS enforced
+   - Secrets properly managed
+   - Latest security patches applied
+3. Generates compliance report
+4. Flags violations
+5. Suggests remediations
+```
+
+### Access Review
+
+```
+You: "Review who has access to production and ensure least privilege"
+
+Copilot:
+1. Lists all users with production access
+2. Reviews access levels
+3. Identifies overly permissive access
+4. Suggests access reductions
+5. Generates access audit report
+```
+
+## Monitoring & Alerting
+
+### Proactive Issue Detection
+
+```
+You: "Monitor production and automatically fix common issues"
+
+Copilot:
+1. Monitors production continuously
+2. Detects patterns like:
+   - Memory leaks (restart affected services)
+   - Connection pool exhaustion (scale up)
+   - Failed health checks (redeploy)
+3. Automatically remediates known issues
+4. Notifies of actions taken
+5. Escalates unknown issues
+```
+
+### Intelligent Alerting
+
+```
+You: "Alert me only for critical issues, auto-handle everything else"
+
+Copilot:
+1. Monitors all infrastructure
+2. Categorizes issues by severity
+3. Auto-remediates:
+   - Low: Service restarts, scaling adjustments
+   - Medium: Failovers, traffic rerouting
+4. Alerts for:
+   - High: Data corruption, security issues
+   - Critical: Complete outages, data breaches
+5. Provides context and suggested actions
+```
+
+## Best Practices for Complex Workflows
+
+<AccordionGroup>
+  <Accordion title="Break Down Complex Requests">
+    For very complex workflows, break them into phases:
+
+    1. "First, set up the infrastructure..."
+    2. "Next, configure the services..."
+    3. "Finally, validate everything..."
+  </Accordion>
+
+  <Accordion title="Use Checkpoints">
+    Request confirmation at critical points:
+
+    "Deploy to staging, wait for my approval, then continue to production"
+  </Accordion>
+
+  <Accordion title="Define Success Criteria">
+    Be explicit about what success looks like:
+
+    "Deploy and consider it successful only if error rate stays below 0.1%"
+  </Accordion>
+
+  <Accordion title="Plan for Failures">
+    Include failure handling in your requests:
+
+    "Try to deploy, but if it fails, automatically rollback and notify me"
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Common Tasks" href="/copilot/examples/common-tasks">
+    Start with simpler everyday operations
+  </Card>
+
+  <Card title="Infrastructure Management" href="/copilot/capabilities/infrastructure-management">
+    Learn infrastructure operations
+  </Card>
+
+  <Card title="Deployment Automation" href="/copilot/capabilities/deployment-automation">
+    Master deployment capabilities
+  </Card>
+
+  <Card title="Optimization" href="/copilot/capabilities/optimization">
+    Optimize your workflows
+  </Card>
+</CardGroup>

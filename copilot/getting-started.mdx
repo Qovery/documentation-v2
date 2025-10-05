@@ -1,0 +1,290 @@
+---
+title: "Getting Started with Qovery AI Copilot"
+description: "Start automating your infrastructure with agentic AI"
+---
+
+## Overview
+
+Qovery AI Copilot is currently available in beta through the Model Context Protocol (MCP) Server. This allows you to interact with your Qovery infrastructure using natural language in Claude Desktop or other MCP-compatible clients.
+
+<Warning>
+**Beta Status**: Qovery AI Copilot is currently in beta. Features and capabilities are being actively developed.
+</Warning>
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- **Qovery Account**: Active account with infrastructure deployed
+- **API Token**: Generate from Qovery Console (Settings → API Tokens)
+- **Claude Desktop**: Install from [Anthropic](https://claude.ai/download) (for MCP access)
+
+## Quick Start
+
+<Steps>
+  <Step title="Install MCP Server">
+    Follow the [MCP Server setup guide](/copilot/mcp-server) to install and configure the Qovery MCP Server
+  </Step>
+
+  <Step title="Configure Authentication">
+    Add your Qovery API token to the MCP Server configuration
+  </Step>
+
+  <Step title="Start Claude Desktop">
+    Launch Claude Desktop with the Qovery MCP Server enabled
+  </Step>
+
+  <Step title="Interact with Your Infrastructure">
+    Start asking Copilot to manage your infrastructure!
+  </Step>
+</Steps>
+
+## Your First Interactions
+
+### Check Infrastructure Status
+
+```
+"Show me all my environments"
+"What's the status of production?"
+"List all applications in staging environment"
+```
+
+### Deploy Applications
+
+```
+"Deploy the latest version of my-api to staging"
+"Redeploy the frontend application"
+"Stop all services in the dev environment"
+```
+
+### Investigate Issues
+
+```
+"Why is my application deployment failing?"
+"Show me error logs from the last hour"
+"Check if the database is running"
+```
+
+## Understanding How Copilot Works
+
+### Natural Language Understanding
+
+Qovery AI Copilot understands natural language requests:
+
+<Tabs>
+  <Tab title="Casual Language">
+    ✅ "Can you deploy my app?"
+    ✅ "Stop everything in dev"
+    ✅ "Show me what's broken"
+  </Tab>
+
+  <Tab title="Technical Language">
+    ✅ "Deploy application-id xyz123 to environment prod"
+    ✅ "Scale the API service to 5 replicas"
+    ✅ "Update DATABASE_URL environment variable"
+  </Tab>
+
+  <Tab title="Mixed Approach">
+    ✅ "Deploy the payment-api (commit abc123) to production"
+    ✅ "Clone staging to a new environment called feature-test"
+    ✅ "Investigate 500 errors in the logs"
+  </Tab>
+</Tabs>
+
+### Context Awareness
+
+Copilot maintains conversation context:
+
+```
+You: "Show me the production environment"
+Copilot: [Displays production details]
+
+You: "Clone it to staging-test"
+Copilot: [Creates clone without asking which environment]
+
+You: "Now deploy version 2.0 there"
+Copilot: [Deploys to staging-test automatically]
+```
+
+### Autonomous Execution
+
+For complex tasks, Copilot breaks them down and executes automatically:
+
+**Your Request**: "Create a staging environment for the new feature"
+
+**Copilot's Actions**:
+1. Creates new environment
+2. Configures networking
+3. Sets up databases
+4. Deploys applications
+5. Validates everything is running
+6. Reports success
+
+## Best Practices
+
+### Be Specific When Needed
+
+<Tabs>
+  <Tab title="Good">
+    ✅ "Deploy my-api to production"
+    ✅ "Scale the database in staging"
+    ✅ "Show logs for the last 30 minutes"
+  </Tab>
+
+  <Tab title="Can Be Improved">
+    ⚠️ "Deploy something" (which app?)
+    ⚠️ "Fix the error" (which error?)
+    ⚠️ "Make it faster" (which service?)
+  </Tab>
+</Tabs>
+
+If Copilot needs more information, it will ask clarifying questions.
+
+### Use Follow-Up Questions
+
+Build on previous interactions:
+
+```
+You: "Show me production resources"
+Copilot: [Shows resources]
+
+You: "Which ones are using the most CPU?"
+Copilot: [Analyzes and reports]
+
+You: "Scale up the top one by 2x"
+Copilot: [Scales the identified service]
+```
+
+### Leverage Agentic Capabilities
+
+Let Copilot handle complex workflows:
+
+**Instead of**:
+```
+1. "Show me all environments"
+2. "Check which ones are inactive"
+3. "Calculate cost savings"
+4. "Stop the inactive ones"
+```
+
+**Just ask**:
+```
+"Stop all environments that have been inactive for more than 24 hours"
+```
+
+Copilot will plan and execute all steps autonomously.
+
+## Safety & Guardrails
+
+### Confirmation for Destructive Actions
+
+Copilot will ask for confirmation before:
+
+- Deleting environments or services
+- Stopping production workloads
+- Making infrastructure changes
+
+### Respects Permissions
+
+Copilot can only perform actions you're authorized to do:
+
+- Uses your Qovery credentials
+- Follows RBAC policies
+- Cannot bypass security controls
+
+### Audit Trail
+
+All Copilot actions are logged:
+
+- View in Qovery Console audit logs
+- Track what was changed and when
+- Identify which actions Copilot performed
+
+## Common Use Cases
+
+### Daily Operations
+
+```
+"Show me the status of all services"
+"Deploy the latest commit to staging"
+"Restart the API service"
+"Check database connection"
+```
+
+### Troubleshooting
+
+```
+"Why is my deployment failing?"
+"Investigate errors in production"
+"Show me logs for pod xyz123"
+"Debug the connection timeout"
+```
+
+### Cost Optimization
+
+```
+"Show me which services cost the most"
+"Find underutilized resources"
+"Stop non-production environments for the weekend"
+"Analyze spending over the last month"
+```
+
+### Infrastructure Management
+
+```
+"Create a new staging environment"
+"Clone production to a test environment"
+"Update environment variables for all services"
+"Scale up the database"
+```
+
+## Getting Help
+
+If you're unsure what Copilot can do:
+
+```
+"What can you help me with?"
+"Show me examples of what you can do"
+"Help me troubleshoot an issue"
+```
+
+Copilot will provide guidance and suggestions.
+
+## Limitations (Beta)
+
+Current limitations while in beta:
+
+- **MCP Only**: Currently available only through MCP Server
+- **No Web UI**: Console integration coming soon
+- **Beta Features**: Some capabilities still being developed
+- **Response Time**: Complex operations may take time
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup MCP Server" icon="rocket" href="/copilot/mcp-server">
+    Complete setup guide for Claude Desktop
+  </Card>
+
+  <Card title="View All Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
+    Explore everything Copilot can do
+  </Card>
+
+  <Card title="Common Tasks" icon="book" href="/copilot/examples/common-tasks">
+    Learn from practical examples
+  </Card>
+
+  <Card title="Advanced Workflows" icon="code" href="/copilot/examples/advanced-workflows">
+    Complex automation scenarios
+  </Card>
+</CardGroup>
+
+## Feedback & Support
+
+We're actively improving Qovery AI Copilot. Share your feedback:
+
+- **Discord**: Join the [Qovery Community](https://discord.qovery.com)
+- **GitHub**: Report issues on [GitHub](https://github.com/Qovery/qovery-mcp-server)
+- **Email**: Contact support@qovery.com
+
+Your feedback helps us build better automation!

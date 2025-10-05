@@ -1,0 +1,322 @@
+---
+title: "Common Tasks"
+description: "Practical examples of everyday operations with Qovery AI Copilot"
+---
+
+## Daily Operations
+
+### Check Infrastructure Status
+
+```
+You: "Show me the status of all my environments"
+
+Copilot: Lists all environments with their status, deployed services, and health
+```
+
+### Deploy Latest Changes
+
+```
+You: "Deploy the latest commit of my-api to staging"
+
+Copilot:
+1. Finds my-api application
+2. Gets latest commit from main branch
+3. Deploys to staging environment
+4. Monitors deployment progress
+5. Reports success
+```
+
+### Quick Service Restart
+
+```
+You: "Restart the frontend application"
+
+Copilot: Triggers application redeploy and confirms when complete
+```
+
+## Environment Management
+
+### Create Test Environment
+
+```
+You: "Create a new environment called feature-auth for testing"
+
+Copilot:
+1. Creates new environment
+2. Configures default settings
+3. Confirms creation
+4. Provides environment details
+```
+
+### Clone for Testing
+
+```
+You: "Clone production to staging-test"
+
+Copilot:
+1. Reads production configuration
+2. Creates staging-test environment
+3. Clones all services
+4. Adjusts resource allocations
+5. Confirms setup complete
+```
+
+### Clean Up Old Environments
+
+```
+You: "Delete all environments starting with feature- that are older than 7 days"
+
+Copilot:
+1. Lists matching environments
+2. Checks last activity dates
+3. Identifies candidates for deletion
+4. Asks for confirmation
+5. Deletes approved environments
+```
+
+## Deployment Scenarios
+
+### Deploy Specific Version
+
+```
+You: "Deploy version 2.1.0 of the backend to production"
+
+Copilot:
+1. Finds backend application
+2. Locates version 2.1.0 tag
+3. Deploys to production
+4. Waits for health checks
+5. Confirms successful deployment
+```
+
+### Multi-Service Deployment
+
+```
+You: "Deploy both API and frontend to staging"
+
+Copilot:
+1. Identifies both services
+2. Deploys API first
+3. Waits for API to be healthy
+4. Deploys frontend
+5. Verifies both services running
+```
+
+### Rollback Deployment
+
+```
+You: "Rollback the API to the previous version"
+
+Copilot:
+1. Identifies last working version
+2. Initiates rollback deployment
+3. Monitors rollback progress
+4. Confirms previous version restored
+```
+
+## Resource Management
+
+### Scale Services
+
+```
+You: "Scale the API service to 5 replicas"
+
+Copilot:
+1. Updates replica count
+2. Triggers redeployment
+3. Waits for all replicas to be ready
+4. Confirms scaling complete
+```
+
+### Update Environment Variables
+
+```
+You: "Update the DATABASE_URL environment variable for my-api"
+
+Copilot:
+1. Prompts for new value
+2. Updates environment variable
+3. Asks if you want to redeploy
+4. Redeployments if confirmed
+```
+
+## Monitoring & Investigation
+
+### Check Application Logs
+
+```
+You: "Show me logs for the API from the last 30 minutes"
+
+Copilot:
+1. Retrieves logs from last 30 minutes
+2. Displays formatted log entries
+3. Highlights errors if present
+```
+
+### Investigate Errors
+
+```
+You: "Why is my deployment failing?"
+
+Copilot:
+1. Checks deployment status
+2. Analyzes deployment logs
+3. Identifies error cause
+4. Suggests remediation steps
+```
+
+### Monitor Resource Usage
+
+```
+You: "Show me CPU and memory usage for production services"
+
+Copilot:
+1. Queries metrics for all production services
+2. Displays current resource usage
+3. Highlights services near limits
+```
+
+## Cost Management
+
+### Analyze Spending
+
+```
+You: "Show me costs for the last month"
+
+Copilot:
+1. Retrieves usage data
+2. Calculates costs per environment
+3. Displays breakdown by service type
+4. Shows trends
+```
+
+### Stop Unused Resources
+
+```
+You: "Stop all development environments overnight"
+
+Copilot:
+1. Identifies development environments
+2. Schedules stop at end of day
+3. Schedules start in morning
+4. Confirms automation setup
+```
+
+## Database Operations
+
+### Check Database Status
+
+```
+You: "Is the PostgreSQL database running?"
+
+Copilot: Checks and reports database status with connection details
+```
+
+### Restart Database
+
+```
+You: "Restart the staging database"
+
+Copilot:
+1. Stops database service
+2. Waits for graceful shutdown
+3. Starts database service
+4. Verifies database is healthy
+```
+
+## Configuration Management
+
+### List Services
+
+```
+You: "What applications are deployed in production?"
+
+Copilot: Lists all applications with their status and URLs
+```
+
+### Get Configuration Details
+
+```
+You: "Show me the configuration for my-api"
+
+Copilot: Displays application settings, environment variables, resources, and networking
+```
+
+## Quick Wins
+
+### One-Line Deployments
+
+```
+"Deploy latest to staging"
+"Restart production"
+"Stop dev environment"
+```
+
+### Status Checks
+
+```
+"Is everything healthy?"
+"Show failing services"
+"What's broken?"
+```
+
+### Batch Operations
+
+```
+"Restart all APIs"
+"Scale down all dev services"
+"Update env var across all environments"
+```
+
+## Tips for Effective Use
+
+<AccordionGroup>
+  <Accordion title="Be Specific When Needed">
+    **Good**: "Deploy my-api version 2.0 to production"
+
+    **Less Clear**: "Deploy something"
+
+    Copilot will ask for clarification if needed
+  </Accordion>
+
+  <Accordion title="Use Context">
+    **Build on Previous**:
+    - "Show production"
+    - "Deploy latest there"
+    - "Now check if it's healthy"
+  </Accordion>
+
+  <Accordion title="Combine Operations">
+    **Single Request**: "Deploy to staging, wait for health check, then promote to production"
+
+    Copilot handles the entire workflow
+  </Accordion>
+
+  <Accordion title="Ask for Explanations">
+    - "Why did that fail?"
+    - "What does this error mean?"
+    - "How do I fix this?"
+
+    Copilot provides context and guidance
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Advanced Workflows" href="/copilot/examples/advanced-workflows">
+    Complex multi-step automation scenarios
+  </Card>
+
+  <Card title="Infrastructure Management" href="/copilot/capabilities/infrastructure-management">
+    Deep dive into infrastructure operations
+  </Card>
+
+  <Card title="Deployment Automation" href="/copilot/capabilities/deployment-automation">
+    Learn about deployment capabilities
+  </Card>
+
+  <Card title="Troubleshooting" href="/copilot/capabilities/troubleshooting">
+    Debug and resolve issues
+  </Card>
+</CardGroup>

@@ -1,0 +1,215 @@
+---
+title: "Qovery AI Copilot"
+description: "An agentic AI that automates infrastructure tasks and DevOps workflows"
+---
+
+## Overview
+
+Qovery AI Copilot is an **agentic AI system** (not just a chatbot) that automates infrastructure management, deployment optimization, and DevOps workflows. It can dynamically plan and execute multi-step tasks, troubleshoot issues, and interact with your entire Qovery infrastructure through natural language.
+
+<Warning>
+**Beta Status**: Qovery AI Copilot is currently in beta. Features and capabilities are actively being developed and improved.
+</Warning>
+
+## What Makes It Different?
+
+Unlike traditional chatbots that simply answer questions, Qovery AI Copilot is an **agentic AI** that can:
+
+<CardGroup cols={2}>
+  <Card title="Plan" icon="brain">
+    Analyzes complex requests and breaks them down into actionable steps
+  </Card>
+
+  <Card title="Execute" icon="play">
+    Autonomously performs multiple operations to achieve your goals
+  </Card>
+
+  <Card title="Reason" icon="lightbulb">
+    Understands context, validates states, and makes intelligent decisions
+  </Card>
+
+  <Card title="Learn" icon="graduation-cap">
+    Adapts to your infrastructure patterns and maintains conversation context
+  </Card>
+</CardGroup>
+
+## Key Capabilities
+
+### Infrastructure Management
+
+- Create, update, and delete environments
+- Manage applications, databases, and services
+- Configure networking and security settings
+- Deploy and manage Kubernetes clusters
+
+### Deployment Automation
+
+- Deploy applications with specific configurations
+- Manage deployment pipelines
+- Handle blue/green and canary deployments
+- Automate rollbacks and recovery
+
+### Optimization
+
+- Analyze resource usage and costs
+- Optimize Dockerfile configurations
+- Recommend performance improvements
+- Identify cost-saving opportunities
+
+### Troubleshooting
+
+- Analyze logs and identify issues
+- Debug deployment failures
+- Investigate performance problems
+- Provide remediation steps
+
+## How It Works
+
+Qovery AI Copilot uses an agentic architecture that evolved through four phases:
+
+### 1. Basic Agent Phase
+- Understands user intent
+- Maps requests to appropriate tools
+- Executes single operations
+
+### 2. Agentic Phase
+- Dynamically plans sequences of operations
+- Uses stateless, composable tools
+- Handles complex multi-step workflows
+
+### 3. Resilience Phase
+- Validates intermediate states
+- Implements retry and recovery mechanisms
+- Self-corrects when operations fail
+
+### 4. Conversation Memory Phase
+- Maintains context across interactions
+- Understands references and continuity
+- Enables complex, multi-turn conversations
+
+<Info>
+Read the technical deep-dive: [How We Built an Agentic DevOps Copilot](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond)
+</Info>
+
+## Access Methods
+
+You can interact with Qovery AI Copilot through multiple interfaces:
+
+<Tabs>
+  <Tab title="MCP Server (Beta)">
+    Use Qovery AI Copilot directly in Claude Desktop or other MCP-compatible clients.
+
+    - Natural language interaction
+    - Full automation capabilities
+    - Maintains conversation context
+    - [Setup Guide →](/copilot/mcp-server)
+  </Tab>
+
+  <Tab title="API (Coming Soon)">
+    Programmatic access to Copilot capabilities via REST API.
+
+    - Integrate into custom tools
+    - Automate workflows
+    - Build custom interfaces
+  </Tab>
+
+  <Tab title="CLI (Coming Soon)">
+    Command-line interface for Copilot interactions.
+
+    - Terminal-based workflows
+    - Script automation
+    - CI/CD integration
+  </Tab>
+</Tabs>
+
+## Example Use Cases
+
+### Simple Tasks
+
+```
+"Deploy my application to staging"
+"Show me the status of production environment"
+"Scale up the API service to 5 replicas"
+```
+
+### Complex Workflows
+
+```
+"Generate usage statistics for the last 30 days and export as CSV"
+"Stop all environments that have been inactive for more than 6 hours"
+"Create a staging environment that's a clone of production, but with smaller resources"
+```
+
+### Optimization
+
+```
+"Analyze my Dockerfile and suggest optimizations"
+"Show me which services are using the most resources"
+"Find environments where we can reduce costs"
+```
+
+### Troubleshooting
+
+```
+"Why is my application deployment failing?"
+"Investigate the error logs from the last hour"
+"Debug the connection issue between my app and database"
+```
+
+## Technical Architecture
+
+### Powered by Claude Sonnet 3.7
+
+Qovery AI Copilot is powered by Anthropic's Claude Sonnet 3.7, providing:
+
+- Advanced reasoning capabilities
+- Large context windows for understanding complex infrastructure
+- Reliable tool use for executing operations
+- Safe and aligned behavior
+
+### Security & Privacy
+
+- **No Sensitive Data Exposure**: Infrastructure details stay within your Qovery account
+- **Secure Authentication**: Uses your Qovery credentials with proper authorization
+- **Audit Trail**: All Copilot actions are logged and auditable
+- **Role-Based Access**: Respects your Qovery permissions and access controls
+
+<Warning>
+Copilot can only perform actions you're authorized to perform. It respects all Qovery RBAC policies.
+</Warning>
+
+## Roadmap
+
+We're continuously improving Qovery AI Copilot with:
+
+- **Faster Planning**: Reduced latency for complex workflows
+- **Self-Hosted Models**: Option to run models in your infrastructure
+- **Long-Term Memory**: Context persistence across sessions
+- **Custom Tools**: Extend Copilot with your own automation
+- **Enhanced Observability**: Better visibility into Copilot reasoning
+
+## Getting Started
+
+<CardGroup cols={2}>
+  <Card title="What is Agentic AI?" icon="brain" href="/copilot/what-is-agentic-ai">
+    Understand the technology behind Qovery AI Copilot
+  </Card>
+
+  <Card title="Setup MCP Server" icon="rocket" href="/copilot/mcp-server">
+    Start using Copilot with Claude Desktop
+  </Card>
+
+  <Card title="View Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
+    Explore what Copilot can do
+  </Card>
+
+  <Card title="See Examples" icon="code" href="/copilot/examples/common-tasks">
+    Learn from practical examples
+  </Card>
+</CardGroup>
+
+## Learn More
+
+- [Technical Blog Post](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond) - Deep dive into how we built it
+- [MCP Protocol](https://modelcontextprotocol.io) - Learn about the Model Context Protocol
+- [Anthropic Claude](https://www.anthropic.com/claude) - The AI model powering Copilot
