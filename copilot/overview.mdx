@@ -41,6 +41,7 @@ Unlike traditional chatbots that simply answer questions, Qovery AI Copilot is a
 - Manage applications, databases, and services
 - Configure networking and security settings
 - Deploy and manage Kubernetes clusters
+- Clone and migrate environments across clusters
 
 ### Deployment Automation
 
@@ -48,6 +49,16 @@ Unlike traditional chatbots that simply answer questions, Qovery AI Copilot is a
 - Manage deployment pipelines
 - Handle blue/green and canary deployments
 - Automate rollbacks and recovery
+- Scale services dynamically
+
+### Time-Based Automation
+
+- **One-Time Scheduled Tasks**: Schedule deployments, shutdowns, or any action for a specific time
+- **Recurring Schedules**: Set up daily, weekly, or custom recurring automation
+- **Maintenance Windows**: Automate routine maintenance during defined time periods
+- **Cost Optimization Schedules**: Automatically scale down or stop resources during off-hours
+- **Ephemeral Environments**: Auto-delete preview/feature environments after time periods
+- **Conditional Time-Based Rules**: Different behaviors based on time of day (e.g., business hours vs. after hours)
 
 ### Optimization
 
@@ -55,6 +66,8 @@ Unlike traditional chatbots that simply answer questions, Qovery AI Copilot is a
 - Optimize Dockerfile configurations
 - Recommend performance improvements
 - Identify cost-saving opportunities
+- Right-size resources based on usage patterns
+- Automate cost reduction strategies
 
 ### Troubleshooting
 
@@ -62,6 +75,8 @@ Unlike traditional chatbots that simply answer questions, Qovery AI Copilot is a
 - Debug deployment failures
 - Investigate performance problems
 - Provide remediation steps
+- Root cause analysis for errors
+- Health check diagnostics
 
 ## How It Works
 
@@ -137,12 +152,23 @@ You can interact with Qovery AI Copilot through multiple interfaces:
 "Scale up the API service to 5 replicas"
 ```
 
+### Time-Based Automation
+
+```
+"Every weekday at 6 PM, stop all development environments"
+"Deploy the hotfix to production tomorrow at 2 AM"
+"Automatically scale down non-production services on weekends"
+"Run database backups every night at 2 AM"
+"Delete all feature environments older than 2 weeks every Monday"
+```
+
 ### Complex Workflows
 
 ```
 "Generate usage statistics for the last 30 days and export as CSV"
 "Stop all environments that have been inactive for more than 6 hours"
 "Create a staging environment that's a clone of production, but with smaller resources"
+"Deploy to dev, then staging, then production - only if tests pass at each stage"
 ```
 
 ### Optimization
@@ -151,6 +177,7 @@ You can interact with Qovery AI Copilot through multiple interfaces:
 "Analyze my Dockerfile and suggest optimizations"
 "Show me which services are using the most resources"
 "Find environments where we can reduce costs"
+"During business hours, ensure 5 replicas. Outside hours, scale to 2."
 ```
 
 ### Troubleshooting
@@ -159,6 +186,7 @@ You can interact with Qovery AI Copilot through multiple interfaces:
 "Why is my application deployment failing?"
 "Investigate the error logs from the last hour"
 "Debug the connection issue between my app and database"
+"Show me all services with failing health checks"
 ```
 
 ## Technical Architecture

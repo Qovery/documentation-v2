@@ -82,6 +82,160 @@ Copilot:
 3. Reports migration summary
 ```
 
+## Time-Based Automation
+
+### Scheduled One-Time Tasks
+
+```
+You: "Stop all development environments tonight at 8 PM"
+
+Copilot:
+1. Identifies all development environments
+2. Schedules shutdown task for 8 PM
+3. Confirms scheduled action
+4. Executes at specified time
+5. Sends notification when complete
+```
+
+```
+You: "Deploy the hotfix to production tomorrow at 2 AM"
+
+Copilot:
+1. Validates hotfix is ready
+2. Schedules deployment for 2 AM
+3. Sets up pre-deployment checks
+4. Executes deployment at scheduled time
+5. Monitors post-deployment health
+6. Alerts team of completion
+```
+
+### Recurring Scheduled Tasks
+
+```
+You: "Every weekday at 6 PM, stop all dev and staging environments"
+
+Copilot:
+1. Creates recurring schedule (Mon-Fri at 6 PM)
+2. Identifies target environments
+3. Configures automatic shutdown
+4. Sends daily summary reports
+5. Maintains schedule until cancelled
+```
+
+```
+You: "Start all development environments every morning at 8 AM on weekdays"
+
+Copilot:
+1. Sets up recurring schedule (Mon-Fri at 8 AM)
+2. Lists all dev environments
+3. Configures automatic startup
+4. Ensures environments are ready by 8:30 AM
+5. Notifies team when environments are available
+```
+
+```
+You: "Run database backups every night at 2 AM and keep for 7 days"
+
+Copilot:
+1. Creates nightly backup schedule (2 AM daily)
+2. Configures backup retention (7 days)
+3. Sets up backup verification
+4. Monitors backup success/failure
+5. Alerts on backup issues
+6. Manages automatic cleanup of old backups
+```
+
+### Time-Based Cost Optimization
+
+```
+You: "Automatically scale down all non-production services to minimum replicas on weekends"
+
+Copilot:
+1. Identifies non-production environments
+2. Creates weekend schedule (Fri 6 PM to Mon 8 AM)
+3. Records current replica counts
+4. Scales to minimum on Friday evening
+5. Restores original counts Monday morning
+6. Reports weekly cost savings
+```
+
+```
+You: "During business hours (9 AM - 6 PM), ensure production has 5 replicas. Outside hours, scale to 2 replicas."
+
+Copilot:
+1. Sets up two recurring schedules
+2. Scale up schedule: Weekdays 9 AM (to 5 replicas)
+3. Scale down schedule: Weekdays 6 PM (to 2 replicas)
+4. Monitors application performance during transitions
+5. Tracks cost savings from reduced off-hours capacity
+```
+
+### Maintenance Windows
+
+```
+You: "Every Sunday from 2 AM to 4 AM, perform maintenance on staging: update all services, run database optimization, clear caches"
+
+Copilot:
+1. Creates weekly maintenance window (Sun 2-4 AM)
+2. Schedules sequential tasks:
+   - 2:00 AM: Deploy latest versions to all services
+   - 2:30 AM: Run database optimization scripts
+   - 3:00 AM: Clear application caches
+   - 3:30 AM: Run health checks
+3. Monitors each task completion
+4. Sends maintenance report at 4 AM
+5. Alerts if any task fails
+```
+
+### Conditional Time-Based Actions
+
+```
+You: "If CPU usage stays above 80% for more than 30 minutes during business hours, scale up. After 6 PM, just alert me instead."
+
+Copilot:
+1. Sets up time-based conditional rules:
+   - Business hours (9 AM - 6 PM): Auto-scale on high CPU
+   - After hours (6 PM - 9 AM): Alert only
+2. Monitors CPU metrics continuously
+3. During business hours:
+   - Detects sustained high CPU
+   - Automatically scales up
+   - Notifies of action taken
+4. After hours:
+   - Detects sustained high CPU
+   - Sends alert without scaling
+   - Waits for manual intervention
+```
+
+### Ephemeral Environment Lifecycle
+
+```
+You: "Create a preview environment for PR #123 and automatically delete it in 7 days or when the PR is merged"
+
+Copilot:
+1. Creates preview environment for PR #123
+2. Deploys PR branch
+3. Sets up two deletion triggers:
+   - Time-based: Auto-delete after 7 days
+   - Event-based: Auto-delete on PR merge
+4. Monitors PR status
+5. Deletes environment when either condition is met
+6. Notifies team of deletion
+```
+
+```
+You: "Every Monday, delete all feature environments older than 2 weeks"
+
+Copilot:
+1. Creates weekly cleanup schedule (Mondays)
+2. Scans for feature environments
+3. Identifies environments older than 2 weeks
+4. Checks for recent activity
+5. Deletes inactive old environments
+6. Sends weekly cleanup report
+7. Reports cost savings from cleanup
+```
+
 ## Automated Optimization
 
 ### Cost Optimization Workflow
