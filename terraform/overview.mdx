@@ -7,6 +7,10 @@ description: "Manage your Qovery infrastructure as code with Terraform"
 
 The Qovery Terraform Provider allows you to manage your Qovery infrastructure using Infrastructure as Code (IaC). Define, provision, and manage your applications, databases, environments, and entire stacks declaratively with Terraform.
 
+<Info>
+**Complete Documentation**: For detailed resource schemas, arguments, and attributes, visit the [Qovery Terraform Provider on Terraform Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs).
+</Info>
+
 ## Why Use Terraform with Qovery?
 
 <CardGroup cols={2}>
@@ -27,7 +31,13 @@ The Qovery Terraform Provider allows you to manage your Qovery infrastructure us
   </Card>
 </CardGroup>
 
-## Installation
+## Getting Started
+
+<Note>
+This guide provides a quick overview of the Qovery Terraform Provider. For comprehensive documentation including all resources, data sources, and configuration options, please refer to the [official provider documentation on Terraform Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs).
+</Note>
+
+### Installation
 
 Add the Qovery provider to your Terraform configuration:
 
@@ -415,15 +425,29 @@ Then generate configuration:
 terraform show -json | jq '.values.root_module.resources'
 ```
 
+## Complete Documentation
+
+<Warning>
+**Important**: This page provides an introduction to the Qovery Terraform Provider. For complete and up-to-date documentation, including:
+
+- All available resources and data sources
+- Detailed resource schemas and arguments
+- Complete attribute references
+- Advanced configuration options
+- Latest provider updates
+
+Please visit the **[Qovery Terraform Provider on Terraform Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs)**.
+</Warning>
+
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Complete Examples" icon="code" href="/terraform/examples">
-    See practical examples including deploying Airbyte
+  <Card title="Terraform Registry Docs" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    **Complete provider documentation** - Resources, data sources, and configuration reference
   </Card>
 
-  <Card title="Terraform Registry" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
-    Full provider documentation and resource reference
+  <Card title="Complete Examples" icon="code" href="/terraform/examples">
+    See practical examples including deploying Airbyte
   </Card>
 
   <Card title="Deploy Applications" icon="rocket" href="/using-qovery/configuration/application">
