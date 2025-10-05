@@ -5,7 +5,27 @@ description: "Manage your Qovery infrastructure as code with Terraform"
 
 ## Overview
 
-The Qovery Terraform Provider allows you to manage your Qovery infrastructure using Infrastructure as Code (IaC). With this provider, you can define, provision, and manage your applications, databases, and environments declaratively.
+The Qovery Terraform Provider allows you to manage your Qovery infrastructure using Infrastructure as Code (IaC). Define, provision, and manage your applications, databases, environments, and entire stacks declaratively with Terraform.
+
+## Why Use Terraform with Qovery?
+
+<CardGroup cols={2}>
+  <Card title="Infrastructure as Code" icon="file-code">
+    Version control your infrastructure alongside your application code
+  </Card>
+
+  <Card title="Reproducible Deployments" icon="copy">
+    Deploy identical environments across dev, staging, and production
+  </Card>
+
+  <Card title="Team Collaboration" icon="users">
+    Review infrastructure changes through pull requests
+  </Card>
+
+  <Card title="Automation" icon="robot">
+    Integrate with CI/CD pipelines for automated deployments
+  </Card>
+</CardGroup>
 
 ## Installation
 
@@ -48,24 +68,376 @@ provider "qovery" {
 Never commit API tokens to version control. Use environment variables or a secure secrets management solution.
 </Warning>
 
+## Quick Start
+
+<Steps>
+  <Step title="Install Terraform">
+    Download Terraform from [terraform.io](https://www.terraform.io/downloads)
+    ```bash
+    # Verify installation
+    terraform version
+    ```
+  </Step>
+
+  <Step title="Generate API Token">
+    1. Go to [Qovery Console](https://console.qovery.com)
+    2. Navigate to Organization Settings → API Tokens
+    3. Click "Generate Token" and copy it
+  </Step>
+
+  <Step title="Create Terraform Configuration">
+    Create a `main.tf` file:
+    ```hcl
+    terraform {
+      required_providers {
+        qovery = {
+          source = "qovery/qovery"
+          version = "~> 0.45.0"
+        }
+      }
+    }
+
+    provider "qovery" {
+      token = var.qovery_api_token
+    }
+
+    # Get organization and project IDs
+    data "qovery_organization" "my_org" {
+      name = "My Organization"
+    }
+
+    data "qovery_project" "my_project" {
+      organization_id = data.qovery_organization.my_org.id
+      name = "My Project"
+    }
+    ```
+  </Step>
+
+  <Step title="Initialize and Apply">
+    ```bash
+    # Initialize Terraform
+    terraform init
+
+    # Set your API token
+    export TF_VAR_qovery_api_token="your-api-token"
+
+    # Plan changes
+    terraform plan
+
+    # Apply changes
+    terraform apply
+    ```
+  </Step>
+</Steps>
+
+## Getting Your IDs
+
+You'll need various IDs from Qovery for your Terraform configuration:
+
+<Tabs>
+  <Tab title="Via Console">
+    **Organization ID**:
+    - Go to Organization Settings
+    - Copy Organization ID from the URL or settings page
+
+    **Project ID**:
+    - Navigate to your project
+    - Copy Project ID from project settings
+
+    **Cluster ID**:
+    - Go to Settings → Clusters
+    - Copy Cluster ID from cluster details
+  </Tab>
+
+  <Tab title="Via Terraform Data Sources">
+    Use data sources to look up resources by name:
+    ```hcl
+    # Find organization by name
+    data "qovery_organization" "my_org" {
+      name = "My Organization"
+    }
+
+    # Find project by name
+    data "qovery_project" "my_project" {
+      organization_id = data.qovery_organization.my_org.id
+      name = "My Project"
+    }
+
+    # Find cluster by name
+    data "qovery_cluster" "my_cluster" {
+      organization_id = data.qovery_organization.my_org.id
+      name = "production"
+    }
+
+    # Use in resources
+    resource "qovery_environment" "prod" {
+      project_id = data.qovery_project.my_project.id
+      cluster_id = data.qovery_cluster.my_cluster.id
+      name = "production"
+      mode = "PRODUCTION"
+    }
+    ```
+  </Tab>
+
+  <Tab title="Via CLI">
+    ```bash
+    # Install Qovery CLI
+    curl -s https://get.qovery.com | bash
+
+    # Login
+    qovery auth
+
+    # List organizations
+    qovery organization list
+
+    # List projects
+    qovery project list
+
+    # List clusters
+    qovery cluster list
+    ```
+  </Tab>
+</Tabs>
+
 ## Key Resources
 
 The Qovery Terraform provider supports managing:
 
-- **Projects** - Organize your applications and environments
-- **Environments** - Development, staging, production environments
-- **Applications** - Deploy and manage containerized applications
-- **Databases** - Provision and configure managed databases
-- **Clusters** - Kubernetes cluster configuration
-- **Environment Variables** - Manage secrets and configuration
+<AccordionGroup>
+  <Accordion title="Organization & Structure" icon="building">
+    - `qovery_organization` - Organization settings (read-only)
+    - `qovery_project` - Projects to organize applications
+    - `qovery_environment` - Development, staging, production environments
+    - `qovery_labels_group` - Organize resources with labels
+  </Accordion>
+
+  <Accordion title="Applications & Services" icon="rocket">
+    - `qovery_application` - Containerized applications
+    - `qovery_container` - Custom container deployments
+    - `qovery_job` - Cron jobs and lifecycle jobs
+    - `qovery_helm` - Helm chart deployments
+  </Accordion>
+
+  <Accordion title="Databases" icon="database">
+    - `qovery_database` - Managed databases (PostgreSQL, MySQL, MongoDB, Redis)
+    - Container mode or cloud-managed mode
+    - Automatic connection string injection
+  </Accordion>
+
+  <Accordion title="Configuration" icon="sliders">
+    - `qovery_environment_variable` - Environment-level variables
+    - `qovery_environment_variable_alias` - Variable aliases
+    - `qovery_environment_variable_override` - Override variables
+    - `qovery_deployment_stage` - Control deployment order
+  </Accordion>
+
+  <Accordion title="Infrastructure" icon="server">
+    - `qovery_cluster` - Kubernetes cluster configuration
+    - `qovery_aws_credentials` - AWS cloud credentials
+    - `qovery_scaleway_credentials` - Scaleway cloud credentials
+    - `qovery_gcp_credentials` - GCP cloud credentials
+  </Accordion>
+
+  <Accordion title="Integrations" icon="plug">
+    - `qovery_container_registry` - Connect container registries
+    - `qovery_git_token` - Git provider authentication
+    - `qovery_helm_repository` - Add Helm chart repositories
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Variables" icon="code">
+    ```hcl
+    variable "qovery_api_token" {
+      type = string
+      sensitive = true
+    }
+
+    variable "environment" {
+      type = string
+      default = "production"
+    }
+    ```
+    Keep tokens in environment variables, not in code
+  </Card>
+
+  <Card title="Use Data Sources" icon="database">
+    ```hcl
+    data "qovery_project" "my_project" {
+      organization_id = var.org_id
+      name = "My Project"
+    }
+    ```
+    Look up existing resources instead of hardcoding IDs
+  </Card>
+
+  <Card title="Organize with Modules" icon="folder-tree">
+    ```
+    modules/
+      ├── application/
+      ├── database/
+      └── environment/
+    ```
+    Create reusable modules for common patterns
+  </Card>
+
+  <Card title="Use Remote State" icon="cloud">
+    ```hcl
+    terraform {
+      backend "s3" {
+        bucket = "my-terraform-state"
+        key = "qovery/terraform.tfstate"
+      }
+    }
+    ```
+    Store state remotely for team collaboration
+  </Card>
+</CardGroup>
+
+## Common Patterns
+
+### Multi-Environment Setup
+
+```hcl
+# Create environments for different stages
+locals {
+  environments = {
+    dev = {
+      mode = "DEVELOPMENT"
+      replicas = 1
+    }
+    staging = {
+      mode = "STAGING"
+      replicas = 2
+    }
+    production = {
+      mode = "PRODUCTION"
+      replicas = 3
+    }
+  }
+}
+
+resource "qovery_environment" "envs" {
+  for_each = local.environments
+
+  project_id = data.qovery_project.my_project.id
+  cluster_id = data.qovery_cluster.my_cluster.id
+  name = each.key
+  mode = each.value.mode
+}
+```
+
+### Application with Database
+
+```hcl
+# Create database
+resource "qovery_database" "postgres" {
+  environment_id = qovery_environment.prod.id
+  name = "my-database"
+  type = "POSTGRESQL"
+  version = "15"
+  mode = "MANAGED"
+  storage = 20
+  accessibility = "PRIVATE"
+}
+
+# Create application
+resource "qovery_application" "api" {
+  environment_id = qovery_environment.prod.id
+  name = "api"
+
+  git_repository = {
+    url = "https://github.com/my-org/my-api"
+    branch = "main"
+  }
+
+  build_mode = "DOCKER"
+  dockerfile_path = "Dockerfile"
+
+  ports = [{
+    internal_port = 3000
+    external_port = 443
+    protocol = "HTTP"
+    publicly_accessible = true
+  }]
+
+  # Database connection automatically injected
+  depends_on = [qovery_database.postgres]
+}
+```
+
+### Deployment Pipeline
+
+```hcl
+# Control deployment order with stages
+resource "qovery_deployment_stage" "database" {
+  environment_id = qovery_environment.prod.id
+  name = "Database"
+  description = "Deploy databases first"
+  is_before = true
+}
+
+resource "qovery_deployment_stage" "backend" {
+  environment_id = qovery_environment.prod.id
+  name = "Backend"
+  description = "Deploy backend services"
+  is_after = qovery_deployment_stage.database.id
+}
+
+resource "qovery_deployment_stage" "frontend" {
+  environment_id = qovery_environment.prod.id
+  name = "Frontend"
+  description = "Deploy frontend last"
+  is_after = qovery_deployment_stage.backend.id
+}
+```
+
+## Importing Existing Resources
+
+Import existing Qovery resources into Terraform:
+
+```bash
+# Import an application
+terraform import qovery_application.my_app <application-id>
+
+# Import an environment
+terraform import qovery_environment.prod <environment-id>
+
+# Import a database
+terraform import qovery_database.postgres <database-id>
+```
+
+Then generate configuration:
+```bash
+# Generate configuration from imported resources
+terraform show -json | jq '.values.root_module.resources'
+```
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Examples" icon="code" href="/terraform/examples">
-    See practical examples of using the Terraform provider
+  <Card title="Complete Examples" icon="code" href="/terraform/examples">
+    See practical examples including deploying Airbyte
   </Card>
+
   <Card title="Terraform Registry" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
-    Full provider documentation
+    Full provider documentation and resource reference
+  </Card>
+
+  <Card title="Deploy Applications" icon="rocket" href="/using-qovery/configuration/application">
+    Learn about application configuration
+  </Card>
+
+  <Card title="GitHub Examples" icon="github" href="https://github.com/Qovery/terraform-examples">
+    Browse example repositories
   </Card>
 </CardGroup>
+
+## Resources
+
+- [Qovery Terraform Provider on GitHub](https://github.com/Qovery/terraform-provider-qovery)
+- [Terraform Registry Documentation](https://registry.terraform.io/providers/Qovery/qovery/latest/docs)
+- [Qovery API Documentation](/api-reference/introduction)
+- [Qovery CLI Documentation](/cli/overview)
