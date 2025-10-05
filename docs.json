@@ -376,8 +376,5 @@
     "github": "https://github.com/Qovery",
     "twitter": "https://twitter.com/Qovery_",
     "linkedin": "https://www.linkedin.com/company/qovery"
-  },
-  "css": [
-    "/styles.css"
-  ]
+  }
 }
