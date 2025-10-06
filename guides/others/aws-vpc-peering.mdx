@@ -1,11 +1,15 @@
 ---
-title: "AWS VPC Peering with Qovery"
-description: "How to peer a Qovery VPC with an existing VPC on AWS"
+title: "AWS VPC Peering for Qovery Managed EKS"
+description: "How to peer a Qovery-managed EKS VPC with an existing VPC on AWS"
 ---
 
 ## Overview
 
-While Qovery is all you need to deploy and run your applications on AWS, you might have existing resources in another VPC that you want to access from your Qovery applications. This guide will show you how to set up VPC peering between the Qovery VPC and an existing one in your AWS account.
+This guide shows you how to set up VPC peering between a Qovery-managed EKS cluster VPC and an existing VPC in your AWS account. This enables your applications running on Qovery to access resources in your existing VPC.
+
+<Warning>
+This guide is specifically for **Qovery-managed EKS clusters**. VPC peering configuration differs for other Kubernetes distributions and is not covered in this guide.
+</Warning>
 
 <Info>
 **What is VPC Peering?** VPC peering enables private network connectivity between two VPCs, allowing resources in different VPCs to communicate as if they were within the same network.
@@ -14,7 +18,7 @@ While Qovery is all you need to deploy and run your applications on AWS, you mig
 ## Prerequisites
 
 - You have an existing AWS VPC with resources you need to access
-- You have a Qovery cluster deployed on your AWS account
+- You have a **Qovery-managed EKS cluster** deployed on your AWS account
 - The CIDR blocks of your two VPCs **do not overlap**
 
 <Warning>
@@ -23,7 +27,11 @@ AWS does not allow peering connections between VPCs with overlapping CIDR blocks
 
 ## Goal
 
-Connect an existing VPC on AWS with the VPC of a Qovery managed cluster, enabling deployment of applications that use resources in the existing VPC (such as a PostgreSQL RDS instance, S3 buckets, or other AWS services).
+Connect an existing VPC on AWS with the VPC of a Qovery-managed EKS cluster, enabling deployment of applications that use resources in the existing VPC (such as a PostgreSQL RDS instance, S3 buckets, or other AWS services).
+
+<Note>
+For other Kubernetes distributions (GKE, AKS, self-managed clusters), the VPC peering process and network configuration will differ. Consult your cloud provider's documentation for those scenarios.
+</Note>
 
 ## Step 1: Gather Necessary Information
 
@@ -44,9 +52,9 @@ Before setting up VPC peering, collect the following information about both VPCs
   </Step>
 
   <Step title="Identify Your VPCs">
-    Locate both your existing VPC and the Qovery-managed VPC:
+    Locate both your existing VPC and the Qovery-managed EKS VPC:
     - **Existing VPC**: Your pre-existing VPC containing resources
-    - **Qovery VPC**: Look for VPC with Qovery cluster name in tags
+    - **Qovery EKS VPC**: Look for VPC with your Qovery EKS cluster name in tags
   </Step>
 
   <Step title="Copy VPC IDs and CIDR Blocks">
@@ -55,8 +63,18 @@ Before setting up VPC peering, collect the following information about both VPCs
 
   <Step title="Verify CIDR Ranges">
     Ensure the CIDR blocks do not overlap. If they do, you cannot create a peering connection.
+
+    ![VPC Console - Find CIDR](/images/aws-vpc-peering-with-qovery/vpc-console-1.png)
+
+    ![Find VPC CIDR Blocks](/images/aws-vpc-peering-with-qovery/find-cidr.png)
   </Step>
 </Steps>
+
+<Info>
+If you need to customize your Qovery cluster's CIDR block, you can do this during cluster creation in the Qovery Console.
+
+![Custom CIDR Configuration](/images/aws-vpc-peering-with-qovery/custom-cidr.png)
+</Info>
 
 ## Step 2: Create Peering Connection
 
@@ -77,6 +95,8 @@ Before setting up VPC peering, collect the following information about both VPCs
 
   <Step title="Create the Connection">
     Click **Create peering connection**
+
+    ![Create Peering Connection Form](/images/aws-vpc-peering-with-qovery/peering-form.png)
   </Step>
 </Steps>
 
@@ -95,12 +115,16 @@ If your VPCs are in different AWS accounts or regions, you'll need to provide ad
     - Select the peering connection
     - Click **Actions** → **Accept request**
     - Confirm by clicking **Accept request**
+
+    ![Accept Peering Request](/images/aws-vpc-peering-with-qovery/accept-peering-request.png)
   </Step>
 
   <Step title="Verify Status">
     The peering connection status should change to **Active**
 
     Note down the **Peering connection ID** (e.g., `pcx-0abc123def456789`) - you'll need it for the next steps
+
+    ![Peering Connection Active](/images/aws-vpc-peering-with-qovery/peering-active.png)
   </Step>
 </Steps>
 
@@ -134,6 +158,10 @@ Now you need to add a route in your existing VPC's route table to direct traffic
     - **Target**: Select **Peering Connection**, then select your peering connection
 
     Click **Save changes**
+
+    ![Existing VPC Route Table](/images/aws-vpc-peering-with-qovery/existing-rt.png)
+
+    ![Add Route to Existing VPC](/images/aws-vpc-peering-with-qovery/existing-rt-add.png)
   </Step>
 </Steps>
 
@@ -165,6 +193,10 @@ You also need to add a route in the Qovery VPC to direct traffic destined for yo
     - **Description**: Add a description like "Peering to existing VPC"
 
     Click **Save** to apply the changes
+
+    ![Qovery Route Table Configuration](/images/aws-vpc-peering-with-qovery/qovery-rt.png)
+
+    ![Qovery Route Added](/images/aws-vpc-peering-with-qovery/qovery-rt-added.png)
   </Step>
 </Steps>
 
@@ -203,6 +235,8 @@ Security groups act as virtual firewalls for your resources. You need to update 
     - **Description**: "Access from Qovery VPC"
 
     Click **Save rules**
+
+    ![PostgreSQL Inbound Rule](/images/aws-vpc-peering-with-qovery/pg-inbound-rule.png)
   </Step>
 </Steps>
 

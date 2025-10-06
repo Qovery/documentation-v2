@@ -1,0 +1,417 @@
+---
+title: "Git Repository Access"
+description: "Manage Git tokens for GitHub, GitLab, and Bitbucket"
+---
+
+## Overview
+
+Git repository access allows Qovery to connect to your source code repositories on GitHub, GitLab, or Bitbucket. By configuring Git tokens, you enable Qovery to:
+
+- Clone your application source code
+- Monitor repository changes for auto-deployment
+- Access Dockerfiles and build contexts
+- Read configuration files
+
+Qovery supports multiple Git providers and allows you to manage multiple tokens per provider for different organizations or access levels.
+
+## Supported Git Providers
+
+Qovery integrates with the following Git providers:
+
+- **GitHub** (GitHub.com and GitHub Enterprise)
+- **GitLab** (GitLab.com and self-hosted GitLab)
+- **Bitbucket** (Bitbucket Cloud and Bitbucket Server)
+
+## Accessing Git Repository Settings
+
+<Steps>
+  <Step title="Open Organization Settings">
+    Click the "Wheel" button (⚙️) on the left navigation bar
+
+    ![How to access your organization settings](/images/configuration/organization/access_settings.png)
+  </Step>
+
+  <Step title="Navigate to Git Repository Access Section">
+    Open the `Git Repository Access` section within the organization settings
+  </Step>
+</Steps>
+
+## Add a Git Token
+
+<Steps>
+  <Step title="Click Add Token Button">
+    Press the `Add Token` button to create a new Git access token connection
+  </Step>
+
+  <Step title="Select Git Provider">
+    Choose your Git provider:
+    - GitHub
+    - GitLab
+    - Bitbucket
+  </Step>
+
+  <Step title="Configure Token">
+    Provide the following information:
+    - **Name**: Descriptive name for this token (e.g., "GitHub Main Org", "GitLab Production")
+    - **Token**: Your Git provider access token
+    - **URL** (for self-hosted only): Your Git server URL
+  </Step>
+
+  <Step title="Test Connection">
+    Qovery will automatically validate the token and verify access
+  </Step>
+
+  <Step title="Save Token">
+    Click **Save** to add the token to your organization
+  </Step>
+</Steps>
+
+<Info>
+Once added, the Git token will be available for all projects and applications in your organization.
+</Info>
+
+## Creating Git Provider Tokens
+
+### GitHub Personal Access Token
+
+<Steps>
+  <Step title="Navigate to GitHub Settings">
+    Go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)
+
+    Or use this direct link: [GitHub Token Settings](https://github.com/settings/tokens)
+  </Step>
+
+  <Step title="Generate New Token">
+    Click **Generate new token (classic)**
+  </Step>
+
+  <Step title="Configure Token">
+    - **Note**: Give your token a descriptive name (e.g., "Qovery Access")
+    - **Expiration**: Choose an appropriate expiration period (90 days, 1 year, or no expiration)
+    - **Select scopes**: Check the following permissions:
+      - `repo` (Full control of private repositories)
+      - `read:org` (Read org and team membership, read org projects) - if using GitHub organizations
+      - `workflow` (Update GitHub Action workflows) - if using GitHub Actions
+  </Step>
+
+  <Step title="Generate and Copy Token">
+    Click **Generate token** and copy the token immediately
+  </Step>
+</Steps>
+
+<Warning>
+GitHub will only show your personal access token once. Make sure to copy it immediately after generation.
+</Warning>
+
+### GitHub Fine-Grained Token (Alternative)
+
+For enhanced security, you can use GitHub's fine-grained tokens:
+
+1. Go to Settings > Developer settings > Personal access tokens > Fine-grained tokens
+2. Click **Generate new token**
+3. Configure:
+   - **Token name**: Descriptive name
+   - **Expiration**: Choose expiration period
+   - **Repository access**: Select repositories Qovery needs access to
+   - **Permissions**:
+     - Contents: Read
+     - Metadata: Read
+     - Workflows: Read and write (if using GitHub Actions)
+
+### GitLab Personal Access Token
+
+<Steps>
+  <Step title="Navigate to GitLab Settings">
+    Go to GitLab User Settings > Access Tokens
+
+    Or use this link: [GitLab Token Settings](https://gitlab.com/-/profile/personal_access_tokens)
+  </Step>
+
+  <Step title="Create New Token">
+    Click **Add new token**
+  </Step>
+
+  <Step title="Configure Token">
+    - **Token name**: Give your token a descriptive name (e.g., "Qovery Access")
+    - **Expiration date**: Set an expiration date
+    - **Select scopes**: Check the following permissions:
+      - `read_repository` (Read access to repositories)
+      - `read_api` (Read API)
+      - `read_registry` (Read container registry) - if using GitLab Container Registry
+  </Step>
+
+  <Step title="Create and Copy Token">
+    Click **Create personal access token** and copy the token immediately
+  </Step>
+</Steps>
+
+### Bitbucket App Password
+
+<Steps>
+  <Step title="Navigate to Bitbucket Settings">
+    Go to Bitbucket Personal settings > App passwords
+
+    Or use this link: [Bitbucket App Passwords](https://bitbucket.org/account/settings/app-passwords/)
+  </Step>
+
+  <Step title="Create App Password">
+    Click **Create app password**
+  </Step>
+
+  <Step title="Configure Password">
+    - **Label**: Give your app password a descriptive name (e.g., "Qovery Access")
+    - **Permissions**: Select the following:
+      - Repositories: Read
+      - Pull requests: Read
+      - Webhooks: Read and write (for auto-deployment)
+  </Step>
+
+  <Step title="Create and Copy Password">
+    Click **Create** and copy the generated password immediately
+  </Step>
+</Steps>
+
+## Edit a Git Token
+
+<Steps>
+  <Step title="Locate Token">
+    Find the Git token you want to modify in the list
+  </Step>
+
+  <Step title="Click Edit Button">
+    Click the **Edit** button next to the token
+  </Step>
+
+  <Step title="Update Token">
+    Modify the token details:
+    - Name
+    - Token value
+    - URL (for self-hosted)
+  </Step>
+
+  <Step title="Save Changes">
+    Click **Save** to apply your changes
+  </Step>
+</Steps>
+
+<Info>
+Updating a Git token will affect all applications using repositories from this Git provider connection. Ensure the new token has the same or greater permissions.
+</Info>
+
+## Delete a Git Token
+
+To remove a Git token:
+
+1. Locate the token in the Git Repository Access list
+2. Click the **Delete** button (trash icon) next to the token
+3. Confirm the deletion
+
+<Warning>
+If any applications are currently using repositories accessed through this token, they may fail to build or deploy. Ensure you have alternative access configured before deletion.
+</Warning>
+
+## Git Provider Specific Configurations
+
+### GitHub Enterprise
+
+For GitHub Enterprise installations:
+
+1. Select GitHub as the provider
+2. Enable "Custom URL" option
+3. Enter your GitHub Enterprise URL (e.g., `https://github.company.com`)
+4. Provide a token from your GitHub Enterprise instance
+
+### Self-Hosted GitLab
+
+For self-hosted GitLab installations:
+
+1. Select GitLab as the provider
+2. Enable "Custom URL" option
+3. Enter your GitLab server URL (e.g., `https://gitlab.company.com`)
+4. Provide a token from your GitLab instance
+5. Ensure Qovery can reach your GitLab server (network accessibility)
+
+### Bitbucket Server
+
+For Bitbucket Server (Data Center):
+
+1. Select Bitbucket as the provider
+2. Enable "Custom URL" option
+3. Enter your Bitbucket Server URL (e.g., `https://bitbucket.company.com`)
+4. Provide an app password or personal access token
+5. Ensure Qovery can reach your Bitbucket server
+
+## Using Git Tokens
+
+Once configured, Git tokens are automatically used when:
+
+- Creating new applications from Git repositories
+- Cloning repository code during builds
+- Monitoring repository changes for auto-deployment
+- Accessing Dockerfile and build context
+
+### Selecting Repository During App Creation
+
+When creating an application:
+
+1. Choose "Git Repository" as the source
+2. Select the Git provider from available tokens
+3. Choose the repository from the dropdown
+4. Select the branch to deploy
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Fine-Grained or Scoped Tokens">
+    Instead of granting full access, use tokens with minimal required permissions:
+    - GitHub: Use fine-grained tokens for specific repositories
+    - GitLab: Use scoped tokens with only `read_repository` and `read_api`
+    - Bitbucket: Grant only repository read permissions
+  </Accordion>
+
+  <Accordion title="Set Token Expiration">
+    Always set an expiration date for tokens:
+    - Recommended: 90 days to 1 year
+    - Set calendar reminders before expiration
+    - Plan for token rotation process
+  </Accordion>
+
+  <Accordion title="Use Dedicated Service Accounts">
+    Create dedicated Git accounts for Qovery integration:
+    - Easier to manage and audit
+    - Not tied to individual developer accounts
+    - Reduces impact when team members leave
+    - Better security and access control
+  </Accordion>
+
+  <Accordion title="Multiple Tokens for Different Purposes">
+    Consider using separate tokens for:
+    - Different Git organizations
+    - Production vs development repositories
+    - Different teams or projects
+    - Public vs private repositories
+  </Accordion>
+
+  <Accordion title="Regular Token Rotation">
+    Rotate Git tokens periodically for security:
+    1. Create a new token with same permissions
+    2. Update the token in Qovery
+    3. Test with a deployment
+    4. Revoke the old token in Git provider
+  </Accordion>
+
+  <Accordion title="Monitor Token Usage">
+    Regularly review token usage:
+    - Check which repositories are accessed
+    - Review audit logs in Git provider
+    - Remove unused tokens
+    - Monitor for suspicious activity
+  </Accordion>
+
+  <Accordion title="Use Descriptive Names">
+    Name tokens clearly to indicate their purpose:
+    - `github-main-org-production`
+    - `gitlab-team-alpha`
+    - `bitbucket-microservices`
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Token Validation Failed">
+    **Problem**: Token validation fails when adding or editing
+
+    **Solutions**:
+    - Verify the token is copied correctly (no extra spaces)
+    - Check token hasn't expired
+    - Ensure token has required permissions:
+      - GitHub: `repo` scope
+      - GitLab: `read_repository` and `read_api` scopes
+      - Bitbucket: Repository read permissions
+    - For self-hosted: Verify the URL is correct and accessible
+  </Accordion>
+
+  <Accordion title="Cannot Access Repository">
+    **Problem**: Qovery cannot access specific repositories
+
+    **Solutions**:
+    - For GitHub fine-grained tokens: Ensure repository is included in token access
+    - For organization repositories: Ensure token has `read:org` permission
+    - Verify repository isn't archived or deleted
+    - Check repository visibility (private repositories need appropriate access)
+  </Accordion>
+
+  <Accordion title="Build Fails to Clone Repository">
+    **Problem**: Application builds fail during git clone step
+
+    **Solutions**:
+    - Verify Git token is still valid
+    - Check token permissions haven't been revoked
+    - Ensure repository still exists and hasn't been renamed
+    - For self-hosted Git: Verify network connectivity
+  </Accordion>
+
+  <Accordion title="Auto-Deploy Not Working">
+    **Problem**: Changes to repository don't trigger deployments
+
+    **Solutions**:
+    - Verify webhook permissions are included in token
+    - GitHub: Add `workflow` scope if using GitHub Actions
+    - Bitbucket: Ensure webhook permissions are granted
+    - Check webhook configuration in repository settings
+  </Accordion>
+
+  <Accordion title="Self-Hosted Git Server Not Accessible">
+    **Problem**: Cannot connect to self-hosted GitHub/GitLab/Bitbucket
+
+    **Solutions**:
+    - Verify the URL format is correct (include https://)
+    - Check firewall rules allow Qovery IP addresses
+    - Ensure DNS resolution works for your Git server
+    - Verify SSL certificates are valid
+    - For private networks: Configure VPC peering or VPN
+  </Accordion>
+</AccordionGroup>
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Token Storage">
+    - Qovery encrypts Git tokens at rest
+    - Tokens are never logged or exposed in build logs
+    - Access to tokens is restricted to authorized Qovery services
+  </Accordion>
+
+  <Accordion title="Webhook Security">
+    - Qovery validates webhook signatures from Git providers
+    - Webhook endpoints use authentication tokens
+    - All webhook traffic is over HTTPS
+  </Accordion>
+
+  <Accordion title="Audit and Compliance">
+    - Review token access regularly in Git provider audit logs
+    - Monitor for unauthorized access attempts
+    - Use Git provider's security features (2FA, IP allowlists)
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Applications" href="/configuration/applications">
+    Deploy applications from Git repositories
+  </Card>
+
+  <Card title="Container Registry" href="/configuration/organization/container-registry">
+    Manage container registries
+  </Card>
+
+  <Card title="CI/CD Integration" href="/integrations/cicd">
+    Integrate with your CI/CD pipeline
+  </Card>
+
+  <Card title="Auto-Deploy" href="/features/auto-deploy">
+    Configure automatic deployments
+  </Card>
+</CardGroup>

@@ -1,65 +1,1046 @@
 ---
 title: "Environment Variables"
-description: "Manage environment variables and secrets"
+description: "Manage environment variables and secrets for your applications and services"
 ---
 
-## Types
+Environment variables are key-value pairs that configure your applications at runtime without hardcoding values. Qovery provides a comprehensive environment variable management system with support for secrets, scopes, interpolation, and file-based variables.
 
-### Environment Variables
+## Overview
 
-Non-sensitive configuration:
+Environment variables in Qovery allow you to:
+- Configure applications without modifying code
+- Store sensitive data securely as secrets
+- Share configuration across multiple services
+- Reference other variables and service endpoints
+- Store configuration files directly
+- Create aliases for built-in variables
 
+**Common Use Cases**:
+- API keys and authentication tokens
+- Database connection strings
+- Third-party service URLs
+- Feature flags and application settings
+- Configuration files (as file variables)
+- Service-to-service communication
+
+## Variable Types
+
+Qovery supports two types of environment variables:
+
+<Tabs>
+  <Tab title="Key/Value Variables">
+    ### Standard Environment Variables
+
+    Classic key-value pairs that are available as environment variables in your application:
+
+    **Example**:
+    ```bash
+    NODE_ENV=production
+    API_URL=https://api.example.com
+    MAX_CONNECTIONS=100
+    FEATURE_FLAG_NEW_UI=true
+    ```
+
+    **In Application Code**:
+    <CodeGroup>
+    ```javascript Node.js
+    const nodeEnv = process.env.NODE_ENV;
+    const apiUrl = process.env.API_URL;
+    const maxConnections = parseInt(process.env.MAX_CONNECTIONS);
+    ```
+
+    ```python Python
+    import os
+
+    node_env = os.environ.get('NODE_ENV')
+    api_url = os.environ.get('API_URL')
+    max_connections = int(os.environ.get('MAX_CONNECTIONS', '10'))
+    ```
+
+    ```go Go
+    import "os"
+
+    nodeEnv := os.Getenv("NODE_ENV")
+    apiUrl := os.Getenv("API_URL")
+    maxConnections := os.Getenv("MAX_CONNECTIONS")
+    ```
+    </CodeGroup>
+
+    <Frame>
+      <img src="/images/configuration/environment-variable/env_key_value.png" alt="Key/Value Environment Variable" />
+    </Frame>
+  </Tab>
+
+  <Tab title="Variable as File">
+    ### Environment Variable as File
+
+    Store configuration files that are written to the filesystem at a specific path. Perfect for configuration files required by applications or frameworks.
+
+    **Configuration**:
+    - **Key**: Variable name (e.g., `GRAFANA_CONFIG`)
+    - **Value**: File content
+    - **Path**: Absolute path where file will be created (e.g., `/etc/grafana/config.ini`)
+
+    **Use Cases**:
+    - Application configuration files
+    - SSL certificates and keys
+    - Service account credentials
+    - Complex configuration that can't be passed as strings
+
+    **Example - Grafana Configuration**:
+    ```ini
+    # File will be created at /etc/grafana/grafana.ini
+    [server]
+    protocol = http
+    http_port = 3000
+    domain = localhost
+
+    [database]
+    type = postgres
+    host = ${QOVERY_DATABASE_MY_DB_HOST}:${QOVERY_DATABASE_MY_DB_PORT}
+    name = grafana
+    ```
+
+    **Example - JSON Configuration**:
+    ```json
+    {
+      "version": "1.0",
+      "features": {
+        "newUI": true,
+        "betaFeatures": false
+      },
+      "endpoints": {
+        "api": "https://api.example.com",
+        "websocket": "wss://ws.example.com"
+      }
+    }
+    ```
+
+    <Frame>
+      <img src="/images/configuration/environment-variable/env_file.png" alt="Variable as File" />
+    </Frame>
+
+    <Info>
+    Variable as File creates actual files on the container filesystem, making them accessible to applications that require file-based configuration.
+    </Info>
+  </Tab>
+</Tabs>
+
+## Secrets vs Variables
+
+<CardGroup cols={2}>
+  <Card title="Variables" icon="text">
+    **Non-sensitive Configuration**
+    - Visible in console and logs
+    - Plain text storage
+    - Can be viewed by team members
+    - Examples: URLs, feature flags, ports
+  </Card>
+
+  <Card title="Secrets" icon="lock">
+    **Sensitive Data**
+    - Encrypted at rest
+    - Hidden in console (shows as `***`)
+    - Encrypted in transit
+    - Examples: Passwords, API keys, tokens
+  </Card>
+</CardGroup>
+
+**When to Use Secrets**:
+- Database passwords
+- API keys and tokens
+- OAuth credentials
+- Private keys and certificates
+- Any sensitive authentication data
+
+**Example Configuration**:
 ```bash
-NODE_ENV=production
+# Variables (non-sensitive)
 API_URL=https://api.example.com
-```
+LOG_LEVEL=info
+MAX_RETRIES=3
 
-### Secrets
-
-Sensitive data (encrypted at rest):
-
-```bash
+# Secrets (sensitive)
 DATABASE_PASSWORD=<encrypted>
 API_KEY=<encrypted>
+JWT_SECRET=<encrypted>
 ```
 
-## Scopes
+<Warning>
+Always mark sensitive data as secrets. Once created, secret values cannot be viewed in the console for security reasons. You can only update or delete them.
+</Warning>
 
-- **Built-in**: System variables (automatically injected)
-- **Environment**: Available to all services in environment
-- **Service**: Specific to one application/container
+## Variable Scopes
 
-## Configuration
+Environment variables can be defined at three different scopes, allowing you to share configuration or keep it isolated:
 
-### Via Console
+<AccordionGroup>
+  <Accordion title="Project Scope">
+    **Available to**: All environments and services within the project
 
-1. Navigate to service → Environment Variables
-2. Add key-value pairs
-3. Mark as secret if sensitive
+    **Use Cases**:
+    - Organization-wide settings
+    - Shared API keys for external services
+    - Common configuration across all environments
+    - Company branding and constants
 
-### Via Terraform
+    **Example**:
+    ```bash
+    COMPANY_NAME=Acme Corp
+    SUPPORT_EMAIL=support@acme.com
+    EXTERNAL_API_KEY=<secret>
+    CDN_URL=https://cdn.acme.com
+    ```
 
-```hcl
-environment_variables = [
-  {
-    key   = "NODE_ENV"
-    value = "production"
-  }
-]
+    **Best Practice**: Use for configuration that never changes between environments (production, staging, preview).
+  </Accordion>
 
-secrets = [
-  {
-    key   = "API_KEY"
-    value = var.api_key
-  }
-]
+  <Accordion title="Environment Scope">
+    **Available to**: All services within a specific environment
+
+    **Use Cases**:
+    - Environment-specific configuration
+    - Shared database credentials
+    - Environment-specific API endpoints
+    - Feature flags per environment
+
+    **Example**:
+    ```bash
+    # Production environment
+    ENVIRONMENT=production
+    API_URL=https://api.production.com
+    ENABLE_DEBUG=false
+
+    # Staging environment
+    ENVIRONMENT=staging
+    API_URL=https://api.staging.com
+    ENABLE_DEBUG=true
+    ```
+
+    **Best Practice**: Most common scope. Use for configuration that differs between environments but is shared across services.
+  </Accordion>
+
+  <Accordion title="Service Scope">
+    **Available to**: One specific service (application, job, database, etc.)
+
+    **Use Cases**:
+    - Service-specific configuration
+    - Application-unique settings
+    - Service-specific credentials
+    - Custom runtime configuration
+
+    **Example**:
+    ```bash
+    # API Service
+    PORT=8080
+    WORKERS=4
+    RATE_LIMIT=1000
+
+    # Web Service
+    PORT=3000
+    SSR_ENABLED=true
+    CACHE_SIZE=100MB
+    ```
+
+    **Best Practice**: Use for configuration specific to one service that shouldn't be shared.
+  </Accordion>
+</AccordionGroup>
+
+### Scope Hierarchy and Overrides
+
+Variables defined at narrower scopes override those at broader scopes:
+
 ```
+Service Scope (highest priority)
+    ↓ overrides
+Environment Scope
+    ↓ overrides
+Project Scope (lowest priority)
+```
+
+**Example**:
+```bash
+# Project Scope
+LOG_LEVEL=warn
+
+# Environment Scope (overrides project)
+LOG_LEVEL=info
+
+# Service Scope (overrides environment)
+LOG_LEVEL=debug
+
+# Result: Service sees LOG_LEVEL=debug
+```
+
+<Tip>
+Use scope hierarchy strategically: Define defaults at Project level, customize at Environment level, and override for specific services when needed.
+</Tip>
+
+## Built-in Variables
+
+Qovery automatically injects built-in variables for service interconnection and system information:
+
+### System Variables
+
+```bash
+# Project and Environment IDs
+QOVERY_PROJECT_ID=<uuid>
+QOVERY_ENVIRONMENT_ID=<uuid>
+QOVERY_ORGANIZATION_ID=<uuid>
+
+# Service Information
+QOVERY_APPLICATION_ID=<uuid>
+QOVERY_APPLICATION_NAME=my-api
+QOVERY_ENVIRONMENT_NAME=production
+
+# Infrastructure Details
+QOVERY_CLOUD_PROVIDER=AWS
+QOVERY_CLOUD_PROVIDER_REGION=us-east-1
+QOVERY_KUBERNETES_CLUSTER_ID=<uuid>
+QOVERY_KUBERNETES_NAMESPACE_NAME=z1a2b3c4
+```
+
+### Database Connection Variables
+
+For each database in your environment, Qovery creates connection variables:
+
+**Pattern**: `QOVERY_DATABASE_{DATABASE_NAME}_{PROPERTY}`
+
+**Example - PostgreSQL Database named "main-db"**:
+```bash
+QOVERY_DATABASE_MAIN_DB_NAME=main_db
+QOVERY_DATABASE_MAIN_DB_TYPE=POSTGRESQL
+QOVERY_DATABASE_MAIN_DB_VERSION=14
+QOVERY_DATABASE_MAIN_DB_HOST=postgres-z1a2b3c4.internal
+QOVERY_DATABASE_MAIN_DB_PORT=5432
+QOVERY_DATABASE_MAIN_DB_USERNAME=superuser
+QOVERY_DATABASE_MAIN_DB_PASSWORD=<secret>
+QOVERY_DATABASE_MAIN_DB_DATABASE=postgres
+QOVERY_DATABASE_MAIN_DB_CONNECTION_URI=postgresql://superuser:***@postgres-z1a2b3c4.internal:5432/postgres
+QOVERY_DATABASE_MAIN_DB_CONNECTION_URI_WITHOUT_CREDENTIALS=postgresql://postgres-z1a2b3c4.internal:5432/postgres
+```
+
+**Example - MongoDB Database named "cache"**:
+```bash
+QOVERY_DATABASE_CACHE_NAME=cache
+QOVERY_DATABASE_CACHE_TYPE=MONGODB
+QOVERY_DATABASE_CACHE_HOST=mongo-z1a2b3c4.internal
+QOVERY_DATABASE_CACHE_PORT=27017
+QOVERY_DATABASE_CACHE_USERNAME=admin
+QOVERY_DATABASE_CACHE_PASSWORD=<secret>
+QOVERY_DATABASE_CACHE_CONNECTION_URI=mongodb://admin:***@mongo-z1a2b3c4.internal:27017
+```
+
+<Info>
+Database variable names are automatically generated from your database service name with underscores replacing hyphens and converted to uppercase.
+</Info>
+
+### Application Connection Variables
+
+Connect to other applications in your environment:
+
+**Pattern**: `QOVERY_APPLICATION_{APP_NAME}_{PROPERTY}`
+
+```bash
+# For application "frontend"
+QOVERY_APPLICATION_FRONTEND_HOST_INTERNAL=frontend-z1a2b3c4.internal
+QOVERY_APPLICATION_FRONTEND_PORT=3000
+QOVERY_APPLICATION_FRONTEND_URL=https://frontend.myapp.com
+
+# For application "api"
+QOVERY_APPLICATION_API_HOST_INTERNAL=api-z1a2b3c4.internal
+QOVERY_APPLICATION_API_PORT=8080
+QOVERY_APPLICATION_API_URL=https://api.myapp.com
+```
+
+<Warning>
+Built-in variables are read-only and cannot be modified or deleted. However, you can create aliases to rename them for your application's needs.
+</Warning>
+
+## Creating Variables
+
+<Steps>
+  <Step title="Navigate to Service">
+    Select your application, job, or container from the environment
+  </Step>
+
+  <Step title="Open Variables Section">
+    Click on **Environment Variables** in the service menu
+
+    <Frame>
+      <img src="/images/configuration/environment-variable/var_creation_1.png" alt="Variable Creation - Initial Screen" />
+    </Frame>
+  </Step>
+
+  <Step title="Add Variable">
+    Click **Add Variable** button to create a new variable
+
+    Configure the following:
+    - **Scope**: Choose Project, Environment, or Service level
+    - **Key**: Variable name (must follow naming rules)
+    - **Value**: Variable value or file content
+    - **Type**: Variable or Secret
+    - **Variable Type**: Standard or File (if file, specify path)
+
+    <Frame>
+      <img src="/images/configuration/environment-variable/var_creation_2.png" alt="Variable Creation - Configuration" />
+    </Frame>
+  </Step>
+
+  <Step title="Save and Redeploy">
+    Variables are applied when you save. Services must be redeployed to pick up new values.
+  </Step>
+</Steps>
+
+### Variable Naming Rules
+
+Follow these rules when naming variables:
+
+<CardGroup cols={2}>
+  <Card title="Allowed" icon="check">
+    - Alphanumeric characters (A-Z, 0-9)
+    - Underscores (_)
+    - Uppercase recommended
+    - Start with letter
+
+    **Valid Examples**:
+    ```bash
+    API_KEY
+    DATABASE_URL
+    MAX_RETRY_COUNT
+    FEATURE_NEW_UI
+    ```
+  </Card>
+
+  <Card title="Not Allowed" icon="xmark">
+    - Cannot start with `QOVERY_` (reserved)
+    - Cannot start with `__` (double underscore)
+    - No hyphens or special characters
+    - No spaces
+
+    **Invalid Examples**:
+    ```bash
+    QOVERY_CUSTOM_VAR  ❌
+    __PRIVATE_VAR      ❌
+    API-KEY            ❌
+    MY VAR             ❌
+    ```
+  </Card>
+</CardGroup>
+
+## Editing Variables
+
+<Steps>
+  <Step title="Locate Variable">
+    Find the variable in the Environment Variables section
+  </Step>
+
+  <Step title="Click Edit">
+    Click the edit icon next to the variable
+
+    <Frame>
+      <img src="/images/configuration/environment-variable/var_edit.png" alt="Variable Editing" />
+    </Frame>
+  </Step>
+
+  <Step title="Update Value">
+    Modify the variable value or settings:
+    - Change value
+    - Toggle secret status
+    - Update scope
+    - Modify file path (for file variables)
+  </Step>
+
+  <Step title="Save and Redeploy">
+    Save changes and redeploy services to apply updates
+  </Step>
+</Steps>
+
+<Info>
+For secrets, you cannot view the current value. When editing, you can only set a new value. This is a security feature to protect sensitive data.
+</Info>
+
+## Deleting Variables
+
+<Steps>
+  <Step title="Select Variable">
+    Find the variable you want to remove
+  </Step>
+
+  <Step title="Delete Variable">
+    Click the delete icon and confirm removal
+
+    <Frame>
+      <img src="/images/configuration/environment-variable/var_delete.png" alt="Variable Deletion" />
+    </Frame>
+  </Step>
+
+  <Step title="Redeploy Services">
+    Redeploy affected services to remove the variable from their environment
+  </Step>
+</Steps>
+
+<Warning>
+Deleting a variable that your application depends on can cause failures. Verify that no services are using the variable before deleting it.
+</Warning>
 
 ## Variable Interpolation
 
-Reference other services:
+Reference other variables within variable values using interpolation syntax:
 
-```
-DATABASE_URL=${database.host}:${database.port}
+**Syntax**: `{{VARIABLE_NAME}}`
+
+### Basic Interpolation
+
+```bash
+# Define base variables
+DATABASE_HOST=postgres.internal
+DATABASE_PORT=5432
+DATABASE_NAME=myapp
+DATABASE_USER=admin
+DATABASE_PASSWORD=<secret>
+
+# Compose connection string using interpolation
+DATABASE_URL={{DATABASE_HOST}}:{{DATABASE_PORT}}/{{DATABASE_NAME}}
+# Result: postgres.internal:5432/myapp
+
+# Full connection URI
+DATABASE_CONNECTION=postgresql://{{DATABASE_USER}}:{{DATABASE_PASSWORD}}@{{DATABASE_HOST}}:{{DATABASE_PORT}}/{{DATABASE_NAME}}
+# Result: postgresql://admin:***@postgres.internal:5432/myapp
 ```
 
+### Interpolation with Built-in Variables
+
+```bash
+# Use Qovery built-in variables in your custom variables
+MY_DATABASE_URL=postgresql://{{QOVERY_DATABASE_MAIN_DB_HOST}}:{{QOVERY_DATABASE_MAIN_DB_PORT}}/{{QOVERY_DATABASE_MAIN_DB_DATABASE}}
+
+# Compose service URLs
+BACKEND_API={{QOVERY_APPLICATION_API_HOST_INTERNAL}}:{{QOVERY_APPLICATION_API_PORT}}
+
+# Environment-aware configuration
+SENTRY_ENVIRONMENT={{QOVERY_ENVIRONMENT_NAME}}
+LOG_PREFIX=[{{QOVERY_APPLICATION_NAME}}]
+```
+
+### Advanced Interpolation Examples
+
+```bash
+# Multi-service configuration
+REDIS_URL=redis://{{QOVERY_CONTAINER_REDIS_HOST_INTERNAL}}:{{QOVERY_CONTAINER_REDIS_PORT}}/0
+RABBITMQ_URL=amqp://{{RABBITMQ_USER}}:{{RABBITMQ_PASSWORD}}@{{QOVERY_CONTAINER_RABBITMQ_HOST_INTERNAL}}:5672
+
+# API configuration with interpolation
+API_BASE_URL=https://{{QOVERY_APPLICATION_API_HOST_EXTERNAL}}
+WEBSOCKET_URL=wss://{{QOVERY_APPLICATION_API_HOST_EXTERNAL}}/ws
+
+# Feature flags with environment
+FEATURE_BETA={{QOVERY_ENVIRONMENT_NAME == 'production' ? 'false' : 'true'}}
+```
+
+<Tip>
+Interpolation is processed at deployment time. If a referenced variable doesn't exist, it will be replaced with an empty string.
+</Tip>
+
+## Aliases
+
+Create aliases to rename built-in variables to match your application's expected variable names:
+
+### Database Aliases
+
+If your application expects specific variable names, create aliases instead of modifying your code:
+
+**Example - Application expects `DATABASE_URL`**:
+
+<Frame>
+  <img src="/images/configuration/environment-variable/database_alias.png" alt="Database Alias Example" />
+</Frame>
+
+**Alias Configuration**:
+```bash
+# Your application expects:
+DATABASE_URL
+
+# Create alias from Qovery built-in variable:
+DATABASE_URL = {{QOVERY_DATABASE_MAIN_DB_CONNECTION_URI}}
+
+# Now your application can use DATABASE_URL directly
+```
+
+### Application Host Aliases
+
+Create friendly names for internal service communication:
+
+<Frame>
+  <img src="/images/configuration/environment-variable/host_alias.png" alt="Application Host Alias" />
+</Frame>
+
+**Alias Configuration**:
+```bash
+# Create simple aliases for service hosts
+API_HOST = {{QOVERY_APPLICATION_API_HOST_INTERNAL}}
+REDIS_HOST = {{QOVERY_CONTAINER_REDIS_HOST_INTERNAL}}
+POSTGRES_HOST = {{QOVERY_DATABASE_MAIN_DB_HOST}}
+
+# In your application code:
+api_url = f"http://{os.environ['API_HOST']}:8080"
+redis_client = Redis(host=os.environ['REDIS_HOST'])
+```
+
+### Common Alias Patterns
+
+```bash
+# Standard database connection aliases
+DATABASE_URL = {{QOVERY_DATABASE_MAIN_DB_CONNECTION_URI}}
+POSTGRES_HOST = {{QOVERY_DATABASE_MAIN_DB_HOST}}
+POSTGRES_PORT = {{QOVERY_DATABASE_MAIN_DB_PORT}}
+POSTGRES_DB = {{QOVERY_DATABASE_MAIN_DB_DATABASE}}
+POSTGRES_USER = {{QOVERY_DATABASE_MAIN_DB_USERNAME}}
+POSTGRES_PASSWORD = {{QOVERY_DATABASE_MAIN_DB_PASSWORD}}
+
+# Cache service aliases
+REDIS_URL = redis://{{QOVERY_CONTAINER_REDIS_HOST_INTERNAL}}:6379
+MEMCACHED_SERVERS = {{QOVERY_CONTAINER_MEMCACHED_HOST_INTERNAL}}:11211
+
+# Service communication aliases
+BACKEND_URL = {{QOVERY_APPLICATION_API_HOST_INTERNAL}}:{{QOVERY_APPLICATION_API_PORT}}
+FRONTEND_URL = https://{{QOVERY_APPLICATION_WEB_HOST_EXTERNAL}}
+
+# Environment-specific aliases
+ENV_NAME = {{QOVERY_ENVIRONMENT_NAME}}
+PROJECT_NAME = {{QOVERY_APPLICATION_NAME}}
+```
+
+<Info>
+Aliases are just regular variables that use interpolation. They make your application code more portable and easier to understand.
+</Info>
+
+## Import and Export
+
+Import and export environment variables in bulk using `.env` file format:
+
+### Exporting Variables
+
+<Steps>
+  <Step title="Open Variables Section">
+    Navigate to Environment Variables for your service
+  </Step>
+
+  <Step title="Export">
+    Click **Export** to download all variables as a `.env` file
+  </Step>
+
+  <Step title="Review Export">
+    The exported file contains all non-secret variables:
+    ```bash
+    # .env file
+    NODE_ENV=production
+    API_URL=https://api.example.com
+    MAX_CONNECTIONS=100
+    LOG_LEVEL=info
+    ```
+
+    **Note**: Secret values are exported as `***` for security
+  </Step>
+</Steps>
+
+### Importing Variables
+
+<Steps>
+  <Step title="Prepare .env File">
+    Create a `.env` file with key-value pairs:
+    ```bash
+    # example.env
+    NEW_VAR_1=value1
+    NEW_VAR_2=value2
+    FEATURE_FLAG=true
+    MAX_WORKERS=10
+    ```
+  </Step>
+
+  <Step title="Import File">
+    Click **Import** and select your `.env` file
+  </Step>
+
+  <Step title="Review Import">
+    Qovery will show which variables will be:
+    - Created (new variables)
+    - Updated (existing variables)
+    - Skipped (conflicts or restrictions)
+  </Step>
+
+  <Step title="Confirm Import">
+    Review and confirm the import
+  </Step>
+</Steps>
+
+### Import Restrictions
+
+Certain variables cannot be imported or overwritten:
+
+<CardGroup cols={2}>
+  <Card title="Cannot Import" icon="ban">
+    - Built-in variables (starting with `QOVERY_`)
+    - System-managed variables
+    - Protected platform variables
+  </Card>
+
+  <Card title="Cannot Overwrite" icon="lock">
+    - Existing secrets (must delete first)
+    - Variables from higher scopes
+    - Read-only built-in variables
+  </Card>
+</CardGroup>
+
+**Example Import Conflicts**:
+```bash
+# This will be REJECTED
+QOVERY_APPLICATION_ID=custom-value  ❌ Built-in variable
+
+# This will be REJECTED if already exists as secret
+API_KEY=new-value  ❌ Existing secret must be deleted first
+
+# This will be ACCEPTED
+NEW_CUSTOM_VAR=value  ✓ New variable
+```
+
+<Warning>
+When importing, existing non-secret variables at the same scope will be updated. Use import carefully to avoid accidentally overwriting configuration.
+</Warning>
+
+## Service Interconnection
+
+Use environment variables to connect services within your environment:
+
+### Database Connection
+
+**Using Built-in Variables**:
+<CodeGroup>
+```javascript Node.js with PostgreSQL
+const { Client } = require('pg');
+
+const client = new Client({
+  host: process.env.QOVERY_DATABASE_MAIN_DB_HOST,
+  port: process.env.QOVERY_DATABASE_MAIN_DB_PORT,
+  database: process.env.QOVERY_DATABASE_MAIN_DB_DATABASE,
+  user: process.env.QOVERY_DATABASE_MAIN_DB_USERNAME,
+  password: process.env.QOVERY_DATABASE_MAIN_DB_PASSWORD,
+});
+
+// Or use connection URI
+const client = new Client({
+  connectionString: process.env.QOVERY_DATABASE_MAIN_DB_CONNECTION_URI
+});
+```
+
+```python Python with PostgreSQL
+import os
+import psycopg2
+
+# Using individual variables
+conn = psycopg2.connect(
+    host=os.environ['QOVERY_DATABASE_MAIN_DB_HOST'],
+    port=os.environ['QOVERY_DATABASE_MAIN_DB_PORT'],
+    database=os.environ['QOVERY_DATABASE_MAIN_DB_DATABASE'],
+    user=os.environ['QOVERY_DATABASE_MAIN_DB_USERNAME'],
+    password=os.environ['QOVERY_DATABASE_MAIN_DB_PASSWORD']
+)
+
+# Or use connection URI
+conn = psycopg2.connect(
+    os.environ['QOVERY_DATABASE_MAIN_DB_CONNECTION_URI']
+)
+```
+
+```go Go with PostgreSQL
+package main
+
+import (
+    "database/sql"
+    "fmt"
+    "os"
+    _ "github.com/lib/pq"
+)
+
+func main() {
+    // Using connection URI
+    connStr := os.Getenv("QOVERY_DATABASE_MAIN_DB_CONNECTION_URI")
+    db, err := sql.Open("postgres", connStr)
+    if err != nil {
+        panic(err)
+    }
+    defer db.Close()
+}
+```
+</CodeGroup>
+
+### Application-to-Application Communication
+
+**Internal Service Communication**:
+```javascript
+// Frontend calling backend API internally
+const axios = require('axios');
+
+const backendUrl = `http://${process.env.QOVERY_APPLICATION_API_HOST_INTERNAL}:${process.env.QOVERY_APPLICATION_API_PORT}`;
+
+async function fetchData() {
+  const response = await axios.get(`${backendUrl}/api/data`);
+  return response.data;
+}
+```
+
+**External URLs**:
+```javascript
+// Sharing external URLs with clients
+const publicApiUrl = process.env.QOVERY_APPLICATION_API_HOST_EXTERNAL;
+
+res.json({
+  apiEndpoint: `https://${publicApiUrl}`,
+  websocket: `wss://${publicApiUrl}/ws`
+});
+```
+
+### Redis/Cache Connection
+
+```javascript
+const Redis = require('ioredis');
+
+const redis = new Redis({
+  host: process.env.QOVERY_CONTAINER_REDIS_HOST_INTERNAL,
+  port: process.env.QOVERY_CONTAINER_REDIS_PORT || 6379,
+  password: process.env.QOVERY_CONTAINER_REDIS_PASSWORD,
+});
+```
+
+### Message Queue Connection
+
+```python
+import pika
+import os
+
+# RabbitMQ connection
+credentials = pika.PlainCredentials(
+    os.environ['RABBITMQ_USER'],
+    os.environ['RABBITMQ_PASSWORD']
+)
+
+parameters = pika.ConnectionParameters(
+    host=os.environ['QOVERY_CONTAINER_RABBITMQ_HOST_INTERNAL'],
+    port=5672,
+    credentials=credentials
+)
+
+connection = pika.BlockingConnection(parameters)
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Security" icon="shield">
+    - Always mark sensitive data as secrets
+    - Use environment-specific secrets
+    - Never commit secrets to version control
+    - Rotate secrets regularly
+    - Use least-privilege access
+  </Card>
+
+  <Card title="Organization" icon="folder-tree">
+    - Use consistent naming conventions
+    - Document variable purposes
+    - Group related variables
+    - Use appropriate scopes
+    - Create aliases for clarity
+  </Card>
+
+  <Card title="Naming" icon="tag">
+    - Use UPPER_CASE_WITH_UNDERSCORES
+    - Be descriptive but concise
+    - Use prefixes for grouping (e.g., `DB_*`, `API_*`)
+    - Follow team conventions
+    - Avoid ambiguous abbreviations
+  </Card>
+
+  <Card title="Maintenance" icon="wrench">
+    - Remove unused variables
+    - Keep documentation updated
+    - Use version control for .env templates
+    - Test after variable changes
+    - Monitor for deprecated variables
+  </Card>
+</CardGroup>
+
+### Variable Naming Conventions
+
+**Good Examples**:
+```bash
+# Database configuration
+DATABASE_URL=postgresql://...
+DATABASE_MAX_CONNECTIONS=100
+DATABASE_TIMEOUT=30
+
+# API configuration
+API_BASE_URL=https://api.example.com
+API_KEY=<secret>
+API_TIMEOUT=5000
+API_RETRY_COUNT=3
+
+# Feature flags
+FEATURE_NEW_DASHBOARD=true
+FEATURE_BETA_ACCESS=false
+FEATURE_EXPERIMENTAL_API=false
+
+# Service-specific
+REDIS_HOST=redis.internal
+REDIS_PORT=6379
+REDIS_MAX_RETRIES=3
+
+# Environment-specific
+LOG_LEVEL=info
+DEBUG_MODE=false
+ENABLE_METRICS=true
+```
+
+**Bad Examples**:
+```bash
+# Too vague
+URL=something                    ❌ Which URL?
+KEY=abc123                       ❌ Which key?
+PORT=8080                        ❌ Which service?
+
+# Inconsistent naming
+databaseUrl=...                  ❌ Use uppercase
+API-KEY=...                      ❌ No hyphens
+my var=...                       ❌ No spaces
+
+# Poor organization
+X=1                              ❌ Meaningless
+TEMP=value                       ❌ Not descriptive
+```
+
+## Configuration Sections
+
+Environment variables are managed in the **Environment Variables** section of each service:
+
+**Available Actions**:
+- Create new variables
+- Edit existing variables
+- Delete variables
+- Import from .env file
+- Export to .env file
+- Filter by scope
+- Search by name
+- Create aliases
+
+**Variable Display**:
+- Variable name and value
+- Scope indicator
+- Secret status
+- Variable type (standard or file)
+- Source (user-defined or built-in)
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Variable Not Available in Application">
+    **Check**:
+    - Variable is defined at correct scope
+    - Service was redeployed after variable creation
+    - Variable name is correct (case-sensitive)
+    - No typos in variable name
+
+    **Debug**:
+    ```bash
+    # Print all environment variables
+    env | sort
+
+    # Check specific variable
+    echo $MY_VARIABLE
+
+    # In application startup
+    console.log('Environment variables:', process.env);
+    ```
+  </Accordion>
+
+  <Accordion title="Interpolation Not Working">
+    **Verify**:
+    - Syntax uses `{{VARIABLE_NAME}}` (double curly braces)
+    - Referenced variable exists and is accessible
+    - No circular references
+    - Variable scope is correct
+
+    **Example**:
+    ```bash
+    # Correct
+    FULL_URL={{BASE_URL}}/api  ✓
+
+    # Incorrect
+    FULL_URL=${BASE_URL}/api   ❌ Wrong syntax
+    FULL_URL={BASE_URL}/api    ❌ Single braces
+    ```
+  </Accordion>
+
+  <Accordion title="Cannot Overwrite Variable">
+    **Possible Causes**:
+    - Variable is a built-in variable (read-only)
+    - Variable is a secret (must delete first)
+    - Variable defined at higher scope
+    - Import restrictions
+
+    **Solution**:
+    - For secrets: Delete and recreate
+    - For built-in: Create an alias instead
+    - For scope conflicts: Override at narrower scope
+  </Accordion>
+
+  <Accordion title="Secret Value Not Working">
+    **Remember**:
+    - Cannot view secret values after creation
+    - Ensure value was entered correctly initially
+    - Test with Force Run or in logs
+    - Redeploy after updating secrets
+
+    **Test Secret**:
+    ```bash
+    # Add temporary logging (remove after testing)
+    echo "Secret length: ${#MY_SECRET}"
+    # Should show length, not empty
+    ```
+  </Accordion>
+
+  <Accordion title="Import Failed">
+    **Common Issues**:
+    - File format incorrect (not valid .env)
+    - Trying to overwrite built-in variables
+    - Trying to overwrite existing secrets
+    - Invalid variable names
+
+    **Valid .env Format**:
+    ```bash
+    # Comments are allowed
+    VARIABLE_ONE=value1
+    VARIABLE_TWO=value2
+    VARIABLE_THREE="value with spaces"
+
+    # No spaces around =
+    VALID_VAR=value          ✓
+    INVALID_VAR = value      ❌
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Application Configuration" icon="gear" href="/configuration/application">
+    Configure your applications and services
+  </Card>
+  <Card title="Database Configuration" icon="database" href="/configuration/database">
+    Set up and manage databases
+  </Card>
+  <Card title="Secrets Management" icon="key" href="/guides/advanced/secrets-management">
+    Advanced secrets management strategies
+  </Card>
+  <Card title="Service Deployment" icon="rocket" href="/deployment/deploy">
+    Deploy services with configured variables
+  </Card>
+</CardGroup>

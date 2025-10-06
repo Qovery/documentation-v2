@@ -257,54 +257,56 @@ The Qovery Terraform provider supports managing:
 
 ## Best Practices
 
-<CardGroup cols={2}>
-  <Card title="Use Variables" icon="code">
-    ```hcl
-    variable "qovery_api_token" {
-      type = string
-      sensitive = true
-    }
+### Use Variables
 
-    variable "environment" {
-      type = string
-      default = "production"
-    }
-    ```
-    Keep tokens in environment variables, not in code
-  </Card>
+Keep tokens in environment variables, not in code:
 
-  <Card title="Use Data Sources" icon="database">
-    ```hcl
-    data "qovery_project" "my_project" {
-      organization_id = var.org_id
-      name = "My Project"
-    }
-    ```
-    Look up existing resources instead of hardcoding IDs
-  </Card>
+```hcl
+variable "qovery_api_token" {
+  type = string
+  sensitive = true
+}
 
-  <Card title="Organize with Modules" icon="folder-tree">
-    ```
-    modules/
-      ├── application/
-      ├── database/
-      └── environment/
-    ```
-    Create reusable modules for common patterns
-  </Card>
+variable "environment" {
+  type = string
+  default = "production"
+}
+```
 
-  <Card title="Use Remote State" icon="cloud">
-    ```hcl
-    terraform {
-      backend "s3" {
-        bucket = "my-terraform-state"
-        key = "qovery/terraform.tfstate"
-      }
-    }
-    ```
-    Store state remotely for team collaboration
-  </Card>
-</CardGroup>
+### Use Data Sources
+
+Look up existing resources instead of hardcoding IDs:
+
+```hcl
+data "qovery_project" "my_project" {
+  organization_id = var.org_id
+  name = "My Project"
+}
+```
+
+### Organize with Modules
+
+Create reusable modules for common patterns:
+
+```
+modules/
+  ├── application/
+  ├── database/
+  └── environment/
+```
+
+### Use Remote State
+
+Store state remotely for team collaboration:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket = "my-terraform-state"
+    key = "qovery/terraform.tfstate"
+  }
+}
+```
 
 ## Common Patterns
 

@@ -1,0 +1,1094 @@
+---
+title: "Lifecycle Jobs"
+description: "Execute jobs during environment lifecycle events with output variable injection"
+---
+
+Lifecycle Jobs in Qovery are special jobs that execute automatically during specific environment events such as deploy, stop, or delete. They are perfect for automating tasks like database seeding, resource provisioning, cleanup operations, and generating dynamic configuration that can be injected into other services.
+
+<Frame>
+  <img src="/images/configuration/lifecycle-job/lifecycle_job.png" alt="Lifecycle Job Flow" />
+</Frame>
+
+## Overview
+
+Unlike Cron Jobs that run on a schedule, Lifecycle Jobs are triggered by environment lifecycle events. They can also output data that gets injected as environment variables into other services in your environment, making them ideal for dynamic configuration and resource management.
+
+**Key Features**:
+- Execute on environment events (Deploy, Stop, Delete)
+- Output variables that can be used by other services
+- Support for both Git and Container Registry sources
+- Configurable triggers and event types
+- Input variables for customization
+
+**Common Use Cases**:
+- Seed databases in preview environments
+- Create external resources (S3 buckets, DNS records)
+- Run database migrations
+- Generate dynamic API keys or tokens
+- Provision infrastructure
+- Clean up resources on environment deletion
+- Configure third-party services
+- Initialize application data
+
+## Creating a Lifecycle Job
+
+<Steps>
+  <Step title="Navigate to Your Environment">
+    Go to your project and select the environment where you want to add the Lifecycle Job
+  </Step>
+
+  <Step title="Add Lifecycle Job">
+    Click **Create** and select **Lifecycle Job** from the service types
+
+    <Frame>
+      <img src="/images/configuration/lifecycle-job/service_creation.png" alt="Create Lifecycle Job Service" />
+    </Frame>
+  </Step>
+
+  <Step title="Configure General Settings">
+    - **Name**: Unique identifier for your Lifecycle Job
+    - **Source**: Choose Git Repository or Container Registry
+  </Step>
+
+  <Step title="Set Triggers">
+    Select which lifecycle events should trigger this job (Deploy, Stop, Delete)
+  </Step>
+
+  <Step title="Deploy">
+    Review your configuration and click **Create** to deploy the Lifecycle Job
+
+    <Frame>
+      <img src="/images/configuration/lifecycle-job/cronjob_recap.png" alt="Lifecycle Job Configuration Recap" />
+    </Frame>
+  </Step>
+</Steps>
+
+## General Configuration
+
+### Name and Description
+
+**Name**: Unique identifier for your Lifecycle Job
+- Must be unique within the environment
+- Use descriptive names (e.g., `database-seeder`, `resource-provisioner`)
+- Cannot be changed after creation
+
+**Description** (Optional): Document the job's purpose
+- What lifecycle event does it handle?
+- What resources does it create or modify?
+- Any dependencies or prerequisites?
+
+## Source Configuration
+
+<Tabs>
+  <Tab title="Git Repository">
+    ### Deploy from Git Repository
+
+    Deploy your Lifecycle Job from source code in a Git repository:
+
+    **Git Settings**:
+    - **Git Provider**: Select your provider (GitHub, GitLab, Bitbucket)
+    - **Repository**: Choose the repository containing your job code
+    - **Branch**: Select the branch to deploy from (e.g., `main`, `production`)
+    - **Root Path**: Path to the application root (leave empty if at repository root)
+
+    **Build Configuration**:
+    - **Dockerfile Path**: Path to Dockerfile (default: `Dockerfile` at root)
+    - **Build Arguments**: Pass build-time variables to Docker build
+    - **Target**: For multi-stage Dockerfiles, specify target stage
+
+    **Example Dockerfile for Database Seeding**:
+    ```dockerfile
+    FROM node:18-alpine
+
+    WORKDIR /app
+
+    # Install dependencies
+    COPY package*.json ./
+    RUN npm install
+
+    # Copy seed scripts
+    COPY seed.js ./
+    COPY data/ ./data/
+
+    # Run seeding script
+    CMD ["node", "seed.js"]
+    ```
+
+    <Info>
+    Store your Dockerfile in the repository for version control and collaboration. This ensures consistent builds across environments.
+    </Info>
+  </Tab>
+
+  <Tab title="Container Registry">
+    ### Deploy from Container Registry
+
+    Deploy a pre-built container image as your Lifecycle Job:
+
+    **Registry Settings**:
+    - **Container Registry**: Select configured registry
+    - **Image Name**: Full image path (e.g., `myorg/db-migrator`)
+    - **Image Tag**: Specific version to deploy (e.g., `v1.2.3`)
+
+    **Supported Registries**:
+    - Docker Hub
+    - AWS ECR
+    - Google Container Registry (GCR)
+    - Azure Container Registry (ACR)
+    - GitHub Container Registry
+    - GitLab Container Registry
+    - Private registries
+
+    <Tip>
+    Always use specific image tags instead of `latest` for production environments to ensure predictable behavior and easier rollbacks.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Dockerfile Configuration
+
+When deploying from Git, configure how your Dockerfile is built:
+
+### Dockerfile Path
+
+Specify the path to your Dockerfile:
+
+**Default**: `Dockerfile` at repository root
+
+**Examples**:
+```
+Dockerfile                    # Root of repository
+docker/Dockerfile            # In docker/ directory
+jobs/seed/Dockerfile        # Nested in subdirectory
+Dockerfile.seed             # Named Dockerfile
+```
+
+### Build Arguments
+
+Pass variables to Docker build process:
+
+**Example**:
+```yaml
+ARG NODE_ENV
+ARG API_VERSION
+ARG DATABASE_NAME
+```
+
+**Configuration in Qovery**:
+```yaml
+Build Arguments:
+  NODE_ENV: production
+  API_VERSION: v2
+  DATABASE_NAME: main_db
+```
+
+**Use in Dockerfile**:
+```dockerfile
+ARG NODE_ENV=development
+ARG API_VERSION
+
+ENV NODE_ENV=${NODE_ENV}
+ENV API_VERSION=${API_VERSION}
+
+RUN echo "Building for ${NODE_ENV} environment"
+```
+
+### Multi-Stage Build Target
+
+For multi-stage Dockerfiles, specify which stage to build:
+
+**Example Dockerfile**:
+```dockerfile
+# Stage 1: Builder
+FROM node:18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: Seeder
+FROM node:18-alpine AS seeder
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY data/ ./data/
+CMD ["node", "dist/seed.js"]
+
+# Stage 3: Migrator
+FROM node:18-alpine AS migrator
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+CMD ["node", "dist/migrate.js"]
+```
+
+**Target Configuration**:
+```yaml
+Dockerfile Target: seeder    # or: migrator
+```
+
+## Triggers Configuration
+
+Configure which lifecycle events trigger this job:
+
+### Event Types
+
+<AccordionGroup>
+  <Accordion title="Deploy Event">
+    **When**: Triggered when environment is deployed
+
+    **Use Cases**:
+    - Run database migrations
+    - Seed initial data
+    - Create S3 buckets or cloud resources
+    - Generate API keys or tokens
+    - Initialize third-party services
+    - Configure DNS records
+    - Warm up caches
+
+    **Execution Order**:
+    1. Infrastructure provisioning
+    2. Lifecycle Job (Deploy)
+    3. Applications and services start
+
+    **Example**:
+    ```javascript
+    // seed-database.js
+    const { Client } = require('pg');
+
+    async function seedDatabase() {
+      const client = new Client({
+        connectionString: process.env.DATABASE_URL
+      });
+
+      await client.connect();
+
+      // Create tables if they don't exist
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW()
+        )
+      `);
+
+      // Insert seed data
+      await client.query(`
+        INSERT INTO users (email) VALUES
+          ('admin@example.com'),
+          ('user@example.com')
+        ON CONFLICT (email) DO NOTHING
+      `);
+
+      await client.end();
+      console.log('Database seeded successfully');
+    }
+
+    seedDatabase().catch(console.error);
+    ```
+  </Accordion>
+
+  <Accordion title="Stop Event">
+    **When**: Triggered when environment is stopped
+
+    **Use Cases**:
+    - Archive data before shutdown
+    - Notify external systems
+    - Create snapshots or backups
+    - Drain queues
+    - Update status in external systems
+    - Log shutdown event
+
+    **Execution Order**:
+    1. Lifecycle Job (Stop) starts
+    2. Applications and services stop
+    3. Infrastructure preserved (not deleted)
+
+    **Example**:
+    ```python
+    # backup-before-stop.py
+    import os
+    import boto3
+    from datetime import datetime
+
+    def backup_data():
+        # Create snapshot
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        snapshot_name = f"backup_{os.environ['QOVERY_ENVIRONMENT_NAME']}_{timestamp}"
+
+        # Upload to S3
+        s3 = boto3.client('s3')
+        s3.upload_file(
+            '/tmp/backup.sql',
+            os.environ['BACKUP_BUCKET'],
+            f'snapshots/{snapshot_name}.sql'
+        )
+
+        print(f'Backup created: {snapshot_name}')
+
+    if __name__ == '__main__':
+        backup_data()
+    ```
+  </Accordion>
+
+  <Accordion title="Delete Event">
+    **When**: Triggered when environment is deleted
+
+    **Use Cases**:
+    - Delete external resources (S3 buckets, DNS records)
+    - Clean up third-party service integrations
+    - Remove API keys or tokens
+    - Delete cloud resources
+    - Archive final state
+    - Notify teams of deletion
+
+    **Execution Order**:
+    1. Lifecycle Job (Delete) starts
+    2. Applications and services deleted
+    3. Infrastructure deleted
+
+    **Example**:
+    ```bash
+    #!/bin/bash
+    # cleanup-resources.sh
+
+    set -e
+
+    echo "Cleaning up resources for environment: ${QOVERY_ENVIRONMENT_NAME}"
+
+    # Delete S3 bucket
+    aws s3 rb s3://${BUCKET_NAME} --force
+
+    # Remove DNS records
+    aws route53 change-resource-record-sets \
+      --hosted-zone-id ${HOSTED_ZONE_ID} \
+      --change-batch file://delete-records.json
+
+    # Revoke API key
+    curl -X DELETE "${API_ENDPOINT}/keys/${API_KEY_ID}" \
+      -H "Authorization: Bearer ${ADMIN_TOKEN}"
+
+    echo "Cleanup completed"
+    ```
+
+    <Warning>
+    Delete event jobs should be idempotent since they may run multiple times if environment deletion is retried.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+### Multiple Event Triggers
+
+You can configure a single job to run on multiple events:
+
+**Example Configuration**:
+```yaml
+Triggers:
+  - Deploy: ✓ (Seed database on deploy)
+  - Stop: ✗
+  - Delete: ✓ (Clean up resources on delete)
+```
+
+<Tip>
+Create separate Lifecycle Jobs for different events if the logic is significantly different. This makes debugging easier and allows independent configuration.
+</Tip>
+
+## Output Variables
+
+Lifecycle Jobs can output data that gets injected as environment variables into other services in your environment. This is perfect for dynamic configuration and sharing resources.
+
+<Frame>
+  <img src="/images/configuration/lifecycle-job/job_output.png" alt="Lifecycle Job Output Variables" />
+</Frame>
+
+### Output File Location
+
+Write your output to a special file:
+
+```
+/qovery-output/qovery-output.json
+```
+
+### Output File Format
+
+The output file must be valid JSON with the following structure:
+
+```json
+{
+  "variable_name_1": {
+    "sensitive": false,
+    "value": "my-value"
+  },
+  "variable_name_2": {
+    "sensitive": true,
+    "value": "secret-api-key"
+  },
+  "variable_name_3": {
+    "sensitive": false,
+    "value": "https://my-resource.example.com"
+  }
+}
+```
+
+**Field Descriptions**:
+- **Key**: Variable name (will be prefixed automatically)
+- **sensitive**: Boolean indicating if value is sensitive (affects logging/display)
+- **value**: The actual value to inject
+
+### Variable Naming
+
+Output variables are automatically prefixed with:
+
+```
+QOVERY_OUTPUT_JOB_<JOB_ID>_<VARIABLE_NAME>
+```
+
+**Example**:
+If your job outputs a variable named `API_KEY`, it will be available as:
+```
+QOVERY_OUTPUT_JOB_a1b2c3d4_API_KEY
+```
+
+<Info>
+The job ID is automatically generated and ensures unique variable names even if multiple Lifecycle Jobs exist in the environment.
+</Info>
+
+### Complete Output Example
+
+<CodeGroup>
+```javascript Node.js
+// provision-resources.js
+const AWS = require('aws-sdk');
+const fs = require('fs');
+const path = require('path');
+
+async function provisionResources() {
+  const s3 = new AWS.S3();
+  const envName = process.env.QOVERY_ENVIRONMENT_NAME;
+
+  // Create S3 bucket
+  const bucketName = `app-${envName}-${Date.now()}`;
+  await s3.createBucket({ Bucket: bucketName }).promise();
+
+  // Generate API key
+  const apiKey = generateApiKey();
+
+  // Write output file
+  const outputDir = '/qovery-output';
+  const outputFile = path.join(outputDir, 'qovery-output.json');
+
+  // Ensure directory exists
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  // Write output
+  const output = {
+    S3_BUCKET_NAME: {
+      sensitive: false,
+      value: bucketName
+    },
+    S3_BUCKET_REGION: {
+      sensitive: false,
+      value: 'us-east-1'
+    },
+    API_KEY: {
+      sensitive: true,
+      value: apiKey
+    },
+    API_ENDPOINT: {
+      sensitive: false,
+      value: `https://api-${envName}.example.com`
+    }
+  };
+
+  fs.writeFileSync(outputFile, JSON.stringify(output, null, 2));
+  console.log('Resources provisioned successfully');
+  console.log(`Bucket: ${bucketName}`);
+}
+
+function generateApiKey() {
+  return require('crypto').randomBytes(32).toString('hex');
+}
+
+provisionResources().catch(console.error);
+```
+
+```python Python
+# provision_resources.py
+import os
+import json
+import boto3
+import secrets
+
+def provision_resources():
+    env_name = os.environ['QOVERY_ENVIRONMENT_NAME']
+
+    # Create S3 bucket
+    s3 = boto3.client('s3')
+    bucket_name = f"app-{env_name}-{int(time.time())}"
+    s3.create_bucket(Bucket=bucket_name)
+
+    # Generate API key
+    api_key = secrets.token_hex(32)
+
+    # Prepare output
+    output = {
+        'S3_BUCKET_NAME': {
+            'sensitive': False,
+            'value': bucket_name
+        },
+        'S3_BUCKET_REGION': {
+            'sensitive': False,
+            'value': 'us-east-1'
+        },
+        'API_KEY': {
+            'sensitive': True,
+            'value': api_key
+        },
+        'API_ENDPOINT': {
+            'sensitive': False,
+            'value': f'https://api-{env_name}.example.com'
+        }
+    }
+
+    # Write output file
+    output_dir = '/qovery-output'
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_file = os.path.join(output_dir, 'qovery-output.json')
+    with open(output_file, 'w') as f:
+        json.dump(output, f, indent=2)
+
+    print(f'Resources provisioned successfully')
+    print(f'Bucket: {bucket_name}')
+
+if __name__ == '__main__':
+    provision_resources()
+```
+
+```bash Bash
+#!/bin/bash
+# provision-resources.sh
+
+set -e
+
+ENV_NAME="${QOVERY_ENVIRONMENT_NAME}"
+
+# Create S3 bucket
+BUCKET_NAME="app-${ENV_NAME}-$(date +%s)"
+aws s3 mb "s3://${BUCKET_NAME}"
+
+# Generate API key
+API_KEY=$(openssl rand -hex 32)
+
+# Create DNS record
+API_ENDPOINT="https://api-${ENV_NAME}.example.com"
+
+# Write output file
+mkdir -p /qovery-output
+
+cat > /qovery-output/qovery-output.json << EOF
+{
+  "S3_BUCKET_NAME": {
+    "sensitive": false,
+    "value": "${BUCKET_NAME}"
+  },
+  "S3_BUCKET_REGION": {
+    "sensitive": false,
+    "value": "us-east-1"
+  },
+  "API_KEY": {
+    "sensitive": true,
+    "value": "${API_KEY}"
+  },
+  "API_ENDPOINT": {
+    "sensitive": false,
+    "value": "${API_ENDPOINT}"
+  }
+}
+EOF
+
+echo "Resources provisioned successfully"
+echo "Bucket: ${BUCKET_NAME}"
+```
+</CodeGroup>
+
+### Using Output Variables
+
+After the Lifecycle Job completes, output variables are available to all services in the environment:
+
+**In Application Code**:
+```javascript
+// Access the provisioned resources
+const bucketName = process.env.QOVERY_OUTPUT_JOB_a1b2c3d4_S3_BUCKET_NAME;
+const apiKey = process.env.QOVERY_OUTPUT_JOB_a1b2c3d4_API_KEY;
+const apiEndpoint = process.env.QOVERY_OUTPUT_JOB_a1b2c3d4_API_ENDPOINT;
+
+console.log(`Using bucket: ${bucketName}`);
+console.log(`API endpoint: ${apiEndpoint}`);
+```
+
+**Finding the Exact Variable Name**:
+1. Go to your Lifecycle Job in Qovery console
+2. View the job details or deployment logs
+3. The full variable names are displayed after successful execution
+4. Copy the exact names to use in your applications
+
+## Resources Configuration
+
+Configure compute resources for your Lifecycle Job:
+
+### vCPU Allocation
+
+**Default**: 500m (0.5 CPU cores)
+
+**Recommended by Job Type**:
+- Light (database seeding): 250-500m
+- Standard (resource provisioning): 500m-1000m
+- Heavy (large migrations): 1000m-2000m
+
+### Memory Allocation
+
+**Default**: 512MB
+
+**Recommended by Job Type**:
+- Light jobs: 256-512MB
+- Standard jobs: 512MB-1GB
+- Heavy jobs: 1-2GB
+
+### Max Duration
+
+Set maximum execution time:
+
+**Default**: No limit (not recommended)
+
+**Recommended**:
+- Quick operations: 300s (5 minutes)
+- Database operations: 600-1800s (10-30 minutes)
+- Complex provisioning: 1800-3600s (30-60 minutes)
+
+<Warning>
+Lifecycle Jobs that exceed max duration will be terminated, potentially leaving resources in an inconsistent state. Always set appropriate timeouts and implement proper error handling.
+</Warning>
+
+## Input Variables
+
+Lifecycle Jobs have access to all environment variables defined in the environment:
+
+### Built-in Variables
+
+```bash
+# Job information
+QOVERY_JOB_ID=<job-uuid>
+QOVERY_JOB_NAME=resource-provisioner
+QOVERY_ENVIRONMENT_ID=<env-uuid>
+QOVERY_ENVIRONMENT_NAME=preview-pr-123
+QOVERY_PROJECT_ID=<project-uuid>
+QOVERY_PROJECT_NAME=my-project
+
+# Service connections (if database exists)
+QOVERY_DATABASE_MY_DB_HOST=postgres.internal
+QOVERY_DATABASE_MY_DB_PORT=5432
+QOVERY_DATABASE_MY_DB_CONNECTION_URI=postgresql://...
+```
+
+### Custom Variables
+
+Add custom input variables for your job:
+
+<Steps>
+  <Step title="Navigate to Variables">
+    Click on your Lifecycle Job → **Environment Variables** section
+  </Step>
+
+  <Step title="Add Variable">
+    - **Key**: Variable name (e.g., `AWS_REGION`, `BUCKET_PREFIX`)
+    - **Value**: Variable value or reference to environment variable
+    - **Type**: Variable or Secret
+
+    <Frame>
+      <img src="/images/configuration/lifecycle-job/variables.png" alt="Lifecycle Job Environment Variables" />
+    </Frame>
+  </Step>
+
+  <Step title="Use in Job">
+    Access variables in your job code as regular environment variables
+  </Step>
+</Steps>
+
+## Force Run
+
+Manually trigger a Lifecycle Job with a specific event type:
+
+### When to Use Force Run
+
+- Test job before deploying environment changes
+- Debug job failures
+- Re-run provisioning after manual cleanup
+- Test different event types
+- Recover from failed execution
+
+### How to Force Run
+
+<Steps>
+  <Step title="Navigate to Job">
+    Go to your Lifecycle Job in the Qovery console
+  </Step>
+
+  <Step title="Click Force Run">
+    Click the **Play** button or **Force Run** action
+  </Step>
+
+  <Step title="Select Event Type">
+    Choose which event to simulate:
+    - Deploy
+    - Stop
+    - Delete
+  </Step>
+
+  <Step title="Monitor Execution">
+    - View real-time logs
+    - Check output variables generated
+    - Verify successful completion
+  </Step>
+</Steps>
+
+<Info>
+Force Run allows testing specific event types without actually triggering the full environment lifecycle event.
+</Info>
+
+## Configuration Sections
+
+### General Section
+
+- **Name**: Job identifier
+- **Description**: Purpose documentation
+- **Source Type**: Git or Container Registry
+- **Source Configuration**: Repository or image details
+
+### Dockerfile Section (Git only)
+
+- **Dockerfile Path**: Path to Dockerfile
+- **Build Arguments**: Build-time variables
+- **Target Stage**: Multi-stage build target
+
+### Triggers Section
+
+- **Deploy Event**: Execute on environment deploy
+- **Stop Event**: Execute on environment stop
+- **Delete Event**: Execute on environment delete
+
+### Resources Section
+
+- **vCPU**: CPU allocation
+- **Memory**: RAM allocation
+- **Max Duration**: Execution timeout
+
+### Deployment Restrictions
+
+- **File Paths**: Deploy only if specific files changed
+- **Branches**: Deploy only from specific branches
+
+### Environment Variables Section
+
+- Built-in Qovery variables
+- Custom input variables
+- Secrets management
+- Variable scoping
+
+## Deployment Restrictions
+
+Control when your Lifecycle Job is updated:
+
+**File Path Restrictions**:
+```
+jobs/seed/**
+migrations/**
+scripts/provision.sh
+```
+
+**Branch Restrictions**:
+- Only deploy from `main` branch
+- Only deploy from `production` branch
+
+<Tip>
+Use deployment restrictions in monorepos to avoid rebuilding jobs when unrelated code changes.
+</Tip>
+
+## Monitoring and Logging
+
+### Viewing Job Logs
+
+<Steps>
+  <Step title="Navigate to Logs">
+    Click on your Lifecycle Job → **Logs** tab
+  </Step>
+
+  <Step title="Filter by Event">
+    - View logs from Deploy events
+    - View logs from Stop events
+    - View logs from Delete events
+  </Step>
+
+  <Step title="Analyze Output">
+    - Check for errors
+    - Verify output variables were generated
+    - Review resource creation logs
+  </Step>
+</Steps>
+
+### Execution History
+
+Track all job executions:
+
+**Available Information**:
+- Event type (Deploy/Stop/Delete)
+- Execution time and duration
+- Success/failure status
+- Output variables generated
+- Full execution logs
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Idempotency" icon="arrows-rotate">
+    - Design jobs to be safely re-runnable
+    - Check if resources already exist before creating
+    - Use conditional logic for updates
+    - Handle partial failures gracefully
+  </Card>
+
+  <Card title="Error Handling" icon="triangle-exclamation">
+    - Implement comprehensive error handling
+    - Log all operations for debugging
+    - Set appropriate timeouts
+    - Provide clear error messages
+  </Card>
+
+  <Card title="Resource Management" icon="gauge">
+    - Clean up temporary resources
+    - Use specific image tags
+    - Store Dockerfile in repository
+    - Configure appropriate resource limits
+  </Card>
+
+  <Card title="Output Variables" icon="file-export">
+    - Mark sensitive values appropriately
+    - Use descriptive variable names
+    - Validate output before writing
+    - Document expected outputs
+  </Card>
+
+  <Card title="Testing" icon="vial">
+    - Test with Force Run before production
+    - Verify output variables are accessible
+    - Test all event types
+    - Validate error scenarios
+  </Card>
+
+  <Card title="Documentation" icon="book">
+    - Document job purpose and behavior
+    - List all output variables
+    - Note any prerequisites
+    - Maintain version history
+  </Card>
+</CardGroup>
+
+## Common Patterns
+
+### Database Migration on Deploy
+
+```javascript
+// migrate.js
+const { Client } = require('pg');
+const { migrate } = require('postgres-migrations');
+
+async function runMigrations() {
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL
+  });
+
+  try {
+    await client.connect();
+    await migrate({ client }, './migrations');
+    console.log('Migrations completed successfully');
+  } catch (error) {
+    console.error('Migration failed:', error);
+    process.exit(1);
+  } finally {
+    await client.end();
+  }
+}
+
+runMigrations();
+```
+
+### Preview Environment Seeding
+
+```python
+# seed_preview.py
+import os
+import json
+
+def seed_preview_data():
+    env_name = os.environ['QOVERY_ENVIRONMENT_NAME']
+
+    # Only seed preview environments
+    if not env_name.startswith('preview-'):
+        print('Skipping seed - not a preview environment')
+        return
+
+    # Seed database with test data
+    seed_database()
+
+    # Generate test API key
+    api_key = generate_test_api_key()
+
+    # Output variables
+    output = {
+        'TEST_API_KEY': {
+            'sensitive': True,
+            'value': api_key
+        },
+        'ENVIRONMENT_TYPE': {
+            'sensitive': False,
+            'value': 'preview'
+        }
+    }
+
+    os.makedirs('/qovery-output', exist_ok=True)
+    with open('/qovery-output/qovery-output.json', 'w') as f:
+        json.dump(output, f)
+
+    print('Preview environment seeded')
+```
+
+### Resource Cleanup on Delete
+
+```bash
+#!/bin/bash
+# cleanup-on-delete.sh
+
+set -e
+
+echo "Cleaning up resources for ${QOVERY_ENVIRONMENT_NAME}"
+
+# Delete S3 bucket (if exists)
+if aws s3 ls "s3://${BUCKET_NAME}" 2>/dev/null; then
+    echo "Deleting S3 bucket: ${BUCKET_NAME}"
+    aws s3 rm "s3://${BUCKET_NAME}" --recursive
+    aws s3 rb "s3://${BUCKET_NAME}"
+else
+    echo "Bucket not found, skipping"
+fi
+
+# Revoke API keys (if exist)
+if [ -n "${API_KEY_ID}" ]; then
+    echo "Revoking API key"
+    curl -X DELETE "${API_ENDPOINT}/keys/${API_KEY_ID}" \
+      -H "Authorization: Bearer ${ADMIN_TOKEN}" || true
+fi
+
+echo "Cleanup completed"
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Job Fails to Execute">
+    **Check**:
+    - Job has been deployed successfully
+    - Triggers are configured for the correct events
+    - All required environment variables are set
+    - Resource limits are sufficient
+
+    **Debug**:
+    - Use Force Run to test specific event types
+    - Check job logs for error messages
+    - Verify Dockerfile builds successfully
+    - Test job locally with Docker
+  </Accordion>
+
+  <Accordion title="Output Variables Not Available">
+    **Verify**:
+    - Output file path is exactly `/qovery-output/qovery-output.json`
+    - JSON format is valid (use a validator)
+    - Job completed successfully
+    - Sensitive field is boolean, not string
+    - Services were redeployed after job completion
+
+    **Example Valid Output**:
+    ```json
+    {
+      "MY_VAR": {
+        "sensitive": false,
+        "value": "my-value"
+      }
+    }
+    ```
+
+    **Common Mistakes**:
+    ```json
+    {
+      "MY_VAR": "my-value"  // ❌ Missing structure
+    }
+    ```
+    ```json
+    {
+      "MY_VAR": {
+        "sensitive": "false",  // ❌ Should be boolean
+        "value": "my-value"
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Job Times Out">
+    **Solutions**:
+    - Increase max duration
+    - Optimize job code
+    - Break into smaller operations
+    - Increase CPU/memory resources
+    - Add progress logging
+
+    **Example Progress Logging**:
+    ```javascript
+    console.log('Starting resource provisioning...');
+    console.log('Creating S3 bucket...');
+    console.log('Bucket created successfully');
+    console.log('Generating API key...');
+    console.log('API key generated');
+    console.log('Writing output file...');
+    console.log('Job completed successfully');
+    ```
+  </Accordion>
+
+  <Accordion title="Job Runs on Wrong Event">
+    **Check**:
+    - Trigger configuration matches desired behavior
+    - Multiple jobs aren't configured for same event
+    - Event type is correct when using Force Run
+
+    **Best Practice**:
+    Create separate jobs for different events if logic differs significantly:
+    - `database-seeder` (Deploy only)
+    - `backup-creator` (Stop only)
+    - `resource-cleanup` (Delete only)
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Cron Jobs" icon="clock" href="/configuration/cronjob">
+    Schedule periodic jobs with CRON syntax
+  </Card>
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Manage configuration and secrets
+  </Card>
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/deployment/deployment-pipeline">
+    Understand deployment flow and lifecycle
+  </Card>
+  <Card title="Preview Environments" icon="code-branch" href="/guides/advanced/preview-environments">
+    Set up automated preview environments
+  </Card>
+</CardGroup>

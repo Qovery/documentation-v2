@@ -1,17 +1,57 @@
+/* Make the logo bigger */
+.logo img,
+[class*="Logo"] img,
+header img[alt*="logo" i] {
+  max-height: 40px !important;
+  height: 40px !important;
+  width: auto !important;
+}
+
+/* Ensure topbar links are visible and styled */
+header nav a,
+header a[href],
+[class*="topbar"] a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+/* Style the CTA button */
+[class*="cta"] button,
+[class*="topbar"] button {
+  background-color: #642DFF !important;
+  color: white !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+}
+
+/* Center and constrain welcome page content to match standard pages */
+[data-page-mode="custom"] main,
+[data-page-mode="custom"] article,
+html[data-page-mode="custom"] main > div,
+html[data-page-mode="custom"] article > div {
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  box-sizing: border-box !important;
+}
+
 /* Fix card icon sizes for product logos */
 .card-icon img,
 .card img[src*="/logos/"] {
-  max-width: 64px !important;
-  max-height: 64px !important;
-  width: 64px !important;
-  height: 64px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
 }
 
 /* Ensure icons maintain aspect ratio */
 [class*="CardIcon"] img,
 [class*="card-icon"] img {
-  max-width: 64px !important;
-  max-height: 64px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
   object-fit: contain !important;
 }
 

@@ -28,16 +28,16 @@
       "url": "https://console.qovery.com"
     },
     {
-      "name": "Roadmap",
-      "url": "https://roadmap.qovery.com"
+      "name": "Support",
+      "url": "https://www.qovery.com/support"
     },
     {
-      "name": "Website",
-      "url": "https://www.qovery.com"
+      "name": "Blog",
+      "url": "https://www.qovery.com/blog"
     }
   ],
   "topbarCtaButton": {
-    "name": "Get Started",
+    "name": "Sign up",
     "url": "https://console.qovery.com/signup"
   },
   "navigation": {
@@ -57,27 +57,31 @@
             ]
           },
           {
-            "group": "Interface",
-            "pages": [
-              "using-qovery/interface/web-interface",
-              "using-qovery/interface/cli",
-              "using-qovery/interface/terraform-provider",
-              "using-qovery/interface/mcp-server",
-              "using-qovery/interface/rest-api"
-            ]
-          },
-          {
             "group": "Configuration",
             "pages": [
-              "using-qovery/configuration/organization",
-              "using-qovery/configuration/project",
-              "using-qovery/configuration/environment",
-              "using-qovery/configuration/application",
-              "using-qovery/configuration/database",
-              "using-qovery/configuration/helm",
-              "using-qovery/configuration/cronjob",
-              "using-qovery/configuration/lifecycle-job",
-              "using-qovery/configuration/clusters"
+              {
+                "group": "Organization",
+                "pages": [
+                  "configuration/organization",
+                  "configuration/organization/api-token",
+                  "configuration/organization/cloud-credentials",
+                  "configuration/organization/container-registry",
+                  "configuration/organization/git-repository-access",
+                  "configuration/organization/helm-repository",
+                  "configuration/organization/labels-annotations",
+                  "configuration/organization/members-rbac"
+                ]
+              },
+              "configuration/project",
+              "configuration/environment",
+              "configuration/environment-variables",
+              "configuration/application",
+              "configuration/database",
+              "configuration/helm",
+              "configuration/cronjob",
+              "configuration/lifecycle-job",
+              "configuration/terraform",
+              "configuration/clusters"
             ]
           },
           {
@@ -123,7 +127,8 @@
           {
             "group": "Others",
             "pages": [
-              "guides/others/aws-vpc-peering"
+              "guides/others/aws-vpc-peering",
+              "guides/others/database-seeding-lifecycle-job"
             ]
           }
         ]
@@ -375,8 +380,87 @@
   },
   "footerSocials": {
     "github": "https://github.com/Qovery",
-    "twitter": "https://twitter.com/Qovery_",
+    "x": "https://twitter.com/Qovery_",
     "linkedin": "https://www.linkedin.com/company/qovery"
+  },
+  "footer": {
+    "links": [
+      {
+        "title": "Product",
+        "items": [
+          {
+            "label": "Provision",
+            "href": "https://www.qovery.com/products/provision"
+          },
+          {
+            "label": "Deploy",
+            "href": "https://www.qovery.com/products/deploy"
+          },
+          {
+            "label": "Observe",
+            "href": "https://www.qovery.com/products/observe"
+          },
+          {
+            "label": "Secure",
+            "href": "https://www.qovery.com/products/secure"
+          },
+          {
+            "label": "Optimize",
+            "href": "https://www.qovery.com/products/optimize"
+          }
+        ]
+      },
+      {
+        "title": "Resources",
+        "items": [
+          {
+            "label": "Blog",
+            "href": "https://www.qovery.com/blog"
+          },
+          {
+            "label": "Documentation",
+            "href": "https://hub.qovery.com"
+          },
+          {
+            "label": "Changelog",
+            "href": "https://www.qovery.com/changelog"
+          },
+          {
+            "label": "Roadmap",
+            "href": "https://roadmap.qovery.com"
+          },
+          {
+            "label": "Case Studies",
+            "href": "https://www.qovery.com/case-studies"
+          }
+        ]
+      },
+      {
+        "title": "Company",
+        "items": [
+          {
+            "label": "About",
+            "href": "https://www.qovery.com/about"
+          },
+          {
+            "label": "Careers",
+            "href": "https://www.qovery.com/careers"
+          },
+          {
+            "label": "Security",
+            "href": "https://www.qovery.com/security"
+          },
+          {
+            "label": "Terms",
+            "href": "https://www.qovery.com/terms"
+          },
+          {
+            "label": "Privacy",
+            "href": "https://www.qovery.com/privacy"
+          }
+        ]
+      }
+    ]
   },
   "css": [
     "/custom.css"

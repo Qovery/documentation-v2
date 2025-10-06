@@ -1,0 +1,133 @@
+---
+title: "API Token"
+description: "Manage API tokens for your organization"
+---
+
+## Overview
+
+API tokens allow third-party applications or scripts to access your organization via the Qovery API (CI/CD, Terraform, Pulumi, etc.).
+
+You can manage API tokens attached to your organization directly from the Qovery Console or using the [Qovery CLI](/cli/commands/token).
+
+## Accessing API Tokens
+
+<Steps>
+  <Step title="Open Organization Settings">
+    Click the "Wheel" button (⚙️) on the left navigation bar
+
+    ![How to access your organization settings](/images/configuration/organization/access_settings.png)
+  </Step>
+
+  <Step title="Navigate to Token API Section">
+    Open the `Token API` section within the organization settings
+
+    ![How to access your Token API section](/images/configuration/organization/token_api_access.png)
+  </Step>
+</Steps>
+
+## Create a New Token
+
+<Steps>
+  <Step title="Click Add Button">
+    Press the `Add` button to create a new API token
+  </Step>
+
+  <Step title="Configure Token">
+    Provide the following information:
+    - **Name**: A descriptive name for the token
+    - **Description**: Purpose or usage details
+    - **Role**: Select a role managed via the [Qovery RBAC system](/configuration/organization/members-rbac)
+  </Step>
+
+  <Step title="Save Token">
+    After creation, the token will be displayed once
+  </Step>
+</Steps>
+
+<Warning>
+**Important**: Safely store the token returned by the UI. You won't be able to retrieve it again after closing the dialog.
+</Warning>
+
+## Delete a Token
+
+To remove an API token:
+
+1. Locate the token in the Token API list
+2. Click the **Bin** icon next to the token
+3. Confirm the deletion
+
+<Info>
+Deleting a token immediately revokes access for any applications or scripts using it.
+</Info>
+
+## Edit a Token
+
+<Note>
+This functionality is not yet available. To modify a token, you'll need to delete the existing one and create a new token.
+</Note>
+
+## Using API Tokens
+
+Once created, use your API token to authenticate API requests:
+
+```bash
+curl -H "Authorization: Token YOUR_API_TOKEN" \
+  https://api.qovery.com/organization
+```
+
+### With Qovery CLI
+
+```bash
+export QOVERY_CLI_ACCESS_TOKEN=YOUR_API_TOKEN
+qovery context set
+```
+
+### With Terraform
+
+```hcl
+provider "qovery" {
+  token = var.qovery_api_token
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Specific Roles">
+    Assign the minimum required role to each token. Avoid using admin roles unless absolutely necessary.
+  </Accordion>
+
+  <Accordion title="Rotate Tokens Regularly">
+    Periodically create new tokens and delete old ones to maintain security.
+  </Accordion>
+
+  <Accordion title="Store Tokens Securely">
+    - Use secret managers (AWS Secrets Manager, Vault, etc.)
+    - Never commit tokens to Git repositories
+    - Use environment variables in CI/CD pipelines
+  </Accordion>
+
+  <Accordion title="Use Descriptive Names">
+    Name tokens by their purpose (e.g., "GitHub Actions Deploy", "Terraform Production")
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Members & RBAC" href="/configuration/organization/members-rbac">
+    Learn about role-based access control
+  </Card>
+
+  <Card title="Qovery CLI" href="/cli/overview">
+    Use CLI with API tokens
+  </Card>
+
+  <Card title="API Reference" href="/api-reference/introduction">
+    Explore the Qovery API
+  </Card>
+
+  <Card title="Terraform Provider" href="/terraform/overview">
+    Manage infrastructure as code
+  </Card>
+</CardGroup>
