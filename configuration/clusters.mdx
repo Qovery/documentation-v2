@@ -986,7 +986,7 @@ Configure logging for cluster object storage buckets.
 
 ### object_storage.enable_logging
 
-Enable logging for cluster buckets into `<bucket>-log` bucket.
+Enable logging for cluster buckets into `{bucket-name}-log` bucket.
 
 - **Default**: `false`
 - **Type**: Boolean
@@ -1681,13 +1681,13 @@ Cluster 3: Azure AKS (Region-specific compliance)
     kubectl get nodes
 
     # Check pod events
-    kubectl describe pod <pod-name> -n <namespace>
+    kubectl describe pod POD_NAME -n NAMESPACE
 
     # Check resource availability
     kubectl top nodes
 
     # Check container logs
-    kubectl logs <pod-name> -n <namespace>
+    kubectl logs POD_NAME -n NAMESPACE
     ```
   </Accordion>
 
