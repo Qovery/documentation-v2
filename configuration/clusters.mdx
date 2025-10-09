@@ -178,10 +178,10 @@ Advanced settings apply to different cloud providers:
 
 | Icon | Provider |
 |------|----------|
-| ![AWS](/img/advanced_settings/aws.svg) | Amazon Web Services |
-| ![GCP](/img/advanced_settings/gcp.svg) | Google Cloud Platform |
-| ![Azure](/img/advanced_settings/azure.svg) | Microsoft Azure |
-| ![Scaleway](/img/advanced_settings/scaleway.svg) | Scaleway |
+| ![AWS](/images/advanced_settings/aws.svg) | Amazon Web Services |
+| ![GCP](/images/advanced_settings/gcp.svg) | Google Cloud Platform |
+| ![Azure](/images/advanced_settings/azure.svg) | Microsoft Azure |
+| ![Scaleway](/images/advanced_settings/scaleway.svg) | Scaleway |
 
 ## Logs Settings
 
@@ -193,7 +193,7 @@ Maximum retention days in CloudWatch for EKS logs.
 
 - **Default**: `90` days
 - **Type**: Integer
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 - **Possible Values**: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2192, 2557, 2922, 3288, 3653
 
 ```json
@@ -208,7 +208,7 @@ Enable VPC flow logs and store them in S3.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -222,7 +222,7 @@ Number of retention days for VPC flow logs.
 
 - **Default**: `365` days
 - **Type**: Integer
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 <Info>
 Set to `0` for unlimited retention.
@@ -240,7 +240,7 @@ Maximum Kubernetes pod log retention in weeks (Loki).
 
 - **Default**: `12` weeks (84 days)
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -254,7 +254,7 @@ Enable VPC flow logs on all VPC subnetworks.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Provider**: ![GCP](/img/advanced_settings/gcp.svg) GCP
+- **Cloud Provider**: ![GCP](/images/advanced_settings/gcp.svg) GCP
 
 ```json
 {
@@ -268,7 +268,7 @@ VPC flow logs sampling percentage.
 
 - **Default**: `0.0` (no sampling)
 - **Type**: Float (0.0 to 1.0)
-- **Cloud Provider**: ![GCP](/img/advanced_settings/gcp.svg) GCP
+- **Cloud Provider**: ![GCP](/images/advanced_settings/gcp.svg) GCP
 
 <Info>
 `0.0` = no sampling, `1.0` = capture all logs
@@ -290,7 +290,7 @@ Add additional CoreDNS configuration for custom DNS resolution.
 
 - **Default**: `null`
 - **Type**: String
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) ![Azure](/img/advanced_settings/azure.svg) AWS, Scaleway, Azure
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) ![Azure](/images/advanced_settings/azure.svg) AWS, Scaleway, Azure
 
 **Example**: Forward `example.com` queries to custom DNS server.
 
@@ -310,7 +310,7 @@ Time in seconds before images in default registry are deleted.
 
 - **Default**: `31536000` (1 year)
 - **Type**: Integer (seconds)
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 <Note>
 Only affects new ECR repositories created after this setting is changed.
@@ -329,7 +329,7 @@ Image mirroring mode for cluster deployments.
 - **Default**: `"Service"`
 - **Type**: String
 - **Values**: `"Service"` or `"Cluster"`
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -343,7 +343,7 @@ Add custom tags to cluster-dedicated registry.
 
 - **Default**: Not specified
 - **Type**: Map<String, String>
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -366,7 +366,7 @@ Specify load balancer size for Scaleway clusters.
 
 - **Default**: `"lb-s"`
 - **Type**: String
-- **Cloud Provider**: ![Scaleway](/img/advanced_settings/scaleway.svg) Scaleway
+- **Cloud Provider**: ![Scaleway](/images/advanced_settings/scaleway.svg) Scaleway
 - **Values**:
   - `"lb-s"`: 200 Mbps
   - `"lb-gp-m"`: 500 Mbps
@@ -387,7 +387,7 @@ Enable AWS Application Load Balancer (ALB) controller.
 
 - **Default**: `true`
 - **Type**: Boolean
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -401,7 +401,7 @@ AWS ALB controller VPA minimum vCPU.
 
 - **Default**: `250` millicores
 - **Type**: Integer
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -415,7 +415,7 @@ AWS ALB controller VPA maximum vCPU.
 
 - **Default**: `250` millicores
 - **Type**: Integer
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -429,7 +429,7 @@ AWS ALB controller VPA minimum memory.
 
 - **Default**: `128` MiB
 - **Type**: Integer
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -443,7 +443,7 @@ AWS ALB controller VPA maximum memory.
 
 - **Default**: `128` MiB
 - **Type**: Integer
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -459,7 +459,7 @@ Nginx controller vCPU request.
 
 - **Default**: `200` millicores
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -473,7 +473,7 @@ Nginx controller vCPU limit.
 
 - **Default**: `700` millicores
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -487,7 +487,7 @@ Nginx controller memory request.
 
 - **Default**: `768` MiB
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -501,7 +501,7 @@ Nginx controller memory limit.
 
 - **Default**: `768` MiB
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -517,7 +517,7 @@ HPA CPU threshold for Nginx deployment.
 
 - **Default**: `50`%
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -531,7 +531,7 @@ Minimum number of Nginx instances.
 
 - **Default**: `2`
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -545,7 +545,7 @@ Maximum number of Nginx instances.
 
 - **Default**: `25`
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -561,7 +561,7 @@ Enable `ngx_http_realip_module` to pass client IP.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -575,7 +575,7 @@ Enable Brotli compression for HTTP responses.
 
 - **Default**: `true`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -589,7 +589,7 @@ Pass incoming `X-Forwarded-For` header upstream.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -603,7 +603,7 @@ Append remote address to `X-Forwarded-For` header.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -617,7 +617,7 @@ Customize Nginx log format.
 
 - **Default**: `null`
 - **Type**: String
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -632,7 +632,7 @@ Customize Nginx log format escaping.
 - **Default**: `"Default"`
 - **Type**: String
 - **Values**: `"Default"`, `"JSON"`, `"None"`
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -646,7 +646,7 @@ Add custom Nginx HTTP snippet configuration.
 
 - **Default**: `null`
 - **Type**: String
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -660,7 +660,7 @@ Add custom Nginx server snippet configuration.
 
 - **Default**: `null`
 - **Type**: String
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -674,7 +674,7 @@ Customize Nginx rate limit status code.
 
 - **Default**: `null` (Nginx defaults to 503)
 - **Type**: Integer
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -688,7 +688,7 @@ Customize Nginx custom HTTP error codes.
 
 - **Default**: `null`
 - **Type**: String (comma-separated)
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -704,7 +704,7 @@ Enable Nginx default backend.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 <Note>
 Ensure cluster has nodes with amd64 architecture.
@@ -722,7 +722,7 @@ Docker image repository for default backend.
 
 - **Default**: `null`
 - **Type**: String
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 <Info>
 Image must be publicly accessible.
@@ -740,7 +740,7 @@ Image tag for default backend.
 
 - **Default**: `null`
 - **Type**: String
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -758,7 +758,7 @@ Allow CPU overcommit (limit > request) for services.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 <Warning>
 ⚠️ Enabling CPU overcommit can lead to cluster instability and unpredictable performance.
@@ -776,7 +776,7 @@ Allow memory overcommit (limit > request) for services.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 <Warning>
 ⚠️ Enabling memory overcommit can lead to cluster instability, pod evictions, and OOM errors.
@@ -793,8 +793,8 @@ Allow memory overcommit (limit > request) for services.
 Configure network access restrictions for managed and container databases.
 
 **Database Icons**:
-- ![Database Container](/img/advanced_settings/database-container.svg) Container Database
-- ![Database Managed](/img/advanced_settings/database-managed.svg) Managed Database
+- ![Database Container](/images/advanced_settings/database-container.svg) Container Database
+- ![Database Managed](/images/advanced_settings/database-managed.svg) Managed Database
 
 #### database.postgresql.deny_any_access
 
@@ -802,7 +802,7 @@ Deny all access to PostgreSQL databases.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -816,7 +816,7 @@ List of allowed CIDR ranges for PostgreSQL.
 
 - **Default**: `["0.0.0.0/0"]`
 - **Type**: Array of strings
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -830,7 +830,7 @@ Deny all access to MySQL databases.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -844,7 +844,7 @@ List of allowed CIDR ranges for MySQL.
 
 - **Default**: `["0.0.0.0/0"]`
 - **Type**: Array of strings
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -858,7 +858,7 @@ Deny all access to MongoDB databases.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -872,7 +872,7 @@ List of allowed CIDR ranges for MongoDB.
 
 - **Default**: `["0.0.0.0/0"]`
 - **Type**: Array of strings
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -886,7 +886,7 @@ Deny all access to Redis databases.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -900,7 +900,7 @@ List of allowed CIDR ranges for Redis.
 
 - **Default**: `["0.0.0.0/0"]`
 - **Type**: Array of strings
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -918,7 +918,7 @@ Enable IAM admin group synchronization.
 
 - **Default**: `true`
 - **Type**: Boolean
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 <Note>
 Requires `aws.iam.admin_group` to be set.
@@ -936,7 +936,7 @@ IAM group name associated with Qovery users in AWS console.
 
 - **Default**: `"Admins"`
 - **Type**: String
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 <Info>
 Can be changed after cluster installation.
@@ -954,7 +954,7 @@ Enable SSO sync for IAM users.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 <Note>
 Requires `aws.iam.sso_role_arn` to be set.
@@ -972,7 +972,7 @@ SSO role ARN for cluster access.
 
 - **Default**: `""` (empty)
 - **Type**: String
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -990,7 +990,7 @@ Enable logging for cluster buckets into `{bucket-name}-log` bucket.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) AWS, GCP, Azure
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) AWS, GCP, Azure
 
 **Documentation**:
 - [AWS S3 Logging](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html)
@@ -1012,7 +1012,7 @@ Specify Kubernetes storageClass for container databases and applications.
 
 - **Default**: Varies by cloud provider
 - **Type**: String
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) ![Scaleway](/images/advanced_settings/scaleway.svg) All
 
 ```json
 {
@@ -1027,7 +1027,7 @@ Specify EC2 Instance Metadata Service (IMDS) version.
 - **Default**: `"required"` (IMDS v2)
 - **Type**: String
 - **Values**: `"required"` (IMDS v2 only), `"optional"` (IMDS v1 and v2)
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 ```json
 {
@@ -1042,7 +1042,7 @@ Specify the Amazon Machine Image (AMI) for EKS nodes.
 - **Default**: `"AmazonLinux2023"`
 - **Type**: String
 - **Values**: `"AmazonLinux2"` (deprecated), `"AmazonLinux2023"`, `"Bottlerocket"`
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 <Warning>
 `AmazonLinux2` is deprecated and won't work after Kubernetes 1.32.
@@ -1060,7 +1060,7 @@ Activate KMS encryption of Kubernetes secrets.
 
 - **Default**: `null`
 - **Type**: String (ARN)
-- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Cloud Provider**: ![AWS](/images/advanced_settings/aws.svg) AWS
 
 <Warning>
 Cannot be reversed once activated.
@@ -1078,7 +1078,7 @@ Enable static IP mode for Qovery control plane.
 
 - **Default**: `false`
 - **Type**: Boolean
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) AWS, GCP
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) AWS, GCP
 
 <Note>
 Requires Docker Hub credentials.
@@ -1096,7 +1096,7 @@ Whitelist additional CIDRs to access Kubernetes API.
 
 - **Default**: `[]` (empty array)
 - **Type**: Array of strings
-- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) AWS, GCP, Azure
+- **Cloud Providers**: ![AWS](/images/advanced_settings/aws.svg) ![GCP](/images/advanced_settings/gcp.svg) ![Azure](/images/advanced_settings/azure.svg) AWS, GCP, Azure
 
 <Info>
 Requires `qovery.static_ip_mode = true`.
