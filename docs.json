@@ -46,11 +46,11 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
-        "icon": "book",
+        "tab": "Getting Started",
+        "icon": "rocket",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Overview",
             "pages": [
               "introduction",
               "how-it-works",
@@ -59,57 +59,6 @@
               "deploy-my-app"
             ]
           },
-          {
-            "group": "Configuration",
-            "pages": [
-              {
-                "group": "Organization",
-                "pages": [
-                  "configuration/organization",
-                  "configuration/organization/api-token",
-                  "configuration/organization/cloud-credentials",
-                  "configuration/organization/container-registry",
-                  "configuration/organization/git-repository-access",
-                  "configuration/organization/helm-repository",
-                  "configuration/organization/labels-annotations",
-                  "configuration/organization/members-rbac"
-                ]
-              },
-              "configuration/project",
-              "configuration/environment",
-              "configuration/environment-variables",
-              "configuration/application",
-              "configuration/database",
-              "configuration/helm",
-              "configuration/cronjob",
-              "configuration/lifecycle-job",
-              "configuration/terraform",
-              "configuration/clusters",
-              "configuration/service-advanced-settings"
-            ]
-          },
-          {
-            "group": "Security & Compliance",
-            "pages": [
-              "security-and-compliance/overview",
-              {
-                "group": "Compliance",
-                "pages": [
-                  "security-and-compliance/soc2",
-                  "security-and-compliance/gdpr",
-                  "security-and-compliance/dora",
-                  "security-and-compliance/hipaa",
-                  "security-and-compliance/hds"
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Guides",
-        "icon": "map",
-        "groups": [
           {
             "group": "Qovery 101",
             "pages": [
@@ -131,9 +80,70 @@
             ]
           },
           {
-            "group": "Others",
+            "group": "Advanced Topics",
             "pages": [
               "guides/others/database-seeding-lifecycle-job"
+            ]
+          },
+          {
+            "group": "Security & Compliance",
+            "pages": [
+              "security-and-compliance/overview",
+              {
+                "group": "Compliance",
+                "pages": [
+                  "security-and-compliance/soc2",
+                  "security-and-compliance/gdpr",
+                  "security-and-compliance/dora",
+                  "security-and-compliance/hipaa",
+                  "security-and-compliance/hds"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Configuration",
+        "icon": "sliders",
+        "groups": [
+          {
+            "group": "Organization",
+            "pages": [
+              "configuration/organization",
+              "configuration/organization/api-token",
+              "configuration/organization/cloud-credentials",
+              "configuration/organization/container-registry",
+              "configuration/organization/git-repository-access",
+              "configuration/organization/helm-repository",
+              "configuration/organization/labels-annotations",
+              "configuration/organization/members-rbac"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "configuration/project",
+              "configuration/environment",
+              "configuration/clusters"
+            ]
+          },
+          {
+            "group": "Services",
+            "pages": [
+              "configuration/application",
+              "configuration/database",
+              "configuration/helm",
+              "configuration/cronjob",
+              "configuration/lifecycle-job",
+              "configuration/terraform"
+            ]
+          },
+          {
+            "group": "Settings",
+            "pages": [
+              "configuration/environment-variables",
+              "configuration/service-advanced-settings"
             ]
           }
         ]
