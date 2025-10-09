@@ -9,11 +9,15 @@ Welcome to the Qovery API Reference! The Qovery API is a REST API that allows yo
 
 ## Authentication
 
-All API requests require authentication using a Bearer token. Include your API token in the `Authorization` header of every request:
+All API requests require authentication using an API token. Include your API token in the `Authorization` header of every request:
 
 ```bash
-Authorization: Bearer YOUR_API_TOKEN
+Authorization: Token YOUR_API_TOKEN
 ```
+
+<Info>
+**Token vs Bearer**: Qovery API uses `Token` authentication scheme, not `Bearer`. While both are valid HTTP authorization schemes, Qovery specifically expects `Authorization: Token <your-token>` format. Using `Bearer` will result in authentication failure.
+</Info>
 
 ### Creating an API Token
 
@@ -26,10 +30,14 @@ Authorization: Bearer YOUR_API_TOKEN
 ### Example Request
 
 ```bash
-curl -X GET "https://api.qovery.com/api/v1/organization" \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
+curl -X GET "https://api.qovery.com/organization" \
+  -H "Authorization: Token YOUR_API_TOKEN" \
   -H "Content-Type: application/json"
 ```
+
+<Tip>
+Replace `YOUR_API_TOKEN` with your actual API token generated from Qovery Console.
+</Tip>
 
 ### Token Security
 
@@ -103,7 +111,7 @@ func main() {
 
     client := qovery.NewAPIClient(&qovery.Configuration{
         DefaultHeader: map[string]string{
-            "Authorization": fmt.Sprintf("Bearer %s", token),
+            "Authorization": fmt.Sprintf("Token %s", token),
         },
     })
 
