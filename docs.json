@@ -6,6 +6,9 @@
     "light": "/qovery-logo-black.svg",
     "dark": "/qovery-logo-white.svg"
   },
+  "system": {
+    "codeblocks": "light"
+  },
   "colors": {
     "primary": "#642DFF",
     "light": "#D8CBFF",

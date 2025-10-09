@@ -1,14 +1,162 @@
 ---
-title: "GitHub Actions Integration"
+title: "GitHub Actions"
 description: "Deploy with Qovery from GitHub Actions workflows"
 ---
 
-<Info>Detailed guide coming soon</Info>
+## Overview
 
-## Quick Example
+Integrating Qovery with GitHub Actions enables you to create custom deployment workflows that go beyond simple code-push deployments. You can run tests, build custom images, deploy to specific environments, and manage preview environments—all from your GitHub Actions pipelines.
 
-```yaml
+<Info>
+GitHub Actions integration gives you full control over your CI/CD pipeline while leveraging Qovery's deployment capabilities.
+</Info>
+
+**Key Benefits**:
+- **Custom Workflows**: Run tests, linting, and security scans before deployment
+- **Conditional Deployments**: Deploy only when specific conditions are met
+- **Multi-Environment**: Deploy to different environments based on branches or tags
+- **Preview Environments**: Automatically create/delete preview environments for PRs
+- **Full CLI Access**: Use all Qovery CLI commands in your workflows
+
+## Prerequisites
+
+Before integrating GitHub Actions with Qovery, ensure you have:
+
+<Steps>
+  <Step title="Qovery Application">
+    A Qovery application already set up and deployed
+  </Step>
+
+  <Step title="GitHub Repository">
+    Your application code in a GitHub repository
+  </Step>
+
+  <Step title="Qovery API Token">
+    Generate an API token from Qovery Console (covered below)
+  </Step>
+</Steps>
+
+## Setup Guide
+
+### Step 1: Disable Automatic Deployments
+
+First, disable Qovery's automatic deployments to give GitHub Actions full control:
+
+<Steps>
+  <Step title="Open Application Settings">
+    Navigate to your application in Qovery Console → **Settings**
+
+    <Frame>
+      <img src="/images/integrations/ci-cd/github-actions/step-1.png" alt="Application Settings" />
+    </Frame>
+  </Step>
+
+  <Step title="Disable Auto Deploy">
+    Find the **Auto Deploy** section and toggle it **OFF**
+
+    <Frame>
+      <img src="/images/integrations/ci-cd/github-actions/step-2.png" alt="Disable Auto Deploy" />
+    </Frame>
+
+    This prevents Qovery from automatically deploying on every Git push, allowing GitHub Actions to control deployments.
+  </Step>
+</Steps>
+
+### Step 2: Generate Qovery API Token
+
+Create an API token to authenticate GitHub Actions with Qovery:
+
+<Steps>
+  <Step title="Navigate to API Tokens">
+    In Qovery Console, go to **Organization** → **Settings** → **API Tokens**
+  </Step>
+
+  <Step title="Create New Token">
+    Click **Create Token** and give it a descriptive name (e.g., "GitHub Actions")
+  </Step>
+
+  <Step title="Copy Token">
+    **Important**: Copy the token immediately—it won't be shown again!
+  </Step>
+</Steps>
+
+<Info>
+For detailed instructions on creating API tokens, see the [API Token configuration guide](/configuration/organization/api-token).
+</Info>
+
+### Step 3: Add Token to GitHub Secrets
+
+Store your Qovery API token securely in GitHub:
+
+<Steps>
+  <Step title="Open Repository Settings">
+    Go to your GitHub repository → **Settings** → **Secrets and variables** → **Actions**
+
+    <Frame>
+      <img src="/images/integrations/ci-cd/github-actions/step-6.png" alt="GitHub Secrets" />
+    </Frame>
+  </Step>
+
+  <Step title="Add New Secret">
+    Click **New repository secret**:
+    - **Name**: `QOVERY_CLI_ACCESS_TOKEN`
+    - **Value**: Paste your Qovery API token
+
+    <Frame>
+      <img src="/images/integrations/ci-cd/github-actions/step-7.png" alt="Add Repository Secret" />
+    </Frame>
+  </Step>
+
+  <Step title="Save Secret">
+    Click **Add secret** to save
+
+    The secret will now be available to your GitHub Actions workflows as `${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}`
+  </Step>
+</Steps>
+
+### Step 4: Create GitHub Actions Workflow
+
+Create a workflow file in your repository:
+
+<Steps>
+  <Step title="Create Workflow Directory">
+    In your repository, create the `.github/workflows` directory:
+    ```bash
+    mkdir -p .github/workflows
+    ```
+  </Step>
+
+  <Step title="Create Workflow File">
+    Create `.github/workflows/deploy.yaml` with your deployment workflow (see examples below)
+  </Step>
+
+  <Step title="Commit and Push">
+    Commit the workflow file and push to GitHub:
+    ```bash
+    git add .github/workflows/deploy.yaml
+    git commit -m "Add Qovery deployment workflow"
+    git push
+    ```
+  </Step>
+
+  <Step title="Verify Workflow">
+    Check **Actions** tab in GitHub to see your workflow
+
+    <Frame>
+      <img src="/images/integrations/ci-cd/github-actions/step-8.png" alt="GitHub Actions Workflow" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Workflow Examples
+
+### Basic Deployment
+
+Deploy to Qovery on every push to main:
+
+```yaml .github/workflows/deploy.yaml
 name: Deploy to Qovery
+
 on:
   push:
     branches: [main]
@@ -17,18 +165,507 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
+
       - name: Install Qovery CLI
         run: curl -s https://get.qovery.com | bash
-      
-      - name: Deploy
+
+      - name: Deploy Application
         env:
           QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
         run: |
           qovery application deploy \
-            --application-name my-app \
-            --commit-id ${{ github.sha }}
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "Production" \
+            --application "my-app" \
+            --commit-id ${{ github.sha }} \
+            --watch
 ```
 
-[CI/CD Overview](/integrations/ci-cd/overview)
+### Test Before Deploy
+
+Run tests before deploying to production:
+
+```yaml .github/workflows/test-and-deploy.yaml
+name: Test and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run linter
+        run: npm run lint
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy to Qovery
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "Production" \
+            --application "my-app" \
+            --commit-id ${{ github.sha }} \
+            --watch
+```
+
+### Multi-Environment Deployment
+
+Deploy to different environments based on branch:
+
+```yaml .github/workflows/multi-env-deploy.yaml
+name: Multi-Environment Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=Production" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "environment=Staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=Development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy to ${{ steps.env.outputs.environment }}
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "${{ steps.env.outputs.environment }}" \
+            --application "my-app" \
+            --commit-id ${{ github.sha }} \
+            --watch
+```
+
+### Build and Push Docker Image
+
+Build a custom Docker image and deploy:
+
+```yaml .github/workflows/build-and-deploy.yaml
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy to Qovery
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "Production" \
+            --application "my-app" \
+            --commit-id ${{ github.sha }} \
+            --watch
+```
+
+### Preview Environment for Pull Requests
+
+Automatically create preview environments for PRs:
+
+```yaml .github/workflows/preview-environment.yaml
+name: Preview Environment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+jobs:
+  create-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Create Preview Environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery environment clone \
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "Production" \
+            --new-environment-name "preview-pr-${{ github.event.pull_request.number }}" \
+            --cluster "my-cluster"
+
+      - name: Deploy to Preview
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "preview-pr-${{ github.event.pull_request.number }}" \
+            --application "my-app" \
+            --commit-id ${{ github.sha }} \
+            --watch
+
+      - name: Comment Preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 Preview environment deployed: preview-pr-${{ github.event.pull_request.number }}'
+            })
+```
+
+### Delete Preview Environment on PR Close
+
+Clean up preview environments when PRs are closed or merged:
+
+```yaml .github/workflows/cleanup-preview.yaml
+name: Cleanup Preview Environment
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Delete Preview Environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery environment delete \
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "preview-pr-${{ github.event.pull_request.number }}" \
+            --yes
+```
+
+### Deploy on Release
+
+Deploy only when a new release is published:
+
+```yaml .github/workflows/deploy-on-release.yaml
+name: Deploy on Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qovery CLI
+        run: curl -s https://get.qovery.com | bash
+
+      - name: Deploy Release
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          qovery application deploy \
+            --organization "My Organization" \
+            --project "My Project" \
+            --environment "Production" \
+            --application "my-app" \
+            --tag ${{ github.event.release.tag_name }} \
+            --watch
+```
+
+## Common CLI Commands
+
+### Deploy Application
+
+```bash
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --application "my-app" \
+  --commit-id <commit-sha> \
+  --watch
+```
+
+### Deploy with Tag
+
+```bash
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --application "my-app" \
+  --tag v1.0.0 \
+  --watch
+```
+
+### Deploy Multiple Applications
+
+```bash
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --applications "app1,app2,app3" \
+  --commit-id <commit-sha> \
+  --watch
+```
+
+### Clone Environment
+
+```bash
+qovery environment clone \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --new-environment-name "Staging-Copy" \
+  --cluster "my-cluster"
+```
+
+### Delete Environment
+
+```bash
+qovery environment delete \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Staging-Copy" \
+  --yes
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Secrets for Sensitive Data">
+    Always store sensitive information like API tokens and credentials in GitHub Secrets:
+    ```yaml
+    env:
+      QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    ```
+    Never commit secrets to your repository.
+  </Accordion>
+
+  <Accordion title="Run Tests Before Deployment">
+    Always run tests and linting before deploying to production:
+    ```yaml
+    jobs:
+      test:
+        # ... run tests
+      deploy:
+        needs: test  # Only deploy if tests pass
+        # ... deploy
+    ```
+  </Accordion>
+
+  <Accordion title="Use Watch Flag">
+    Use `--watch` to wait for deployment completion:
+    ```bash
+    qovery application deploy ... --watch
+    ```
+    This ensures the workflow fails if deployment fails.
+  </Accordion>
+
+  <Accordion title="Set Timeout">
+    Add timeout to prevent workflows from running indefinitely:
+    ```yaml
+    jobs:
+      deploy:
+        timeout-minutes: 30
+        # ...
+    ```
+  </Accordion>
+
+  <Accordion title="Use Specific CLI Version">
+    For production, pin to a specific CLI version:
+    ```yaml
+    - name: Install Qovery CLI
+      run: |
+        curl -s https://get.qovery.com | bash -s -- v0.85.0
+    ```
+  </Accordion>
+
+  <Accordion title="Cache Dependencies">
+    Cache dependencies to speed up workflows:
+    ```yaml
+    - name: Cache Node modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Authentication Failed">
+    **Error**: `Authentication failed` or `Invalid token`
+
+    **Solutions**:
+    1. Verify `QOVERY_CLI_ACCESS_TOKEN` secret is set correctly in GitHub
+    2. Check if the API token has expired (regenerate if needed)
+    3. Ensure the token has sufficient permissions
+    4. Verify the secret name matches exactly in the workflow
+  </Accordion>
+
+  <Accordion title="Application Not Found">
+    **Error**: `Application not found` or `Environment not found`
+
+    **Solutions**:
+    1. Check organization, project, environment, and application names are exact
+    2. Names are case-sensitive—verify exact spelling
+    3. Use quotes around names with spaces: `--organization "My Org"`
+    4. List available resources: `qovery application list`
+  </Accordion>
+
+  <Accordion title="Deployment Timeout">
+    **Error**: Deployment times out or workflow is cancelled
+
+    **Solutions**:
+    1. Increase workflow timeout:
+       ```yaml
+       timeout-minutes: 60
+       ```
+    2. Check if application has health check issues
+    3. Review deployment logs in Qovery Console
+    4. Remove `--watch` for async deployments
+  </Accordion>
+
+  <Accordion title="CLI Installation Fails">
+    **Error**: Cannot install Qovery CLI
+
+    **Solutions**:
+    1. Check GitHub Actions runner has internet access
+    2. Try alternative installation:
+       ```yaml
+       - name: Install Qovery CLI
+         run: |
+           wget https://github.com/Qovery/qovery-cli/releases/latest/download/qovery-cli_linux_amd64.tar.gz
+           tar -xzf qovery-cli_linux_amd64.tar.gz
+           sudo mv qovery /usr/local/bin/
+       ```
+    3. Use pre-built Docker image with CLI included
+  </Accordion>
+
+  <Accordion title="Preview Environment Already Exists">
+    **Error**: Environment already exists when creating preview
+
+    **Solutions**:
+    1. Check if previous workflow failed to clean up
+    2. Manually delete the environment or add cleanup step:
+       ```yaml
+       - name: Delete existing preview (if exists)
+         continue-on-error: true
+         run: |
+           qovery environment delete ... --yes
+       ```
+    3. Use unique environment names with timestamp
+  </Accordion>
+</AccordionGroup>
+
+## GitHub Actions Enterprise
+
+For GitHub Enterprise Server, the integration works the same way. Just ensure:
+
+- GitHub Enterprise Server has network access to Qovery API
+- Self-hosted runners (if used) have Qovery CLI installed
+- Enterprise-specific GitHub Apps are configured if needed
+
+<Info>
+Contact Qovery support if you need help with GitHub Enterprise Server integration.
+</Info>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="CI/CD Overview" icon="circle-play" href="/integrations/ci-cd/overview">
+    Learn about other CI/CD integrations
+  </Card>
+  <Card title="Qovery CLI" icon="terminal" href="/cli/overview">
+    Explore more CLI commands and features
+  </Card>
+  <Card title="Preview Environments" icon="code-branch" href="/configuration/environment#preview-environments">
+    Learn more about preview environments
+  </Card>
+  <Card title="GitLab CI Integration" icon="gitlab" href="/integrations/ci-cd/gitlab-ci">
+    Deploy with GitLab CI/CD
+  </Card>
+</CardGroup>
