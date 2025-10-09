@@ -142,7 +142,7 @@ This allows your application to finish processing requests before being terminat
 Place pods on specific Kubernetes nodes based on node labels.
 
 - **Default**: `{}` (empty)
-- **Type**: Map<String, String>
+- **Type**: Map (String keys and values)
 - **Applies to**: Application, Container, Cronjob, Job
 
 **Use cases**:
@@ -454,7 +454,7 @@ Enable or disable nginx proxy request buffering.
 Add custom headers to incoming requests.
 
 - **Default**: `{}` (empty)
-- **Type**: Map<String, String>
+- **Type**: Map (String keys and values)
 - **Applies to**: Application, Container, Helm
 
 ```json
@@ -712,7 +712,7 @@ Sticky sessions are useful for stateful applications but can cause uneven load d
 Add custom headers to outgoing responses.
 
 - **Default**: `{}` (empty)
-- **Type**: Map<String, String>
+- **Type**: Map (String keys and values)
 - **Applies to**: Application, Container, Helm
 
 ```json
