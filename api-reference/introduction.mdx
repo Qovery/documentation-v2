@@ -16,7 +16,11 @@ Authorization: Token YOUR_API_TOKEN
 ```
 
 <Info>
-**Token vs Bearer**: Qovery API uses `Token` authentication scheme, not `Bearer`. While both are valid HTTP authorization schemes, Qovery specifically expects `Authorization: Token <your-token>` format. Using `Bearer` will result in authentication failure.
+**Token vs Bearer**: Qovery API supports two authentication schemes:
+- **`Token`** (Recommended): Use for API tokens generated from Qovery Console. Format: `Authorization: Token <your-api-token>`
+- **`Bearer`**: Use for JWT tokens only (e.g., from OAuth flows). Format: `Authorization: Bearer <jwt-token>`
+
+For third-party API integrations and programmatic access, always use `Token` authentication with API tokens. JWT tokens with `Bearer` are intended for internal use cases only and are not recommended for external API calls.
 </Info>
 
 ### Creating an API Token
