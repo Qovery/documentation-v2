@@ -130,7 +130,6 @@
           {
             "group": "Others",
             "pages": [
-              "guides/others/aws-vpc-peering",
               "guides/others/database-seeding-lifecycle-job"
             ]
           }
@@ -247,6 +246,12 @@
             "group": "Helm Repositories",
             "pages": [
               "integrations/helm/overview"
+            ]
+          },
+          {
+            "group": "AWS",
+            "pages": [
+              "integrations/aws/vpc-peering"
             ]
           },
           {
