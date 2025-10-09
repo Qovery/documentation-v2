@@ -1,0 +1,401 @@
+---
+title: "Provision"
+description: "Learn how to provision cloud infrastructure with Qovery"
+---
+
+## Overview
+
+Qovery Provision automates the setup and configuration of your cloud infrastructure on AWS, GCP, Azure, or Scaleway. It handles the complexities of cluster provisioning, networking, and infrastructure management, allowing you to focus on deploying applications rather than managing infrastructure.
+
+## What Qovery Provision Does
+
+<CardGroup cols={2}>
+  <Card title="Cluster Creation" icon="server">
+    Automated Kubernetes cluster provisioning with optimized configurations
+  </Card>
+  <Card title="Network Setup" icon="network-wired">
+    VPC, subnets, load balancers, and DNS configuration
+  </Card>
+  <Card title="Security Configuration" icon="shield">
+    IAM roles, security groups, and encryption by default
+  </Card>
+  <Card title="Cloud Resources" icon="cloud">
+    Object storage, container registries, and monitoring infrastructure
+  </Card>
+</CardGroup>
+
+## Getting Started with Provision
+
+### Prerequisites
+
+Before provisioning infrastructure with Qovery, you need:
+
+1. **Cloud Provider Account**: AWS, GCP, Azure, or Scaleway
+2. **Cloud Credentials**: API keys or service account credentials
+3. **Qovery Organization**: Created in Qovery Console
+
+### Step 1: Connect Cloud Provider
+
+<Steps>
+  <Step title="Navigate to Cloud Account Settings">
+    Go to **Organization Settings** → **Cloud Accounts** in Qovery Console
+  </Step>
+
+  <Step title="Add Cloud Credentials">
+    Select your cloud provider and enter your credentials:
+
+    <Tabs>
+      <Tab title="AWS">
+        Provide AWS Access Key ID and Secret Access Key, or use AWS IAM role
+
+        ```json
+        {
+          "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+          "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        }
+        ```
+      </Tab>
+
+      <Tab title="GCP">
+        Upload GCP Service Account JSON key file
+
+        ```json
+        {
+          "type": "service_account",
+          "project_id": "my-project",
+          "private_key_id": "key-id",
+          "private_key": "-----BEGIN PRIVATE KEY-----\n...",
+          "client_email": "service-account@my-project.iam.gserviceaccount.com"
+        }
+        ```
+      </Tab>
+
+      <Tab title="Azure">
+        Provide Azure Subscription ID, Tenant ID, Client ID, and Client Secret
+
+        ```json
+        {
+          "subscription_id": "00000000-0000-0000-0000-000000000000",
+          "tenant_id": "00000000-0000-0000-0000-000000000000",
+          "client_id": "00000000-0000-0000-0000-000000000000",
+          "client_secret": "your-client-secret"
+        }
+        ```
+      </Tab>
+
+      <Tab title="Scaleway">
+        Provide Scaleway Access Key and Secret Key
+
+        ```json
+        {
+          "access_key": "SCWXXXXXXXXXXXXXXXXX",
+          "secret_key": "00000000-0000-0000-0000-000000000000"
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Verify Connection">
+    Qovery will verify your credentials and display available regions
+  </Step>
+</Steps>
+
+### Step 2: Create a Cluster
+
+<Steps>
+  <Step title="Navigate to Clusters">
+    Go to **Organization** → **Clusters** → **Create Cluster**
+  </Step>
+
+  <Step title="Select Cloud Provider">
+    Choose your connected cloud provider (AWS, GCP, Azure, or Scaleway)
+  </Step>
+
+  <Step title="Configure Cluster">
+    **Basic Configuration**:
+    - **Cluster Name**: e.g., `production-us-east-1`
+    - **Region**: Select geographic region
+    - **Kubernetes Version**: Latest stable version (recommended)
+
+    **Node Configuration**:
+    - **Instance Type**: Select based on workload requirements
+    - **Min Nodes**: Minimum nodes for auto-scaling (e.g., 3)
+    - **Max Nodes**: Maximum nodes for auto-scaling (e.g., 10)
+    - **Disk Size**: Node disk size in GB (e.g., 100)
+  </Step>
+
+  <Step title="Network Configuration (Optional)">
+    - **VPC CIDR**: Custom VPC CIDR range (default: auto-generated)
+    - **Custom Domain**: Your domain for services
+    - **Static IP**: Enable if required
+  </Step>
+
+  <Step title="Review and Create">
+    Review configuration and click **Create Cluster**. Provisioning takes 10-20 minutes.
+  </Step>
+</Steps>
+
+## Cluster Provisioning Architecture
+
+When you create a cluster, Qovery provisions:
+
+```mermaid
+graph TB
+    A[Qovery Console] -->|Initiates| B[Cloud Provider API]
+    B --> C[VPC/Network]
+    B --> D[Kubernetes Cluster]
+    B --> E[Load Balancer]
+    B --> F[Object Storage]
+
+    C --> D
+    E --> D
+    D --> G[Node Group 1]
+    D --> H[Node Group 2]
+    D --> I[Node Group N]
+
+    D --> J[Qovery Agent]
+    J --> K[Monitoring]
+    J --> L[Logging]
+    J --> M[Auto-scaling]
+```
+
+**Components Provisioned**:
+1. **VPC/Virtual Network**: Isolated network infrastructure
+2. **Kubernetes Control Plane**: Managed Kubernetes API server
+3. **Node Groups**: Worker nodes with auto-scaling
+4. **Load Balancer**: External traffic routing
+5. **Object Storage**: Container images and logs
+6. **IAM Roles**: Service accounts and permissions
+7. **Qovery Agent**: Cluster management and monitoring
+
+## Cluster Types
+
+### Managed Clusters
+
+Qovery provisions and manages the entire cluster lifecycle.
+
+**Pros**:
+- Fully automated setup and maintenance
+- Automatic updates and security patches
+- Integrated monitoring and logging
+- Cost optimization features
+
+**Best For**: Production workloads, teams without dedicated DevOps
+
+### BYOK (Bring Your Own Kubernetes)
+
+Connect your existing Kubernetes cluster to Qovery.
+
+**Pros**:
+- Use existing infrastructure
+- Full control over cluster configuration
+- Integrate with existing tooling
+
+**Best For**: Organizations with existing Kubernetes expertise
+
+<Tabs>
+  <Tab title="Connect BYOK Cluster">
+    ```bash
+    # Install Qovery Agent on your cluster
+    helm repo add qovery https://helm.qovery.com
+    helm repo update
+
+    helm install qovery-agent qovery/qovery-agent \
+      --namespace qovery \
+      --create-namespace \
+      --set agent.clusterToken=YOUR_CLUSTER_TOKEN
+    ```
+  </Tab>
+</Tabs>
+
+## Multi-Cloud Strategy
+
+Qovery supports multi-cloud provisioning for:
+
+**Geographic Distribution**:
+```
+AWS US-East (Production - Americas)
+GCP Europe-West (Production - Europe)
+Azure Southeast-Asia (Production - APAC)
+```
+
+**Disaster Recovery**:
+```
+Primary: AWS us-east-1
+Failover: AWS us-west-2
+```
+
+**Cost Optimization**:
+```
+Production: AWS (established workloads)
+Development: Scaleway (cost-effective)
+```
+
+## Infrastructure as Code
+
+### Terraform Provider
+
+Provision clusters using Terraform:
+
+```hcl
+resource "qovery_cluster" "production" {
+  organization_id   = qovery_organization.my_org.id
+  name              = "production-aws-us-east-1"
+  cloud_provider    = "AWS"
+  region            = "us-east-1"
+
+  kubernetes_version = "1.28"
+
+  min_running_nodes = 3
+  max_running_nodes = 10
+
+  instance_type    = "t3.xlarge"
+  disk_size        = 100
+
+  features {
+    vpc_subnet = "10.0.0.0/16"
+    static_ip  = true
+  }
+}
+```
+
+### Qovery API
+
+Provision clusters via API:
+
+```bash
+curl -X POST "https://api.qovery.com/organization/{org_id}/cluster" \
+  -H "Authorization: Token YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "production-cluster",
+    "cloud_provider": "AWS",
+    "region": "us-east-1",
+    "kubernetes_version": "1.28",
+    "min_running_nodes": 3,
+    "max_running_nodes": 10,
+    "instance_type": "t3.xlarge"
+  }'
+```
+
+## Cost Management
+
+### Right-Sizing Clusters
+
+**Small Workloads** (Dev/Test):
+- Instance Type: `t3.medium` or `e2-standard-2`
+- Min Nodes: 1-2
+- Max Nodes: 3-5
+
+**Medium Workloads** (Staging):
+- Instance Type: `t3.large` or `e2-standard-4`
+- Min Nodes: 2-3
+- Max Nodes: 5-8
+
+**Large Workloads** (Production):
+- Instance Type: `t3.xlarge` or `e2-standard-8`
+- Min Nodes: 3-5
+- Max Nodes: 10-20
+
+### Cost Optimization Features
+
+<AccordionGroup>
+  <Accordion title="Auto-Scaling">
+    Automatically scale nodes based on resource utilization to avoid over-provisioning.
+  </Accordion>
+
+  <Accordion title="Spot/Preemptible Instances">
+    Use spot instances for non-critical workloads to reduce costs by up to 70%.
+  </Accordion>
+
+  <Accordion title="Cluster Scheduling">
+    Stop development clusters outside business hours to save costs.
+  </Accordion>
+
+  <Accordion title="Resource Monitoring">
+    Track cluster costs and identify optimization opportunities.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Multiple Availability Zones" icon="sitemap">
+    Distribute nodes across multiple AZs for high availability
+  </Card>
+
+  <Card title="Enable Auto-Scaling" icon="arrows-left-right-to-line">
+    Configure min/max nodes to handle traffic fluctuations
+  </Card>
+
+  <Card title="Separate Environments" icon="layer-group">
+    Use different clusters for dev, staging, and production
+  </Card>
+
+  <Card title="Monitor Resource Usage" icon="chart-line">
+    Regularly review cluster metrics and optimize sizing
+  </Card>
+
+  <Card title="Use Terraform/IaC" icon="code">
+    Manage infrastructure as code for reproducibility
+  </Card>
+
+  <Card title="Plan Capacity" icon="gauge-high">
+    Leave 30% capacity buffer for traffic spikes
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Cluster Creation Failed">
+    **Common Causes**:
+    - Insufficient cloud provider quotas
+    - Invalid credentials or permissions
+    - Region capacity limitations
+
+    **Resolution**:
+    1. Verify credentials have required permissions
+    2. Check quota limits in cloud provider console
+    3. Try alternative region or instance type
+    4. Contact Qovery support with cluster ID
+  </Accordion>
+
+  <Accordion title="Slow Provisioning">
+    **Expected Duration**: 10-20 minutes for managed clusters
+
+    **If Exceeding 30 Minutes**:
+    - Check cloud provider status page
+    - Review provisioning logs in Qovery Console
+    - Contact support if stuck
+  </Accordion>
+
+  <Accordion title="Cannot Connect to Cluster">
+    **Verify**:
+    1. Cluster status is "Running" (green)
+    2. Download fresh kubeconfig from Qovery Console
+    3. Check network connectivity/VPN
+    4. Verify kubectl version compatibility
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy Your First App" icon="rocket" href="/guides/qovery-101/deploy">
+    Learn how to deploy applications on your provisioned cluster
+  </Card>
+
+  <Card title="Cluster Advanced Settings" icon="sliders" href="/configuration/clusters">
+    Fine-tune cluster configuration for your needs
+  </Card>
+
+  <Card title="Multi-Cluster Management" icon="server" href="/guides/use-cases/multi-kubernetes-clusters-management">
+    Manage multiple clusters across regions
+  </Card>
+
+  <Card title="Kubernetes Integrations" icon="dharmachakra" href="/integrations/kubernetes/overview">
+    Explore cloud-specific Kubernetes features
+  </Card>
+</CardGroup>

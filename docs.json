@@ -111,11 +111,13 @@
         "icon": "map",
         "groups": [
           {
-            "group": "Basics",
+            "group": "Qovery 101",
             "pages": [
-              "guides/getting-started/deploy-your-first-application",
-              "guides/getting-started/create-environment",
-              "guides/getting-started/connect-database"
+              "guides/qovery-101/provision",
+              "guides/qovery-101/deploy",
+              "guides/qovery-101/observe",
+              "guides/qovery-101/optimize",
+              "guides/qovery-101/secure"
             ]
           },
           {
