@@ -39,1001 +39,707 @@ Advanced settings are available for **Applications**, **Containers**, **Cronjobs
 Use the **Show only overridden** toggle to view only settings that differ from defaults.
 </Tip>
 
-## Service Types
+## Quick Reference
 
-Settings apply to different service types: **Application**, **Container**, **Cronjob**, **Job**, and **Helm**. Each setting specifies which service types it applies to.
+### Service Types Legend
+- **App**: Application
+- **Con**: Container
+- **Cron**: Cronjob
+- **Job**: Lifecycle Job
+- **Helm**: Helm Chart
+
+### Settings by Category
+
+<AccordionGroup>
+  <Accordion title="Build Settings (4 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `build.timeout_max_sec` | 1800 | App, Cron, Job | Build timeout in seconds |
+    | `build.cpu_max_in_milli` | 4000 | App, Cron, Job | Build CPU allocation (millicores) |
+    | `build.ram_max_in_gib` | 8 | App, Cron, Job | Build RAM allocation (GiB) |
+    | `build.ephemeral_storage_in_gib` | null | App, Cron, Job | Build ephemeral storage (GiB) |
+  </Accordion>
+
+  <Accordion title="Deployment Settings (2 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `deployment.termination_grace_period_seconds` | 60 | App, Con, Cron, Job | Graceful shutdown timeout |
+    | `deployment.affinity.node.required` | {} | App, Con, Cron, Job | Node affinity requirements |
+  </Accordion>
+
+  <Accordion title="Network - CORS (4 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `network.ingress.enable_cors` | false | App, Con, Helm | Enable CORS |
+    | `network.ingress.cors_allow_origin` | * | App, Con, Helm | Allowed origins |
+    | `network.ingress.cors_allow_methods` | GET, PUT, POST, DELETE, PATCH, OPTIONS | App, Con, Helm | Allowed HTTP methods |
+    | `network.ingress.cors_allow_headers` | DNT, Keep-Alive, User-Agent, ... | App, Con, Helm | Allowed headers |
+  </Accordion>
+
+  <Accordion title="Network - Proxy & Headers (2 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `network.ingress.proxy_body_size_mb` | 100 | App, Con, Helm | Max request body size (MB) |
+    | `network.ingress.proxy_set_headers` | {} | App, Con, Helm | Custom request headers |
+  </Accordion>
+
+  <Accordion title="Network - Access Control (5 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `network.ingress.whitelist_source_range` | 0.0.0.0/0 | App, Con, Helm | IP whitelist (CIDR) |
+    | `network.ingress.denylist_source_range` | null | App, Con, Helm | IP denylist (CIDR) |
+    | `network.ingress.basic_auth_env_var` | null | App, Con, Helm | Basic auth credentials (env var) |
+    | `network.ingress.enable_sticky_session` | false | App, Con, Helm | Session affinity |
+    | `network.ingress.sticky_session_cookie_name` | QOVERY_COOKIE_ID | App, Con, Helm | Session cookie name |
+  </Accordion>
+
+  <Accordion title="Network - gRPC (2 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `network.ingress.grpc` | false | App, Con, Helm | Enable gRPC protocol |
+    | `network.ingress.grpc_send_timeout_seconds` | 60 | App, Con, Helm | gRPC send timeout |
+  </Accordion>
+
+  <Accordion title="Network - Rate Limiting (2 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `network.ingress.add_rate_limit` | false | App, Con, Helm | Enable rate limiting |
+    | `network.ingress.rate_limit_rpm` | 0 | App, Con, Helm | Requests per minute limit |
+  </Accordion>
+
+  <Accordion title="Auto-scaling (HPA) (4 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `hpa.cpu.average_utilization_percent` | 60 | App, Con, Helm | CPU target for HPA |
+    | `hpa.memory.average_utilization_percent` | null | App, Con, Helm | Memory target for HPA |
+    | `hpa.scale_down_policy_strategy` | Max | App, Con, Helm | Scale down strategy |
+    | `hpa.scale_up_policy_strategy` | Max | App, Con, Helm | Scale up strategy |
+  </Accordion>
+
+  <Accordion title="Job Settings (2 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `job.delete_ttl_seconds_after_finished` | null | Cron, Job | Delete job after completion |
+    | `cronjob.failed_jobs_history_limit` | 1 | Cron | Failed jobs history limit |
+  </Accordion>
+
+  <Accordion title="Resources (2 settings)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `resources.override` | {} | App, Con, Cron, Job, Helm | Override resource requests/limits |
+    | `readiness_probe.initial_delay_seconds` | 30 | App, Con, Helm | Readiness probe initial delay |
+  </Accordion>
+
+  <Accordion title="Security (1 setting)">
+    | Setting | Default | Service Types | Description |
+    |---------|---------|---------------|-------------|
+    | `security.service_account_name` | null | App, Con, Cron, Job, Helm | Kubernetes ServiceAccount name |
+  </Accordion>
+</AccordionGroup>
+
+## Detailed Settings Reference
+
+---
 
 ## Build Settings
 
 Configure build process parameters for Applications, Cronjobs, and Jobs.
 
-### build.timeout_max_sec
+<Tabs>
+  <Tab title="build.timeout_max_sec">
+    Maximum duration for application build before timeout.
 
-Maximum duration for application build before timeout.
+    - **Default**: `1800` (30 minutes)
+    - **Type**: Integer (seconds)
+    - **Applies to**: Application, Cronjob, Job
 
-- **Default**: `1800` (30 minutes)
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Cronjob, Job
+    ```json
+    {
+      "build.timeout_max_sec": 3600
+    }
+    ```
+  </Tab>
 
-```json
-{
-  "build.timeout_max_sec": 3600
-}
-```
+  <Tab title="build.cpu_max_in_milli">
+    CPU allocated to your build process.
 
-### build.cpu_max_in_milli
+    - **Default**: `4000` (4 vCPU)
+    - **Type**: Integer (millicores)
+    - **Applies to**: Application, Cronjob, Job
 
-CPU allocated to your build process.
+    ```json
+    {
+      "build.cpu_max_in_milli": 8000
+    }
+    ```
+  </Tab>
 
-- **Default**: `4000` (4 vCPU)
-- **Type**: Integer (millicores)
-- **Applies to**: Application, Cronjob, Job
+  <Tab title="build.ram_max_in_gib">
+    RAM allocated to your build process.
 
-```json
-{
-  "build.cpu_max_in_milli": 8000
-}
-```
+    - **Default**: `8` GB
+    - **Type**: Integer (GiB)
+    - **Applies to**: Application, Cronjob, Job
 
-### build.ram_max_in_gib
+    ```json
+    {
+      "build.ram_max_in_gib": 16
+    }
+    ```
+  </Tab>
 
-RAM allocated to your build process.
+  <Tab title="build.ephemeral_storage_in_gib">
+    Ephemeral storage allocated to your build process.
 
-- **Default**: `8` GB
-- **Type**: Integer (GiB)
-- **Applies to**: Application, Cronjob, Job
+    - **Default**: `null` (10 GB on GKE)
+    - **Type**: Integer (GiB)
+    - **Applies to**: Application, Cronjob, Job
 
-```json
-{
-  "build.ram_max_in_gib": 16
-}
-```
+    <Note>
+    On GKE, the default ephemeral storage is 10 GB if not specified.
+    </Note>
 
-### build.ephemeral_storage_in_gib
+    ```json
+    {
+      "build.ephemeral_storage_in_gib": 20
+    }
+    ```
+  </Tab>
+</Tabs>
 
-Ephemeral storage allocated to your build process.
-
-- **Default**: `null` (10 GB on GKE)
-- **Type**: Integer (GiB)
-- **Applies to**: Application, Cronjob, Job
-
-<Note>
-On GKE, the default ephemeral storage is 10 GB if not specified.
-</Note>
-
-```json
-{
-  "build.ephemeral_storage_in_gib": 20
-}
-```
+---
 
 ## Deployment Settings
 
 Control how your services are deployed and updated on Kubernetes.
 
-### deployment.termination_grace_period_seconds
+<Tabs>
+  <Tab title="deployment.termination_grace_period_seconds">
+    Maximum time allowed for graceful shutdown before force termination.
 
-Maximum time allowed for graceful shutdown before force termination.
+    - **Default**: `60` seconds
+    - **Type**: Integer (seconds)
+    - **Applies to**: Application, Container, Cronjob, Job
 
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Cronjob, Job
+    ```json
+    {
+      "deployment.termination_grace_period_seconds": 120
+    }
+    ```
 
-```json
-{
-  "deployment.termination_grace_period_seconds": 120
-}
-```
+    <Info>
+    This allows your application to finish processing requests before being terminated. Increase for long-running requests.
+    </Info>
+  </Tab>
 
-<Info>
-This allows your application to finish processing requests before being terminated. Increase for long-running requests.
-</Info>
+  <Tab title="deployment.affinity.node.required">
+    Place pods on specific Kubernetes nodes based on node labels.
 
-### deployment.affinity.node.required
+    - **Default**: `{}` (empty)
+    - **Type**: Map (String keys and values)
+    - **Applies to**: Application, Container, Cronjob, Job
 
-Place pods on specific Kubernetes nodes based on node labels.
+    **Use cases**:
+    - Run on specific instance types (e.g., GPU nodes)
+    - Separate workloads by architecture (amd64, arm64)
+    - Compliance requirements (specific availability zones)
 
-- **Default**: `{}` (empty)
-- **Type**: Map (String keys and values)
-- **Applies to**: Application, Container, Cronjob, Job
+    ```json
+    {
+      "deployment.affinity.node.required": {
+        "node.kubernetes.io/instance-type": "c5.xlarge",
+        "topology.kubernetes.io/zone": "us-east-1a"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
 
-**Use cases**:
-- Run on specific instance types (e.g., GPU nodes)
-- Separate workloads by architecture (amd64, arm64)
-- Compliance requirements (specific availability zones)
-
-```json
-{
-  "deployment.affinity.node.required": {
-    "node.kubernetes.io/instance-type": "c5.xlarge",
-    "topology.kubernetes.io/zone": "us-east-1a"
-  }
-}
-```
-
-### deployment.antiaffinity.pod
-
-Define how pod anti-affinity should behave for high availability.
-
-- **Default**: `"Preferred"`
-- **Type**: String
-- **Values**: `"Preferred"` or `"Required"`
-- **Applies to**: Application, Container
-
-**Preferred**: Kubernetes will try to schedule pods on different nodes (soft constraint)
-**Required**: Kubernetes must schedule pods on different nodes (hard constraint)
-
-```json
-{
-  "deployment.antiaffinity.pod": "Required"
-}
-```
-
-<Warning>
-Using `"Required"` may prevent deployment if insufficient nodes are available.
-</Warning>
-
-## Deployment Strategy
-
-Configure how updates are rolled out to your services.
-
-### deployment.update_strategy.type
-
-Set the deployment strategy type.
-
-- **Default**: `"RollingUpdate"`
-- **Type**: String
-- **Values**: `"RollingUpdate"` or `"Recreate"`
-- **Applies to**: Application, Container
-
-**RollingUpdate**: Gradually replaces old pods with new ones (zero downtime)
-**Recreate**: Terminates all old pods before creating new ones (brief downtime)
-
-```json
-{
-  "deployment.update_strategy.type": "RollingUpdate"
-}
-```
-
-### deployment.update_strategy.rolling_update.max_unavailable_percent
-
-Maximum percentage of pods that can be unavailable during rolling update.
-
-- **Default**: `25`
-- **Type**: Integer (percentage)
-- **Applies to**: Application, Container
-
-```json
-{
-  "deployment.update_strategy.rolling_update.max_unavailable_percent": 10
-}
-```
-
-### deployment.update_strategy.rolling_update.max_surge_percent
-
-Maximum percentage of extra pods that can be created during rolling update.
-
-- **Default**: `25`
-- **Type**: Integer (percentage)
-- **Applies to**: Application, Container
-
-```json
-{
-  "deployment.update_strategy.rolling_update.max_surge_percent": 50
-}
-```
-
-<Tip>
-For faster deployments with more resources, increase `max_surge_percent`. For resource-constrained clusters, decrease it.
-</Tip>
-
-## Lifecycle Hooks
-
-Execute commands at specific points in the container lifecycle.
-
-### deployment.lifecycle.post_start_exec_command
-
-Run a command immediately after the container starts.
-
-- **Default**: `""` (empty)
-- **Type**: String (shell command)
-- **Applies to**: Application, Container
-
-```json
-{
-  "deployment.lifecycle.post_start_exec_command": "/bin/sh -c 'echo Container started'"
-}
-```
-
-### deployment.lifecycle.pre_stop_exec_command
-
-Run a command before the container is terminated.
-
-- **Default**: `["/bin/sh", "-c", "sleep 15"]`
-- **Type**: String (shell command)
-- **Applies to**: Application, Container
-
-<Info>
-Qovery requires the `sh` shell. The default 15-second sleep allows Nginx to update its configuration before termination.
-</Info>
-
-```json
-{
-  "deployment.lifecycle.pre_stop_exec_command": "/bin/sh -c 'echo Shutting down && sleep 30'"
-}
-```
+---
 
 ## Network Settings
 
 ### CORS Configuration
 
-Enable and configure Cross-Origin Resource Sharing (CORS).
+Enable and configure Cross-Origin Resource Sharing (CORS) for your services.
 
-#### network.ingress.enable_cors
+<Tabs>
+  <Tab title="network.ingress.enable_cors">
+    Enable CORS for your service.
 
-Enable CORS for your service.
+    - **Default**: `false`
+    - **Type**: Boolean
+    - **Applies to**: Application, Container, Helm
 
-- **Default**: `false`
-- **Type**: Boolean
-- **Applies to**: Application, Container, Helm
+    ```json
+    {
+      "network.ingress.enable_cors": true
+    }
+    ```
+  </Tab>
 
-```json
-{
-  "network.ingress.enable_cors": true
-}
-```
+  <Tab title="network.ingress.cors_allow_origin">
+    Specify allowed origins for CORS requests.
 
-#### network.ingress.cors_allow_headers
+    - **Default**: `"*"` (all origins)
+    - **Type**: String
+    - **Applies to**: Application, Container, Helm
 
-Specify which headers can be present in client requests.
+    ```json
+    {
+      "network.ingress.cors_allow_origin": "https://example.com, https://app.example.com"
+    }
+    ```
+  </Tab>
 
-- **Default**: `"DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"`
-- **Type**: String (comma-separated)
-- **Applies to**: Application, Container, Helm
+  <Tab title="network.ingress.cors_allow_methods">
+    Allowed HTTP methods for CORS requests.
 
-```json
-{
-  "network.ingress.cors_allow_headers": "Content-Type,Authorization,X-Custom-Header"
-}
-```
+    - **Default**: `"GET, PUT, POST, DELETE, PATCH, OPTIONS"`
+    - **Type**: String (comma-separated)
+    - **Applies to**: Application, Container, Helm
 
-#### network.ingress.cors_allow_methods
+    ```json
+    {
+      "network.ingress.cors_allow_methods": "GET, POST, OPTIONS"
+    }
+    ```
+  </Tab>
 
-Specify which HTTP methods can be used for client requests.
+  <Tab title="network.ingress.cors_allow_headers">
+    Allowed headers for CORS requests.
 
-- **Default**: `"GET, PUT, POST, DELETE, PATCH, OPTIONS"`
-- **Type**: String (comma-separated)
-- **Applies to**: Application, Container, Helm
+    - **Default**: `"DNT, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization"`
+    - **Type**: String (comma-separated)
+    - **Applies to**: Application, Container, Helm
 
-```json
-{
-  "network.ingress.cors_allow_methods": "GET, POST, PUT, DELETE"
-}
-```
+    ```json
+    {
+      "network.ingress.cors_allow_headers": "Authorization, Content-Type, X-Custom-Header"
+    }
+    ```
+  </Tab>
+</Tabs>
 
-#### network.ingress.cors_allow_origin
+### Proxy & Headers
 
-Specify which origins can access the resource.
+<Tabs>
+  <Tab title="network.ingress.proxy_body_size_mb">
+    Maximum allowed request body size in megabytes.
 
-- **Default**: `"*"` (all origins)
-- **Type**: String
-- **Applies to**: Application, Container, Helm
+    - **Default**: `100` MB
+    - **Type**: Integer (MB)
+    - **Applies to**: Application, Container, Helm
 
-```json
-{
-  "network.ingress.cors_allow_origin": "https://example.com"
-}
-```
+    ```json
+    {
+      "network.ingress.proxy_body_size_mb": 250
+    }
+    ```
 
-<Warning>
-Using `"*"` allows any origin. In production, specify exact domains for security.
-</Warning>
+    <Tip>
+    Increase this value for file upload endpoints or large API payloads.
+    </Tip>
+  </Tab>
 
-### Proxy Settings
+  <Tab title="network.ingress.proxy_set_headers">
+    Add custom headers to incoming requests.
 
-Configure Nginx proxy behavior for your service.
+    - **Default**: `{}` (empty)
+    - **Type**: Map (String keys and values)
+    - **Applies to**: Application, Container, Helm
 
-#### network.ingress.proxy_body_size_mb
-
-Maximum size for resources that can be downloaded.
-
-- **Default**: `100` MB
-- **Type**: Integer (megabytes)
-- **Applies to**: Application, Container, Helm
-
-**Use case**: Increase for file upload endpoints.
-
-```json
-{
-  "network.ingress.proxy_body_size_mb": 500
-}
-```
-
-#### network.ingress.proxy_buffer_size_kb
-
-Header buffer size for reading response headers.
-
-- **Default**: `4` KB
-- **Type**: Integer (kilobytes)
-- **Applies to**: Application, Container, Helm
-
-**Use case**: Increase for Auth0 integration with NextJS (large headers).
-
-```json
-{
-  "network.ingress.proxy_buffer_size_kb": 8
-}
-```
-
-#### network.ingress.proxy_connect_timeout_seconds
-
-Timeout for establishing connection with proxied server.
-
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.proxy_connect_timeout_seconds": 120
-}
-```
-
-#### network.ingress.proxy_read_timeout_seconds
-
-Timeout for reading response from proxied server.
-
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
-
-**Use case**: Fine-tune WebSocket performance.
-
-```json
-{
-  "network.ingress.proxy_read_timeout_seconds": 300
-}
-```
-
-#### network.ingress.proxy_send_timeout_seconds
-
-Timeout for transmitting request to proxied server.
-
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
-
-**Use case**: Fine-tune WebSocket performance.
-
-```json
-{
-  "network.ingress.proxy_send_timeout_seconds": 300
-}
-```
-
-#### network.ingress.proxy_buffering
-
-Enable or disable nginx proxy buffering.
-
-- **Default**: `"on"`
-- **Type**: String
-- **Values**: `"on"` or `"off"`
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.proxy_buffering": "off"
-}
-```
-
-#### network.ingress.proxy_request_buffering
-
-Enable or disable nginx proxy request buffering.
-
-- **Default**: `"on"`
-- **Type**: String
-- **Values**: `"on"` or `"off"`
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.proxy_request_buffering": "off"
-}
-```
-
-#### network.ingress.proxy_set_headers
-
-Add custom headers to incoming requests.
-
-- **Default**: `{}` (empty)
-- **Type**: Map (String keys and values)
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.proxy_set_headers": {
-    "X-Frame-Options": "DENY",
-    "X-Content-Type-Options": "nosniff"
-  }
-}
-```
+    ```json
+    {
+      "network.ingress.proxy_set_headers": {
+        "X-Forwarded-Proto": "$scheme",
+        "X-Real-IP": "$remote_addr"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
 
 ### Access Control
 
-Control who can access your services.
+<Tabs>
+  <Tab title="network.ingress.whitelist_source_range">
+    Restrict access to specific IP addresses or CIDR ranges.
 
-#### network.ingress.whitelist_source_range
+    - **Default**: `"0.0.0.0/0"` (allow all)
+    - **Type**: String (comma-separated CIDRs)
+    - **Applies to**: Application, Container, Helm
 
-Specify IP ranges allowed to access your service.
+    ```json
+    {
+      "network.ingress.whitelist_source_range": "10.0.0.0/8, 172.16.0.0/12, 203.0.113.0/24"
+    }
+    ```
 
-- **Default**: `"0.0.0.0/0"` (all IPs)
-- **Type**: String (comma-separated CIDRs)
-- **Applies to**: Application, Container, Helm
+    <Info>
+    Use this to restrict access to internal networks, VPN, or specific office IPs.
+    </Info>
+  </Tab>
 
-```json
-{
-  "network.ingress.whitelist_source_range": "10.0.0.0/24,172.10.0.1"
-}
-```
+  <Tab title="network.ingress.denylist_source_range">
+    Block access from specific IP addresses or CIDR ranges.
 
-#### network.ingress.denylist_source_range
+    - **Default**: `null` (no blocking)
+    - **Type**: String (comma-separated CIDRs)
+    - **Applies to**: Application, Container, Helm
 
-Specify IP ranges NOT allowed to access your service.
+    ```json
+    {
+      "network.ingress.denylist_source_range": "192.0.2.0/24, 198.51.100.0/24"
+    }
+    ```
+  </Tab>
 
-- **Default**: `""` (empty)
-- **Type**: String (comma-separated CIDRs)
-- **Applies to**: Application, Container, Helm
+  <Tab title="network.ingress.basic_auth_env_var">
+    Enable HTTP Basic Authentication using credentials from environment variable.
 
-```json
-{
-  "network.ingress.denylist_source_range": "192.168.1.0/24"
-}
-```
+    - **Default**: `null` (disabled)
+    - **Type**: String (environment variable name)
+    - **Applies to**: Application, Container, Helm
 
-#### network.ingress.basic_auth_env_var
+    **Environment variable format**: `username:encrypted_password`
 
-Set environment variable name for basic authentication.
+    Generate encrypted password:
+    ```bash
+    htpasswd -nb username password
+    ```
 
-- **Default**: `""` (empty)
-- **Type**: String
-- **Applies to**: Application, Container, Helm
+    ```json
+    {
+      "network.ingress.basic_auth_env_var": "BASIC_AUTH_CREDENTIALS"
+    }
+    ```
+  </Tab>
 
-**Setup**:
-1. Generate credentials with `htpasswd`
-2. Store in Qovery environment variable
-3. Reference variable name in this setting
+  <Tab title="network.ingress.enable_sticky_session">
+    Enable session affinity (sticky sessions) for load balancing.
 
-```bash
-# Generate htpasswd credentials
-htpasswd -nb username password
-# Output: username:$apr1$xyz...
-```
+    - **Default**: `false`
+    - **Type**: Boolean
+    - **Applies to**: Application, Container, Helm
 
-```json
-{
-  "network.ingress.basic_auth_env_var": "BASIC_AUTH_CREDENTIALS"
-}
-```
+    ```json
+    {
+      "network.ingress.enable_sticky_session": true
+    }
+    ```
 
-### Keepalive Settings
+    <Info>
+    Useful for stateful applications that store session data in memory.
+    </Info>
+  </Tab>
 
-Configure connection keepalive for long-lived connections.
+  <Tab title="network.ingress.sticky_session_cookie_name">
+    Cookie name used for sticky sessions.
 
-#### network.ingress.keepalive_time_seconds
+    - **Default**: `"QOVERY_COOKIE_ID"`
+    - **Type**: String
+    - **Applies to**: Application, Container, Helm
 
-Maximum time for processing requests through one keepalive connection.
+    ```json
+    {
+      "network.ingress.sticky_session_cookie_name": "MY_SESSION_ID"
+    }
+    ```
+  </Tab>
+</Tabs>
 
-- **Default**: `3600` seconds (1 hour)
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
+### gRPC Protocol
 
-**Use case**: Tune for gRPC applications.
+<Tabs>
+  <Tab title="network.ingress.grpc">
+    Enable gRPC protocol support for your service.
 
-```json
-{
-  "network.ingress.keepalive_time_seconds": 7200
-}
-```
+    - **Default**: `false`
+    - **Type**: Boolean
+    - **Applies to**: Application, Container, Helm
 
-#### network.ingress.keepalive_timeout_seconds
+    ```json
+    {
+      "network.ingress.grpc": true
+    }
+    ```
 
-Timeout for idle keepalive connections.
+    <Note>
+    When enabled, the ingress controller will use HTTP/2 protocol for gRPC traffic.
+    </Note>
+  </Tab>
 
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
+  <Tab title="network.ingress.grpc_send_timeout_seconds">
+    Timeout for gRPC send operations.
 
-**Use case**: Tune for gRPC applications.
+    - **Default**: `60` seconds
+    - **Type**: Integer (seconds)
+    - **Applies to**: Application, Container, Helm
 
-```json
-{
-  "network.ingress.keepalive_timeout_seconds": 120
-}
-```
-
-### gRPC Settings
-
-Optimize timeout settings for gRPC services.
-
-#### network.ingress.grpc_read_timeout_seconds
-
-Timeout for reading data from gRPC connections.
-
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
-
-**Use case**: Streaming gRPC services with infrequent data.
-
-```json
-{
-  "network.ingress.grpc_read_timeout_seconds": 300
-}
-```
-
-#### network.ingress.grpc_send_timeout_seconds
-
-Timeout for transmitting data to gRPC backend.
-
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
-
-**Use case**: Bidirectional streaming with large payloads.
-
-```json
-{
-  "network.ingress.grpc_send_timeout_seconds": 300
-}
-```
+    ```json
+    {
+      "network.ingress.grpc_send_timeout_seconds": 120
+    }
+    ```
+  </Tab>
+</Tabs>
 
 ### Rate Limiting
 
-Control request rates to protect your services.
+<Tabs>
+  <Tab title="network.ingress.add_rate_limit">
+    Enable rate limiting for incoming requests.
 
-#### network.ingress.nginx_limit_burst_multiplier
+    - **Default**: `false`
+    - **Type**: Boolean
+    - **Applies to**: Application, Container, Helm
 
-Set limit burst multiplier for rate limiting.
+    ```json
+    {
+      "network.ingress.add_rate_limit": true
+    }
+    ```
+  </Tab>
 
-- **Default**: `null`
-- **Type**: String
-- **Applies to**: Application, Container, Helm
+  <Tab title="network.ingress.rate_limit_rpm">
+    Maximum requests per minute allowed per IP address.
 
-```json
-{
-  "network.ingress.nginx_limit_burst_multiplier": "5"
-}
-```
+    - **Default**: `0` (unlimited)
+    - **Type**: Integer (requests per minute)
+    - **Applies to**: Application, Container, Helm
 
-#### network.ingress.nginx_limit_connections
+    ```json
+    {
+      "network.ingress.rate_limit_rpm": 300
+    }
+    ```
 
-Set maximum number of concurrent connections.
+    <Info>
+    Rate limiting is applied per client IP address. Set to `0` to disable.
+    </Info>
+  </Tab>
+</Tabs>
 
-- **Default**: `null`
-- **Type**: Integer
-- **Applies to**: Application, Container, Helm
+---
 
-```json
-{
-  "network.ingress.nginx_limit_connections": 100
-}
-```
+## Auto-scaling (HPA)
 
-#### network.ingress.nginx_limit_rpm
+Configure Horizontal Pod Autoscaler behavior for your services.
 
-Set limit for requests per minute.
+<Tabs>
+  <Tab title="hpa.cpu.average_utilization_percent">
+    Target CPU utilization percentage for horizontal pod autoscaling.
 
-- **Default**: `null`
-- **Type**: String
-- **Applies to**: Application, Container, Helm
+    - **Default**: `60`%
+    - **Type**: Integer (percentage)
+    - **Applies to**: Application, Container, Helm
 
-```json
-{
-  "network.ingress.nginx_limit_rpm": "1000"
-}
-```
+    ```json
+    {
+      "hpa.cpu.average_utilization_percent": 75
+    }
+    ```
 
-#### network.ingress.nginx_limit_rps
+    <Info>
+    When average CPU exceeds this threshold, HPA will scale up pods. When it drops below, it will scale down.
+    </Info>
+  </Tab>
 
-Set limit for requests per second.
+  <Tab title="hpa.memory.average_utilization_percent">
+    Target memory utilization percentage for horizontal pod autoscaling.
 
-- **Default**: `null`
-- **Type**: String
-- **Applies to**: Application, Container, Helm
+    - **Default**: `null` (disabled)
+    - **Type**: Integer (percentage)
+    - **Applies to**: Application, Container, Helm
 
-```json
-{
-  "network.ingress.nginx_limit_rps": "100"
-}
-```
+    ```json
+    {
+      "hpa.memory.average_utilization_percent": 80
+    }
+    ```
+  </Tab>
 
-### Other Network Settings
+  <Tab title="hpa.scale_down_policy_strategy">
+    Strategy for scaling down pods when load decreases.
 
-#### network.ingress.force_ssl_redirect
+    - **Default**: `"Max"`
+    - **Type**: String
+    - **Values**: `"Max"`, `"Min"`, `"Disabled"`
+    - **Applies to**: Application, Container, Helm
 
-Control automatic HTTPS redirect.
+    ```json
+    {
+      "hpa.scale_down_policy_strategy": "Min"
+    }
+    ```
 
-- **Default**: `true`
-- **Type**: Boolean
-- **Applies to**: Application, Container, Helm
+    **Strategies**:
+    - `Max`: Use highest number of pods from all policies
+    - `Min`: Use lowest number of pods from all policies
+    - `Disabled`: Disable scale down
+  </Tab>
 
-**Use case**: Disable when SSL offloading happens outside the cluster.
+  <Tab title="hpa.scale_up_policy_strategy">
+    Strategy for scaling up pods when load increases.
 
-```json
-{
-  "network.ingress.force_ssl_redirect": false
-}
-```
+    - **Default**: `"Max"`
+    - **Type**: String
+    - **Values**: `"Max"`, `"Min"`, `"Disabled"`
+    - **Applies to**: Application, Container, Helm
 
-#### network.ingress.send_timeout_seconds
+    ```json
+    {
+      "hpa.scale_up_policy_strategy": "Max"
+    }
+    ```
+  </Tab>
+</Tabs>
 
-Timeout for transmitting response to client.
-
-- **Default**: `60` seconds
-- **Type**: Integer (seconds)
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.send_timeout_seconds": 120
-}
-```
-
-#### network.ingress.enable_sticky_session
-
-Enable session affinity (sticky sessions).
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Applies to**: Application, Container, Helm
-
-**Use case**: Bind user sessions to specific pods.
-
-```json
-{
-  "network.ingress.enable_sticky_session": true
-}
-```
-
-<Info>
-Sticky sessions are useful for stateful applications but can cause uneven load distribution.
-</Info>
-
-#### network.ingress.add_headers
-
-Add custom headers to outgoing responses.
-
-- **Default**: `{}` (empty)
-- **Type**: Map (String keys and values)
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.add_headers": {
-    "X-Custom-Header": "value",
-    "Cache-Control": "public, max-age=3600"
-  }
-}
-```
-
-#### network.ingress.nginx_controller_configuration_snippet
-
-Add custom Nginx configuration snippet.
-
-- **Default**: `null`
-- **Type**: String
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.nginx_controller_configuration_snippet": "more_set_headers \"X-Custom: value\";"
-}
-```
-
-#### network.ingress.nginx_controller_server_snippet
-
-Add custom Nginx server snippet.
-
-- **Default**: `null`
-- **Type**: String
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.nginx_controller_server_snippet": "location /custom { return 200 'OK'; }"
-}
-```
-
-#### network.ingress.nginx_custom_http_errors
-
-Set custom HTTP error codes.
-
-- **Default**: `null`
-- **Type**: String (comma-separated)
-- **Applies to**: Application, Container, Helm
-
-```json
-{
-  "network.ingress.nginx_custom_http_errors": "404,503"
-}
-```
-
-## Auto-Scaling
-
-Configure Horizontal Pod Autoscaler (HPA) triggers.
-
-### hpa.cpu.average_utilization_percent
-
-CPU utilization threshold to trigger auto-scaling.
-
-- **Default**: `60`%
-- **Type**: Integer (percentage)
-- **Applies to**: Application, Container
-
-```json
-{
-  "hpa.cpu.average_utilization_percent": 75
-}
-```
-
-### hpa.memory.average_utilization_percent
-
-Memory utilization threshold to trigger auto-scaling.
-
-- **Default**: `null` (disabled)
-- **Type**: Integer (percentage)
-- **Applies to**: Application, Container
-
-```json
-{
-  "hpa.memory.average_utilization_percent": 80
-}
-```
-
-<Tip>
-Enable memory-based scaling for memory-intensive applications to prevent OOM errors.
-</Tip>
+---
 
 ## Job Settings
 
-Configure job execution and cleanup behavior.
+Configure behavior for Cronjobs and Lifecycle Jobs.
 
-### job.delete_ttl_seconds_after_finished
+<Tabs>
+  <Tab title="job.delete_ttl_seconds_after_finished">
+    Automatically delete job pods after completion.
 
-Automatically delete completed jobs after specified time.
+    - **Default**: `null` (never delete)
+    - **Type**: Integer (seconds)
+    - **Applies to**: Cronjob, Job
 
-- **Default**: `null` (keep forever)
-- **Type**: Integer (seconds)
-- **Applies to**: Cronjob, Job
+    ```json
+    {
+      "job.delete_ttl_seconds_after_finished": 3600
+    }
+    ```
 
-```json
-{
-  "job.delete_ttl_seconds_after_finished": 3600
-}
-```
+    <Tip>
+    Set this value to automatically clean up completed job pods and reduce cluster clutter.
+    </Tip>
+  </Tab>
 
-### cronjob.concurrency_policy
+  <Tab title="cronjob.failed_jobs_history_limit">
+    Number of failed job executions to keep in history.
 
-Define behavior when a new job starts before the previous one finishes.
+    - **Default**: `1`
+    - **Type**: Integer
+    - **Applies to**: Cronjob
 
-- **Default**: `"Forbidden"`
-- **Type**: String
-- **Values**: `"Allow"`, `"Forbid"`, or `"Replace"`
-- **Applies to**: Cronjob
+    ```json
+    {
+      "cronjob.failed_jobs_history_limit": 3
+    }
+    ```
 
-**Allow**: Multiple jobs can run concurrently
-**Forbid**: Skip new job if previous is still running
-**Replace**: Cancel previous job and start new one
+    <Info>
+    Increase this value to retain more failed job history for debugging purposes.
+    </Info>
+  </Tab>
+</Tabs>
 
-```json
-{
-  "cronjob.concurrency_policy": "Allow"
-}
-```
+---
 
-### cronjob.failed_job_history_limit
+## Resources
 
-Maximum number of failed job executions to keep in history.
+Fine-tune resource allocation and health checks.
 
-- **Default**: `"1"`
-- **Type**: String
-- **Applies to**: Cronjob
+<Tabs>
+  <Tab title="resources.override">
+    Override default resource requests and limits for your service.
 
-```json
-{
-  "cronjob.failed_job_history_limit": "3"
-}
-```
+    - **Default**: `{}` (use Qovery defaults)
+    - **Type**: Map
+    - **Applies to**: Application, Container, Cronjob, Job, Helm
 
-### cronjob.success_job_history_limit
+    ```json
+    {
+      "resources.override": {
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "2000m",
+          "memory": "2Gi"
+        }
+      }
+    }
+    ```
 
-Maximum number of successful job executions to keep in history.
+    <Warning>
+    Overriding resources can impact cluster scheduling and cost. Monitor usage carefully.
+    </Warning>
+  </Tab>
 
-- **Default**: `"1"`
-- **Type**: String
-- **Applies to**: Cronjob
+  <Tab title="readiness_probe.initial_delay_seconds">
+    Initial delay before readiness probe starts checking service health.
 
-```json
-{
-  "cronjob.success_job_history_limit": "5"
-}
-```
+    - **Default**: `30` seconds
+    - **Type**: Integer (seconds)
+    - **Applies to**: Application, Container, Helm
 
-## Resource Overcommit
+    ```json
+    {
+      "readiness_probe.initial_delay_seconds": 60
+    }
+    ```
 
-Override CPU and memory limits for advanced resource management.
+    <Tip>
+    Increase for applications with slow startup times (e.g., loading large datasets, warming caches).
+    </Tip>
+  </Tab>
+</Tabs>
 
-<Warning>
-Resource overcommit requires cluster-level settings `allow_service_cpu_overcommit` and `allow_service_ram_overcommit` to be enabled. Overcommitting can cause cluster instability.
-</Warning>
-
-### resources.override.limit.cpu_in_milli
-
-Define CPU overcommit (pod CPU limit > request).
-
-- **Default**: `null` (limit = request)
-- **Type**: Integer (millicores)
-- **Applies to**: Application, Container, Cronjob, Job
-
-```json
-{
-  "resources.override.limit.cpu_in_milli": 4000
-}
-```
-
-### resources.override.limit.ram_in_mib
-
-Define memory overcommit (pod memory limit > request).
-
-- **Default**: `null` (limit = request)
-- **Type**: Integer (MiB)
-- **Applies to**: Application, Container, Cronjob, Job
-
-```json
-{
-  "resources.override.limit.ram_in_mib": 2048
-}
-```
+---
 
 ## Security
 
-Configure security-related settings for your services.
+Configure Kubernetes security settings for your services.
 
-### security.service_account_name
+<Tabs>
+  <Tab title="security.service_account_name">
+    Specify a custom Kubernetes ServiceAccount for pod identity and RBAC.
 
-Use an existing Kubernetes service account.
+    - **Default**: `null` (use default ServiceAccount)
+    - **Type**: String
+    - **Applies to**: Application, Container, Cronjob, Job, Helm
 
-- **Default**: `""` (empty)
-- **Type**: String
-- **Applies to**: Application, Container, Cronjob, Job
+    ```json
+    {
+      "security.service_account_name": "my-custom-service-account"
+    }
+    ```
 
-**Use case on AWS**: Assume IAM role to grant AWS permissions to pods.
+    **Use cases**:
+    - AWS IRSA (IAM Roles for Service Accounts)
+    - GCP Workload Identity
+    - Custom RBAC permissions
+    - Pod security policies
 
-```json
-{
-  "security.service_account_name": "my-service-account"
-}
-```
+    <Info>
+    The ServiceAccount must already exist in the same namespace as your service.
+    </Info>
+  </Tab>
+</Tabs>
 
-<Info>
-Create the service account in Kubernetes before referencing it here.
-</Info>
+---
 
-### security.automount_service_account_token
+## Configuring Advanced Settings
 
-Automatically mount service account token for Kubernetes API access.
+### Via Qovery Console
 
-- **Default**: `false`
-- **Type**: Boolean
-- **Applies to**: Application, Container, Cronjob, Job
+1. Navigate to your service (Application, Container, Job, Cronjob, or Helm)
+2. Click **Settings** tab
+3. Scroll to **Advanced Settings** section
+4. Click on any setting to modify its value
+5. Click **Save** and redeploy your service
 
-```json
-{
-  "security.automount_service_account_token": true
-}
-```
+### Via Qovery API
 
-### security.read_only_root_filesystem
-
-Mount container's root filesystem as read-only.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Applies to**: Application, Container, Cronjob, Job
-
-<Warning>
-Applications requiring write access should use volumes instead of root filesystem.
-</Warning>
-
-```json
-{
-  "security.read_only_root_filesystem": true
-}
-```
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Start with Defaults">
-    Begin with default settings and adjust based on monitoring and performance testing. Avoid premature optimization.
-  </Accordion>
-
-  <Accordion title="Test in Non-Production First">
-    Always test advanced settings in development or staging environments before applying to production.
-  </Accordion>
-
-  <Accordion title="Document Changes">
-    Keep track of why you changed specific settings. Use Qovery's deployment notes or external documentation.
-  </Accordion>
-
-  <Accordion title="Monitor Impact">
-    Use Qovery Observe or your monitoring solution to track the impact of setting changes on performance and stability.
-  </Accordion>
-
-  <Accordion title="Be Cautious with Overcommit">
-    Avoid resource overcommit unless you fully understand the implications. It can lead to pod evictions and cluster instability.
-  </Accordion>
-
-  <Accordion title="Security First">
-    - Use IP whitelisting for sensitive services
-    - Enable read-only root filesystem when possible
-    - Restrict CORS origins in production
-    - Use basic auth for internal tools
-  </Accordion>
-</AccordionGroup>
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Build Timeouts">
-    **Issue**: Builds timing out before completion
-
-    **Solution**: Increase `build.timeout_max_sec` or optimize build process (use build cache, multi-stage Dockerfiles).
-  </Accordion>
-
-  <Accordion title="502/504 Gateway Errors">
-    **Issue**: Nginx returns 502 or 504 errors
-
-    **Solutions**:
-    - Increase `proxy_connect_timeout_seconds`
-    - Increase `proxy_read_timeout_seconds`
-    - Check application health and startup time
-  </Accordion>
-
-  <Accordion title="WebSocket Connection Drops">
-    **Issue**: WebSocket connections dropping unexpectedly
-
-    **Solutions**:
-    - Increase `proxy_read_timeout_seconds` and `proxy_send_timeout_seconds`
-    - Adjust `keepalive_timeout_seconds`
-    - Enable `enable_sticky_session` for connection persistence
-  </Accordion>
-
-  <Accordion title="Large File Upload Failures">
-    **Issue**: File uploads failing with 413 errors
-
-    **Solution**: Increase `proxy_body_size_mb` to accommodate larger files.
-  </Accordion>
-
-  <Accordion title="Pod Scheduling Issues">
-    **Issue**: Pods not being scheduled on desired nodes
-
-    **Solutions**:
-    - Verify node labels match `deployment.affinity.node.required`
-    - Check node capacity and taints
-    - Review pod anti-affinity requirements
-  </Accordion>
-
-  <Accordion title="Auth0/OAuth Header Issues">
-    **Issue**: Authentication failing with large headers
-
-    **Solution**: Increase `proxy_buffer_size_kb` to handle larger authentication headers.
-  </Accordion>
-</AccordionGroup>
-
-## API Configuration
-
-Advanced settings can also be configured via Qovery API:
+Advanced settings can be configured using the Qovery API:
 
 ```bash
 curl -X PATCH "https://api.qovery.com/application/{application_id}/advancedSettings" \
@@ -1046,30 +752,152 @@ curl -X PATCH "https://api.qovery.com/application/{application_id}/advancedSetti
   }'
 ```
 
-<Info>
-For complete API documentation, see the [Qovery API Reference](/api-reference/introduction).
-</Info>
+### Via Terraform
 
-## Additional Resources
+Use the Qovery Terraform Provider to manage advanced settings as code:
 
-<CardGroup cols={2}>
-  <Card title="Application Configuration" icon="application" href="/configuration/application">
-    Learn about basic application configuration
-  </Card>
-  <Card title="Cluster Advanced Settings" icon="cluster" href="/configuration/clusters#advanced-settings">
-    Configure cluster-level advanced settings
-  </Card>
-  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
-    Manage environment variables and secrets
-  </Card>
-  <Card title="Deployment Configuration" icon="rocket" href="/deploy-my-app">
-    Understand deployment workflows
-  </Card>
-</CardGroup>
+```hcl
+resource "qovery_application" "my_app" {
+  name                 = "my-application"
+  environment_id       = qovery_environment.prod.id
+
+  advanced_settings_json = jsonencode({
+    "build.timeout_max_sec" = 3600
+    "network.ingress.enable_cors" = true
+    "network.ingress.cors_allow_origin" = "https://example.com"
+    "hpa.cpu.average_utilization_percent" = 75
+  })
+}
+```
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start with Defaults">
+    Begin with Qovery's default settings and only modify when you have a specific requirement. Defaults are optimized for most use cases.
+  </Accordion>
+
+  <Accordion title="Test in Non-Production First">
+    Always test advanced settings changes in development or staging environments before applying to production.
+  </Accordion>
+
+  <Accordion title="Document Your Changes">
+    Keep track of why you changed specific settings. This helps with troubleshooting and knowledge sharing across your team.
+  </Accordion>
+
+  <Accordion title="Monitor After Changes">
+    After modifying advanced settings, closely monitor your service's performance, resource usage, and logs for 24-48 hours.
+  </Accordion>
+
+  <Accordion title="Use Infrastructure as Code">
+    Manage advanced settings through Terraform or API to maintain consistency across environments and enable version control.
+  </Accordion>
+
+  <Accordion title="Security First">
+    - Always use IP whitelisting for internal services
+    - Enable Basic Auth for sensitive endpoints
+    - Use HTTPS-only for CORS origins
+    - Set appropriate rate limits to prevent abuse
+  </Accordion>
+
+  <Accordion title="Resource Optimization">
+    - Set realistic build timeouts to catch hanging builds early
+    - Configure HPA thresholds based on actual traffic patterns
+    - Use resource overrides sparingly and monitor cluster impact
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Service Not Starting After Settings Change">
+    **Symptoms**: Service deployment fails or pods crash after modifying advanced settings.
+
+    **Common Causes**:
+    - Invalid resource overrides (requests > limits)
+    - ServiceAccount doesn't exist
+    - Node affinity requirements can't be satisfied
+    - Build timeout too short
+
+    **Resolution**:
+    1. Check deployment logs for specific error messages
+    2. Verify resource values are valid (requests ≤ limits)
+    3. Confirm ServiceAccount exists: `kubectl get sa -n NAMESPACE`
+    4. Check node labels match affinity requirements
+    5. Revert to default settings and apply changes incrementally
+  </Accordion>
+
+  <Accordion title="CORS Not Working">
+    **Symptoms**: Browser shows CORS errors despite enabling CORS settings.
+
+    **Troubleshooting**:
+    1. Verify `network.ingress.enable_cors` is `true`
+    2. Check `cors_allow_origin` includes your domain (not just `*`)
+    3. Ensure `cors_allow_methods` includes your HTTP method
+    4. Verify `cors_allow_headers` includes required headers
+    5. Check browser console for specific CORS error details
+    6. Confirm service has redeployed after settings change
+  </Accordion>
+
+  <Accordion title="HPA Not Scaling">
+    **Symptoms**: Horizontal Pod Autoscaler not scaling pods despite load.
+
+    **Check**:
+    1. Metrics server is installed: `kubectl top pods`
+    2. CPU/memory requests are set (HPA requires requests)
+    3. Current utilization exceeds threshold
+    4. Min/max instances configured correctly
+    5. HPA events: `kubectl describe hpa HPA_NAME`
+
+    **Common Issues**:
+    - No resource requests defined (HPA can't calculate percentage)
+    - Utilization below threshold
+    - Already at max instances
+    - Scale down policy set to `Disabled`
+  </Accordion>
+
+  <Accordion title="Rate Limiting Issues">
+    **Symptoms**: Legitimate requests being blocked by rate limiter.
+
+    **Resolution**:
+    1. Review `rate_limit_rpm` value - may be too restrictive
+    2. Check if rate limit is per IP (all users behind NAT count as one)
+    3. Consider using application-level rate limiting for better control
+    4. Monitor Nginx ingress logs for rate limit events
+    5. Adjust RPM based on actual traffic patterns
+  </Accordion>
+
+  <Accordion title="Basic Auth Not Prompting">
+    **Symptoms**: Basic auth not triggering authentication prompt.
+
+    **Verify**:
+    1. Environment variable specified in `basic_auth_env_var` exists
+    2. Environment variable format is correct: `username:encrypted_password`
+    3. Password encrypted with htpasswd: `htpasswd -nb user pass`
+    4. Service has been redeployed after setting change
+    5. Accessing via HTTPS (some browsers skip auth on HTTP)
+  </Accordion>
+</AccordionGroup>
+
+---
 
 ## Next Steps
 
-- Configure advanced settings for your specific use case
-- Monitor application performance after changes
-- Review security settings for production services
-- Explore cluster-level advanced settings for infrastructure tuning
+<CardGroup cols={2}>
+  <Card title="Cluster Advanced Settings" icon="server" href="/configuration/clusters">
+    Configure cluster-level advanced settings
+  </Card>
+  <Card title="Environment Variables" icon="code" href="/configuration/environment-variables">
+    Manage environment variables and secrets
+  </Card>
+  <Card title="Qovery API Reference" icon="brackets-curly" href="/api-reference/introduction">
+    Explore the full Qovery API
+  </Card>
+  <Card title="Terraform Provider" icon="terraform" href="/terraform/overview">
+    Manage infrastructure as code
+  </Card>
+</CardGroup>
