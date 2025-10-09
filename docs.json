@@ -84,7 +84,8 @@
               "configuration/cronjob",
               "configuration/lifecycle-job",
               "configuration/terraform",
-              "configuration/clusters"
+              "configuration/clusters",
+              "configuration/service-advanced-settings"
             ]
           },
           {

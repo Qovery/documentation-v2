@@ -162,16 +162,1002 @@ For advanced networking configurations like VPC peering, see our [AWS VPC Peerin
 
 ### Advanced Settings
 
-Access cloud provider-specific advanced settings:
-- Node instance types
-- Auto-scaling configuration
-- Storage classes
-- Add-ons and plugins
-- Security policies
+Cluster Advanced Settings provide fine-grained control over cluster infrastructure, networking, logging, and cloud provider-specific configurations. These settings allow you to optimize performance, security, and cost without requiring direct cloud provider console access.
+
+<Info>
+Advanced settings are configured via the **Qovery API**. Console UI support is coming soon.
+</Info>
 
 <Warning>
-Some advanced settings may impact cluster stability or cost. Review documentation before making changes.
+Some advanced settings may impact cluster stability or cost. Review documentation carefully before making changes. Settings marked with ⚠️ warnings can cause cluster instability if misconfigured.
 </Warning>
+
+## Cloud Provider Legend
+
+Advanced settings apply to different cloud providers:
+
+| Icon | Provider |
+|------|----------|
+| ![AWS](/img/advanced_settings/aws.svg) | Amazon Web Services |
+| ![GCP](/img/advanced_settings/gcp.svg) | Google Cloud Platform |
+| ![Azure](/img/advanced_settings/azure.svg) | Microsoft Azure |
+| ![Scaleway](/img/advanced_settings/scaleway.svg) | Scaleway |
+
+## Logs Settings
+
+Configure log retention and flow logs for your cluster.
+
+### aws.cloudwatch.eks_logs_retention_days
+
+Maximum retention days in CloudWatch for EKS logs.
+
+- **Default**: `90` days
+- **Type**: Integer
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+- **Possible Values**: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2192, 2557, 2922, 3288, 3653
+
+```json
+{
+  "aws.cloudwatch.eks_logs_retention_days": 180
+}
+```
+
+### aws.vpc.enable_s3_flow_logs
+
+Enable VPC flow logs and store them in S3.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.vpc.enable_s3_flow_logs": true
+}
+```
+
+### aws.vpc.flow_logs_retention_days
+
+Number of retention days for VPC flow logs.
+
+- **Default**: `365` days
+- **Type**: Integer
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+<Info>
+Set to `0` for unlimited retention.
+</Info>
+
+```json
+{
+  "aws.vpc.flow_logs_retention_days": 0
+}
+```
+
+### loki.log_retention_in_week
+
+Maximum Kubernetes pod log retention in weeks (Loki).
+
+- **Default**: `12` weeks (84 days)
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "loki.log_retention_in_week": 24
+}
+```
+
+### gcp.vpc.enable_flow_logs
+
+Enable VPC flow logs on all VPC subnetworks.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Provider**: ![GCP](/img/advanced_settings/gcp.svg) GCP
+
+```json
+{
+  "gcp.vpc.enable_flow_logs": true
+}
+```
+
+### gcp.vpc.flow_logs_sampling
+
+VPC flow logs sampling percentage.
+
+- **Default**: `0.0` (no sampling)
+- **Type**: Float (0.0 to 1.0)
+- **Cloud Provider**: ![GCP](/img/advanced_settings/gcp.svg) GCP
+
+<Info>
+`0.0` = no sampling, `1.0` = capture all logs
+</Info>
+
+```json
+{
+  "gcp.vpc.flow_logs_sampling": 0.5
+}
+```
+
+## DNS Settings
+
+Configure custom DNS resolution rules.
+
+### dns.coredns.extra_config
+
+Add additional CoreDNS configuration for custom DNS resolution.
+
+- **Default**: `null`
+- **Type**: String
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) ![Azure](/img/advanced_settings/azure.svg) AWS, Scaleway, Azure
+
+**Example**: Forward `example.com` queries to custom DNS server.
+
+```json
+{
+  "dns.coredns.extra_config": "example.com:53 {\n  errors\n  cache 30\n  forward . 8.8.8.8\n}"
+}
+```
+
+## Image Registry Settings
+
+Configure container image registry behavior.
+
+### registry.image_retention_time
+
+Time in seconds before images in default registry are deleted.
+
+- **Default**: `31536000` (1 year)
+- **Type**: Integer (seconds)
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+<Note>
+Only affects new ECR repositories created after this setting is changed.
+</Note>
+
+```json
+{
+  "registry.image_retention_time": 63072000
+}
+```
+
+### registry.mirroring_mode
+
+Image mirroring mode for cluster deployments.
+
+- **Default**: `"Service"`
+- **Type**: String
+- **Values**: `"Service"` or `"Cluster"`
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "registry.mirroring_mode": "Cluster"
+}
+```
+
+### cloud_provider.container_registry.tags
+
+Add custom tags to cluster-dedicated registry.
+
+- **Default**: Not specified
+- **Type**: Map<String, String>
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "cloud_provider.container_registry.tags": {
+    "Team": "platform",
+    "Environment": "production"
+  }
+}
+```
+
+## Network Settings
+
+Configure load balancers, Nginx controller, and networking behavior.
+
+### Load Balancer (Scaleway)
+
+#### load_balancer.size
+
+Specify load balancer size for Scaleway clusters.
+
+- **Default**: `"lb-s"`
+- **Type**: String
+- **Cloud Provider**: ![Scaleway](/img/advanced_settings/scaleway.svg) Scaleway
+- **Values**:
+  - `"lb-s"`: 200 Mbps
+  - `"lb-gp-m"`: 500 Mbps
+  - `"lb-gp-l"`: 1 Gbps
+  - `"lb-gp-xl"`: 4 Gbps
+
+```json
+{
+  "load_balancer.size": "lb-gp-l"
+}
+```
+
+### AWS Load Balancer Controller
+
+#### aws.eks.enable_alb_controller
+
+Enable AWS Application Load Balancer (ALB) controller.
+
+- **Default**: `true`
+- **Type**: Boolean
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.eks.enable_alb_controller": false
+}
+```
+
+#### aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu
+
+AWS ALB controller VPA minimum vCPU.
+
+- **Default**: `250` millicores
+- **Type**: Integer
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu": 500
+}
+```
+
+#### aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu
+
+AWS ALB controller VPA maximum vCPU.
+
+- **Default**: `250` millicores
+- **Type**: Integer
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu": 1000
+}
+```
+
+#### aws.eks.alb_controller.vpa.memory.min_in_mib
+
+AWS ALB controller VPA minimum memory.
+
+- **Default**: `128` MiB
+- **Type**: Integer
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.eks.alb_controller.vpa.memory.min_in_mib": 256
+}
+```
+
+#### aws.eks.alb_controller.vpa.memory.max_in_mib
+
+AWS ALB controller VPA maximum memory.
+
+- **Default**: `128` MiB
+- **Type**: Integer
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.eks.alb_controller.vpa.memory.max_in_mib": 512
+}
+```
+
+### Nginx Controller Resources
+
+#### nginx.vcpu.request_in_milli_cpu
+
+Nginx controller vCPU request.
+
+- **Default**: `200` millicores
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.vcpu.request_in_milli_cpu": 500
+}
+```
+
+#### nginx.vcpu.limit_in_milli_cpu
+
+Nginx controller vCPU limit.
+
+- **Default**: `700` millicores
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.vcpu.limit_in_milli_cpu": 1000
+}
+```
+
+#### nginx.memory.request_in_mib
+
+Nginx controller memory request.
+
+- **Default**: `768` MiB
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.memory.request_in_mib": 1024
+}
+```
+
+#### nginx.memory.limit_in_mib
+
+Nginx controller memory limit.
+
+- **Default**: `768` MiB
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.memory.limit_in_mib": 1024
+}
+```
+
+### Nginx Controller HPA
+
+#### nginx.hpa.cpu_utilization_percentage_threshold
+
+HPA CPU threshold for Nginx deployment.
+
+- **Default**: `50`%
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.hpa.cpu_utilization_percentage_threshold": 70
+}
+```
+
+#### nginx.hpa.min_number_instances
+
+Minimum number of Nginx instances.
+
+- **Default**: `2`
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.hpa.min_number_instances": 3
+}
+```
+
+#### nginx.hpa.max_number_instances
+
+Maximum number of Nginx instances.
+
+- **Default**: `25`
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.hpa.max_number_instances": 50
+}
+```
+
+### Nginx Controller Configuration
+
+#### nginx.controller.enable_client_ip
+
+Enable `ngx_http_realip_module` to pass client IP.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.enable_client_ip": true
+}
+```
+
+#### nginx.controller.enable_compression
+
+Enable Brotli compression for HTTP responses.
+
+- **Default**: `true`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.enable_compression": false
+}
+```
+
+#### nginx.controller.use_forwarded_headers
+
+Pass incoming `X-Forwarded-For` header upstream.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.use_forwarded_headers": true
+}
+```
+
+#### nginx.controller.compute_full_forwarded_for
+
+Append remote address to `X-Forwarded-For` header.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.compute_full_forwarded_for": true
+}
+```
+
+#### nginx.controller.log_format_upstream
+
+Customize Nginx log format.
+
+- **Default**: `null`
+- **Type**: String
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.log_format_upstream": "$remote_addr - $remote_user [$time_local] \"$request\" $status"
+}
+```
+
+#### nginx.controller.log_format_escaping
+
+Customize Nginx log format escaping.
+
+- **Default**: `"Default"`
+- **Type**: String
+- **Values**: `"Default"`, `"JSON"`, `"None"`
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.log_format_escaping": "JSON"
+}
+```
+
+#### nginx.controller.http_snippet
+
+Add custom Nginx HTTP snippet configuration.
+
+- **Default**: `null`
+- **Type**: String
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.http_snippet": "proxy_cache_path /tmp/cache keys_zone=cache:10m;"
+}
+```
+
+#### nginx.controller.server_snippet
+
+Add custom Nginx server snippet configuration.
+
+- **Default**: `null`
+- **Type**: String
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.server_snippet": "location /health { return 200; }"
+}
+```
+
+#### nginx.controller.limit_request_status_code
+
+Customize Nginx rate limit status code.
+
+- **Default**: `null` (Nginx defaults to 503)
+- **Type**: Integer
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.limit_request_status_code": 429
+}
+```
+
+#### nginx.controller.custom_http_errors
+
+Customize Nginx custom HTTP error codes.
+
+- **Default**: `null`
+- **Type**: String (comma-separated)
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.controller.custom_http_errors": "404,503"
+}
+```
+
+### Nginx Default Backend
+
+#### nginx.default_backend.enabled
+
+Enable Nginx default backend.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+<Note>
+Ensure cluster has nodes with amd64 architecture.
+</Note>
+
+```json
+{
+  "nginx.default_backend.enabled": true
+}
+```
+
+#### nginx.default_backend.image_repository
+
+Docker image repository for default backend.
+
+- **Default**: `null`
+- **Type**: String
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+<Info>
+Image must be publicly accessible.
+</Info>
+
+```json
+{
+  "nginx.default_backend.image_repository": "myregistry/custom-backend"
+}
+```
+
+#### nginx.default_backend.image_tag
+
+Image tag for default backend.
+
+- **Default**: `null`
+- **Type**: String
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "nginx.default_backend.image_tag": "1.4"
+}
+```
+
+## Service Settings
+
+Control resource overcommit and database access.
+
+### allow_service_cpu_overcommit
+
+Allow CPU overcommit (limit > request) for services.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+<Warning>
+⚠️ Enabling CPU overcommit can lead to cluster instability and unpredictable performance.
+</Warning>
+
+```json
+{
+  "allow_service_cpu_overcommit": true
+}
+```
+
+### allow_service_ram_overcommit
+
+Allow memory overcommit (limit > request) for services.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+<Warning>
+⚠️ Enabling memory overcommit can lead to cluster instability, pod evictions, and OOM errors.
+</Warning>
+
+```json
+{
+  "allow_service_ram_overcommit": true
+}
+```
+
+### Database Access Control
+
+Configure network access restrictions for managed and container databases.
+
+**Database Icons**:
+- ![Database Container](/img/advanced_settings/database-container.svg) Container Database
+- ![Database Managed](/img/advanced_settings/database-managed.svg) Managed Database
+
+#### database.postgresql.deny_any_access
+
+Deny all access to PostgreSQL databases.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.postgresql.deny_any_access": true
+}
+```
+
+#### database.postgresql.allowed_cidrs
+
+List of allowed CIDR ranges for PostgreSQL.
+
+- **Default**: `["0.0.0.0/0"]`
+- **Type**: Array of strings
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.postgresql.allowed_cidrs": ["10.0.0.0/8", "172.16.0.0/12"]
+}
+```
+
+#### database.mysql.deny_any_access
+
+Deny all access to MySQL databases.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.mysql.deny_any_access": true
+}
+```
+
+#### database.mysql.allowed_cidrs
+
+List of allowed CIDR ranges for MySQL.
+
+- **Default**: `["0.0.0.0/0"]`
+- **Type**: Array of strings
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.mysql.allowed_cidrs": ["10.0.0.0/8"]
+}
+```
+
+#### database.mongodb.deny_any_access
+
+Deny all access to MongoDB databases.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.mongodb.deny_any_access": true
+}
+```
+
+#### database.mongodb.allowed_cidrs
+
+List of allowed CIDR ranges for MongoDB.
+
+- **Default**: `["0.0.0.0/0"]`
+- **Type**: Array of strings
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.mongodb.allowed_cidrs": ["10.0.0.0/8"]
+}
+```
+
+#### database.redis.deny_any_access
+
+Deny all access to Redis databases.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.redis.deny_any_access": true
+}
+```
+
+#### database.redis.allowed_cidrs
+
+List of allowed CIDR ranges for Redis.
+
+- **Default**: `["0.0.0.0/0"]`
+- **Type**: Array of strings
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "database.redis.allowed_cidrs": ["10.0.0.0/8"]
+}
+```
+
+## IAM Settings (AWS)
+
+Configure AWS IAM integration for cluster access.
+
+### aws.iam.enable_admin_group_sync
+
+Enable IAM admin group synchronization.
+
+- **Default**: `true`
+- **Type**: Boolean
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+<Note>
+Requires `aws.iam.admin_group` to be set.
+</Note>
+
+```json
+{
+  "aws.iam.enable_admin_group_sync": false
+}
+```
+
+### aws.iam.admin_group
+
+IAM group name associated with Qovery users in AWS console.
+
+- **Default**: `"Admins"`
+- **Type**: String
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+<Info>
+Can be changed after cluster installation.
+</Info>
+
+```json
+{
+  "aws.iam.admin_group": "QoveryAdministrators"
+}
+```
+
+### aws.iam.enable_sso
+
+Enable SSO sync for IAM users.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+<Note>
+Requires `aws.iam.sso_role_arn` to be set.
+</Note>
+
+```json
+{
+  "aws.iam.enable_sso": true
+}
+```
+
+### aws.iam.sso_role_arn
+
+SSO role ARN for cluster access.
+
+- **Default**: `""` (empty)
+- **Type**: String
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.iam.sso_role_arn": "arn:aws:iam::123456789012:role/QoverySSORole"
+}
+```
+
+## Object Storage
+
+Configure logging for cluster object storage buckets.
+
+### object_storage.enable_logging
+
+Enable logging for cluster buckets into `<bucket>-log` bucket.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) AWS, GCP, Azure
+
+**Documentation**:
+- [AWS S3 Logging](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html)
+- [GCP Cloud Logging](https://cloud.google.com/logging/docs/buckets)
+
+```json
+{
+  "object_storage.enable_logging": true
+}
+```
+
+## Miscellaneous Settings
+
+Additional cluster configuration options.
+
+### storageclass.fast_ssd
+
+Specify Kubernetes storageClass for container databases and applications.
+
+- **Default**: Varies by cloud provider
+- **Type**: String
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) ![Scaleway](/img/advanced_settings/scaleway.svg) All
+
+```json
+{
+  "storageclass.fast_ssd": "gp3"
+}
+```
+
+### aws.eks.ec2.metadata_imds
+
+Specify EC2 Instance Metadata Service (IMDS) version.
+
+- **Default**: `"required"` (IMDS v2)
+- **Type**: String
+- **Values**: `"required"` (IMDS v2 only), `"optional"` (IMDS v1 and v2)
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+```json
+{
+  "aws.eks.ec2.metadata_imds": "optional"
+}
+```
+
+### aws.eks.ec2.ami
+
+Specify the Amazon Machine Image (AMI) for EKS nodes.
+
+- **Default**: `"AmazonLinux2023"`
+- **Type**: String
+- **Values**: `"AmazonLinux2"` (deprecated), `"AmazonLinux2023"`, `"Bottlerocket"`
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+<Warning>
+`AmazonLinux2` is deprecated and won't work after Kubernetes 1.32.
+</Warning>
+
+```json
+{
+  "aws.eks.ec2.ami": "Bottlerocket"
+}
+```
+
+### aws.eks.encrypt_secrets_kms_key_arn
+
+Activate KMS encryption of Kubernetes secrets.
+
+- **Default**: `null`
+- **Type**: String (ARN)
+- **Cloud Provider**: ![AWS](/img/advanced_settings/aws.svg) AWS
+
+<Warning>
+Cannot be reversed once activated.
+</Warning>
+
+```json
+{
+  "aws.eks.encrypt_secrets_kms_key_arn": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+}
+```
+
+### qovery.static_ip_mode
+
+Enable static IP mode for Qovery control plane.
+
+- **Default**: `false`
+- **Type**: Boolean
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) AWS, GCP
+
+<Note>
+Requires Docker Hub credentials.
+</Note>
+
+```json
+{
+  "qovery.static_ip_mode": true
+}
+```
+
+### k8s.api.allowed_public_access_cidrs
+
+Whitelist additional CIDRs to access Kubernetes API.
+
+- **Default**: `[]` (empty array)
+- **Type**: Array of strings
+- **Cloud Providers**: ![AWS](/img/advanced_settings/aws.svg) ![GCP](/img/advanced_settings/gcp.svg) ![Azure](/img/advanced_settings/azure.svg) AWS, GCP, Azure
+
+<Info>
+Requires `qovery.static_ip_mode = true`.
+</Info>
+
+```json
+{
+  "k8s.api.allowed_public_access_cidrs": ["203.0.113.0/24", "198.51.100.0/24"]
+}
+```
+
+## Configuring Advanced Settings via API
+
+Advanced settings are configured using the Qovery API:
+
+```bash
+curl -X PATCH "https://api.qovery.com/cluster/{cluster_id}/advancedSettings" \
+  -H "Authorization: Token YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "loki.log_retention_in_week": 24,
+    "nginx.hpa.min_number_instances": 3,
+    "database.postgresql.allowed_cidrs": ["10.0.0.0/8"]
+  }'
+```
+
+<Info>
+For complete API documentation, see the [Qovery API Reference](/api-reference/introduction).
+</Info>
+
+## Advanced Settings Best Practices
+
+<AccordionGroup>
+  <Accordion title="Document Changes">
+    Keep track of all advanced settings changes with rationale. Cluster settings can significantly impact performance and cost.
+  </Accordion>
+
+  <Accordion title="Test in Non-Production">
+    Always test advanced settings in development or staging clusters before applying to production.
+  </Accordion>
+
+  <Accordion title="Avoid Overcommit in Production">
+    Never enable `allow_service_cpu_overcommit` or `allow_service_ram_overcommit` in production clusters. This can cause unpredictable behavior and pod evictions.
+  </Accordion>
+
+  <Accordion title="Monitor After Changes">
+    After changing advanced settings, monitor cluster health, resource utilization, and service performance closely for 24-48 hours.
+  </Accordion>
+
+  <Accordion title="Use Database Access Control">
+    Restrict database access with `allowed_cidrs` instead of allowing `0.0.0.0/0`. This significantly improves security posture.
+  </Accordion>
+
+  <Accordion title="Optimize Nginx Resources">
+    Tune Nginx controller resources based on traffic patterns. Monitor HPA scaling behavior and adjust thresholds accordingly.
+  </Accordion>
+
+  <Accordion title="Enable Flow Logs for Security">
+    Enable VPC flow logs for production clusters to aid in security audits and troubleshooting network issues.
+  </Accordion>
+</AccordionGroup>
 
 ## Cluster Actions
 
