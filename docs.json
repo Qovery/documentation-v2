@@ -183,7 +183,8 @@
               },
               "integrations/kubernetes/eks-anywhere",
               "integrations/kubernetes/byok",
-              "integrations/kubernetes/docker"
+              "integrations/kubernetes/docker",
+              "integrations/kubernetes/keda"
             ]
           },
           {

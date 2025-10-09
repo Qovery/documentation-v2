@@ -1,0 +1,623 @@
+---
+title: "KEDA"
+description: "Deploy and use KEDA (Kubernetes Event-Driven Autoscaler) with Qovery"
+---
+
+## Overview
+
+KEDA (Kubernetes Event-Driven Autoscaler) is a lightweight, open-source autoscaler that enables event-driven scaling for Kubernetes workloads. With KEDA deployed on your Qovery-managed cluster, you can scale your applications based on external event sources like message queues, databases, cloud metrics, and more.
+
+<Info>
+KEDA is a CNCF (Cloud Native Computing Foundation) graduated project, trusted by organizations worldwide for production workloads.
+</Info>
+
+**Key Benefits**:
+- **Scale to Zero**: Reduce costs by scaling applications down to zero replicas when idle
+- **70+ Scalers**: Built-in support for Kafka, RabbitMQ, PostgreSQL, Redis, AWS SQS, Azure Event Hub, and more
+- **Event-Driven**: Scale based on real workload metrics, not just CPU/memory
+- **Works with HPA**: Extends native Kubernetes Horizontal Pod Autoscaler
+- **Vendor-Agnostic**: Works across AWS, GCP, Azure, and on-premises clusters
+
+## How KEDA Works
+
+KEDA extends Kubernetes autoscaling capabilities by:
+
+1. **Monitoring External Event Sources**: Connects to your event sources (queues, streams, databases)
+2. **Exposing Metrics**: Converts external metrics into Kubernetes-native metrics
+3. **Triggering Autoscaling**: Works with HPA to scale deployments based on events
+4. **Scaling to Zero**: KEDA handles 0→1 scaling, HPA handles 1→N scaling
+
+<Note>
+KEDA complements Kubernetes HPA—it doesn't replace it. KEDA activates workloads (0→1) based on events, then HPA takes over for scaling beyond one replica.
+</Note>
+
+## Deploy KEDA with Qovery
+
+You can deploy KEDA on your Qovery-managed Kubernetes cluster using Qovery's Helm integration.
+
+### Prerequisites
+
+- A Qovery-managed Kubernetes cluster (EKS, GKE, AKS, or Scaleway Kapsule)
+- Helm repository configured in Qovery (covered below)
+
+### Step 1: Add KEDA Helm Repository
+
+<Steps>
+  <Step title="Navigate to Organization Settings">
+    In Qovery Console, go to **Organization** → **Settings** → **Helm Repositories**
+  </Step>
+
+  <Step title="Add KEDA Repository">
+    Click **Add Helm Repository** and configure:
+    - **Name**: `kedacore`
+    - **Repository URL**: `https://kedacore.github.io/charts`
+    - **Repository Type**: Public
+
+    Click **Create**
+  </Step>
+
+  <Step title="Verify Repository">
+    The KEDA repository should now appear in your list of Helm repositories
+  </Step>
+</Steps>
+
+<Info>
+For detailed instructions on managing Helm repositories, see [Helm Repository configuration](/configuration/organization/helm-repository).
+</Info>
+
+### Step 2: Deploy KEDA Using Qovery Helm
+
+<Steps>
+  <Step title="Create New Helm Service">
+    Navigate to your environment and click **Create Service** → **Helm**
+  </Step>
+
+  <Step title="Configure KEDA Helm Chart">
+    Fill in the following details:
+
+    **General Settings**:
+    - **Name**: `keda`
+    - **Repository**: Select `kedacore` (from Step 1)
+    - **Chart Name**: `keda`
+    - **Chart Version**: `2.17.1` (or latest version)
+
+    **Kubernetes Settings**:
+    - **Namespace**: `keda` (will be created automatically)
+    - **Create Namespace**: Enabled
+  </Step>
+
+  <Step title="Configure Values (Optional)">
+    Add custom values if needed:
+
+    ```yaml
+    # Optional: Customize KEDA deployment
+    resources:
+      operator:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      metricsServer:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+
+    # Enable Prometheus metrics (if using observability)
+    prometheus:
+      metricServer:
+        enabled: true
+      operator:
+        enabled: true
+    ```
+  </Step>
+
+  <Step title="Deploy KEDA">
+    Click **Create** to deploy KEDA to your cluster
+
+    Qovery will:
+    - Create the `keda` namespace
+    - Install KEDA operator and metrics server
+    - Configure RBAC and CRDs automatically
+  </Step>
+
+  <Step title="Verify Deployment">
+    Once deployed, verify KEDA is running by checking the deployment logs in Qovery Console or using the CLI:
+
+    ```bash
+    qovery helm list --environment production
+    ```
+  </Step>
+</Steps>
+
+### Step 3: Deploy with Qovery CLI (Alternative)
+
+You can also deploy KEDA using the Qovery CLI:
+
+```bash
+# Create Helm service configuration
+qovery helm create \
+  --name keda \
+  --repository kedacore \
+  --chart keda \
+  --version 2.17.1 \
+  --namespace keda \
+  --create-namespace
+
+# Deploy
+qovery helm deploy --name keda --watch
+```
+
+## Using KEDA with Qovery Applications
+
+Once KEDA is deployed, you can configure your Qovery applications to use KEDA scalers.
+
+### Example: Scale Based on PostgreSQL Queue
+
+<Steps>
+  <Step title="Deploy Your Application">
+    Create or use an existing Qovery application that processes database records
+  </Step>
+
+  <Step title="Create KEDA ScaledObject">
+    In your application repository, create a Kubernetes manifest for the KEDA ScaledObject:
+
+    ```yaml .kubernetes/scaledobject.yaml
+    apiVersion: keda.sh/v1alpha1
+    kind: ScaledObject
+    metadata:
+      name: postgres-scaler
+      namespace: production
+    spec:
+      scaleTargetRef:
+        name: my-worker-app  # Your Qovery application name
+      pollingInterval: 30
+      cooldownPeriod: 300
+      minReplicaCount: 0
+      maxReplicaCount: 10
+      triggers:
+        - type: postgresql
+          metadata:
+            connectionFromEnv: DATABASE_URL
+            query: "SELECT COUNT(*) FROM jobs WHERE status = 'pending'"
+            targetQueryValue: "5"
+    ```
+  </Step>
+
+  <Step title="Deploy ScaledObject">
+    Commit the manifest to your repository. You can apply it using:
+    - Qovery Lifecycle Job (recommended)
+    - kubectl from CI/CD
+    - Qovery CLI with shell access
+  </Step>
+</Steps>
+
+### Example: Scale Based on AWS SQS Queue
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: sqs-scaler
+  namespace: production
+spec:
+  scaleTargetRef:
+    name: my-queue-processor
+  minReplicaCount: 0
+  maxReplicaCount: 20
+  triggers:
+    - type: aws-sqs-queue
+      metadata:
+        queueURL: https://sqs.us-east-1.amazonaws.com/123456789/my-queue
+        queueLength: "10"
+        awsRegion: us-east-1
+        identityOwner: pod
+```
+
+### Example: Scale Based on Kafka Topic Lag
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kafka-scaler
+  namespace: production
+spec:
+  scaleTargetRef:
+    name: kafka-consumer
+  minReplicaCount: 1
+  maxReplicaCount: 50
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: kafka.default.svc.cluster.local:9092
+        consumerGroup: my-consumer-group
+        topic: events
+        lagThreshold: "50"
+```
+
+## Applying KEDA Manifests with Lifecycle Jobs
+
+The recommended way to deploy KEDA ScaledObjects is using Qovery Lifecycle Jobs:
+
+<Steps>
+  <Step title="Create Lifecycle Job">
+    In your environment, create a new **Lifecycle Job**
+  </Step>
+
+  <Step title="Configure Job">
+    - **Name**: `apply-keda-scalers`
+    - **Image**: `bitnami/kubectl:latest`
+    - **Event**: On Start (runs when environment starts)
+    - **Command**:
+      ```bash
+      kubectl apply -f /manifests/scaledobject.yaml
+      ```
+  </Step>
+
+  <Step title="Mount Manifests">
+    Add your KEDA manifest files to the job using:
+    - Git repository (recommended)
+    - ConfigMaps
+    - Volume mounts
+  </Step>
+
+  <Step title="Deploy">
+    Deploy your environment—the lifecycle job will apply KEDA configurations automatically
+  </Step>
+</Steps>
+
+<Info>
+For more details on Lifecycle Jobs, see [Lifecycle Job configuration](/configuration/lifecycle-job).
+</Info>
+
+## Popular KEDA Scalers
+
+KEDA supports 70+ scalers for various event sources:
+
+<AccordionGroup>
+  <Accordion title="Message Queues & Streaming">
+    - **Apache Kafka**: Scale based on consumer lag
+    - **RabbitMQ**: Scale based on queue depth
+    - **AWS SQS**: Scale based on queue length
+    - **Azure Service Bus**: Scale based on queue/topic messages
+    - **Google Pub/Sub**: Scale based on subscription backlog
+    - **NATS**: Scale based on pending messages
+    - **Redis Lists/Streams**: Scale based on list length or stream lag
+  </Accordion>
+
+  <Accordion title="Databases">
+    - **PostgreSQL**: Scale based on query results (e.g., pending jobs)
+    - **MySQL**: Scale based on table row counts
+    - **MongoDB**: Scale based on collection size
+    - **Redis**: Scale based on key metrics
+    - **Cassandra**: Scale based on query results
+  </Accordion>
+
+  <Accordion title="Cloud Metrics">
+    - **AWS CloudWatch**: Scale based on CloudWatch metrics
+    - **Azure Monitor**: Scale based on Azure metrics
+    - **Google Cloud Monitoring**: Scale based on GCP metrics
+    - **Prometheus**: Scale based on PromQL queries
+    - **Datadog**: Scale based on Datadog metrics
+  </Accordion>
+
+  <Accordion title="HTTP & APIs">
+    - **HTTP**: Scale based on HTTP endpoint responses
+    - **Prometheus Metrics**: Scale based on exposed metrics
+    - **External**: Scale based on custom external metrics
+  </Accordion>
+
+  <Accordion title="Storage">
+    - **AWS S3**: Scale based on object count
+    - **Azure Blob Storage**: Scale based on blob count
+    - **Google Cloud Storage**: Scale based on bucket metrics
+  </Accordion>
+
+  <Accordion title="Cron & Time-Based">
+    - **Cron**: Scale based on cron schedules
+    - **Time-based**: Scale at specific times
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start with Conservative Settings">
+    Begin with moderate `minReplicaCount` and `maxReplicaCount` values:
+    ```yaml
+    minReplicaCount: 1
+    maxReplicaCount: 10
+    ```
+    Monitor performance, then adjust based on actual workload patterns.
+  </Accordion>
+
+  <Accordion title="Set Appropriate Polling Intervals">
+    Balance responsiveness with API rate limits:
+    ```yaml
+    pollingInterval: 30  # Check every 30 seconds
+    cooldownPeriod: 300  # Wait 5 minutes before scaling down
+    ```
+  </Accordion>
+
+  <Accordion title="Use Authentication Secrets">
+    Store credentials in Qovery secrets, not in ScaledObject manifests:
+    ```yaml
+    triggers:
+      - type: postgresql
+        authenticationRef:
+          name: postgres-trigger-auth
+    ```
+  </Accordion>
+
+  <Accordion title="Monitor KEDA Metrics">
+    Enable Prometheus metrics to monitor KEDA performance:
+    ```yaml
+    prometheus:
+      operator:
+        enabled: true
+    ```
+    Integrate with Qovery Observe or your monitoring solution.
+  </Accordion>
+
+  <Accordion title="Test Scale-to-Zero Carefully">
+    Scale-to-zero is powerful but requires careful testing:
+    - Ensure health checks don't fail during cold starts
+    - Consider warm-up time for applications
+    - Use `minReplicaCount: 1` for critical services
+  </Accordion>
+
+  <Accordion title="Use Namespace-Specific Deployments">
+    Deploy KEDA once per cluster (in `keda` namespace), but create ScaledObjects in each application namespace for better isolation.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="KEDA Not Scaling Application">
+    **Issue**: ScaledObject created but pods aren't scaling
+
+    **Solutions**:
+    1. Check KEDA operator logs:
+       ```bash
+       kubectl logs -n keda deployment/keda-operator
+       ```
+    2. Verify ScaledObject status:
+       ```bash
+       kubectl get scaledobject -n <namespace>
+       kubectl describe scaledobject <name> -n <namespace>
+       ```
+    3. Ensure `scaleTargetRef.name` matches your deployment name
+    4. Verify trigger credentials are correct
+  </Accordion>
+
+  <Accordion title="Authentication Errors">
+    **Issue**: KEDA can't connect to event source (database, queue, etc.)
+
+    **Solutions**:
+    1. Use `TriggerAuthentication` for credentials:
+       ```yaml
+       apiVersion: keda.sh/v1alpha1
+       kind: TriggerAuthentication
+       metadata:
+         name: my-trigger-auth
+       spec:
+         secretTargetRef:
+           - parameter: connectionString
+             name: db-secret
+             key: connection_string
+       ```
+    2. Reference in ScaledObject:
+       ```yaml
+       triggers:
+         - type: postgresql
+           authenticationRef:
+             name: my-trigger-auth
+       ```
+  </Accordion>
+
+  <Accordion title="Metrics Not Available">
+    **Issue**: HPA shows "unknown" for external metrics
+
+    **Solutions**:
+    1. Check KEDA metrics server:
+       ```bash
+       kubectl logs -n keda deployment/keda-operator-metrics-apiserver
+       ```
+    2. Verify HPA can see external metrics:
+       ```bash
+       kubectl get apiservice v1beta1.external.metrics.k8s.io
+       ```
+    3. Ensure KEDA operator is running
+  </Accordion>
+
+  <Accordion title="Slow Scaling Response">
+    **Issue**: KEDA takes too long to scale up
+
+    **Solutions**:
+    1. Reduce `pollingInterval` (default is 30s):
+       ```yaml
+       pollingInterval: 10  # Check every 10 seconds
+       ```
+    2. Adjust `cooldownPeriod` for faster scale-down:
+       ```yaml
+       cooldownPeriod: 60  # Scale down after 1 minute
+       ```
+    3. Use multiple triggers for faster response
+  </Accordion>
+
+  <Accordion title="Pods Scaling to Zero Unexpectedly">
+    **Issue**: Application scales to zero when it shouldn't
+
+    **Solutions**:
+    1. Set `minReplicaCount` to prevent scale-to-zero:
+       ```yaml
+       minReplicaCount: 1
+       ```
+    2. Review trigger thresholds—they may be too high
+    3. Check event source connectivity
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring KEDA
+
+### View KEDA Status in Qovery
+
+Monitor KEDA through Qovery Console:
+
+1. Navigate to your **Helm** service (`keda`)
+2. View **Logs** to see operator activity
+3. Check **Metrics** for resource usage
+4. Use **Shell** to run kubectl commands
+
+### Check KEDA Resources
+
+```bash
+# List all ScaledObjects
+kubectl get scaledobjects --all-namespaces
+
+# Check KEDA operator status
+kubectl get pods -n keda
+
+# View KEDA metrics server
+kubectl get deployment -n keda keda-operator-metrics-apiserver
+
+# Check HPA created by KEDA
+kubectl get hpa --all-namespaces
+```
+
+### Enable Prometheus Metrics
+
+Integrate KEDA metrics with Qovery Observe or other monitoring:
+
+```yaml
+# In KEDA Helm values
+prometheus:
+  operator:
+    enabled: true
+    port: 8080
+  metricServer:
+    enabled: true
+    port: 8080
+
+# Add ServiceMonitor for Prometheus
+serviceMonitor:
+  enabled: true
+```
+
+## Upgrading KEDA
+
+To upgrade KEDA to a newer version:
+
+<Steps>
+  <Step title="Check Release Notes">
+    Review [KEDA release notes](https://github.com/kedacore/keda/releases) for breaking changes
+  </Step>
+
+  <Step title="Update Helm Chart in Qovery">
+    - Navigate to your KEDA Helm service
+    - Update **Chart Version** to the desired version
+    - Click **Update**
+  </Step>
+
+  <Step title="Verify Upgrade">
+    Check KEDA operator logs for successful upgrade
+  </Step>
+</Steps>
+
+## Uninstalling KEDA
+
+To remove KEDA from your cluster:
+
+<Warning>
+Removing KEDA will stop all event-driven autoscaling. Ensure no critical services depend on KEDA ScaledObjects.
+</Warning>
+
+<Steps>
+  <Step title="Remove All ScaledObjects">
+    Delete all KEDA ScaledObjects first:
+    ```bash
+    kubectl delete scaledobjects --all --all-namespaces
+    ```
+  </Step>
+
+  <Step title="Delete KEDA Helm Service">
+    In Qovery Console, delete the KEDA Helm service from your environment
+  </Step>
+
+  <Step title="Clean Up CRDs (Optional)">
+    KEDA CRDs may remain. Remove manually if needed:
+    ```bash
+    kubectl delete crd scaledobjects.keda.sh
+    kubectl delete crd scaledjobs.keda.sh
+    kubectl delete crd triggerauthentications.keda.sh
+    ```
+  </Step>
+</Steps>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="KEDA Official Documentation" icon="book" href="https://keda.sh/docs/">
+    Complete KEDA documentation and scaler reference
+  </Card>
+  <Card title="KEDA Scalers" icon="plug" href="https://keda.sh/docs/scalers/">
+    Browse all 70+ available KEDA scalers
+  </Card>
+  <Card title="Qovery Helm Configuration" icon="helm" href="/configuration/helm">
+    Learn more about deploying Helm charts with Qovery
+  </Card>
+  <Card title="Lifecycle Jobs" icon="rocket" href="/configuration/lifecycle-job">
+    Use Lifecycle Jobs to apply KEDA manifests
+  </Card>
+</CardGroup>
+
+## Example Use Cases
+
+<AccordionGroup>
+  <Accordion title="Background Job Processor">
+    Scale workers based on database queue:
+    - Monitor `jobs` table for pending tasks
+    - Scale from 0 to 20 workers based on queue depth
+    - Reduce costs by scaling to zero when idle
+  </Accordion>
+
+  <Accordion title="Event-Driven Microservices">
+    Scale API consumers based on message queue:
+    - Monitor Kafka topic lag
+    - Scale consumers to process backlogs
+    - Handle traffic spikes automatically
+  </Accordion>
+
+  <Accordion title="Scheduled Workloads">
+    Run batch jobs at specific times:
+    - Use cron scaler for time-based scaling
+    - Process reports during business hours
+    - Scale to zero outside working hours
+  </Accordion>
+
+  <Accordion title="Multi-Cloud Autoscaling">
+    Scale based on cloud-specific metrics:
+    - AWS CloudWatch for SQS queue length
+    - Azure Monitor for Service Bus messages
+    - GCP Monitoring for Pub/Sub subscriptions
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+Now that you have KEDA deployed with Qovery:
+
+- Create ScaledObjects for your applications
+- Monitor autoscaling behavior
+- Optimize trigger thresholds
+- Integrate with observability tools
+
+<Info>
+Need help with KEDA on Qovery? Contact support@qovery.com or join our [Discord community](https://discord.qovery.com).
+</Info>
