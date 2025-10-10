@@ -1,0 +1,212 @@
+---
+title: "Auto-Deploy"
+description: "Automatically deploy your applications when new commits are pushed to your Git repository"
+---
+
+The auto-deploy feature allows you to automatically update your applications on Qovery whenever new commits are pushed to your Git repository. This enables continuous deployment without manual intervention.
+
+## How Auto-Deploy Works
+
+Each time a commit is pushed to your Git repository, Qovery receives a webhook call containing information about the commit. Qovery then determines which applications should be automatically re-deployed based on your configuration.
+
+<img src="/images/deployment/auto-deploy-settings.png" alt="Auto-Deploy Settings" />
+
+## Enabling Auto-Deploy
+
+You can enable auto-deploy in two ways:
+
+### During Service Creation
+
+Enable auto-deploy when creating a new application:
+
+<img src="/images/deployment/auto-deploy-creation-flow.png" alt="Auto-Deploy Creation Flow" />
+
+<Steps>
+  <Step title="Create Application">
+    Start the application creation flow from your environment
+  </Step>
+  <Step title="Configure Git Repository">
+    Select your Git provider and repository
+  </Step>
+  <Step title="Enable Auto-Deploy">
+    Toggle the auto-deploy option during the setup process
+  </Step>
+  <Step title="Choose Branch">
+    Select the branch that should trigger automatic deployments
+  </Step>
+</Steps>
+
+### In Application Settings
+
+Enable auto-deploy for existing applications:
+
+<Steps>
+  <Step title="Open Application Settings">
+    Navigate to your application and click on Settings
+  </Step>
+  <Step title="Find Auto-Deploy Section">
+    Locate the "Auto-Deploy" configuration section
+  </Step>
+  <Step title="Toggle Auto-Deploy">
+    Enable the auto-deploy feature for the selected branch
+  </Step>
+  <Step title="Save Changes">
+    Save your settings to activate auto-deploy
+  </Step>
+</Steps>
+
+## Commit Filtering
+
+You can configure commit filtering to avoid unnecessary deployments. This is useful when certain file changes shouldn't trigger a deployment.
+
+<img src="/images/deployment/deployment_restrictions.png" alt="Deployment Restrictions" />
+
+### Filter Modes
+
+<Tabs>
+  <Tab title="EXCLUDE Mode">
+    **Exclude Mode** - Specify files or folders to ignore. Deployments will be triggered for all commits EXCEPT those that only modify the specified paths.
+
+    **Example Use Cases:**
+    - Exclude documentation updates: `docs/**`, `README.md`
+    - Exclude CI configuration: `.github/**`, `.gitlab-ci.yml`
+    - Exclude non-code files: `*.md`, `*.txt`
+
+    ```bash
+    # Example exclusion patterns
+    docs/**
+    README.md
+    *.md
+    .github/**
+    tests/**
+    ```
+  </Tab>
+  <Tab title="MATCH Mode">
+    **Match Mode** - Specify files or folders that MUST be changed for a deployment to occur. Deployments will ONLY be triggered for commits that modify these paths.
+
+    **Example Use Cases:**
+    - Only deploy on source code changes: `src/**`
+    - Only deploy on API changes: `api/**`, `services/**`
+    - Only deploy on specific app: `apps/backend/**`
+
+    ```bash
+    # Example match patterns
+    src/**
+    api/**
+    lib/**
+    package.json
+    ```
+  </Tab>
+</Tabs>
+
+### Pattern Syntax
+
+Use glob patterns to define your commit filters:
+
+| Pattern | Description | Example |
+|---------|-------------|---------|
+| `*` | Matches any characters except `/` | `*.md` matches all Markdown files |
+| `**` | Matches any characters including `/` | `docs/**` matches all files in docs folder |
+| `?` | Matches a single character | `test?.js` matches `test1.js`, `test2.js` |
+| `[...]` | Matches a range of characters | `[a-z]*.js` matches files starting with lowercase letters |
+
+## Container Image Auto-Deploy
+
+For applications deployed from container registries (not Git), auto-deploy requires additional configuration:
+
+<Warning>
+Container registry auto-deploy requires manual notification to Qovery when a new image version is available. Qovery does not automatically check the container registry for new images.
+</Warning>
+
+### Setup Process
+
+<Steps>
+  <Step title="Configure Container Registry">
+    Set up your application to deploy from a container registry
+  </Step>
+  <Step title="Enable Auto-Deploy">
+    Enable auto-deploy in application settings
+  </Step>
+  <Step title="Integrate with CI/CD">
+    Configure your CI/CD pipeline to notify Qovery after pushing new images
+  </Step>
+  <Step title="Use Qovery API or CLI">
+    Trigger deployments using the Qovery API or CLI when new images are available
+  </Step>
+</Steps>
+
+## Mono-Repository Support
+
+Auto-deploy works seamlessly with mono-repositories where multiple applications share the same Git repository.
+
+<Accordion title="How Mono-Repository Auto-Deploy Works">
+  When you have multiple applications connected to the same repository:
+
+  1. Each application can have its own commit filter configuration
+  2. Qovery evaluates each commit against all configured applications
+  3. Only applications whose filters match the commit are deployed
+  4. This allows selective deployment based on changed files
+
+  **Example Setup:**
+  - **Frontend App**: Match pattern `apps/frontend/**`
+  - **Backend App**: Match pattern `apps/backend/**`
+  - **Shared Library**: Match pattern `libs/**` (triggers both apps)
+</Accordion>
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Will stopped services auto-deploy?">
+    No, auto-deploy will not restart stopped services. If your application is in a stopped state, auto-deploy will not trigger a deployment. You must manually start the application first.
+  </Accordion>
+
+  <Accordion title="Can I temporarily disable auto-deploy?">
+    Yes, you can disable auto-deploy at any time from your application settings without removing the configuration. This is useful when you want to pause automatic deployments temporarily.
+  </Accordion>
+
+  <Accordion title="What happens if multiple commits are pushed quickly?">
+    Qovery queues deployment requests. If multiple commits are pushed in quick succession, Qovery will optimize by deploying only the latest commit rather than deploying each commit individually.
+  </Accordion>
+
+  <Accordion title="Does auto-deploy work with protected branches?">
+    Yes, auto-deploy works with protected branches. However, ensure your Qovery webhook has the necessary permissions to receive notifications for these branches.
+  </Accordion>
+
+  <Accordion title="Can I use auto-deploy with pull requests?">
+    Auto-deploy is configured per branch. If you want to auto-deploy from pull request branches, you can configure your application to track those branches. However, this is typically used with preview environments rather than production.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Commit Filters" icon="filter">
+    Configure commit filters to avoid unnecessary deployments from documentation or configuration changes
+  </Card>
+  <Card title="Branch Strategy" icon="code-branch">
+    Enable auto-deploy on stable branches like `main` or `production`, not on feature branches
+  </Card>
+  <Card title="Test Environments" icon="flask">
+    Use auto-deploy on development environments to test changes before production
+  </Card>
+  <Card title="Monitor Deployments" icon="chart-line">
+    Regularly review deployment logs to ensure auto-deploy is working as expected
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="CI/CD Integration" icon="code-branch" href="/configuration/deployment/ci-cd">
+    Learn how to integrate Qovery with your CI/CD pipeline
+  </Card>
+  <Card title="Deployment Actions" icon="gears" href="/configuration/deployment/actions">
+    Control your deployments with manual actions
+  </Card>
+  <Card title="Deployment History" icon="clock-rotate-left" href="/configuration/deployment/history">
+    Review your deployment history and rollback if needed
+  </Card>
+  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
+    Access logs to troubleshoot deployment issues
+  </Card>
+</CardGroup>

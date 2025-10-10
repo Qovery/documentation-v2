@@ -1,0 +1,312 @@
+---
+title: "Deploying with CI/CD"
+description: "Integrate Qovery with your existing CI/CD pipeline for custom deployment workflows"
+---
+
+Once you have configured your environments and services, you can manage deployments through the Qovery web console UI or directly from your CI/CD pipeline.
+
+## CI/CD Integration
+
+Qovery provides comprehensive CI/CD integration capabilities, allowing you to trigger deployments from your existing continuous integration and continuous deployment workflows.
+
+### Why Use CI/CD with Qovery?
+
+<CardGroup cols={2}>
+  <Card title="Custom Workflows" icon="diagram-project">
+    Build custom deployment pipelines that fit your specific requirements
+  </Card>
+  <Card title="Advanced Testing" icon="flask">
+    Run extensive tests before deploying to Qovery environments
+  </Card>
+  <Card title="Multi-Stage Deployments" icon="layer-group">
+    Deploy to multiple environments in sequence with approval gates
+  </Card>
+  <Card title="External Tool Integration" icon="plug">
+    Integrate with security scanning, quality gates, and monitoring tools
+  </Card>
+</CardGroup>
+
+## Integration Methods
+
+Qovery supports multiple methods for CI/CD integration:
+
+<Tabs>
+  <Tab title="Qovery CLI">
+    Use the Qovery CLI in your CI/CD pipelines to trigger deployments programmatically.
+
+    ```bash
+    # Install Qovery CLI
+    curl -s https://get.qovery.com | bash
+
+    # Authenticate
+    qovery auth --token $QOVERY_API_TOKEN
+
+    # Set context
+    qovery context set
+
+    # Deploy application
+    qovery application deploy
+    ```
+
+    <Info>
+    The Qovery CLI is the recommended method for CI/CD integration. It provides a simple, declarative interface for all deployment operations.
+    </Info>
+  </Tab>
+
+  <Tab title="Qovery API">
+    Use the Qovery REST API to integrate deployments into any CI/CD system.
+
+    ```bash
+    # Trigger deployment via API
+    curl -X POST \
+      "https://api.qovery.com/application/$APPLICATION_ID/deploy" \
+      -H "Authorization: Token $QOVERY_API_TOKEN" \
+      -H "Content-Type: application/json"
+    ```
+
+    <Info>
+    The Qovery API provides full control over all platform features. See the [API documentation](/api-reference) for complete details.
+    </Info>
+  </Tab>
+
+  <Tab title="GitHub Actions">
+    Use the official Qovery GitHub Actions for seamless GitHub integration.
+
+    ```yaml
+    name: Deploy to Qovery
+    on:
+      push:
+        branches: [main]
+
+    jobs:
+      deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+
+          - name: Deploy to Qovery
+            uses: Qovery/qovery-action@v1
+            with:
+              qovery-api-token: ${{ secrets.QOVERY_API_TOKEN }}
+              qovery-organization-id: ${{ secrets.QOVERY_ORG_ID }}
+              qovery-application-id: ${{ secrets.QOVERY_APP_ID }}
+    ```
+
+    <Info>
+    See the complete [GitHub Actions integration guide](/integrations/ci-cd/github-actions) for more details.
+    </Info>
+  </Tab>
+</Tabs>
+
+## Common CI/CD Patterns
+
+### Pattern 1: Build, Test, Deploy
+
+The most common pattern is to build your application, run tests, and then deploy to Qovery if tests pass.
+
+```yaml
+# Example with GitHub Actions
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Deploy to Qovery
+        if: success()
+        run: |
+          qovery auth --token ${{ secrets.QOVERY_API_TOKEN }}
+          qovery application deploy
+```
+
+### Pattern 2: Multi-Environment Deployment
+
+Deploy to different environments based on branch or tag:
+
+```yaml
+# Deploy to staging on develop branch
+- name: Deploy to Staging
+  if: github.ref == 'refs/heads/develop'
+  run: |
+    qovery context set --environment staging
+    qovery application deploy
+
+# Deploy to production on main branch
+- name: Deploy to Production
+  if: github.ref == 'refs/heads/main'
+  run: |
+    qovery context set --environment production
+    qovery application deploy
+```
+
+### Pattern 3: Container Image Deployment
+
+Build your own container image and deploy it to Qovery:
+
+```yaml
+# Build and push image, then notify Qovery
+- name: Build and push Docker image
+  run: |
+    docker build -t myregistry.com/myapp:${{ github.sha }} .
+    docker push myregistry.com/myapp:${{ github.sha }}
+
+- name: Deploy to Qovery
+  run: |
+    qovery application update --image myregistry.com/myapp:${{ github.sha }}
+    qovery application deploy
+```
+
+## Authentication
+
+To integrate Qovery with your CI/CD pipeline, you need to authenticate using an API token.
+
+<Steps>
+  <Step title="Generate API Token">
+    Go to your Qovery account settings and generate a new API token
+  </Step>
+  <Step title="Store Token Securely">
+    Add the token to your CI/CD platform's secrets management (e.g., GitHub Secrets, GitLab CI Variables)
+  </Step>
+  <Step title="Use Token in Pipeline">
+    Reference the token in your pipeline configuration without exposing it in logs
+  </Step>
+</Steps>
+
+<Warning>
+Never commit API tokens directly in your repository. Always use your CI/CD platform's secrets management.
+</Warning>
+
+## Deployment Strategies with CI/CD
+
+When using CI/CD, you can implement advanced deployment strategies:
+
+<AccordionGroup>
+  <Accordion title="Blue-Green Deployments">
+    Deploy to a new environment (green) while keeping the current environment (blue) running. Switch traffic once the new deployment is validated.
+
+    ```bash
+    # Deploy to green environment
+    qovery context set --environment green
+    qovery application deploy
+
+    # Run smoke tests
+    npm run smoke-tests
+
+    # Switch traffic if tests pass
+    qovery environment update --routing green
+    ```
+  </Accordion>
+
+  <Accordion title="Canary Deployments">
+    Gradually roll out changes to a subset of users before full deployment.
+
+    ```bash
+    # Deploy new version with 10% traffic
+    qovery application deploy --canary 10
+
+    # Monitor metrics
+    sleep 300
+
+    # Increase to 50% if healthy
+    qovery application deploy --canary 50
+
+    # Full rollout
+    qovery application deploy --canary 100
+    ```
+  </Accordion>
+
+  <Accordion title="Rollback on Failure">
+    Automatically rollback deployments if health checks fail.
+
+    ```bash
+    # Deploy new version
+    qovery application deploy
+
+    # Run health checks
+    if ! ./scripts/health-check.sh; then
+      echo "Health check failed, rolling back"
+      qovery application rollback
+      exit 1
+    fi
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Supported CI/CD Platforms
+
+Qovery integrates with all major CI/CD platforms:
+
+<CardGroup cols={3}>
+  <Card title="GitHub Actions" icon="github" href="/integrations/ci-cd/github-actions">
+    Native integration with GitHub Actions
+  </Card>
+  <Card title="GitLab CI" icon="gitlab" href="/integrations/ci-cd/gitlab-ci">
+    Deploy from GitLab CI pipelines
+  </Card>
+  <Card title="CircleCI" icon="circle" href="/integrations/ci-cd/circleci">
+    Use CircleCI orbs for Qovery
+  </Card>
+  <Card title="Jenkins" icon="jenkins">
+    Integrate with Jenkins pipelines
+  </Card>
+  <Card title="Travis CI" icon="code-branch">
+    Deploy from Travis CI builds
+  </Card>
+  <Card title="Azure DevOps" icon="microsoft">
+    Use Azure Pipelines with Qovery
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Environment Variables" icon="key">
+    Store sensitive configuration in CI/CD secrets, not in code
+  </Card>
+  <Card title="Validate Before Deploy" icon="check-double">
+    Run tests and security scans before triggering Qovery deployments
+  </Card>
+  <Card title="Version Control" icon="code-commit">
+    Tag releases and use semantic versioning for clarity
+  </Card>
+  <Card title="Monitor Deployments" icon="chart-line">
+    Set up notifications for deployment success or failure
+  </Card>
+  <Card title="Incremental Rollouts" icon="gauge-high">
+    Use canary or blue-green deployments for critical changes
+  </Card>
+  <Card title="Automate Rollbacks" icon="rotate-left">
+    Implement automatic rollback on failed health checks
+  </Card>
+</CardGroup>
+
+## Example Configurations
+
+For detailed CI/CD integration examples, see:
+
+- [GitHub Actions Integration](/integrations/ci-cd/github-actions)
+- [GitLab CI Integration](/integrations/ci-cd/gitlab-ci)
+- [CircleCI Integration](/integrations/ci-cd/circleci)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Qovery CLI" icon="terminal" href="/cli/overview">
+    Learn how to use the Qovery CLI in your pipelines
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference">
+    Explore the full Qovery API for advanced integrations
+  </Card>
+  <Card title="Deployment Actions" icon="gears" href="/configuration/deployment/actions">
+    Understand available deployment actions
+  </Card>
+  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
+    Monitor your CI/CD deployments with logs
+  </Card>
+</CardGroup>

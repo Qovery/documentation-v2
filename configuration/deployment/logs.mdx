@@ -1,0 +1,552 @@
+---
+title: "Deployment Logs"
+description: "Access and analyze deployment and runtime logs for troubleshooting and monitoring"
+---
+
+Qovery provides comprehensive logging capabilities for both deployment operations and runtime service logs. Access logs through the web console, CLI, or API to troubleshoot issues and monitor your applications.
+
+## Types of Logs
+
+Qovery provides two main categories of logs:
+
+<CardGroup cols={2}>
+  <Card title="Deployment Logs" icon="rocket">
+    Logs generated during the build and deployment process
+  </Card>
+  <Card title="Runtime Logs" icon="server">
+    Logs from your running applications and services
+  </Card>
+</CardGroup>
+
+## Accessing Logs
+
+### Runtime Logs (Live Logs)
+
+Access real-time logs from running services by clicking the scroll icon next to any service:
+
+<img src="/images/deployment/access_logs.png" alt="Access Runtime Logs" />
+
+<Steps>
+  <Step title="Navigate to Environment">
+    Open your environment in the Qovery console
+  </Step>
+  <Step title="Locate Service">
+    Find the service you want to view logs for
+  </Step>
+  <Step title="Click Scroll Icon">
+    Click the scroll icon next to the service name
+  </Step>
+  <Step title="View Live Logs">
+    Watch real-time logs stream from your application
+  </Step>
+</Steps>
+
+### Deployment Pipeline View
+
+View logs organized by deployment stages using the pipeline view:
+
+<img src="/images/deployment/pipeline_view.png" alt="Pipeline View" />
+
+**Pipeline View Features:**
+- Stage-by-stage deployment visibility
+- Build logs for each service
+- Deployment progress tracking
+- Error identification by stage
+
+### Deployment Logs View
+
+Access detailed deployment logs for troubleshooting:
+
+<img src="/images/deployment/deployment_logs_view.png" alt="Deployment Logs View" />
+
+<Steps>
+  <Step title="Open Deployments Tab">
+    Navigate to the Deployments tab in your environment or service
+  </Step>
+  <Step title="Select Deployment">
+    Click on the deployment you want to investigate
+  </Step>
+  <Step title="View Logs">
+    Access comprehensive logs for that specific deployment
+  </Step>
+  <Step title="Filter by Stage">
+    Filter logs by build, deploy, or service stages
+  </Step>
+</Steps>
+
+### Historical Deployment Logs
+
+Access logs from past deployments through deployment history:
+
+<img src="/images/deployment/deployment_history.png" alt="Deployment History" />
+
+<Info>
+Historical logs are available based on your plan's retention period. See the [Deployment History](/configuration/deployment/history) documentation for retention details.
+</Info>
+
+## Live Logs Interface
+
+The live logs interface provides real-time streaming of application logs:
+
+<img src="/images/deployment/live_logs.png" alt="Live Logs Interface" />
+
+### Log Information
+
+Each log entry displays:
+
+<CardGroup cols={2}>
+  <Card title="Timestamp" icon="clock">
+    Precise time when the log was generated
+  </Card>
+  <Card title="Pod Name" icon="cube">
+    Which pod/instance generated the log
+  </Card>
+  <Card title="Version" icon="code-commit">
+    Application version (commit hash or tag)
+  </Card>
+  <Card title="Container" icon="box">
+    Which container in the pod (for multi-container pods)
+  </Card>
+  <Card title="Message" icon="message">
+    The actual log message content
+  </Card>
+  <Card title="Log Level" icon="layer-group">
+    Severity level (info, warning, error, etc.)
+  </Card>
+</CardGroup>
+
+## Filtering Logs
+
+### Filter by Pod
+
+Filter logs to show only specific pods or instances:
+
+<img src="/images/deployment/live_logs_filtered.png" alt="Filtered Live Logs" />
+
+<Tabs>
+  <Tab title="Single Pod">
+    View logs from a specific pod to isolate issues:
+
+    1. Click the pod filter dropdown
+    2. Select the specific pod name
+    3. View logs only from that instance
+
+    **Use Case:** Debugging issues affecting only certain replicas
+  </Tab>
+
+  <Tab title="All Pods">
+    View aggregated logs from all pods:
+
+    - Shows logs from all replicas
+    - Useful for overall application behavior
+    - Can identify patterns across instances
+
+    **Use Case:** Monitoring general application health
+  </Tab>
+
+  <Tab title="Multiple Pods">
+    Select multiple specific pods:
+
+    - Compare behavior across selected pods
+    - Identify pod-specific issues
+    - Useful for canary deployments
+
+    **Use Case:** Comparing old vs new version pods
+  </Tab>
+</Tabs>
+
+### Filter by Time Range
+
+Access logs from specific time periods:
+
+<CardGroup cols={2}>
+  <Card title="Real-Time" icon="clock">
+    Stream live logs as they're generated
+  </Card>
+  <Card title="Last Hour" icon="clock-rotate-left">
+    View logs from the past 60 minutes
+  </Card>
+  <Card title="Last 24 Hours" icon="calendar-day">
+    Access logs from the past day
+  </Card>
+  <Card title="Custom Range" icon="calendar-range">
+    Specify exact start and end timestamps
+  </Card>
+</CardGroup>
+
+### Filter by Search Term
+
+Search logs for specific content:
+
+```bash
+# Search for error messages
+Filter: "error"
+
+# Search for specific request ID
+Filter: "request_id=abc123"
+
+# Search for user actions
+Filter: "user_id=12345"
+
+# Regular expression search
+Filter: regex:"ERROR|FATAL"
+```
+
+### Filter by Log Level
+
+Filter by severity level:
+
+| Level | Description | Use Case |
+|-------|-------------|----------|
+| DEBUG | Detailed debugging information | Development troubleshooting |
+| INFO | General informational messages | Normal operation monitoring |
+| WARNING | Warning messages | Potential issues |
+| ERROR | Error messages | Active problem investigation |
+| FATAL | Critical failures | Incident response |
+
+## Log Retention
+
+Log retention depends on your Qovery plan and observability package:
+
+### With Observability Package
+
+<CardGroup cols={2}>
+  <Card title="Retention Period" icon="calendar">
+    12 weeks of full historical access
+  </Card>
+  <Card title="Search Capability" icon="magnifying-glass">
+    Full-text search across all logs
+  </Card>
+  <Card title="Advanced Filtering" icon="filter">
+    Complex queries and aggregations
+  </Card>
+  <Card title="Export Options" icon="download">
+    Export logs for external analysis
+  </Card>
+</CardGroup>
+
+### Without Observability Package
+
+<CardGroup cols={2}>
+  <Card title="Live Logs" icon="circle-dot">
+    Latest 1,000 lines per service
+  </Card>
+  <Card title="Basic Retention" icon="clock">
+    12 weeks retention (limited access)
+  </Card>
+  <Card title="Basic Filtering" icon="filter">
+    Simple text search only
+  </Card>
+  <Card title="No Export" icon="ban">
+    Export not available
+  </Card>
+</CardGroup>
+
+<Info>
+Upgrade to an Observability Package for full log retention and advanced features. Contact sales for pricing.
+</Info>
+
+## Log Types
+
+### Build Logs
+
+Logs generated during the container image build process:
+
+**What's Included:**
+- Git clone operations
+- Dependency installation
+- Compilation output
+- Test execution results
+- Image creation and push
+
+**Example Build Log:**
+```
+[1/5] Cloning repository: https://github.com/org/repo.git
+[2/5] Installing dependencies...
+[3/5] Running build: npm run build
+[4/5] Running tests: npm test
+[5/5] Pushing image: registry.qovery.com/org/app:abc123
+Build completed successfully in 3m 24s
+```
+
+### Deployment Logs
+
+Logs from the Kubernetes deployment process:
+
+**What's Included:**
+- Kubernetes resource creation
+- Image pull operations
+- Pod scheduling
+- Container startup
+- Health check results
+- Service endpoint configuration
+
+**Example Deployment Log:**
+```
+Creating namespace: prod-app-abc123
+Applying deployment: app-deployment
+Pulling image: registry.qovery.com/org/app:abc123
+Starting pod: app-deployment-7d9f8c-xyz
+Running health checks...
+Health check passed: /health returned 200
+Service is ready and accepting traffic
+Deployment completed successfully
+```
+
+### Application Logs
+
+Logs from your running application:
+
+**What's Included:**
+- Application stdout/stderr
+- Custom logging output
+- Framework logs (Rails, Django, Express, etc.)
+- Error stack traces
+- Request/response logs
+
+**Example Application Log:**
+```
+2025-10-09 14:23:45 INFO  Starting application on port 8000
+2025-10-09 14:23:46 INFO  Database connection established
+2025-10-09 14:23:50 INFO  GET /api/users - 200 - 45ms
+2025-10-09 14:23:52 ERROR POST /api/orders - 500 - Error: Invalid payment method
+2025-10-09 14:23:52 ERROR Stack trace: ...
+```
+
+### System Logs
+
+Logs from Qovery system components:
+
+**What's Included:**
+- Load balancer operations
+- Ingress controller logs
+- Certificate management
+- DNS updates
+- Scaling events
+
+## Accessing Logs via CLI
+
+Use the Qovery CLI to access logs from your terminal:
+
+### Live Logs
+
+```bash
+# Stream live logs
+qovery log
+
+# Follow logs for specific application
+qovery application log --application api --follow
+
+# Show last 100 lines
+qovery application log --tail 100
+
+# Filter by pod
+qovery application log --pod app-deployment-abc123
+
+# Show logs with timestamps
+qovery application log --timestamps
+```
+
+### Deployment Logs
+
+```bash
+# View logs from last deployment
+qovery deployment log
+
+# View logs from specific deployment
+qovery deployment log --deployment-id abc123
+
+# Show only build logs
+qovery deployment log --stage build
+
+# Show only deployment logs
+qovery deployment log --stage deploy
+```
+
+### Historical Logs
+
+```bash
+# View logs from specific time range
+qovery log --since "1 hour ago"
+
+# View logs between two timestamps
+qovery log --since "2025-10-09 10:00" --until "2025-10-09 12:00"
+
+# Export logs to file
+qovery log --since "24 hours ago" > logs.txt
+```
+
+## Accessing Logs via API
+
+Access logs programmatically via the Qovery API:
+
+```bash
+# Get live logs
+curl -X GET \
+  "https://api.qovery.com/application/$APPLICATION_ID/logs" \
+  -H "Authorization: Token $QOVERY_API_TOKEN"
+
+# Get deployment logs
+curl -X GET \
+  "https://api.qovery.com/deployment/$DEPLOYMENT_ID/logs" \
+  -H "Authorization: Token $QOVERY_API_TOKEN"
+
+# Get logs with filters
+curl -X GET \
+  "https://api.qovery.com/application/$APPLICATION_ID/logs?since=1h&level=error" \
+  -H "Authorization: Token $QOVERY_API_TOKEN"
+```
+
+## Log Analysis Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Structured Logging" icon="table">
+    Use JSON or structured log formats for easier parsing
+  </Card>
+  <Card title="Log Levels" icon="layer-group">
+    Consistently use appropriate log levels (debug, info, error)
+  </Card>
+  <Card title="Context Information" icon="id-card">
+    Include request IDs, user IDs, and correlation data
+  </Card>
+  <Card title="Avoid Sensitive Data" icon="shield">
+    Never log passwords, tokens, or PII
+  </Card>
+  <Card title="Rate Limiting" icon="gauge">
+    Implement log rate limiting for high-volume logs
+  </Card>
+  <Card title="Regular Review" icon="eye">
+    Regularly review logs to identify patterns
+  </Card>
+</CardGroup>
+
+## Troubleshooting with Logs
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Application not starting">
+    **Check:**
+    1. Build logs for compilation errors
+    2. Deployment logs for image pull issues
+    3. Application logs for startup errors
+    4. Health check logs for failures
+
+    **Common Patterns:**
+    - `Error: Cannot connect to database` - Check database connectivity
+    - `Port already in use` - Check port configuration
+    - `Permission denied` - Check file permissions or user context
+  </Accordion>
+
+  <Accordion title="Intermittent errors">
+    **Investigation Steps:**
+    1. Filter logs by error level
+    2. Identify which pods are generating errors
+    3. Check timing patterns (time of day, load correlation)
+    4. Compare healthy vs unhealthy pod logs
+
+    **Common Patterns:**
+    - `Connection timeout` - Network or dependency issues
+    - `Out of memory` - Resource constraints
+    - `Database connection pool exhausted` - Need more connections
+  </Accordion>
+
+  <Accordion title="Performance issues">
+    **What to Look For:**
+    1. Slow request logs (response times)
+    2. Database query performance
+    3. External API call durations
+    4. Memory usage patterns
+
+    **Common Patterns:**
+    - `Slow query: SELECT * FROM...` - Database optimization needed
+    - `GC pause: 5000ms` - Heap size issues
+    - `Request timeout after 30s` - Increase timeouts or optimize
+  </Accordion>
+
+  <Accordion title="Deployment failures">
+    **Check These Logs:**
+    1. Build logs for build failures
+    2. Deployment logs for Kubernetes errors
+    3. Pod events for scheduling issues
+    4. Previous successful deployment logs for comparison
+
+    **Common Patterns:**
+    - `ImagePullBackOff` - Image doesn't exist or auth issues
+    - `CrashLoopBackOff` - Application failing to start
+    - `Insufficient CPU/Memory` - Need more resources
+  </Accordion>
+</AccordionGroup>
+
+## Log Forwarding
+
+Forward logs to external systems for long-term storage and analysis:
+
+<Tabs>
+  <Tab title="Datadog">
+    Forward logs to Datadog for advanced analysis:
+
+    ```yaml
+    # Configure in Qovery settings
+    log_forwarding:
+      provider: datadog
+      api_key: ${DATADOG_API_KEY}
+      site: datadoghq.com
+    ```
+  </Tab>
+
+  <Tab title="Elasticsearch">
+    Send logs to Elasticsearch for search and visualization:
+
+    ```yaml
+    log_forwarding:
+      provider: elasticsearch
+      endpoint: https://elastic.example.com
+      index: qovery-logs
+    ```
+  </Tab>
+
+  <Tab title="CloudWatch">
+    Forward logs to AWS CloudWatch:
+
+    ```yaml
+    log_forwarding:
+      provider: cloudwatch
+      region: us-east-1
+      log_group: /qovery/applications
+    ```
+  </Tab>
+
+  <Tab title="Custom">
+    Send logs to any HTTP endpoint:
+
+    ```yaml
+    log_forwarding:
+      provider: http
+      endpoint: https://logs.example.com/ingest
+      headers:
+        Authorization: Bearer ${API_TOKEN}
+    ```
+  </Tab>
+</Tabs>
+
+<Info>
+Log forwarding is available with Business and Enterprise plans. Contact sales for more information.
+</Info>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deployment Statuses" icon="circle-info" href="/configuration/deployment/statuses">
+    Understand deployment status indicators
+  </Card>
+  <Card title="Monitoring" icon="chart-line" href="/configuration/observability/overview">
+    Set up metrics and monitoring
+  </Card>
+  <Card title="Alerting" icon="bell" href="/configuration/observability/alerting">
+    Configure log-based alerts
+  </Card>
+  <Card title="Observability Package" icon="eye" href="/configuration/observability/package">
+    Upgrade for advanced log features
+  </Card>
+</CardGroup>

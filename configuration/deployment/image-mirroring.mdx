@@ -1,0 +1,445 @@
+---
+title: "Image Mirroring"
+description: "Speed up deployments and secure scale-up operations with container image mirroring"
+---
+
+Image mirroring stores and caches container images in a registry on your cloud infrastructure. This feature speeds up deployments, secures scale-up operations, and eliminates dependencies on external container registries.
+
+## What is Image Mirroring?
+
+Image mirroring automatically copies container images to a registry hosted within your Qovery infrastructure. When you deploy or scale your applications, images are pulled from this local registry instead of external sources.
+
+<img src="/images/deployment/mirror-registry.png" alt="Mirror Registry Architecture" />
+
+## Benefits of Image Mirroring
+
+<CardGroup cols={2}>
+  <Card title="Faster Deployments" icon="gauge-high">
+    Images pull from your cloud region instead of external registries
+  </Card>
+  <Card title="Secure Scale-Up" icon="shield">
+    Avoid dependency on external registries during critical scaling
+  </Card>
+  <Card title="Reliability" icon="circle-check">
+    No deployment failures due to external registry downtime
+  </Card>
+  <Card title="Bandwidth Optimization" icon="arrows-left-right">
+    Reduce external bandwidth usage for image pulls
+  </Card>
+  <Card title="Compliance" icon="file-contract">
+    Keep all images within your cloud infrastructure
+  </Card>
+  <Card title="Cost Efficiency" icon="dollar-sign">
+    Avoid repeated pulls of the same image from external sources
+  </Card>
+</CardGroup>
+
+## How Image Mirroring Works
+
+### For Qovery CI Built Applications
+
+When Qovery builds your application from Git:
+
+<img src="/images/deployment/build-mirror.png" alt="Build and Mirror Process" />
+
+<Steps>
+  <Step title="Code Build">
+    Qovery builds your application into a container image
+  </Step>
+  <Step title="Image Push">
+    Built image is pushed to the mirroring registry
+  </Step>
+  <Step title="Context Storage">
+    Build context (commit ID, Dockerfile path, etc.) is stored
+  </Step>
+  <Step title="Subsequent Builds">
+    Future builds check if an identical image already exists
+  </Step>
+  <Step title="Build Skip">
+    If identical image exists, build is skipped and cached image is used
+  </Step>
+</Steps>
+
+<Info>
+Qovery uses build context (commit ID, repository path, Dockerfile details) to determine if an image already exists. If all parameters are identical, the cached image is reused.
+</Info>
+
+### For Container Registry Applications
+
+When deploying from external container registries (Docker Hub, ECR, GCR, etc.):
+
+<Steps>
+  <Step title="Image Pull">
+    Qovery pulls the specified image from the external registry
+  </Step>
+  <Step title="Image Mirror">
+    Image is copied to the Qovery mirroring registry
+  </Step>
+  <Step title="Deployment">
+    Application is deployed using the mirrored image
+  </Step>
+  <Step title="Future Deployments">
+    Same image is pulled from mirroring registry
+  </Step>
+</Steps>
+
+## Mirroring Modes
+
+Qovery supports two mirroring modes for container registry applications:
+
+### Service Mode (Default)
+
+Each service has its own isolated image repository in the mirroring registry.
+
+<img src="/images/deployment/image-mirror-service.png" alt="Service Mode Image Mirroring" />
+
+**Characteristics:**
+- **Isolation**: Each service's images are stored separately
+- **Security**: Services can't access each other's images
+- **Organization**: Clear separation by service name
+- **Use Case**: Most production environments
+
+**Repository Structure:**
+```
+mirror-registry/
+├── service-api/
+│   ├── v1.0.0
+│   ├── v1.1.0
+│   └── v1.2.0
+├── service-worker/
+│   ├── v1.0.0
+│   └── v1.1.0
+└── service-frontend/
+    ├── v2.0.0
+    └── v2.1.0
+```
+
+### Cluster Mode
+
+Images are mirrored at the cluster level and shared across all services.
+
+<img src="/images/deployment/image-mirror-cluster.png" alt="Cluster Mode Image Mirroring" />
+
+**Characteristics:**
+- **Sharing**: Same image can be used by multiple services
+- **Efficiency**: Reduced storage for shared images
+- **Cost**: Potentially higher storage costs for many unique images
+- **Use Case**: Environments with many services using the same base images
+
+**Repository Structure:**
+```
+mirror-registry-cluster/
+├── nginx:latest
+├── postgres:14
+├── redis:7
+├── myapp:v1.0.0
+└── myapp:v2.0.0
+```
+
+<Warning>
+Cluster mode can increase storage costs if you have many services using unique images. Use service mode unless you specifically need image sharing.
+</Warning>
+
+## Choosing a Mirroring Mode
+
+| Consideration | Service Mode | Cluster Mode |
+|--------------|--------------|--------------|
+| **Image Isolation** | ✅ Fully isolated per service | ⚠️ Shared across cluster |
+| **Storage Efficiency** | ⚠️ Each service stores separately | ✅ Shared images stored once |
+| **Security** | ✅ Strong isolation | ⚠️ Cluster-wide access |
+| **Use with Base Images** | ⚠️ Duplicates common images | ✅ Shares common images |
+| **Multi-Service Apps** | ⚠️ Duplicates if same image | ✅ Efficient for shared images |
+| **Storage Cost** | ⚠️ Higher for shared images | ⚠️ Higher for unique images |
+| **Recommended For** | Production environments | Development, shared base images |
+
+## Image Mirroring Best Practices
+
+### Use Unique Image Tags
+
+<Tabs>
+  <Tab title="Recommended">
+    **Use specific, unique tags:**
+
+    ```yaml
+    # Good: Specific version tags
+    image: myapp:v1.2.3
+    image: myapp:commit-abc123
+    image: myapp:release-2024-10-09
+
+    # Good: Immutable digests
+    image: myapp@sha256:abc123...
+    ```
+
+    **Benefits:**
+    - Clear versioning
+    - Predictable deployments
+    - Easy rollbacks
+    - Proper cache utilization
+  </Tab>
+
+  <Tab title="Not Recommended">
+    **Avoid mutable tags:**
+
+    ```yaml
+    # Bad: Latest tag (mutable)
+    image: myapp:latest
+
+    # Bad: Generic tags (mutable)
+    image: myapp:stable
+    image: myapp:prod
+    ```
+
+    **Problems:**
+    - Unclear what version is deployed
+    - Cache may serve outdated image
+    - Difficult to rollback
+    - Deployment inconsistency
+  </Tab>
+</Tabs>
+
+<Warning>
+Using tags like `latest` or other mutable tags can cause caching issues. The mirroring registry may serve an old cached version instead of pulling the new image.
+</Warning>
+
+### Disable Mirroring When Appropriate
+
+You can bypass image mirroring by pushing directly to the Qovery mirroring registry:
+
+<Accordion title="Pushing Directly to Mirroring Registry">
+  If you build your images in your own CI/CD pipeline, you can push them directly to the mirroring registry to avoid unnecessary mirroring operations:
+
+  1. **Get Registry Credentials**:
+     ```bash
+     qovery cluster registry credentials
+     ```
+
+  2. **Authenticate Docker**:
+     ```bash
+     docker login mirror-registry.qovery.io
+     ```
+
+  3. **Build and Push**:
+     ```bash
+     docker build -t mirror-registry.qovery.io/myapp:v1.0.0 .
+     docker push mirror-registry.qovery.io/myapp:v1.0.0
+     ```
+
+  4. **Configure Application**:
+     ```yaml
+     image: mirror-registry.qovery.io/myapp:v1.0.0
+     ```
+
+  This approach skips the mirroring step since the image is already in the target registry.
+</Accordion>
+
+## Storage Management
+
+### Storage Capacity
+
+Mirroring registries are sized based on your usage:
+
+| Plan | Default Storage | Max Images |
+|------|----------------|------------|
+| Free | 10 GB | ~50 images |
+| Team | 50 GB | ~250 images |
+| Business | 200 GB | ~1000 images |
+| Enterprise | Custom | Custom |
+
+<Info>
+Storage automatically scales within plan limits. Contact support if you need additional capacity.
+</Info>
+
+### Image Retention
+
+Images are retained according to the following policies:
+
+<Tabs>
+  <Tab title="Active Images">
+    **Currently deployed images:**
+    - Retained indefinitely while in use
+    - Protected from garbage collection
+    - Multiple versions kept if deployed
+  </Tab>
+
+  <Tab title="Unused Images">
+    **Images not currently deployed:**
+    - Retained for 30 days by default
+    - Automatically deleted after retention period
+    - Can be configured per organization
+  </Tab>
+
+  <Tab title="Tagged Images">
+    **Explicitly tagged images:**
+    - Protected from automatic deletion
+    - Require manual cleanup
+    - Use for release versions
+  </Tab>
+</Tabs>
+
+### Cleaning Up Images
+
+Manually clean up unused images to free storage:
+
+```bash
+# List all mirrored images
+qovery cluster registry list-images
+
+# Delete specific image
+qovery cluster registry delete-image --image myapp:v1.0.0
+
+# Clean up images older than 30 days
+qovery cluster registry cleanup --older-than 30d
+
+# Clean up all unused images
+qovery cluster registry cleanup --unused
+```
+
+## Monitoring Image Mirroring
+
+### Checking Mirror Status
+
+Monitor image mirroring operations:
+
+```bash
+# Check mirror status for application
+qovery application mirror-status
+
+# View mirroring registry details
+qovery cluster registry info
+
+# List mirrored images
+qovery cluster registry list-images --service myapp
+```
+
+### Mirror Metrics
+
+Track important mirroring metrics:
+
+<CardGroup cols={2}>
+  <Card title="Mirror Success Rate" icon="chart-line">
+    Percentage of successful image mirrors
+  </Card>
+  <Card title="Storage Usage" icon="hard-drive">
+    Current storage consumption vs limit
+  </Card>
+  <Card title="Pull Performance" icon="gauge">
+    Average time to pull images
+  </Card>
+  <Card title="Cache Hit Rate" icon="bullseye">
+    Percentage of deployments using cached images
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Image not mirroring">
+    **Symptoms:**
+    - Deployments fail with image pull errors
+    - Images not appearing in mirror registry
+
+    **Common Causes:**
+    - External registry authentication issues
+    - Network connectivity problems
+    - Image size exceeds limits
+    - Incorrect image name or tag
+
+    **Solutions:**
+    1. Verify external registry credentials
+    2. Check network connectivity
+    3. Confirm image exists in source registry
+    4. Review image size (must be under 10GB)
+  </Accordion>
+
+  <Accordion title="Wrong image version deployed">
+    **Symptoms:**
+    - Old version deploys despite new tag
+    - Changes not reflected after deployment
+
+    **Common Causes:**
+    - Using mutable tags (e.g., `latest`)
+    - Cache serving old image
+    - Tag not updated properly
+
+    **Solutions:**
+    1. Use specific version tags instead of `latest`
+    2. Force pull new image: `qovery application deploy --force-pull`
+    3. Use image digests for immutability
+    4. Clear mirror cache if needed
+  </Accordion>
+
+  <Accordion title="Running out of storage">
+    **Symptoms:**
+    - Mirror failures due to storage limits
+    - Warnings about storage capacity
+
+    **Common Causes:**
+    - Too many image versions retained
+    - Large base images
+    - Not cleaning up old images
+
+    **Solutions:**
+    1. Clean up unused images
+    2. Reduce retention period
+    3. Optimize base images (use Alpine, multi-stage builds)
+    4. Upgrade plan for more storage
+  </Accordion>
+
+  <Accordion title="Slow image pulls">
+    **Symptoms:**
+    - Deployments take longer than expected
+    - Image pull phase is slow
+
+    **Common Causes:**
+    - Large image size
+    - Network issues
+    - First pull from external registry
+
+    **Solutions:**
+    1. Optimize image size with multi-stage builds
+    2. Use smaller base images
+    3. Pre-pull frequently used images
+    4. Ensure mirror registry is in same region
+  </Accordion>
+</AccordionGroup>
+
+## Image Mirroring FAQ
+
+<AccordionGroup>
+  <Accordion title="Is image mirroring automatic?">
+    Yes, image mirroring is enabled by default for all services. Both Git-built and container registry deployments automatically use the mirroring feature.
+  </Accordion>
+
+  <Accordion title="Can I disable image mirroring?">
+    While you can't fully disable mirroring, you can push images directly to the Qovery mirror registry to skip the mirroring step. This is useful if you're building images in your own CI/CD pipeline.
+  </Accordion>
+
+  <Accordion title="Does mirroring work with private registries?">
+    Yes, image mirroring works with private container registries. You need to configure registry credentials in Qovery, and images will be mirrored from the private registry to your Qovery mirror registry.
+  </Accordion>
+
+  <Accordion title="What happens if external registry is down?">
+    If the external registry is unavailable, Qovery will use the cached image from the mirror registry. This ensures your deployments and scale-up operations continue working even if external registries are down.
+  </Accordion>
+
+  <Accordion title="Are mirrored images secure?">
+    Yes, mirrored images are stored in a private registry within your cloud infrastructure. Access is controlled by Qovery's authentication and authorization system. Images are never exposed publicly.
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
+    Optimize your deployment pipeline
+  </Card>
+  <Card title="Container Configuration" icon="box" href="/configuration/service/container">
+    Configure container-based services
+  </Card>
+  <Card title="Private Registry" icon="lock" href="/configuration/registry/overview">
+    Set up private container registries
+  </Card>
+  <Card title="Deployment Strategies" icon="chess" href="/configuration/deployment/strategies">
+    Choose the right deployment strategy
+  </Card>
+</CardGroup>

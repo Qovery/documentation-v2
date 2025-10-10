@@ -1,0 +1,457 @@
+---
+title: "Deployment Actions"
+description: "Control your deployments with deploy, redeploy, stop, restart, and rollback actions"
+---
+
+Qovery provides multiple deployment actions to manage the lifecycle of your services and environments. These actions can be triggered via the web console, API, CLI, or CI/CD pipelines.
+
+## Available Actions
+
+<img src="/images/deployment/deployment_status.png" alt="Deployment Status" />
+
+### Action Overview
+
+<CardGroup cols={2}>
+  <Card title="Deploy" icon="rocket">
+    Deploy a new version of your service to Kubernetes
+  </Card>
+  <Card title="Redeploy" icon="rotate">
+    Update remote configuration without changing code
+  </Card>
+  <Card title="Stop" icon="stop">
+    Stop service execution while preserving storage
+  </Card>
+  <Card title="Restart" icon="arrows-rotate">
+    Restart service pods without configuration changes
+  </Card>
+  <Card title="Cancel" icon="xmark">
+    Abort ongoing deployment and rollback
+  </Card>
+  <Card title="Deploy Specific Version" icon="code-commit">
+    Deploy a specific Git commit or container tag
+  </Card>
+</CardGroup>
+
+<img src="/images/deployment/deployment_actions.png" alt="Deployment Actions Menu" />
+
+## Deploy
+
+The **Deploy** action creates or updates the resources needed to run your application on the Kubernetes cluster.
+
+### Deploy Process
+
+When you trigger a deploy action, the following sequence occurs:
+
+<Steps>
+  <Step title="QUEUED">
+    Deployment request is added to the queue
+  </Step>
+  <Step title="BUILDING">
+    Code is built and containerized (for Git-based deployments)
+  </Step>
+  <Step title="DEPLOYING">
+    Container is deployed to Kubernetes with proper configuration
+  </Step>
+  <Step title="DEPLOYMENT OK">
+    Service is running and healthy on the cluster
+  </Step>
+</Steps>
+
+### When to Use Deploy
+
+- Deploying a new application for the first time
+- Deploying code changes after a Git commit
+- Deploying a new container image version
+- Applying configuration changes that require redeployment
+
+### Deploy Methods
+
+<Tabs>
+  <Tab title="Console">
+    Deploy from the Qovery web console:
+
+    1. Navigate to your service
+    2. Click the "Deploy" button
+    3. Confirm the deployment
+    4. Monitor progress in real-time
+  </Tab>
+
+  <Tab title="CLI">
+    Deploy using the Qovery CLI:
+
+    ```bash
+    # Deploy application
+    qovery application deploy
+
+    # Deploy specific service
+    qovery application deploy --application <app-name>
+
+    # Deploy with watch mode
+    qovery application deploy --watch
+    ```
+  </Tab>
+
+  <Tab title="API">
+    Deploy via the Qovery API:
+
+    ```bash
+    curl -X POST \
+      "https://api.qovery.com/application/$APPLICATION_ID/deploy" \
+      -H "Authorization: Token $QOVERY_API_TOKEN" \
+      -H "Content-Type: application/json"
+    ```
+  </Tab>
+</Tabs>
+
+## Redeploy
+
+The **Redeploy** action updates the remote configuration of your services without building new container images.
+
+### What Redeploy Does
+
+Redeploy uses a **rolling-restart** deployment logic:
+- Updates Kubernetes configuration (environment variables, resources, etc.)
+- Gradually replaces pods with new configuration
+- Maintains service availability during the update
+- No new container image is built
+
+### When to Use Redeploy
+
+<CardGroup cols={2}>
+  <Card title="Environment Variables" icon="key">
+    Update environment variables without rebuilding
+  </Card>
+  <Card title="Resource Limits" icon="server">
+    Adjust CPU or memory limits
+  </Card>
+  <Card title="Scaling" icon="chart-line">
+    Change replica count or autoscaling settings
+  </Card>
+  <Card title="Configuration" icon="gear">
+    Update service configuration like ports or domains
+  </Card>
+</CardGroup>
+
+### Redeploy Example
+
+```bash
+# Update environment variable
+qovery env set DATABASE_URL="postgresql://new-host:5432/db"
+
+# Redeploy to apply changes
+qovery application redeploy
+```
+
+## Stop
+
+The **Stop** action stops your service from running on the cluster while preserving all attached storage.
+
+### What Happens When You Stop
+
+- All running pods are terminated
+- Kubernetes resources are deleted
+- Persistent volumes and storage are preserved
+- Service no longer consumes compute resources
+
+### When to Use Stop
+
+<CardGroup cols={2}>
+  <Card title="Cost Optimization" icon="dollar-sign">
+    Stop non-production environments outside business hours
+  </Card>
+  <Card title="Maintenance" icon="wrench">
+    Temporarily stop services during maintenance windows
+  </Card>
+  <Card title="Testing" icon="flask">
+    Stop ephemeral test environments after testing
+  </Card>
+  <Card title="Resource Management" icon="server">
+    Free up cluster resources for other workloads
+  </Card>
+</CardGroup>
+
+<Warning>
+Stopping a service makes it unavailable. Users will not be able to access stopped services.
+</Warning>
+
+### Stop Example
+
+```bash
+# Stop a single application
+qovery application stop
+
+# Stop entire environment
+qovery environment stop
+```
+
+## Restart Service
+
+The **Restart** action restarts your service pods without making any configuration changes.
+
+### What Restart Does
+
+- Terminates existing pods
+- Creates new pods with the same configuration
+- No new build process
+- Same container image is used
+
+### When to Use Restart
+
+<CardGroup cols={2}>
+  <Card title="Clear State" icon="broom">
+    Clear in-memory state or caches
+  </Card>
+  <Card title="Recover from Errors" icon="triangle-exclamation">
+    Recover from transient errors or deadlocks
+  </Card>
+  <Card title="Apply Hot Fixes" icon="fire">
+    Restart after applying hot fixes manually
+  </Card>
+  <Card title="Test Resilience" icon="shield">
+    Test application resilience and startup behavior
+  </Card>
+</CardGroup>
+
+### Restart Example
+
+```bash
+# Restart application
+qovery application restart
+```
+
+## Cancel Deployment
+
+The **Cancel** action aborts an ongoing deployment and rolls back to the previous version.
+
+### Cancel Behavior
+
+When you cancel a deployment:
+1. The current deployment process is interrupted
+2. Kubernetes resources are rolled back to the previous state
+3. The service returns to its last known good version
+4. Deployment status changes to "CANCELLED"
+
+### When to Use Cancel
+
+- Deployment is taking too long
+- You realize the wrong version is being deployed
+- Build or deployment errors are detected
+- Need to quickly rollback to previous version
+
+<Warning>
+Canceling a deployment during the BUILDING phase may leave partial artifacts in your container registry.
+</Warning>
+
+### Cancel Example
+
+```bash
+# Cancel ongoing deployment
+qovery application cancel
+```
+
+## Deploy Other Version
+
+The **Deploy Other Version** action allows you to deploy a specific Git commit or container image tag.
+
+<img src="/images/deployment/deploy_other_version.png" alt="Deploy Other Version" />
+
+### Deploy Specific Git Commit
+
+For Git-based applications, deploy any commit from your repository:
+
+<Steps>
+  <Step title="Open Application">
+    Navigate to your application in the console
+  </Step>
+  <Step title="Select 'Deploy Other Version'">
+    Click the deployment actions menu and select "Deploy Other Version"
+  </Step>
+  <Step title="Choose Commit">
+    Select the specific commit hash you want to deploy
+  </Step>
+  <Step title="Confirm Deployment">
+    Review and confirm the deployment
+  </Step>
+</Steps>
+
+### Deploy Specific Container Tag
+
+For container-based applications, deploy any image tag:
+
+```bash
+# Deploy specific tag via CLI
+qovery application deploy --tag v2.1.0
+
+# Deploy specific commit via CLI
+qovery application deploy --commit abc123def
+```
+
+### Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Rollback" icon="rotate-left">
+    Deploy a previous stable version
+  </Card>
+  <Card title="Hot Fix" icon="fire">
+    Deploy a specific hot fix commit
+  </Card>
+  <Card title="Testing" icon="flask">
+    Test a specific version in staging
+  </Card>
+  <Card title="Release Management" icon="tags">
+    Deploy tagged releases to production
+  </Card>
+</CardGroup>
+
+## Deploy Latest Version
+
+The **Deploy Latest Version** action deploys the most recent version for selected services in your environment.
+
+<img src="/images/deployment/deploy_latest_version.png" alt="Deploy Latest Version" />
+
+### What It Does
+
+- Fetches the latest commit from the configured branch
+- Deploys all selected services with their latest versions
+- Useful when multiple services need updating simultaneously
+
+### When to Use
+
+- Update all services after a sync period
+- Deploy latest changes across microservices
+- Refresh development environments with latest code
+
+### Deploy Latest Example
+
+```bash
+# Deploy latest version for all services
+qovery environment deploy --latest
+
+# Deploy latest for specific services
+qovery application deploy --latest --application api,worker
+```
+
+## Deployment Action Queueing
+
+Qovery implements intelligent deployment queueing to manage concurrent deployment requests.
+
+### How Queueing Works
+
+<Steps>
+  <Step title="Single Action at a Time">
+    Only one deployment action is processed per service at any given time
+  </Step>
+  <Step title="Request Queuing">
+    Subsequent deployment requests are automatically queued
+  </Step>
+  <Step title="Request Merging">
+    Similar requests from the same user can be merged to avoid redundant deployments
+  </Step>
+  <Step title="Sequential Processing">
+    Queued requests are processed in order once the current action completes
+  </Step>
+</Steps>
+
+### Request Merging Rules
+
+Deployment requests are merged when:
+- Same user triggers multiple deploy actions
+- Same action type (e.g., multiple deploy requests)
+- Target is the same service or environment
+- Previous request hasn't started executing
+
+<Info>
+Request merging prevents deployment queue buildup and ensures only the latest desired state is deployed.
+</Info>
+
+## Deployment Status Tracking
+
+Monitor deployment action progress through various statuses:
+
+| Status | Description | Next Steps |
+|--------|-------------|------------|
+| QUEUED | Deployment is waiting in queue | Wait for execution to begin |
+| BUILDING | Code is being built into container image | Monitor build logs |
+| DEPLOYING | Container is being deployed to Kubernetes | Check deployment logs |
+| DEPLOYMENT OK | Service is running successfully | Monitor service health |
+| BUILDING ERROR | Build process failed | Check build logs for errors |
+| DEPLOYMENT ERROR | Deployment to Kubernetes failed | Check deployment logs |
+| CANCELLED | Deployment was cancelled | Review cancellation reason |
+
+See [Deployment Statuses](/configuration/deployment/statuses) for complete details.
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Test Before Production" icon="flask">
+    Always test deployment actions in non-production environments first
+  </Card>
+  <Card title="Use Redeploy for Config" icon="gear">
+    Use redeploy instead of deploy when only changing configuration
+  </Card>
+  <Card title="Monitor Deployments" icon="chart-line">
+    Watch deployment logs to catch issues early
+  </Card>
+  <Card title="Document Rollbacks" icon="book">
+    Keep track of why you rolled back to specific versions
+  </Card>
+  <Card title="Automate with CI/CD" icon="robot">
+    Integrate deployment actions into your CI/CD pipelines
+  </Card>
+  <Card title="Schedule Stops" icon="clock">
+    Automatically stop non-production environments to save costs
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Deployment stuck in QUEUED state">
+    If your deployment is stuck in the queue:
+    1. Check if another deployment is currently running
+    2. Cancel any stuck deployments blocking the queue
+    3. Verify cluster has available resources
+    4. Check Qovery status page for platform issues
+  </Accordion>
+
+  <Accordion title="Deploy action fails immediately">
+    If deployment fails right away:
+    1. Review deployment logs for error messages
+    2. Check application configuration for errors
+    3. Verify container registry credentials are valid
+    4. Ensure Dockerfile is valid (for Git deployments)
+  </Accordion>
+
+  <Accordion title="Cannot stop a running service">
+    If you can't stop a service:
+    1. Wait for any ongoing deployments to complete
+    2. Check for deployment locks or restrictions
+    3. Verify you have appropriate permissions
+    4. Try stopping from CLI or API instead of console
+  </Accordion>
+
+  <Accordion title="Redeploy doesn't update configuration">
+    If redeploy isn't applying changes:
+    1. Verify changes were saved in settings
+    2. Check for environment variable syntax errors
+    3. Review deployment logs for warning messages
+    4. Try a full deploy instead of redeploy
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deployment History" icon="clock-rotate-left" href="/configuration/deployment/history">
+    Review past deployment actions and outcomes
+  </Card>
+  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
+    Access detailed logs for troubleshooting
+  </Card>
+  <Card title="Deployment Statuses" icon="circle-info" href="/configuration/deployment/statuses">
+    Understand all deployment and running statuses
+  </Card>
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
+    Configure deployment stages and order
+  </Card>
+</CardGroup>

@@ -1,0 +1,98 @@
+---
+title: "Deployment Overview"
+description: "Learn how Qovery deploys your applications on Kubernetes with automated workflows"
+---
+
+Qovery is a DevOps Automation Platform helping 200+ organizations to ship faster and eliminate DevOps hiring needs. This guide explains how the deployment process works on Qovery.
+
+## How Deployment Works
+
+When you push code to your Git repository, Qovery can automatically deploy your applications through several trigger mechanisms:
+
+<img src="/images/deployment/deployment_overview_qovery.png" alt="Qovery Deployment Overview" />
+
+### Deployment Triggers
+
+Qovery supports three main ways to trigger deployments:
+
+<CardGroup cols={3}>
+  <Card title="Auto-Deploy" icon="rotate">
+    Automatically deploy when commits are pushed to your Git repository
+  </Card>
+  <Card title="CI/CD Integration" icon="code-branch">
+    Integrate with your existing CI/CD pipeline for custom workflows
+  </Card>
+  <Card title="Manual Deployment" icon="hand">
+    Deploy manually from the Qovery console when you're ready
+  </Card>
+</CardGroup>
+
+## Deployment Pipeline Steps
+
+When a deployment is triggered, Qovery executes the following steps:
+
+<Steps>
+  <Step title="Configuration Processing">
+    The Qovery engine processes your application configuration and environment settings
+  </Step>
+  <Step title="Code Retrieval">
+    Qovery pulls the latest code from your Git repository
+  </Step>
+  <Step title="Build & Registry">
+    Your code is built into a container image and pushed to a container registry
+  </Step>
+  <Step title="Network Configuration">
+    Load balancers and network configuration are created for your services
+  </Step>
+  <Step title="Kubernetes Deployment">
+    Your application is deployed to a dedicated Kubernetes namespace
+  </Step>
+  <Step title="Domain & TLS Setup">
+    Custom domains and TLS certificates are automatically configured
+  </Step>
+</Steps>
+
+## Kubernetes Orchestration
+
+All deployments run on Kubernetes, which serves as the universal orchestrator for your applications:
+
+- **Multi-Cloud Support**: Deploy to AWS, GCP, Azure, or Scaleway
+- **Namespace Isolation**: Each environment gets its own Kubernetes namespace
+- **Automated Scaling**: Horizontal and vertical scaling capabilities
+- **High Availability**: Built-in redundancy and failover mechanisms
+
+## Monitoring Your Deployments
+
+Qovery provides comprehensive tools to monitor and manage your deployments:
+
+<CardGroup cols={2}>
+  <Card title="Deployment Status" icon="circle-check" href="/configuration/deployment/statuses">
+    Monitor real-time deployment and running statuses for all services
+  </Card>
+  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
+    Access detailed logs for troubleshooting and monitoring
+  </Card>
+  <Card title="Deployment History" icon="clock-rotate-left" href="/configuration/deployment/history">
+    Review past deployments and their outcomes
+  </Card>
+  <Card title="Deployment Actions" icon="gears" href="/configuration/deployment/actions">
+    Control your deployments with stop, restart, and redeploy actions
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Set Up Auto-Deploy" icon="rotate" href="/configuration/deployment/auto-deploy">
+    Configure automatic deployments from your Git repository
+  </Card>
+  <Card title="Configure CI/CD" icon="code-branch" href="/configuration/deployment/ci-cd">
+    Integrate Qovery with your existing CI/CD pipeline
+  </Card>
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
+    Understand and customize deployment stages
+  </Card>
+  <Card title="Deployment Strategies" icon="chess" href="/configuration/deployment/strategies">
+    Choose between rolling updates and recreate strategies
+  </Card>
+</CardGroup>

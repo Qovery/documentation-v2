@@ -1,0 +1,350 @@
+---
+title: "Deployment Pipeline"
+description: "Understand and configure deployment stages for orchestrated service deployments"
+---
+
+A deployment pipeline defines the sequence of operations required to deploy all services in an environment. It's composed of ordered **Deployment Stages** that determine which services are built and deployed together.
+
+## What is a Deployment Pipeline?
+
+A deployment pipeline orchestrates the build and deployment process across multiple services in your environment. Each service belongs to exactly one deployment stage, and stages are executed in order.
+
+<img src="/images/deployment/example_deployment_pipeline.png" alt="Example Deployment Pipeline" />
+
+## Default Pipeline Structure
+
+When you create a new environment, Qovery automatically creates a default deployment pipeline with four stages:
+
+<img src="/images/deployment/default_deployment_pipeline.png" alt="Default Deployment Pipeline" />
+
+<Steps>
+  <Step title="0.DEFAULT DATABASE">
+    Deploys all database services first to ensure data layer is ready
+  </Step>
+  <Step title="1.DEFAULT JOB">
+    Runs lifecycle jobs and cron jobs after databases are available
+  </Step>
+  <Step title="2.DEFAULT CONTAINER">
+    Deploys container-based services after jobs complete
+  </Step>
+  <Step title="3.DEFAULT APPLICATION">
+    Deploys application services last, after all dependencies are ready
+  </Step>
+</Steps>
+
+## Pipeline Execution
+
+### Build Process
+
+During the build phase, Qovery processes services with the following characteristics:
+
+<CardGroup cols={2}>
+  <Card title="Parallel Builds" icon="layer-group">
+    Up to 7 services are built simultaneously for faster deployment
+  </Card>
+  <Card title="Build Resources" icon="server">
+    Each build node has 4 CPU cores and 4 GB memory by default
+  </Card>
+  <Card title="Image Registry" icon="box">
+    Built images are pushed to a mirroring registry for deployment
+  </Card>
+  <Card title="Helm Packaging" icon="cube">
+    Services are packaged as Helm charts for Kubernetes deployment
+  </Card>
+</CardGroup>
+
+<img src="/images/deployment/autodeploy_build.png" alt="Auto-Deploy Build Process" />
+
+### Deployment Sequence
+
+Once built, services are deployed according to their deployment stage:
+
+1. **Stage Ordering**: Stages are executed sequentially in order (0, 1, 2, 3...)
+2. **Parallel Deployment**: Within each stage, up to 7 services deploy in parallel
+3. **Stage Completion**: All services in a stage must complete before the next stage begins
+4. **Error Handling**: If any service fails, the pipeline stops and subsequent stages are not executed
+
+## Customizing Your Pipeline
+
+You can customize the deployment pipeline to match your application architecture and dependencies.
+
+### Creating Deployment Stages
+
+<Steps>
+  <Step title="Open Pipeline Settings">
+    Navigate to your environment settings and select "Deployment Pipeline"
+  </Step>
+  <Step title="Add New Stage">
+    Click "Add Stage" to create a custom deployment stage
+  </Step>
+  <Step title="Name Your Stage">
+    Give your stage a descriptive name (e.g., "Backend Services", "Frontend Apps")
+  </Step>
+  <Step title="Set Stage Order">
+    Assign a number to control when the stage executes (lower numbers execute first)
+  </Step>
+</Steps>
+
+### Assigning Services to Stages
+
+Each service can be assigned to a specific deployment stage:
+
+<Steps>
+  <Step title="Open Service Settings">
+    Navigate to your service configuration
+  </Step>
+  <Step title="Find Deployment Stage">
+    Locate the "Deployment Stage" setting
+  </Step>
+  <Step title="Select Stage">
+    Choose the deployment stage where this service should deploy
+  </Step>
+  <Step title="Save Configuration">
+    Save changes to update the service's deployment stage
+  </Step>
+</Steps>
+
+## Common Pipeline Patterns
+
+### Pattern 1: Database-First Deployment
+
+Ensure databases are ready before applications start:
+
+```
+Stage 0: Databases (PostgreSQL, Redis, MongoDB)
+Stage 1: Backend APIs (depend on databases)
+Stage 2: Worker Services (depend on databases and APIs)
+Stage 3: Frontend Applications (depend on APIs)
+```
+
+### Pattern 2: Microservices with Dependencies
+
+Deploy microservices in dependency order:
+
+```
+Stage 0: Core Services (Auth, Config, Service Registry)
+Stage 1: Domain Services (User Service, Product Service)
+Stage 2: Integration Services (API Gateway, Event Bus)
+Stage 3: Frontend & Mobile BFF
+```
+
+### Pattern 3: Data Pipeline
+
+Deploy data processing pipelines in stages:
+
+```
+Stage 0: Data Sources (Databases, Message Queues)
+Stage 1: Data Ingestion (ETL Jobs, Streaming Processors)
+Stage 2: Data Processing (Analytics, Transformations)
+Stage 3: Data Presentation (APIs, Dashboards)
+```
+
+## Pipeline Optimization
+
+### Maximizing Parallelism
+
+To speed up deployments, organize independent services in the same stage:
+
+<Tabs>
+  <Tab title="Optimized">
+    **Fast Deployment** - Independent services in the same stage
+
+    ```
+    Stage 0: Databases (3 services in parallel)
+    Stage 1: Backend APIs (5 services in parallel)
+    Stage 2: Frontend Apps (3 services in parallel)
+    ```
+
+    **Deployment Time**: ~8-12 minutes (depending on build complexity)
+  </Tab>
+  <Tab title="Not Optimized">
+    **Slow Deployment** - Services in separate stages
+
+    ```
+    Stage 0: PostgreSQL
+    Stage 1: Redis
+    Stage 2: MongoDB
+    Stage 3: Auth API
+    Stage 4: User API
+    Stage 5: Product API
+    Stage 6: Frontend
+    ```
+
+    **Deployment Time**: ~25-35 minutes (sequential execution)
+  </Tab>
+</Tabs>
+
+### Dockerfile Optimization
+
+Optimize your Dockerfiles to speed up builds:
+
+<CodeGroup>
+```dockerfile Dockerfile (Optimized)
+# Use specific base images
+FROM node:18-alpine AS builder
+
+# Copy only dependency files first
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
+
+# Copy application code
+COPY . .
+RUN npm run build
+
+# Multi-stage build for smaller images
+FROM node:18-alpine
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+CMD ["node", "dist/main.js"]
+```
+
+```dockerfile Dockerfile (Not Optimized)
+# Avoid using 'latest' tags
+FROM node:latest
+
+# Copying everything invalidates cache
+COPY . .
+
+# Installing dev dependencies increases size
+RUN npm install
+
+# No multi-stage build
+CMD ["npm", "start"]
+```
+</CodeGroup>
+
+<CardGroup cols={2}>
+  <Card title="Layer Caching" icon="layer-group">
+    Order Dockerfile commands from least to most frequently changed
+  </Card>
+  <Card title="Multi-Stage Builds" icon="stairs">
+    Use multi-stage builds to reduce final image size
+  </Card>
+  <Card title="Dependency Caching" icon="box-archive">
+    Copy dependency files separately to cache installations
+  </Card>
+  <Card title="Minimal Base Images" icon="cube">
+    Use Alpine or distroless images for smaller, faster builds
+  </Card>
+</CardGroup>
+
+## Build Resources
+
+### Default Build Configuration
+
+By default, Qovery provides:
+
+| Resource | Value |
+|----------|-------|
+| CPU | 4 cores |
+| Memory | 4 GB |
+| Parallel Builds | 7 simultaneous builds |
+| Build Cache | Enabled (Docker layer caching) |
+
+### Adjusting Build Resources
+
+For larger applications, you may need to increase build resources:
+
+<Info>
+Contact Qovery support to adjust build node resources for your organization. Enterprise plans can configure custom build resources per environment.
+</Info>
+
+## Pipeline Monitoring
+
+### Viewing Pipeline Status
+
+Monitor your pipeline execution in real-time:
+
+<Steps>
+  <Step title="Open Environment">
+    Navigate to your environment in the Qovery console
+  </Step>
+  <Step title="Click Pipeline View">
+    Click the pipeline icon to see the deployment pipeline view
+  </Step>
+  <Step title="Monitor Stages">
+    Watch as each stage progresses through building and deploying
+  </Step>
+  <Step title="Check Service Status">
+    Click on individual services to view detailed logs
+  </Step>
+</Steps>
+
+### Pipeline Logs
+
+Access detailed logs for troubleshooting:
+
+- **Build Logs**: View compilation, test, and containerization output
+- **Deployment Logs**: Monitor Kubernetes deployment progress
+- **Service Logs**: Check application startup and runtime logs
+
+See the [Deployment Logs](/configuration/deployment/logs) documentation for more details.
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Organize by Dependencies" icon="sitemap">
+    Place dependent services in later stages to ensure dependencies are ready
+  </Card>
+  <Card title="Maximize Parallelism" icon="arrows-split-up-and-left">
+    Group independent services in the same stage for faster deployments
+  </Card>
+  <Card title="Database First" icon="database">
+    Always deploy databases and stateful services in the earliest stage
+  </Card>
+  <Card title="Optimize Dockerfiles" icon="docker">
+    Use layer caching and multi-stage builds to speed up image creation
+  </Card>
+  <Card title="Monitor Build Times" icon="clock">
+    Track and optimize slow-building services
+  </Card>
+  <Card title="Test Pipeline Changes" icon="flask">
+    Test pipeline modifications in non-production environments first
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Pipeline stuck at a specific stage">
+    If your pipeline stops progressing:
+    1. Check the logs for failed services in the current stage
+    2. Verify that all services in the stage can start successfully
+    3. Check for resource constraints (CPU, memory limits)
+    4. Ensure dependencies are accessible (databases, APIs)
+  </Accordion>
+
+  <Accordion title="Services deploying in wrong order">
+    To fix deployment order issues:
+    1. Review your deployment stage assignments
+    2. Ensure stages are numbered correctly (0, 1, 2...)
+    3. Verify that dependent services are in later stages
+    4. Check for circular dependencies between services
+  </Accordion>
+
+  <Accordion title="Slow build times">
+    To improve build performance:
+    1. Optimize Dockerfiles with layer caching
+    2. Use multi-stage builds to reduce image size
+    3. Group independent services in the same stage
+    4. Consider using pre-built base images
+    5. Enable build cache in your repository
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deployment Actions" icon="gears" href="/configuration/deployment/actions">
+    Learn how to control deployments with actions
+  </Card>
+  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
+    Monitor your pipeline with detailed logs
+  </Card>
+  <Card title="Deployment Strategies" icon="chess" href="/configuration/deployment/strategies">
+    Configure rolling updates vs recreate strategies
+  </Card>
+  <Card title="Image Mirroring" icon="copy" href="/configuration/deployment/image-mirroring">
+    Optimize deployments with image mirroring
+  </Card>
+</CardGroup>

@@ -140,6 +140,21 @@
             ]
           },
           {
+            "group": "Deployment",
+            "pages": [
+              "configuration/deployment/overview",
+              "configuration/deployment/auto-deploy",
+              "configuration/deployment/ci-cd",
+              "configuration/deployment/pipeline",
+              "configuration/deployment/actions",
+              "configuration/deployment/history",
+              "configuration/deployment/statuses",
+              "configuration/deployment/logs",
+              "configuration/deployment/strategies",
+              "configuration/deployment/image-mirroring"
+            ]
+          },
+          {
             "group": "Settings",
             "pages": [
               "configuration/environment-variables",
