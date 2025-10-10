@@ -117,7 +117,8 @@
               "configuration/organization/git-repository-access",
               "configuration/organization/helm-repository",
               "configuration/organization/labels-annotations",
-              "configuration/organization/members-rbac"
+              "configuration/organization/members-rbac",
+              "configuration/organization/sso"
             ]
           },
           {
