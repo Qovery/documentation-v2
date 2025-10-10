@@ -9,7 +9,7 @@ Image mirroring stores and caches container images in a registry on your cloud i
 
 Image mirroring automatically copies container images to a registry hosted within your Qovery infrastructure. When you deploy or scale your applications, images are pulled from this local registry instead of external sources.
 
-<img src="/images/deployment/mirror-registry.png" alt="Mirror Registry Architecture" />
+![Mirror Registry Architecture](/images/deployment/mirror-registry.png)
 
 ## Benefits of Image Mirroring
 
@@ -40,7 +40,7 @@ Image mirroring automatically copies container images to a registry hosted withi
 
 When Qovery builds your application from Git:
 
-<img src="/images/deployment/build-mirror.png" alt="Build and Mirror Process" />
+![Build and Mirror Process](/images/deployment/build-mirror.png)
 
 <Steps>
   <Step title="Code Build">
@@ -91,7 +91,7 @@ Qovery supports two mirroring modes for container registry applications:
 
 Each service has its own isolated image repository in the mirroring registry.
 
-<img src="/images/deployment/image-mirror-service.png" alt="Service Mode Image Mirroring" />
+![Service Mode Image Mirroring](/images/deployment/image-mirror-service.png)
 
 **Characteristics:**
 - **Isolation**: Each service's images are stored separately
@@ -118,7 +118,7 @@ mirror-registry/
 
 Images are mirrored at the cluster level and shared across all services.
 
-<img src="/images/deployment/image-mirror-cluster.png" alt="Cluster Mode Image Mirroring" />
+![Cluster Mode Image Mirroring](/images/deployment/image-mirror-cluster.png)
 
 **Characteristics:**
 - **Sharing**: Same image can be used by multiple services
