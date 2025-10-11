@@ -157,40 +157,66 @@ Deploy AWS S3 (Simple Storage Service) buckets using Terraform, orchestrated by 
     ```
   </Step>
 
-  <Step title="Deploy via Lifecycle Job">
-    ```yaml
-    # Qovery Configuration
-    version: "1.0"
-    lifecycle_jobs:
-      - name: provision-s3
-        image: hashicorp/terraform:latest
-        on:
-          - ENVIRONMENT_START
-        commands:
-          - /bin/sh
-          - -c
-          - |
-            cd /workspace/terraform/s3
-            terraform init
-            terraform apply -auto-approve \
-              -var="environment=${QOVERY_ENVIRONMENT_NAME}" \
-              -var="app_name=${APP_NAME}" \
-              -var="aws_region=${AWS_REGION}"
+  <Step title="Create Dockerfile">
+    Create a Dockerfile that will run Terraform to provision the S3 bucket:
 
-            # Export outputs for applications
-            terraform output -raw bucket_name > /qovery/bucket_name.txt
-            terraform output -raw bucket_arn > /qovery/bucket_arn.txt
-        environment_variables:
-          - name: AWS_ACCESS_KEY_ID
-            secret: true
-          - name: AWS_SECRET_ACCESS_KEY
-            secret: true
-          - name: AWS_REGION
-            value: us-east-1
-          - name: APP_NAME
-            value: myapp
-          - name: TF_STATE_BUCKET
-            value: my-terraform-state
+    ```dockerfile
+    FROM hashicorp/terraform:latest
+
+    # Copy Terraform configuration files
+    WORKDIR /workspace/terraform/s3
+    COPY s3.tf .
+    COPY variables.tf .
+
+    # Run Terraform
+    CMD ["/bin/sh", "-c", "\
+      terraform init && \
+      terraform apply -auto-approve \
+        -var=\"environment=${QOVERY_ENVIRONMENT_NAME}\" \
+        -var=\"app_name=${APP_NAME}\" \
+        -var=\"aws_region=${AWS_REGION}\" && \
+      terraform output -raw bucket_name > /qovery/bucket_name.txt && \
+      terraform output -raw bucket_arn > /qovery/bucket_arn.txt \
+    "]
+    ```
+  </Step>
+
+  <Step title="Build and Push Image">
+    Build the Docker image and push it to your container registry:
+
+    ```bash
+    docker build -t your-registry/s3-provisioner:latest .
+    docker push your-registry/s3-provisioner:latest
+    ```
+  </Step>
+
+  <Step title="Create Lifecycle Job in Qovery">
+    **Via Qovery Console**:
+    1. Navigate to your environment
+    2. Click **"Create Lifecycle Job"**
+    3. Configure the job:
+       - **Name**: `provision-s3`
+       - **Image**: `your-registry/s3-provisioner:latest`
+       - **Trigger**: Select "On Environment Start"
+       - **Environment Variables**:
+         - `AWS_ACCESS_KEY_ID` (secret)
+         - `AWS_SECRET_ACCESS_KEY` (secret)
+         - `AWS_REGION`: `us-east-1`
+         - `APP_NAME`: `myapp`
+         - `TF_STATE_BUCKET`: `my-terraform-state`
+         - `QOVERY_ENVIRONMENT_NAME`: (automatically provided by Qovery)
+
+    **Via Qovery CLI**:
+    ```bash
+    qovery lifecycle create \
+      --name provision-s3 \
+      --image your-registry/s3-provisioner:latest \
+      --event ENVIRONMENT_START \
+      --env AWS_ACCESS_KEY_ID=secret:aws_key \
+      --env AWS_SECRET_ACCESS_KEY=secret:aws_secret \
+      --env AWS_REGION=us-east-1 \
+      --env APP_NAME=myapp \
+      --env TF_STATE_BUCKET=my-terraform-state
     ```
   </Step>
 
@@ -343,30 +369,39 @@ Deploy AWS S3 (Simple Storage Service) buckets using Terraform, orchestrated by 
     ```
   </Tab>
 
-  <Tab title="Deploy Script">
-    ```yaml
-    lifecycle_jobs:
-      - name: deploy-website
-        image: hashicorp/terraform:latest
-        on:
-          - ENVIRONMENT_START
-        commands:
-          - /bin/sh
-          - -c
-          - |
-            # Provision S3 and CloudFront
-            cd /workspace/terraform
-            terraform init
-            terraform apply -auto-approve
+  <Tab title="Dockerfile">
+    ```dockerfile
+    FROM hashicorp/terraform:latest
 
-            # Sync website files
-            aws s3 sync /workspace/build s3://${BUCKET_NAME}/ --delete
+    # Install AWS CLI
+    RUN apk add --no-cache aws-cli
 
-            # Invalidate CloudFront cache
-            aws cloudfront create-invalidation \
-              --distribution-id ${CLOUDFRONT_ID} \
-              --paths "/*"
+    # Copy Terraform configuration and website build
+    WORKDIR /workspace/terraform
+    COPY static-website.tf .
+    COPY ../build /workspace/build
+
+    # Run Terraform and deploy website
+    CMD ["/bin/sh", "-c", "\
+      terraform init && \
+      terraform apply -auto-approve && \
+      aws s3 sync /workspace/build s3://${BUCKET_NAME}/ --delete && \
+      aws cloudfront create-invalidation \
+        --distribution-id ${CLOUDFRONT_ID} \
+        --paths '/*' \
+    "]
     ```
+
+    **Create Lifecycle Job in Qovery Console**:
+    1. Build and push the Docker image
+    2. Create a new Lifecycle Job named `deploy-website`
+    3. Set image to your registry image
+    4. Set trigger to "On Environment Start"
+    5. Add environment variables:
+       - `AWS_ACCESS_KEY_ID` (secret)
+       - `AWS_SECRET_ACCESS_KEY` (secret)
+       - `BUCKET_NAME`: Your S3 bucket name
+       - `CLOUDFRONT_ID`: Your CloudFront distribution ID
   </Tab>
 </Tabs>
 

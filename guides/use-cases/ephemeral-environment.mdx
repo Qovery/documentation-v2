@@ -205,36 +205,66 @@ Once your ephemeral environment is created, you'll typically need to populate it
 
 <Tabs>
   <Tab title="Lifecycle Jobs">
-    **Use Qovery Lifecycle Jobs** to automatically seed data after environment creation:
+    **Use Qovery Lifecycle Jobs** to automatically seed data after environment creation.
 
-    ```yaml
-    # Qovery configuration
-    lifecycle_jobs:
-      - name: seed-database
-        image: your-registry/seed-job:latest
-        on:
-          - START  # Run when environment starts
-        command:
-          - /bin/sh
-          - -c
-          - |
-            echo "Waiting for database to be ready..."
-            while ! pg_isready -h $DATABASE_HOST -U $DATABASE_USER; do
-              sleep 2
-            done
+    **Step 1: Create a Dockerfile for your seed job**:
 
-            echo "Running migrations..."
-            npm run db:migrate
+    ```dockerfile
+    # Dockerfile.seed
+    FROM node:18-alpine
 
-            echo "Seeding database..."
-            npm run db:seed
-        environment_variables:
-          - name: DATABASE_URL
-            value_from_secret: DATABASE_URL
-        resources:
-          cpu: 500m
-          memory: 512Mi
+    WORKDIR /app
+
+    # Install PostgreSQL client for database readiness check
+    RUN apk add --no-cache postgresql-client
+
+    # Copy your seed scripts
+    COPY package*.json ./
+    COPY db/ ./db/
+    COPY migrations/ ./migrations/
+
+    # Install dependencies
+    RUN npm ci --only=production
+
+    # Create the seed script
+    COPY seed.sh /seed.sh
+    RUN chmod +x /seed.sh
+
+    ENTRYPOINT ["/seed.sh"]
     ```
+
+    **Step 2: Create the seed script**:
+
+    ```bash
+    #!/bin/sh
+    # seed.sh
+
+    echo "Waiting for database to be ready..."
+    while ! pg_isready -h $DATABASE_HOST -U $DATABASE_USER; do
+      sleep 2
+      echo "Waiting..."
+    done
+
+    echo "Database is ready!"
+
+    echo "Running migrations..."
+    npm run db:migrate
+
+    echo "Seeding database..."
+    npm run db:seed
+
+    echo "Seeding completed successfully!"
+    ```
+
+    **Step 3: Create a Lifecycle Job in Qovery Console**:
+    1. Navigate to your Environment
+    2. Click "Add Service" → "Lifecycle Job"
+    3. Configure the job:
+       - **Name**: `seed-database`
+       - **Image**: `your-registry/seed-job:latest`
+       - **Event**: `START` (runs when environment starts)
+       - **Environment Variables**: Add `DATABASE_URL` (from secret)
+       - **Resources**: 500m CPU, 512Mi Memory
 
     **Benefits**:
     - Automatic execution on environment creation

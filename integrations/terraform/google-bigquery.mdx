@@ -251,38 +251,64 @@ Deploy Google BigQuery—Google Cloud's serverless data warehouse—using Terraf
     ```
   </Step>
 
-  <Step title="Deploy via Lifecycle Job">
-    ```yaml
-    # Qovery Configuration
-    version: "1.0"
-    lifecycle_jobs:
-      - name: provision-bigquery
-        image: hashicorp/terraform:latest
-        on:
-          - ENVIRONMENT_START
-        commands:
-          - /bin/sh
-          - -c
-          - |
-            cd /workspace/terraform/bigquery
-            terraform init
-            terraform apply -auto-approve \
-              -var="project_id=${GCP_PROJECT_ID}" \
-              -var="environment=${QOVERY_ENVIRONMENT_NAME}" \
-              -var="location=${GCP_LOCATION}" \
-              -var="owner_email=${OWNER_EMAIL}"
+  <Step title="Create Dockerfile">
+    Create a Dockerfile that will run Terraform to provision BigQuery resources:
 
-            # Export dataset ID
-            terraform output -raw dataset_id > /qovery/dataset_id.txt
-        environment_variables:
-          - name: GOOGLE_CREDENTIALS
-            secret: true
-          - name: GCP_PROJECT_ID
-            value: my-project-id
-          - name: GCP_LOCATION
-            value: US
-          - name: OWNER_EMAIL
-            value: admin@example.com
+    ```dockerfile
+    FROM hashicorp/terraform:latest
+
+    # Copy Terraform configuration files
+    WORKDIR /workspace/terraform/bigquery
+    COPY bigquery.tf .
+    COPY variables.tf .
+
+    # Run Terraform
+    CMD ["/bin/sh", "-c", "\
+      terraform init && \
+      terraform apply -auto-approve \
+        -var=\"project_id=${GCP_PROJECT_ID}\" \
+        -var=\"environment=${QOVERY_ENVIRONMENT_NAME}\" \
+        -var=\"location=${GCP_LOCATION}\" \
+        -var=\"owner_email=${OWNER_EMAIL}\" && \
+      terraform output -raw dataset_id > /qovery/dataset_id.txt \
+    "]
+    ```
+  </Step>
+
+  <Step title="Build and Push Image">
+    Build the Docker image and push it to your container registry:
+
+    ```bash
+    docker build -t your-registry/bigquery-provisioner:latest .
+    docker push your-registry/bigquery-provisioner:latest
+    ```
+  </Step>
+
+  <Step title="Create Lifecycle Job in Qovery">
+    **Via Qovery Console**:
+    1. Navigate to your environment
+    2. Click **"Create Lifecycle Job"**
+    3. Configure the job:
+       - **Name**: `provision-bigquery`
+       - **Image**: `your-registry/bigquery-provisioner:latest`
+       - **Trigger**: Select "On Environment Start"
+       - **Environment Variables**:
+         - `GOOGLE_CREDENTIALS` (secret) - JSON service account key
+         - `GCP_PROJECT_ID`: `my-project-id`
+         - `GCP_LOCATION`: `US`
+         - `OWNER_EMAIL`: `admin@example.com`
+         - `QOVERY_ENVIRONMENT_NAME`: (automatically provided by Qovery)
+
+    **Via Qovery CLI**:
+    ```bash
+    qovery lifecycle create \
+      --name provision-bigquery \
+      --image your-registry/bigquery-provisioner:latest \
+      --event ENVIRONMENT_START \
+      --env GOOGLE_CREDENTIALS=secret:gcp_credentials \
+      --env GCP_PROJECT_ID=my-project-id \
+      --env GCP_LOCATION=US \
+      --env OWNER_EMAIL=admin@example.com
     ```
   </Step>
 

@@ -109,25 +109,37 @@ Qovery can orchestrate deployment of any Terraform resource across all major clo
   <Tab title="Lifecycle Jobs">
     Run Terraform as a lifecycle job triggered by environment events
 
-    ```yaml
-    # Qovery Configuration
-    version: "1.0"
-    lifecycle_jobs:
-      - name: provision-infrastructure
-        image: hashicorp/terraform:latest
-        on:
-          - ENVIRONMENT_START
-        commands:
-          - /bin/sh
-          - -c
-          - |
-            cd /workspace/terraform
-            terraform init
-            terraform apply -auto-approve
-        environment_variables:
-          - name: TF_VAR_environment
-            value: ${QOVERY_ENVIRONMENT_NAME}
+    **Step 1: Create Dockerfile**
+    ```dockerfile
+    FROM hashicorp/terraform:latest
+
+    # Copy Terraform configuration
+    WORKDIR /workspace/terraform
+    COPY . .
+
+    # Run Terraform
+    CMD ["/bin/sh", "-c", "\
+      terraform init && \
+      terraform apply -auto-approve \
+    "]
     ```
+
+    **Step 2: Build and Push Image**
+    ```bash
+    docker build -t your-registry/terraform-provisioner:latest .
+    docker push your-registry/terraform-provisioner:latest
+    ```
+
+    **Step 3: Create Lifecycle Job in Qovery Console**
+    1. Navigate to your environment
+    2. Click **"Create Lifecycle Job"**
+    3. Configure:
+       - **Name**: `provision-infrastructure`
+       - **Image**: `your-registry/terraform-provisioner:latest`
+       - **Trigger**: Select "On Environment Start"
+       - **Environment Variables**:
+         - Add any required cloud provider credentials
+         - `QOVERY_ENVIRONMENT_NAME`: (automatically provided)
 
     **When to Use**:
     - Provision infrastructure on environment creation
@@ -289,33 +301,58 @@ Qovery can orchestrate deployment of any Terraform resource across all major clo
   </Tab>
 
   <Tab title="Deploy">
-    ```yaml
-    lifecycle_jobs:
-      - name: provision-database
-        image: hashicorp/terraform:latest
-        on:
-          - ENVIRONMENT_START
-        commands:
-          - /bin/sh
-          - -c
-          - |
-            terraform init
-            terraform apply -auto-approve \
-              -var="cloud_provider=${CLOUD_PROVIDER}" \
-              -var="environment=${QOVERY_ENVIRONMENT_NAME}"
-        environment_variables:
-          - name: CLOUD_PROVIDER
-            value: aws  # or gcp, azure
-          - name: AWS_ACCESS_KEY_ID
-            secret: true
-          - name: AWS_SECRET_ACCESS_KEY
-            secret: true
-          - name: GOOGLE_CREDENTIALS
-            secret: true
-          - name: ARM_CLIENT_ID
-            secret: true
-          - name: ARM_CLIENT_SECRET
-            secret: true
+    **Step 1: Create Dockerfile**
+    ```dockerfile
+    FROM hashicorp/terraform:latest
+
+    # Copy Terraform configuration
+    WORKDIR /workspace/terraform
+    COPY multi-cloud-db.tf .
+    COPY variables.tf .
+
+    # Run Terraform
+    CMD ["/bin/sh", "-c", "\
+      terraform init && \
+      terraform apply -auto-approve \
+        -var=\"cloud_provider=${CLOUD_PROVIDER}\" \
+        -var=\"environment=${QOVERY_ENVIRONMENT_NAME}\" \
+    "]
+    ```
+
+    **Step 2: Build and Push Image**
+    ```bash
+    docker build -t your-registry/multi-cloud-db-provisioner:latest .
+    docker push your-registry/multi-cloud-db-provisioner:latest
+    ```
+
+    **Step 3: Create Lifecycle Job in Qovery Console**
+    1. Navigate to your environment
+    2. Click **"Create Lifecycle Job"**
+    3. Configure the job:
+       - **Name**: `provision-database`
+       - **Image**: `your-registry/multi-cloud-db-provisioner:latest`
+       - **Trigger**: Select "On Environment Start"
+       - **Environment Variables**:
+         - `CLOUD_PROVIDER`: `aws` (or `gcp`, `azure`)
+         - `AWS_ACCESS_KEY_ID` (secret)
+         - `AWS_SECRET_ACCESS_KEY` (secret)
+         - `GOOGLE_CREDENTIALS` (secret)
+         - `ARM_CLIENT_ID` (secret)
+         - `ARM_CLIENT_SECRET` (secret)
+         - `QOVERY_ENVIRONMENT_NAME`: (automatically provided)
+
+    **Via Qovery CLI**:
+    ```bash
+    qovery lifecycle create \
+      --name provision-database \
+      --image your-registry/multi-cloud-db-provisioner:latest \
+      --event ENVIRONMENT_START \
+      --env CLOUD_PROVIDER=aws \
+      --env AWS_ACCESS_KEY_ID=secret:aws_key \
+      --env AWS_SECRET_ACCESS_KEY=secret:aws_secret \
+      --env GOOGLE_CREDENTIALS=secret:gcp_creds \
+      --env ARM_CLIENT_ID=secret:azure_client \
+      --env ARM_CLIENT_SECRET=secret:azure_secret
     ```
   </Tab>
 </Tabs>

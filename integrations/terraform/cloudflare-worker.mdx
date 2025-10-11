@@ -204,38 +204,66 @@ Deploy Cloudflare Workers—serverless functions that run at the edge—using Te
     ```
   </Step>
 
-  <Step title="Deploy via Qovery Lifecycle Job">
-    ```yaml
-    # Qovery Configuration
-    version: "1.0"
-    lifecycle_jobs:
-      - name: deploy-cloudflare-worker
-        image: hashicorp/terraform:latest
-        on:
-          - ENVIRONMENT_START
-        commands:
-          - /bin/sh
-          - -c
-          - |
-            cd /workspace/terraform/cloudflare
-            terraform init
-            terraform apply -auto-approve \
-              -var="environment=${QOVERY_ENVIRONMENT_NAME}" \
-              -var="domain=${DOMAIN}" \
-              -var="cloudflare_zone_id=${CF_ZONE_ID}" \
-              -var="cloudflare_api_token=${CF_API_TOKEN}" \
-              -var="api_key=${API_KEY}"
+  <Step title="Create Dockerfile">
+    Create a Dockerfile that will run Terraform to deploy the Cloudflare Worker:
 
-            terraform output -raw worker_url
-        environment_variables:
-          - name: CF_API_TOKEN
-            secret: true
-          - name: CF_ZONE_ID
-            value: your-zone-id
-          - name: DOMAIN
-            value: example.com
-          - name: API_KEY
-            secret: true
+    ```dockerfile
+    FROM hashicorp/terraform:latest
+
+    # Copy Terraform configuration and worker script
+    WORKDIR /workspace/terraform/cloudflare
+    COPY cloudflare-worker.tf .
+    COPY variables.tf .
+    COPY worker.js .
+
+    # Run Terraform
+    CMD ["/bin/sh", "-c", "\
+      terraform init && \
+      terraform apply -auto-approve \
+        -var=\"environment=${QOVERY_ENVIRONMENT_NAME}\" \
+        -var=\"domain=${DOMAIN}\" \
+        -var=\"cloudflare_zone_id=${CF_ZONE_ID}\" \
+        -var=\"cloudflare_api_token=${CF_API_TOKEN}\" \
+        -var=\"api_key=${API_KEY}\" && \
+      terraform output -raw worker_url \
+    "]
+    ```
+  </Step>
+
+  <Step title="Build and Push Image">
+    Build the Docker image and push it to your container registry:
+
+    ```bash
+    docker build -t your-registry/cloudflare-worker-deployer:latest .
+    docker push your-registry/cloudflare-worker-deployer:latest
+    ```
+  </Step>
+
+  <Step title="Create Lifecycle Job in Qovery">
+    **Via Qovery Console**:
+    1. Navigate to your environment
+    2. Click **"Create Lifecycle Job"**
+    3. Configure the job:
+       - **Name**: `deploy-cloudflare-worker`
+       - **Image**: `your-registry/cloudflare-worker-deployer:latest`
+       - **Trigger**: Select "On Environment Start"
+       - **Environment Variables**:
+         - `CF_API_TOKEN` (secret)
+         - `CF_ZONE_ID`: `your-zone-id`
+         - `DOMAIN`: `example.com`
+         - `API_KEY` (secret)
+         - `QOVERY_ENVIRONMENT_NAME`: (automatically provided by Qovery)
+
+    **Via Qovery CLI**:
+    ```bash
+    qovery lifecycle create \
+      --name deploy-cloudflare-worker \
+      --image your-registry/cloudflare-worker-deployer:latest \
+      --event ENVIRONMENT_START \
+      --env CF_API_TOKEN=secret:cf_token \
+      --env CF_ZONE_ID=your-zone-id \
+      --env DOMAIN=example.com \
+      --env API_KEY=secret:api_key
     ```
   </Step>
 </Steps>
@@ -623,24 +651,32 @@ applications:
       - name: backend.internal.example.com
         internal: true  # Not publicly accessible
 
-# Cloudflare Worker for edge logic
-lifecycle_jobs:
-  - name: deploy-edge-gateway
-    image: hashicorp/terraform:latest
-    on:
-      - ENVIRONMENT_START
-    commands:
-      - /bin/sh
-      - -c
-      - |
-        cd /workspace/terraform/cloudflare
-        terraform init
-        terraform apply -auto-approve \
-          -var="backend_host=backend.internal.example.com" \
-          -var="environment=${QOVERY_ENVIRONMENT_NAME}"
-    environment_variables:
-      - name: CF_API_TOKEN
-        secret: true
+# Deploy Cloudflare Worker as Edge Gateway
+# Step 1: Create Dockerfile
+# Create a file named Dockerfile in your terraform/cloudflare directory:
+#
+# FROM hashicorp/terraform:latest
+# WORKDIR /workspace/terraform/cloudflare
+# COPY . .
+# CMD ["/bin/sh", "-c", "\
+#   terraform init && \
+#   terraform apply -auto-approve \
+#     -var=\"backend_host=${BACKEND_HOST}\" \
+#     -var=\"environment=${QOVERY_ENVIRONMENT_NAME}\" \
+# "]
+#
+# Step 2: Build and push the image
+# docker build -t your-registry/edge-gateway-deployer:latest .
+# docker push your-registry/edge-gateway-deployer:latest
+#
+# Step 3: Create Lifecycle Job in Qovery Console
+# - Name: deploy-edge-gateway
+# - Image: your-registry/edge-gateway-deployer:latest
+# - Trigger: On Environment Start
+# - Environment Variables:
+#   * CF_API_TOKEN (secret)
+#   * BACKEND_HOST: backend.internal.example.com
+#   * QOVERY_ENVIRONMENT_NAME (auto-provided)
 ```
 
 ## Best Practices
