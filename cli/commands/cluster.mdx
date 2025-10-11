@@ -33,6 +33,28 @@ Get cluster information:
 qovery cluster info --cluster "cluster-id"
 ```
 
+### Download Kubeconfig
+
+Download kubeconfig file for kubectl access:
+
+```bash
+qovery cluster kubeconfig --cluster-id "cluster-id"
+```
+
+This command generates a kubeconfig file that allows you to connect to your cluster using kubectl.
+
+### Open Debug Pod
+
+Launch an interactive debug pod with kubectl pre-configured:
+
+```bash
+qovery cluster debug-pod \
+  --organization-id "org-id" \
+  --cluster-id "cluster-id"
+```
+
+This opens a debug shell inside your cluster with kubectl access, perfect for troubleshooting.
+
 ## Options
 
 | Flag | Description |
@@ -78,6 +100,33 @@ qovery cluster status \
 qovery cluster info --cluster "prod-us-east"
 ```
 
+### Get kubectl Access
+
+```bash
+# Download kubeconfig file
+qovery cluster kubeconfig --cluster-id "abc123"
+
+# Set kubectl to use the downloaded config
+export KUBECONFIG=./kubeconfig-abc123.yaml
+
+# Test connection
+kubectl get nodes
+```
+
+### Open Debug Pod for Troubleshooting
+
+```bash
+# Launch debug pod
+qovery cluster debug-pod \
+  --organization-id "org-abc123" \
+  --cluster-id "cluster-abc123"
+
+# Inside the debug pod, you can run kubectl commands:
+# kubectl get pods --all-namespaces
+# kubectl logs <pod-name> -n <namespace>
+# exit
+```
+
 ## Cluster Status Values
 
 | Status | Description |
@@ -98,7 +147,20 @@ Use cluster commands to verify cluster health before deploying applications.
 Check cluster status regularly to ensure your infrastructure is healthy.
 </Tip>
 
+<Tip>
+Use `qovery cluster kubeconfig` to get full kubectl access to your cluster for advanced operations.
+</Tip>
+
+<Tip>
+The `debug-pod` command is perfect for quick troubleshooting without needing to configure kubectl locally.
+</Tip>
+
 ## Related Commands
 
 - [`qovery context`](/cli/commands/context) - Set cluster context
 - [`qovery environment`](/cli/commands/environment) - Manage environments on cluster
+- [`qovery shell`](/cli/commands/shell) - Open shell in application container
+
+## Related Documentation
+
+- [Connect to EKS with kubectl](/integrations/kubernetes/eks/kubectl-access) - Comprehensive guide for kubectl access

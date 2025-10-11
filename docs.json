@@ -182,7 +182,8 @@
                 "pages": [
                   "integrations/kubernetes/eks/overview",
                   "integrations/kubernetes/eks/managed",
-                  "integrations/kubernetes/eks/byok"
+                  "integrations/kubernetes/eks/byok",
+                  "integrations/kubernetes/eks/kubectl-access"
                 ]
               },
               {
@@ -297,6 +298,13 @@
             "group": "Webhooks",
             "pages": [
               "integrations/webhooks"
+            ]
+          },
+          {
+            "group": "API Gateway",
+            "pages": [
+              "integrations/api-gateway",
+              "integrations/api-gateway-caddy"
             ]
           }
         ]

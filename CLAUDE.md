@@ -4,10 +4,39 @@ This file documents the work completed by Claude on the Qovery documentation usi
 
 ## Current Session Overview
 
-**Date**: 2025-10-05 (Continued Session)
-**Purpose**: Complete Qovery documentation with branding, Copilot features, and CLI documentation
+**Date**: 2025-10-11 (Continued Session)
+**Purpose**: Complete Qovery documentation with branding, Copilot features, CLI documentation, and EKS kubectl guide
 
 ## Latest Work Completed (Current Session)
+
+### 11. EKS kubectl Access Guide (2025-10-11)
+- **Created**: integrations/kubernetes/eks/kubectl-access.mdx (605 lines, 16KB)
+- **Content**: Comprehensive guide for connecting to EKS clusters with kubectl
+- **Structure**: Two-method approach with Qovery CLI recommended first
+- **Key Sections**:
+  - Overview with two methods clearly explained
+  - Prerequisites with tabs for each method
+  - Method 1: Qovery CLI (Recommended)
+    - Option A: Get Kubeconfig File (5 steps)
+    - Option B: Open Debug Pod (3 steps)
+  - Method 2: AWS CLI (Traditional)
+    - IAM permissions setup
+    - AWS CLI configuration
+    - Manual kubeconfig setup
+  - Working with Applications (namespace, pods, logs, shell)
+  - Common Operations (port-forward, describe, resource usage, events)
+  - Troubleshooting (4 accordion sections)
+  - Security Best Practices (Do's and Don'ts cards)
+  - Comparison table: Qovery CLI vs AWS CLI
+  - Next Steps (4 cards linking to related docs)
+- **Components Used**: Tabs, Steps, Accordion, AccordionGroup, CardGroup, Warning, Info, Tip
+- **CLI Commands Featured**:
+  - `qovery cluster kubeconfig --cluster-id <id>` - Downloads kubeconfig
+  - `qovery cluster debug-pod -o <org-id> -c <cluster-id>` - Opens debug pod
+- **Updated**: cli/commands/cluster.mdx with new kubeconfig and debug-pod commands
+- **Navigation**: Added to docs.json under Integrations > Kubernetes > AWS EKS group
+
+## Previous Work Completed
 
 ### 1. Introduction Page Updates
 - **Product Logos**: Updated introduction.mdx to use actual Qovery product SVG logos instead of generic icons

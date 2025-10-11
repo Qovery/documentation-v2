@@ -1,0 +1,605 @@
+---
+title: "Connect to EKS with kubectl"
+description: "Learn how to connect to your EKS cluster using kubectl with Qovery CLI or AWS CLI"
+---
+
+## Overview
+
+Connecting to your EKS cluster with kubectl gives you direct access to manage and debug your Kubernetes resources. Qovery provides two methods to connect to your EKS clusters:
+
+1. **Qovery CLI Method (Recommended)** - Quick and easy access with automated configuration
+2. **AWS CLI Method (Traditional)** - Manual setup for advanced users who need full control
+
+<Warning>
+Any manual operations on your cluster could conflict with Qovery's management. Use with caution and understand the implications of direct cluster access.
+</Warning>
+
+## Prerequisites
+
+Before connecting to your EKS cluster, ensure you have:
+
+<Tabs>
+  <Tab title="Qovery CLI Method">
+    - [Qovery CLI installed](/cli/overview)
+    - An existing EKS cluster managed by Qovery
+    - kubectl installed ([installation guide](https://kubernetes.io/docs/tasks/tools/))
+    - Access to the Qovery organization and cluster
+  </Tab>
+
+  <Tab title="AWS CLI Method">
+    - [AWS CLI installed](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
+    - [kubectl installed](https://kubernetes.io/docs/tasks/tools/)
+    - [Qovery CLI installed](/cli/overview)
+    - IAM user with appropriate permissions
+    - An existing EKS cluster managed by Qovery
+  </Tab>
+</Tabs>
+
+## Method 1: Using Qovery CLI (Recommended)
+
+The Qovery CLI provides the fastest and easiest way to connect to your EKS cluster. It handles authentication and kubeconfig setup automatically.
+
+### Quick Access
+
+The Qovery CLI offers two powerful commands for cluster access:
+
+<AccordionGroup>
+  <Accordion title="qovery cluster kubeconfig - Full Cluster Access">
+    Downloads the kubeconfig file for complete cluster access. Use this when you need to:
+    - Run kubectl commands directly
+    - Deploy resources to multiple namespaces
+    - Manage cluster-wide resources
+    - Integrate with other tools (Helm, k9s, etc.)
+  </Accordion>
+
+  <Accordion title="qovery cluster debug-pod - Interactive Debug Shell">
+    Opens an interactive debug pod with kubectl pre-configured. Use this when you need to:
+    - Quick troubleshooting without local setup
+    - Debug network connectivity from within the cluster
+    - Test service discovery and DNS resolution
+    - Run diagnostic commands in the cluster context
+  </Accordion>
+</AccordionGroup>
+
+### Option A: Get Kubeconfig File
+
+This method downloads the kubeconfig file to your local machine for full kubectl access.
+
+<Steps>
+  <Step title="Authenticate with Qovery">
+    Log in to your Qovery account:
+
+    ```bash
+    qovery auth
+    ```
+
+    Follow the browser authentication flow or use headless mode:
+
+    ```bash
+    qovery auth --headless
+    ```
+  </Step>
+
+  <Step title="List Available Clusters">
+    Find your cluster ID:
+
+    ```bash
+    qovery cluster list
+    ```
+
+    Example output:
+    ```
+    NAME           REGION        CLOUD     STATUS    VERSION
+    prod-us-east   us-east-1     AWS       Running   1.28
+    staging-eu     eu-west-1     AWS       Running   1.27
+    ```
+  </Step>
+
+  <Step title="Download Kubeconfig">
+    Get the kubeconfig for your cluster:
+
+    ```bash
+    qovery cluster kubeconfig --cluster-id <cluster-id>
+    ```
+
+    The command will:
+    - Generate a kubeconfig file
+    - Save it to your current directory
+    - Display the file location
+  </Step>
+
+  <Step title="Configure kubectl">
+    Set the KUBECONFIG environment variable:
+
+    ```bash
+    export KUBECONFIG=<path-to-kubeconfig-file>
+    ```
+
+    Or merge with your existing kubeconfig:
+
+    ```bash
+    # Backup existing config
+    cp ~/.kube/config ~/.kube/config.backup
+
+    # Merge configs
+    KUBECONFIG=~/.kube/config:<path-to-kubeconfig-file> \
+      kubectl config view --flatten > ~/.kube/config.new
+    mv ~/.kube/config.new ~/.kube/config
+    ```
+  </Step>
+
+  <Step title="Verify Connection">
+    Test your cluster access:
+
+    ```bash
+    kubectl get nodes
+    ```
+
+    You should see your cluster nodes listed.
+  </Step>
+</Steps>
+
+### Option B: Open Debug Pod
+
+For quick troubleshooting without local setup, use the debug pod feature:
+
+<Steps>
+  <Step title="Open Debug Pod">
+    Launch an interactive debug shell:
+
+    ```bash
+    qovery cluster debug-pod \
+      --organization-id <organization-id> \
+      --cluster-id <cluster-id>
+    ```
+
+    This opens a pod with:
+    - kubectl pre-configured
+    - Common debugging tools
+    - Network access to cluster services
+  </Step>
+
+  <Step title="Run kubectl Commands">
+    You can now run kubectl commands directly:
+
+    ```bash
+    # List all namespaces
+    kubectl get namespaces
+
+    # View pods in a namespace
+    kubectl get pods -n <namespace>
+
+    # Check service endpoints
+    kubectl get endpoints -n <namespace>
+    ```
+  </Step>
+
+  <Step title="Exit Debug Pod">
+    When finished, exit the debug pod:
+
+    ```bash
+    exit
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+The debug pod method is perfect for quick checks and doesn't require any local configuration. It's ideal for debugging connectivity issues or testing from within the cluster.
+</Tip>
+
+## Method 2: Using AWS CLI (Traditional)
+
+For users who need full control or want to use AWS IAM directly, you can configure kubectl using the AWS CLI. This method requires more manual setup but provides flexibility.
+
+<Info>
+This method is recommended for advanced users who need custom IAM configurations or want to integrate with existing AWS tooling.
+</Info>
+
+### Setup IAM Permissions
+
+<Steps>
+  <Step title="Configure IAM Access">
+    Add your IAM user to the cluster's admin group. There are two ways to do this:
+
+    **Option A: AWS Console**
+
+    1. Navigate to AWS IAM Console
+    2. Find the IAM user you'll use for kubectl access
+    3. Add the user to the cluster's "Admins" group created by Qovery
+
+    **Option B: Enable SSO**
+
+    1. Go to your Qovery cluster settings
+    2. Navigate to Advanced Settings
+    3. Enable SSO authentication for the cluster
+  </Step>
+
+  <Step title="Configure AWS CLI Credentials">
+    Set up your AWS credentials:
+
+    ```bash
+    aws configure
+    ```
+
+    Enter your:
+    - AWS Access Key ID
+    - AWS Secret Access Key
+    - Default region (match your cluster region)
+    - Default output format (json recommended)
+  </Step>
+
+  <Step title="Verify AWS Access">
+    Confirm AWS CLI is working:
+
+    ```bash
+    aws sts get-caller-identity
+    ```
+
+    This should return your IAM user information.
+  </Step>
+</Steps>
+
+### Configure kubectl
+
+<Steps>
+  <Step title="Download Kubeconfig with Qovery CLI">
+    Even with AWS CLI method, use Qovery CLI to get the initial kubeconfig:
+
+    ```bash
+    qovery cluster list
+    qovery cluster kubeconfig --cluster-id <cluster-id>
+    ```
+  </Step>
+
+  <Step title="Set kubectl Context">
+    Configure kubectl to use the downloaded config:
+
+    ```bash
+    export KUBECONFIG=<path-to-kubeconfig-file>
+    ```
+
+    Verify the context:
+
+    ```bash
+    kubectl config current-context
+    ```
+  </Step>
+
+  <Step title="Test Cluster Access">
+    Verify you can access the cluster:
+
+    ```bash
+    kubectl get nodes
+    ```
+
+    If successful, you'll see the list of nodes in your cluster.
+  </Step>
+</Steps>
+
+### Update kubeconfig with AWS CLI
+
+If you need to regenerate the kubeconfig using AWS CLI directly:
+
+```bash
+aws eks update-kubeconfig \
+  --region <region> \
+  --name <cluster-name>
+```
+
+<Warning>
+When using AWS CLI to generate kubeconfig, ensure the cluster name matches exactly as it appears in AWS EKS. Qovery-managed clusters follow a specific naming convention.
+</Warning>
+
+## Working with Applications
+
+Once connected, you can manage your applications directly with kubectl.
+
+### Find Your Application Namespace
+
+Qovery creates a unique namespace for each environment:
+
+<Steps>
+  <Step title="List All Namespaces">
+    ```bash
+    kubectl get namespaces
+    ```
+
+    Qovery namespaces start with 'z' followed by a unique identifier.
+  </Step>
+
+  <Step title="Identify Your Namespace">
+    Find your namespace ID from the Qovery Console URL:
+
+    ```
+    https://console.qovery.com/organization/<org-id>/project/<project-id>/environment/<environment-id>
+    ```
+
+    Look for a namespace like: `z<environment-id>`
+  </Step>
+
+  <Step title="Set Default Namespace">
+    Set the namespace as default for convenience:
+
+    ```bash
+    kubectl config set-context --current --namespace=z<environment-id>
+    ```
+  </Step>
+</Steps>
+
+### View Application Pods
+
+List pods in your application namespace:
+
+```bash
+# List all pods
+kubectl get pods --namespace <namespace>
+
+# Get detailed pod information
+kubectl get pods --namespace <namespace> -o wide
+
+# Watch pod status in real-time
+kubectl get pods --namespace <namespace> --watch
+```
+
+### Access Application Logs
+
+View logs from your application pods:
+
+```bash
+# View logs from a specific pod
+kubectl logs <pod-name> --namespace <namespace>
+
+# Follow logs in real-time
+kubectl logs -f <pod-name> --namespace <namespace>
+
+# View logs from all containers in a pod
+kubectl logs <pod-name> --namespace <namespace> --all-containers
+
+# View logs from previous container instance
+kubectl logs <pod-name> --namespace <namespace> --previous
+```
+
+### Shell into Application Container
+
+Open an interactive shell in your application container:
+
+```bash
+# Open shell in pod
+kubectl exec -ti --namespace <namespace> <pod-name> -- sh
+
+# Or use bash if available
+kubectl exec -ti --namespace <namespace> <pod-name> -- bash
+
+# Execute a single command
+kubectl exec --namespace <namespace> <pod-name> -- env
+```
+
+<Tip>
+For multi-container pods, specify the container with `-c <container-name>`
+</Tip>
+
+## Common Operations
+
+### Port Forwarding
+
+Forward a local port to a pod port:
+
+```bash
+# Forward local port 8080 to pod port 80
+kubectl port-forward --namespace <namespace> <pod-name> 8080:80
+
+# Forward to a service
+kubectl port-forward --namespace <namespace> service/<service-name> 8080:80
+```
+
+<Info>
+The Qovery CLI also provides a `qovery port-forward` command that can be easier to use. See [qovery port-forward](/cli/commands/port-forward) for details.
+</Info>
+
+### Describe Resources
+
+Get detailed information about resources:
+
+```bash
+# Describe a pod
+kubectl describe pod <pod-name> --namespace <namespace>
+
+# Describe a service
+kubectl describe service <service-name> --namespace <namespace>
+
+# Describe a deployment
+kubectl describe deployment <deployment-name> --namespace <namespace>
+```
+
+### Check Resource Usage
+
+Monitor resource consumption:
+
+```bash
+# Node resource usage
+kubectl top nodes
+
+# Pod resource usage
+kubectl top pods --namespace <namespace>
+
+# Specific pod resource usage
+kubectl top pod <pod-name> --namespace <namespace>
+```
+
+### View Events
+
+Check cluster and namespace events:
+
+```bash
+# All events in namespace
+kubectl get events --namespace <namespace>
+
+# Watch events in real-time
+kubectl get events --namespace <namespace> --watch
+
+# Sort events by timestamp
+kubectl get events --namespace <namespace> --sort-by='.lastTimestamp'
+```
+
+## Troubleshooting
+
+### Connection Issues
+
+<AccordionGroup>
+  <Accordion title="Unable to Connect to Cluster">
+    **Symptoms**: `Unable to connect to the server` error
+
+    **Solutions**:
+    - Verify cluster is running: `qovery cluster status --cluster <cluster-id>`
+    - Check your kubeconfig path: `echo $KUBECONFIG`
+    - Ensure AWS credentials are valid: `aws sts get-caller-identity`
+    - Regenerate kubeconfig: `qovery cluster kubeconfig --cluster-id <cluster-id>`
+  </Accordion>
+
+  <Accordion title="Authentication Failed">
+    **Symptoms**: `error: You must be logged in to the server (Unauthorized)`
+
+    **Solutions**:
+    - Re-authenticate with Qovery: `qovery auth`
+    - Verify IAM permissions for AWS CLI method
+    - Check if your IAM user is in the cluster admin group
+    - Ensure SSO is enabled if using SSO authentication
+  </Accordion>
+
+  <Accordion title="Forbidden Access">
+    **Symptoms**: `Error from server (Forbidden): <resource> is forbidden`
+
+    **Solutions**:
+    - Verify your IAM user has necessary permissions
+    - Check RBAC roles: `kubectl get rolebindings --namespace <namespace>`
+    - Ensure you're using the correct namespace
+    - Contact your organization admin for access
+  </Accordion>
+
+  <Accordion title="Namespace Not Found">
+    **Symptoms**: `Error from server (NotFound): namespaces "<namespace>" not found`
+
+    **Solutions**:
+    - List all namespaces: `kubectl get namespaces`
+    - Verify environment ID from Qovery Console
+    - Ensure environment is deployed
+    - Check if namespace starts with 'z' prefix
+  </Accordion>
+</AccordionGroup>
+
+### Debug Commands
+
+Useful commands for diagnosing issues:
+
+```bash
+# Check kubectl configuration
+kubectl config view
+
+# List available contexts
+kubectl config get-contexts
+
+# Switch context
+kubectl config use-context <context-name>
+
+# Verify cluster info
+kubectl cluster-info
+
+# Check API server health
+kubectl get --raw='/readyz?verbose'
+
+# Test DNS resolution
+kubectl run -ti --rm debug --image=busybox --restart=Never -- nslookup kubernetes.default
+```
+
+## Security Best Practices
+
+<Warning>
+Direct cluster access bypasses Qovery's safety mechanisms. Follow these best practices to avoid issues.
+</Warning>
+
+### Do's and Don'ts
+
+<CardGroup cols={2}>
+  <Card title="DO" icon="check" color="#10b981">
+    - Use Qovery CLI method when possible
+    - Read cluster resources for debugging
+    - View logs and describe resources
+    - Use debug pods for troubleshooting
+    - Keep kubeconfig files secure
+  </Card>
+
+  <Card title="DON'T" icon="xmark" color="#ef4444">
+    - Modify Qovery-managed resources directly
+    - Delete resources created by Qovery
+    - Change namespace labels or annotations
+    - Modify ingress configurations
+    - Edit service accounts or RBAC
+  </Card>
+</CardGroup>
+
+### Resource Management
+
+<Accordion title="Resources Safe to Modify">
+  - Application-specific ConfigMaps (not created by Qovery)
+  - Application-specific Secrets (not created by Qovery)
+  - Custom resources you deployed
+  - Debug pods you created
+</Accordion>
+
+<Accordion title="Resources to Avoid Modifying">
+  - Deployments managed by Qovery
+  - Services created by Qovery
+  - Ingress resources
+  - Qovery system namespaces (qovery, qovery-system, etc.)
+  - Network policies
+  - Resource quotas
+</Accordion>
+
+### Access Control
+
+- Use least-privilege IAM policies
+- Rotate credentials regularly
+- Store kubeconfig files securely (never commit to git)
+- Use separate IAM users for different team members
+- Enable AWS CloudTrail for audit logs
+- Consider using AWS SSO for temporary credentials
+
+## Comparison: Qovery CLI vs AWS CLI
+
+| Feature | Qovery CLI | AWS CLI |
+|---------|-----------|---------|
+| Setup Complexity | Low (1-2 commands) | Medium (IAM setup required) |
+| Authentication | Qovery account | IAM credentials |
+| Best For | Quick access, debugging | Advanced users, automation |
+| Kubeconfig Management | Automatic | Manual |
+| Debug Pod Access | Built-in | Not available |
+| IAM Configuration | Not required | Required |
+| Learning Curve | Minimal | Moderate |
+| Flexibility | Standard access | Full AWS control |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Qovery CLI Reference" icon="terminal" href="/cli/overview">
+    Explore all Qovery CLI commands and features
+  </Card>
+
+  <Card title="Cluster Management" icon="server" href="/configuration/clusters">
+    Learn more about managing clusters in Qovery
+  </Card>
+
+  <Card title="Deployment Logs" icon="scroll" href="/configuration/deployment/logs">
+    View deployment logs through Qovery Console
+  </Card>
+
+  <Card title="Port Forwarding" icon="arrow-right-arrow-left" href="/cli/commands/port-forward">
+    Use Qovery CLI port forwarding feature
+  </Card>
+</CardGroup>
+
+## Related Resources
+
+- [kubectl Documentation](https://kubernetes.io/docs/reference/kubectl/)
+- [AWS EKS User Guide](https://docs.aws.amazon.com/eks/latest/userguide/)
+- [Kubernetes RBAC](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [AWS IAM Best Practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)
