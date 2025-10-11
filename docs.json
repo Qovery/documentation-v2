@@ -303,7 +303,7 @@
           {
             "group": "API Gateway",
             "pages": [
-              "integrations/api-gateway",
+              "integrations/api-gateway-nginx",
               "integrations/api-gateway-caddy"
             ]
           }
