@@ -107,6 +107,12 @@
         "icon": "sliders",
         "groups": [
           {
+            "group": "Overview",
+            "pages": [
+              "configuration/overview"
+            ]
+          },
+          {
             "group": "Organization",
             "pages": [
               "configuration/organization",
