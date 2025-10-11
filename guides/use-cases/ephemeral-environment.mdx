@@ -199,6 +199,457 @@ instances:
   </Tab>
 </Tabs>
 
+### Database Seeding
+
+Once your ephemeral environment is created, you'll typically need to populate it with test data. Qovery provides multiple approaches for database seeding.
+
+<Tabs>
+  <Tab title="Lifecycle Jobs">
+    **Use Qovery Lifecycle Jobs** to automatically seed data after environment creation:
+
+    ```yaml
+    # Qovery configuration
+    lifecycle_jobs:
+      - name: seed-database
+        image: your-registry/seed-job:latest
+        on:
+          - START  # Run when environment starts
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Waiting for database to be ready..."
+            while ! pg_isready -h $DATABASE_HOST -U $DATABASE_USER; do
+              sleep 2
+            done
+
+            echo "Running migrations..."
+            npm run db:migrate
+
+            echo "Seeding database..."
+            npm run db:seed
+        environment_variables:
+          - name: DATABASE_URL
+            value_from_secret: DATABASE_URL
+        resources:
+          cpu: 500m
+          memory: 512Mi
+    ```
+
+    **Benefits**:
+    - Automatic execution on environment creation
+    - Integrated with Qovery's lifecycle management
+    - Runs before application starts
+    - Logs available in Qovery Console
+  </Tab>
+
+  <Tab title="CI/CD Pipeline">
+    **Seed via your CI/CD pipeline** during environment creation:
+
+    ```yaml
+    # GitHub Actions example
+    - name: Wait for Database
+      run: |
+        echo "Waiting for database to be ready..."
+        for i in {1..30}; do
+          if qovery application list --environment pr-${{ github.event.number }} | grep -q "RUNNING"; then
+            break
+          fi
+          sleep 10
+        done
+
+    - name: Get Database Connection
+      id: get-db
+      env:
+        QOVERY_API_TOKEN: ${{ secrets.QOVERY_API_TOKEN }}
+      run: |
+        ENV_NAME="pr-${{ github.event.number }}"
+        DB_URL=$(qovery database get --environment $ENV_NAME --output json | jq -r '.url')
+        echo "database_url=$DB_URL" >> $GITHUB_OUTPUT
+
+    - name: Run Migrations
+      env:
+        DATABASE_URL: ${{ steps.get-db.outputs.database_url }}
+      run: |
+        npm run db:migrate
+
+    - name: Seed Test Data
+      env:
+        DATABASE_URL: ${{ steps.get-db.outputs.database_url }}
+      run: |
+        npm run db:seed:test
+    ```
+
+    **Benefits**:
+    - Full control over seeding process
+    - Can run different seeds based on PR labels
+    - Easy to debug in CI/CD logs
+    - Can fail the workflow if seeding fails
+  </Tab>
+
+  <Tab title="Application Startup">
+    **Seed on application startup** using initialization code:
+
+    ```javascript
+    // Node.js example - server.js
+    const express = require('express');
+    const { seedDatabase } = require('./db/seed');
+
+    const app = express();
+
+    async function startServer() {
+      // Check if seeding is needed
+      if (process.env.APP_ENV === 'preview' || process.env.AUTO_SEED === 'true') {
+        console.log('Running database migrations...');
+        await runMigrations();
+
+        console.log('Seeding database...');
+        await seedDatabase();
+
+        console.log('Database ready!');
+      }
+
+      app.listen(3000, () => {
+        console.log('Server running on port 3000');
+      });
+    }
+
+    startServer().catch(console.error);
+    ```
+
+    **Benefits**:
+    - No additional infrastructure needed
+    - Guaranteed to run before app serves requests
+    - Simple for small applications
+    - Works across all platforms
+  </Tab>
+
+  <Tab title="Clone Production Data">
+    **Clone sanitized production data** for realistic testing:
+
+    ```bash
+    # Clone and sanitize production database
+    qovery database clone \
+      --from production-db \
+      --to pr-123-db \
+      --sanitize-pii
+
+    # Or using API
+    curl -X POST "https://api.qovery.com/database/$PROD_DB_ID/clone" \
+      -H "Authorization: Token $QOVERY_API_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "pr-123-db",
+        "environment_id": "'$PREVIEW_ENV_ID'",
+        "sanitize": true
+      }'
+    ```
+
+    **PII Sanitization Options**:
+    ```sql
+    -- Example sanitization script
+    UPDATE users
+    SET
+      email = CONCAT('user-', id, '@example.com'),
+      phone = CONCAT('+1555', LPAD(id::text, 7, '0')),
+      first_name = 'Test',
+      last_name = CONCAT('User', id),
+      address = '123 Test Street',
+      ssn = NULL,
+      credit_card = NULL;
+
+    UPDATE orders
+    SET
+      billing_address = '123 Test Street',
+      shipping_address = '123 Test Street';
+    ```
+
+    **Benefits**:
+    - Realistic data volumes and patterns
+    - Test with production-like scenarios
+    - Catch edge cases early
+    - Better for performance testing
+  </Tab>
+</Tabs>
+
+### Seeding Strategies
+
+<AccordionGroup>
+  <Accordion title="Minimal Seed Data" icon="seedling">
+    **Best for**: Unit tests, fast feedback, low resource usage
+
+    ```javascript
+    // seed-minimal.js
+    async function seedMinimal() {
+      // Create just enough data to run the application
+      await createUser({ email: 'test@example.com', role: 'admin' });
+      await createUser({ email: 'user@example.com', role: 'user' });
+
+      // Minimal product catalog
+      await createProduct({ name: 'Test Product 1', price: 10.00 });
+      await createProduct({ name: 'Test Product 2', price: 20.00 });
+
+      console.log('Minimal seed completed: 2 users, 2 products');
+    }
+    ```
+
+    **Characteristics**:
+    - 10-100 records total
+    - Seeds in under 5 seconds
+    - Minimal storage requirements
+    - Good for development and quick tests
+  </Accordion>
+
+  <Accordion title="Representative Seed Data" icon="database">
+    **Best for**: Integration tests, QA testing, demos
+
+    ```javascript
+    // seed-representative.js
+    async function seedRepresentative() {
+      // Create realistic user base
+      const users = await createUsers(100);
+
+      // Create product catalog
+      const products = await createProducts(50);
+
+      // Create orders with realistic patterns
+      for (let i = 0; i < 500; i++) {
+        const user = users[Math.floor(Math.random() * users.length)];
+        const product = products[Math.floor(Math.random() * products.length)];
+
+        await createOrder({
+          userId: user.id,
+          productId: product.id,
+          quantity: Math.floor(Math.random() * 5) + 1,
+          createdAt: randomDateInPast(90) // Last 90 days
+        });
+      }
+
+      console.log('Representative seed completed: 100 users, 50 products, 500 orders');
+    }
+    ```
+
+    **Characteristics**:
+    - 1,000-10,000 records
+    - Seeds in 30-60 seconds
+    - Represents real-world distribution
+    - Good for realistic testing
+  </Accordion>
+
+  <Accordion title="Large-Scale Seed Data" icon="chart-simple">
+    **Best for**: Performance testing, load testing, stress testing
+
+    ```javascript
+    // seed-large-scale.js
+    async function seedLargeScale() {
+      console.log('Creating large-scale seed data...');
+
+      // Batch insert for performance
+      const batchSize = 1000;
+
+      // Create 10k users in batches
+      for (let i = 0; i < 10; i++) {
+        await createUserBatch(batchSize);
+      }
+
+      // Create 5k products
+      for (let i = 0; i < 5; i++) {
+        await createProductBatch(batchSize);
+      }
+
+      // Create 100k orders
+      for (let i = 0; i < 100; i++) {
+        await createOrderBatch(batchSize);
+      }
+
+      console.log('Large-scale seed completed: 10k users, 5k products, 100k orders');
+    }
+    ```
+
+    **Characteristics**:
+    - 100,000+ records
+    - Seeds in 5-15 minutes
+    - Realistic performance characteristics
+    - Good for load and stress testing
+  </Accordion>
+
+  <Accordion title="Scenario-Based Seeding" icon="list-check">
+    **Best for**: E2E testing, specific feature testing
+
+    ```javascript
+    // seed-scenarios.js
+    async function seedScenarios() {
+      // Scenario 1: New user signup flow
+      await createScenario({
+        name: 'new-user-signup',
+        setup: async () => {
+          // Empty cart, no order history
+          return await createUser({ email: 'newuser@example.com' });
+        }
+      });
+
+      // Scenario 2: Returning customer with history
+      await createScenario({
+        name: 'returning-customer',
+        setup: async () => {
+          const user = await createUser({ email: 'returning@example.com' });
+          await createOrderHistory(user.id, 5); // 5 past orders
+          await createCart(user.id, 3); // 3 items in cart
+          return user;
+        }
+      });
+
+      // Scenario 3: Admin user workflow
+      await createScenario({
+        name: 'admin-workflow',
+        setup: async () => {
+          return await createUser({
+            email: 'admin@example.com',
+            role: 'admin',
+            permissions: ['manage-users', 'manage-products', 'view-reports']
+          });
+        }
+      });
+
+      console.log('Scenario-based seed completed');
+    }
+    ```
+
+    **Characteristics**:
+    - Targeted test scenarios
+    - Predictable test data
+    - Easy to maintain
+    - Good for specific feature testing
+  </Accordion>
+</AccordionGroup>
+
+### Best Practices for Database Seeding
+
+<CardGroup cols={2}>
+  <Card title="Idempotent Seeds" icon="rotate">
+    Make seeds rerunnable without errors - check if data exists before inserting
+  </Card>
+
+  <Card title="Fast Execution" icon="bolt">
+    Optimize seed scripts with batch inserts and transactions
+  </Card>
+
+  <Card title="Deterministic Data" icon="fingerprint">
+    Use fixed seeds for random data to ensure reproducibility
+  </Card>
+
+  <Card title="Environment-Aware" icon="circle-nodes">
+    Use different seed strategies based on environment (dev, test, preview)
+  </Card>
+
+  <Card title="Version Control" icon="code-branch">
+    Keep seed scripts in version control alongside migrations
+  </Card>
+
+  <Card title="Data Cleanup" icon="broom">
+    Provide cleanup scripts to reset database state between tests
+  </Card>
+</CardGroup>
+
+### Example: Complete Seeding Setup
+
+Here's a production-ready example combining multiple approaches:
+
+```javascript
+// db/seed.js
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+// Idempotent seed function
+async function seedDatabase() {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Check if already seeded
+    const { rows } = await client.query('SELECT COUNT(*) FROM users');
+    if (parseInt(rows[0].count) > 0) {
+      console.log('Database already seeded, skipping...');
+      await client.query('ROLLBACK');
+      return;
+    }
+
+    // Determine seed strategy based on environment
+    const env = process.env.APP_ENV || 'development';
+
+    switch (env) {
+      case 'preview':
+        await seedMinimalData(client);
+        break;
+      case 'test':
+        await seedRepresentativeData(client);
+        break;
+      case 'development':
+        await seedDevelopmentData(client);
+        break;
+      default:
+        console.log('No seeding needed for production');
+        await client.query('ROLLBACK');
+        return;
+    }
+
+    await client.query('COMMIT');
+    console.log(`Database seeded successfully for ${env} environment`);
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Seed failed:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function seedMinimalData(client) {
+  // Insert minimal test data
+  await client.query(`
+    INSERT INTO users (email, name, role) VALUES
+    ('admin@example.com', 'Admin User', 'admin'),
+    ('user@example.com', 'Test User', 'user')
+  `);
+
+  await client.query(`
+    INSERT INTO products (name, description, price) VALUES
+    ('Test Product 1', 'Description 1', 10.00),
+    ('Test Product 2', 'Description 2', 20.00)
+  `);
+}
+
+async function seedRepresentativeData(client) {
+  // More comprehensive data for testing
+  // ... implementation
+}
+
+async function seedDevelopmentData(client) {
+  // Development-specific data
+  // ... implementation
+}
+
+// Run if called directly
+if (require.main === module) {
+  seedDatabase()
+    .then(() => {
+      console.log('Seeding completed');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Seeding failed:', error);
+      process.exit(1);
+    });
+}
+
+module.exports = { seedDatabase };
+```
+
 ### Automatic DNS
 
 Qovery automatically generates unique domain names for each preview environment:
