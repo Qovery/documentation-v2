@@ -1,13 +1,34 @@
-# Qovery Documentation - Claude Session Notes
+# Qovery Documentation - Agent Session Notes
 
-This file documents the work completed by Claude on the Qovery documentation using Mintlify.
+This file documents the work completed by AI agents on the Qovery documentation using Mintlify.
 
 ## Current Session Overview
 
-**Date**: 2025-10-11 (Continued Session)
-**Purpose**: Complete Qovery documentation with branding, Copilot features, CLI documentation, and EKS kubectl guide
+**Date**: 2025-10-13 (Continued Session)
+**Purpose**: Complete Qovery documentation with Configuration overview, API Gateway guides, and kubectl access
 
 ## Latest Work Completed (Current Session)
+
+### 12. Configuration Overview Page (2025-10-13)
+- **Created**: configuration/overview.mdx (628 lines, 17KB)
+- **Content**: Comprehensive overview for Configuration tab
+- **Structure**: Introduction to all configuration sections with visual hierarchy
+- **Key Sections**:
+  - Mermaid hierarchy diagram (Organization → Projects → Environments → Services)
+  - Configuration Sections (5 cards: Organization, Resources, Services, Deployment, Settings)
+  - Organization Configuration (8 accordions with detailed explanations)
+  - Resources Configuration (3 tabs: Projects, Environments, Clusters)
+  - Services Configuration (6 cards for all service types)
+  - Deployment Configuration (9 steps covering full deployment process)
+  - Settings (2 cards: Environment Variables, Advanced Settings)
+  - Configuration Best Practices (8 cards)
+  - Configuration Methods (4 tabs: Console, CLI, API, Terraform)
+  - Common Workflows (4 accordions with step-by-step guides)
+  - Next Steps (4 cards linking to quickstart, org setup, CLI, API)
+- **Components Used**: CardGroup, AccordionGroup, Tabs, Steps, Mermaid diagram
+- **Brand Colors**: Mermaid diagram uses Qovery purple palette (#642DFF, #7C3FFF, #965FFF, #B080FF)
+- **Navigation**: Added as first item in Configuration tab under "Overview" group
+- **Purpose**: Provides comprehensive introduction to all configuration capabilities
 
 ### 11. EKS kubectl Access Guide (2025-10-11)
 - **Created**: integrations/kubernetes/eks/kubectl-access.mdx (605 lines, 16KB)
@@ -163,7 +184,7 @@ Each capability page includes:
 
 ## Git Commits (Current Session)
 
-Total commits in current session: **15**
+Total commits in current session: **30**
 
 1. Use actual product logos in introduction cards
 2. Remove "What is Qovery?" page
@@ -192,16 +213,24 @@ Total commits in current session: **15**
 25. Add --headless option to qovery auth
 26. Add Mermaid diagram and update access methods
 27. Add knowledge sources to Copilot architecture
+28. Add Configuration tab overview page
+29. Rename CLAUDE.md to AGENT.md
 
 ## Documentation Statistics
 
-### Pages Created This Session: ~30+ pages
+### Pages Created This Session: ~35+ pages
+- Configuration overview: 1 page
+- API Gateway guides: 2 pages (NGINX, Caddy)
+- kubectl access guide: 1 page
 - Copilot documentation: 10 pages
 - CLI commands: 20 individual pages
 - VPC Peering guide: 1 page
 - Use cases: 4 pages (previous session continued)
 
-### Total Lines of Documentation: ~10,000+ lines
+### Total Lines of Documentation: ~13,000+ lines
+- Configuration overview: ~630 lines
+- API Gateway guides: ~2,500 lines (NGINX + Caddy)
+- kubectl access: ~605 lines
 - Copilot section: ~3,500 lines
 - CLI commands: ~2,000 lines
 - Guides: ~2,700 lines
@@ -241,6 +270,10 @@ Documented 8 categories of time-based automation:
 ## Files Modified/Created (Current Session)
 
 ### New Files:
+- configuration/overview.mdx
+- integrations/kubernetes/eks/kubectl-access.mdx
+- integrations/api-gateway-nginx.mdx
+- integrations/api-gateway-caddy.mdx
 - copilot/overview.mdx
 - copilot/what-is-agentic-ai.mdx
 - copilot/getting-started.mdx
@@ -276,19 +309,21 @@ Documented 8 categories of time-based automation:
 - custom.css
 
 ### Modified Files:
-- docs.json (navigation updates, CSS reference)
+- docs.json (navigation updates, CSS reference, Configuration overview, API Gateway group, kubectl access)
 - introduction.mdx (product logos, architecture)
 - how-it-works.mdx (complete rewrite)
 - using-qovery/interface/mcp-server.mdx (redirect to Copilot)
 - terraform/overview.mdx (registry links)
-- CLAUDE.md (this file)
+- cli/commands/cluster.mdx (added kubeconfig and debug-pod commands)
+- AGENT.md (this file, renamed from CLAUDE.md)
 
 ## Repository Status
 
 - **Path**: `/Users/evoxmusic/IdeaProjects/qovery/documentation-v2`
 - **Branch**: main
 - **Status**: All changes committed
-- **Total Commits**: ~27 commits (current session)
+- **Total Commits**: 30 commits (current session)
+- **Last Commit**: Add Configuration tab overview page (28c5084)
 
 ## Key Messages & Themes
 
