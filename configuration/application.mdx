@@ -9,9 +9,9 @@ Applications are the core services that run your containerized code on Qovery. T
 
 Before you begin:
 
-<Check>You have created a [Project](/using-qovery/configuration/project)</Check>
-<Check>You have created an [Environment](/using-qovery/configuration/environment)</Check>
-<Check>You have a Git repository or container image to deploy</Check>
+<Check>You have created a [Project](/configuration/project)</Check>
+<Check>You have created an [Environment](/configuration/environment)</Check>
+<Check>You have a Git repository or [container image](/configuration/organization/container-registry) to deploy</Check>
 
 ## Creating an Application
 
@@ -74,7 +74,7 @@ Deploy a pre-built container image:
 </Steps>
 
 <Note>
-Container registry credentials must be configured at the organization level. See [Container Registry Integration](/using-qovery/integration/container-registry).
+Container registry credentials must be configured at the organization level. See [Container Registry Integration](/configuration/organization/container-registry).
 </Note>
 
 ## General Configuration
@@ -395,7 +395,7 @@ Add custom environment variables:
 Use **Secrets** for sensitive data like API keys, passwords, and tokens. Secrets are encrypted and not displayed in logs.
 </Tip>
 
-Learn more about [Environment Variables](/using-qovery/configuration/environment).
+Learn more about [Environment Variables](/configuration/environment-variables).
 
 ## Custom Domains
 
@@ -678,13 +678,13 @@ Clone an application to duplicate configuration:
   <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
     Step-by-step deployment guide
   </Card>
-  <Card title="Environment Variables" icon="key" href="/using-qovery/configuration/environment">
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
     Manage configuration and secrets
   </Card>
   <Card title="Custom Domains" icon="globe" href="/guides/applications/configure-custom-domain">
     Add your own domain
   </Card>
-  <Card title="Auto-Deploy" icon="arrows-rotate" href="/using-qovery/deployment/auto-deploy">
+  <Card title="Auto-Deploy" icon="arrows-rotate" href="/configuration/deployment/auto-deploy">
     Set up automatic deployments
   </Card>
 </CardGroup>

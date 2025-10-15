@@ -142,7 +142,7 @@ For production workloads, **Managed Mode is strongly recommended** to ensure dat
 </Steps>
 
 <Tip>
-For a step-by-step tutorial, see [Connect Your First Database](/guides/getting-started/connect-database).
+For a step-by-step tutorial, see [Connect Your First Database](/guides/getting-started/connect-database). Learn more about [databases in basic concepts](/basic-concepts).
 </Tip>
 
 ## Database Configuration
@@ -210,7 +210,7 @@ Version upgrades may require maintenance windows. Always test upgrades in non-pr
 
 ## Connection Credentials
 
-Qovery automatically generates and injects connection credentials as environment variables in your applications.
+Qovery automatically generates and injects connection credentials as [environment variables](/configuration/environment-variables) in your applications.
 
 ### Auto-Generated Environment Variables
 
@@ -311,7 +311,7 @@ Connect to an existing database hosted on your own infrastructure:
 </Steps>
 
 <Info>
-Learn more: [AWS VPC Peering Guide](/guides/others/aws-vpc-peering)
+Learn more: [AWS VPC Peering Guide](/integrations/aws/vpc-peering)
 </Info>
 
 ### 2. Custom Database via Lifecycle Jobs
@@ -351,7 +351,7 @@ Use Terraform to create and manage databases:
 </Steps>
 
 <Info>
-Learn more: [Terraform Integration](/integrations/terraform/overview)
+Learn more: [Terraform Configuration](/configuration/terraform)
 </Info>
 
 ## Managing Databases
@@ -563,11 +563,11 @@ To delete:
     Learn about environment variable management
   </Card>
 
-  <Card title="VPC Peering" href="/guides/others/aws-vpc-peering">
+  <Card title="VPC Peering" href="/integrations/aws/vpc-peering">
     Connect to external databases via VPC peering
   </Card>
 
   <Card title="Lifecycle Jobs" href="/configuration/lifecycle-job">
-    Use lifecycle jobs for custom database provisioning
+    Use lifecycle jobs for [custom database provisioning](/guides/others/database-seeding-lifecycle-job)
   </Card>
 </CardGroup>

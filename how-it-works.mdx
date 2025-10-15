@@ -13,10 +13,10 @@ Qovery works on top of Kubernetes and extends it into a production-ready super o
 
 Kubernetes is a powerful container orchestration platform, but it was designed for infrastructure operators, not developers. Qovery extends Kubernetes with:
 
-- **Developer Experience** - Self-service deployment without Kubernetes expertise
-- **Production Readiness** - Built-in security, monitoring, and compliance
-- **Multi-Cloud Support** - Deploy to AWS, Google Cloud, Azure, or Scaleway
-- **Infrastructure Orchestration** - Manage not just containers, but databases, storage, and any cloud resource via Terraform
+- **Developer Experience** - Self-service [deployment](/configuration/deployment/overview) without Kubernetes expertise
+- **Production Readiness** - Built-in [security](/guides/qovery-101/secure), [monitoring](/guides/qovery-101/observe), and compliance
+- **Multi-Cloud Support** - Deploy to [AWS](/installation/aws), [Google Cloud](/installation/gcp), [Azure](/installation/azure), or [Scaleway](/installation/scaleway)
+- **Infrastructure Orchestration** - Manage not just containers, but [databases](/configuration/database), storage, and any cloud resource via [Terraform](/configuration/terraform)
 
 ## The Super Orchestrator
 
@@ -26,31 +26,31 @@ Qovery turns Kubernetes into a super orchestrator that manages:
   <Card title="Provision" icon="/logos/provision-logo-only.svg">
     **Infrastructure Management**
 
-    Install and manage Kubernetes clusters across multiple clouds. Provision infrastructure resources using Terraform directly from Kubernetes.
+    [Install and manage Kubernetes clusters](/installation) across multiple clouds. Provision infrastructure resources using [Terraform](/configuration/terraform) directly from Kubernetes. Learn more about [provisioning](/guides/qovery-101/provision).
   </Card>
 
   <Card title="Deploy" icon="/logos/deploy-logo-only.svg">
     **Application Delivery**
 
-    Deploy applications, databases, and services with GitOps workflows. Automatic builds, rolling updates, and rollbacks.
+    Deploy [applications](/configuration/application), [databases](/configuration/database), and services with GitOps workflows. Automatic builds, rolling updates, and rollbacks. Learn more about [deployment](/guides/qovery-101/deploy).
   </Card>
 
   <Card title="Observe" icon="/logos/observe-logo-only.svg">
     **Unified Observability**
 
-    Get visibility into your entire stack with correlated metrics, logs, and events across applications and infrastructure.
+    Get visibility into your entire stack with correlated metrics, logs, and events across applications and infrastructure. Learn more about [observability](/guides/qovery-101/observe).
   </Card>
 
   <Card title="Optimize" icon="/logos/optimize-logo-only.svg">
     **Cost Control**
 
-    Monitor and optimize Kubernetes and application costs with intelligent recommendations and automation.
+    Monitor and optimize Kubernetes and application costs with intelligent recommendations and automation. Learn more about [optimization](/guides/qovery-101/optimize).
   </Card>
 
   <Card title="Secure" icon="/logos/secure-logo-only.svg">
     **Security & Compliance**
 
-    Enforce security best practices and meet compliance standards (SOC2, GDPR, HIPAA, HDS, DORA).
+    Enforce security best practices and meet compliance standards (SOC2, GDPR, HIPAA, HDS, DORA). Learn more about [security](/guides/qovery-101/secure).
   </Card>
 </CardGroup>
 
@@ -70,20 +70,20 @@ Unlike traditional PaaS solutions, Qovery runs on **your own Kubernetes clusters
 Qovery provides multiple interfaces to work with Kubernetes without requiring deep Kubernetes knowledge:
 
 - **Web Console** - Visual interface for managing applications
-- **CLI** - Command-line interface for automation
-- **Terraform Provider** - Infrastructure as Code
-- **REST API** - Programmatic access
-- **MCP Server** - AI Copilot integration with agentic capabilities
+- **[CLI](/cli/overview)** - Command-line interface for automation
+- **[Terraform Provider](/configuration/terraform)** - Infrastructure as Code
+- **[REST API](/api/overview)** - Programmatic access
+- **[MCP Server](/copilot/mcp-server)** - AI Copilot integration with agentic capabilities
 
 ### 2. Production-Ready Features
 
 Qovery adds enterprise features that Kubernetes doesn't provide out of the box:
 
 - **Automatic HTTPS** - Free SSL certificates with Let's Encrypt
-- **GitOps Workflow** - Automatic deployments from Git
-- **Preview Environments** - Temporary environments for pull requests
-- **Database Management** - Provision and manage databases alongside applications
-- **Secrets Management** - Encrypted secret storage with audit logging
+- **GitOps Workflow** - [Automatic deployments](/configuration/deployment/auto-deploy) from [Git](/configuration/organization/git-repository-access)
+- **[Preview Environments](/guides/advanced/preview-environments)** - Temporary environments for pull requests
+- **[Database Management](/configuration/database)** - Provision and manage databases alongside applications
+- **[Secrets Management](/configuration/environment-variables)** - Encrypted secret storage with audit logging
 - **Cost Tracking** - Real-time visibility into resource costs
 
 ### 3. Universal Infrastructure Orchestration
@@ -113,7 +113,7 @@ Here's how it works in practice:
   </Step>
 
   <Step title="Deploy">
-    Push your code to Git. Qovery automatically builds, tests, and deploys to Kubernetes
+    Push your code to Git. Qovery automatically builds, tests, and [deploys to Kubernetes](/configuration/deployment/overview)
   </Step>
 
   <Step title="Monitor & Scale">

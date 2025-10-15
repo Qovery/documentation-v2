@@ -17,7 +17,7 @@ Before you begin, make sure you have:
 
 ## Step 1: Create a Project
 
-Projects help you organize related applications and environments.
+[Projects](/configuration/project) help you organize related applications and environments.
 
 <Steps>
   <Step title="Navigate to Projects">
@@ -37,7 +37,7 @@ Projects help you organize related applications and environments.
 
 ## Step 2: Create an Environment
 
-Environments represent different stages of your application lifecycle (dev, staging, production).
+[Environments](/configuration/environment) represent different stages of your application lifecycle (dev, staging, production).
 
 <Steps>
   <Step title="Open Your Project">
@@ -80,6 +80,8 @@ Now let's deploy your first application!
     - Dockerfile path (if not in root)
     - Build arguments
     - Root application path
+
+    Learn more about [application configuration](/configuration/application).
   </Step>
 
   <Step title="Set Resources">
@@ -161,8 +163,8 @@ graph LR
     **Problem**: App deploys but immediately crashes
 
     **Solutions**:
-    - Check application logs for errors
-    - Verify environment variables are set correctly
+    - Check [application logs](/configuration/deployment/logs) for errors
+    - Verify [environment variables](/configuration/environment-variables) are set correctly
     - Ensure the port configuration matches your app
     - Check resource limits (CPU/memory might be too low)
   </Accordion>
@@ -252,7 +254,7 @@ Congratulations! You've deployed your first application. Now you can:
 </Tip>
 
 <Tip>
-**Use Auto-Deploy**: Enable automatic deployments for development and staging. Keep production manual for control.
+**Use Auto-Deploy**: Enable [automatic deployments](/configuration/deployment/auto-deploy) for development and staging. Keep production manual for control.
 </Tip>
 
 <Tip>

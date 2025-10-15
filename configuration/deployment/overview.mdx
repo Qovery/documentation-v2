@@ -7,7 +7,7 @@ Qovery is a DevOps Automation Platform helping 200+ organizations to ship faster
 
 ## How Deployment Works
 
-When you push code to your Git repository, Qovery can automatically deploy your applications through several trigger mechanisms:
+When you push code to your [Git repository](/configuration/organization/git-repository-access), Qovery can automatically deploy your applications through several trigger mechanisms:
 
 ![Qovery Deployment Overview](/images/deployment/deployment_overview_qovery.png)
 
@@ -36,10 +36,10 @@ When a deployment is triggered, Qovery executes the following steps:
     The Qovery engine processes your application configuration and environment settings
   </Step>
   <Step title="Code Retrieval">
-    Qovery pulls the latest code from your Git repository
+    Qovery pulls the latest code from your [Git repository](/configuration/organization/git-repository-access)
   </Step>
   <Step title="Build & Registry">
-    Your code is built into a container image and pushed to a container registry
+    Your code is built into a container image and pushed to a [container registry](/configuration/organization/container-registry)
   </Step>
   <Step title="Network Configuration">
     Load balancers and network configuration are created for your services
@@ -56,8 +56,8 @@ When a deployment is triggered, Qovery executes the following steps:
 
 All deployments run on Kubernetes, which serves as the universal orchestrator for your applications:
 
-- **Multi-Cloud Support**: Deploy to AWS, GCP, Azure, or Scaleway
-- **Namespace Isolation**: Each environment gets its own Kubernetes namespace
+- **Multi-Cloud Support**: Deploy to [AWS](/installation/aws), [GCP](/installation/gcp), [Azure](/installation/azure), or [Scaleway](/installation/scaleway)
+- **Namespace Isolation**: Each [environment](/configuration/environment) gets its own Kubernetes namespace
 - **Automated Scaling**: Horizontal and vertical scaling capabilities
 - **High Availability**: Built-in redundancy and failover mechanisms
 

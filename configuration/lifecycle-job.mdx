@@ -21,12 +21,12 @@ Unlike Cron Jobs that run on a schedule, Lifecycle Jobs are triggered by environ
 - Input variables for customization
 
 **Common Use Cases**:
-- Seed databases in preview environments
+- [Seed databases in preview environments](/guides/others/database-seeding-lifecycle-job)
 - Create external resources (S3 buckets, DNS records)
-- Run database migrations
+- Run [database migrations](/configuration/database)
 - Generate dynamic API keys or tokens
 - Provision infrastructure
-- Clean up resources on environment deletion
+- Clean up resources on [environment deletion](/configuration/environment)
 - Configure third-party services
 - Initialize application data
 
@@ -1085,7 +1085,7 @@ echo "Cleanup completed"
   <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
     Manage configuration and secrets
   </Card>
-  <Card title="Deployment Pipeline" icon="diagram-project" href="/deployment/deployment-pipeline">
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
     Understand deployment flow and lifecycle
   </Card>
   <Card title="Preview Environments" icon="code-branch" href="/guides/advanced/preview-environments">

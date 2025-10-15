@@ -53,6 +53,7 @@
             "group": "Overview",
             "pages": [
               "introduction",
+              "what-is-qovery",
               "how-it-works",
               "basic-concepts",
               "installation"

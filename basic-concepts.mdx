@@ -7,7 +7,7 @@ Understanding Qovery's basic concepts will help you get the most out of the plat
 
 ## Organization
 
-An **Organization** is the workspace where DevOps and developers can collaborate across many projects at once and it usually corresponds to your company. A user can have access to one or more organizations and have different roles & permissions assigned within it thanks to our RBAC system.
+An **Organization** is the workspace where DevOps and developers can collaborate across many projects at once and it usually corresponds to your company. A user can have access to one or more organizations and have different roles & permissions assigned within it thanks to our [RBAC system](/configuration/organization/members-rbac).
 
 <Note>
 Think of an Organization as your company's workspace in Qovery. It's the top-level container for all your infrastructure and team members.
@@ -19,11 +19,11 @@ At Qovery, when we refer to **Cluster**, we mean Kubernetes cluster. A Kubernete
 
 ### Managed Cluster
 
-A **Managed Cluster** is a Kubernetes cluster managed by Qovery. It means that Qovery will create the cluster for you and will take care of the cluster lifecycle (creation, upgrade, deletion, etc.). Zero maintenance for you.
+A **Managed Cluster** is a Kubernetes cluster managed by Qovery. It means that Qovery will create the cluster for you and will take care of the cluster lifecycle (creation, upgrade, deletion, etc.). Zero maintenance for you. Learn how to [install Qovery on your cloud provider](/installation).
 
 ### Self-Managed Cluster
 
-A **Self-Managed Cluster** is a Kubernetes cluster managed by you. It means that you have to create the cluster yourself and you have to take care of the cluster lifecycle (creation, upgrade, deletion, etc.). You can install Qovery on your cluster to let Qovery manage the deployment of your applications on your cluster.
+A **Self-Managed Cluster** is a Kubernetes cluster managed by you. It means that you have to create the cluster yourself and you have to take care of the cluster lifecycle (creation, upgrade, deletion, etc.). You can [install Qovery on your Kubernetes cluster](/installation/kubernetes) to let Qovery manage the deployment of your applications on your cluster.
 
 <Tip>
 Choose **Managed Cluster** if you want Qovery to handle all Kubernetes operations. Choose **Self-Managed Cluster** (also known as BYOK - Bring Your Own Kubernetes) if you have specific Kubernetes requirements or existing clusters.
@@ -31,7 +31,7 @@ Choose **Managed Cluster** if you want Qovery to handle all Kubernetes operation
 
 ## Project
 
-A **Project** allows you to group together a set of services interacting between each other to serve a common purpose. For example, you can have one project to run your main application (composed by a front-end, back-end and a database) and another project to manage your internal tools.
+A **Project** allows you to group together a set of services interacting between each other to serve a common purpose. For example, you can have one project to run your main application (composed by a front-end, back-end and a database) and another project to manage your internal tools. Learn more about [configuring projects](/configuration/project).
 
 ```
 Organization
@@ -55,7 +55,7 @@ Qovery supports three types of environments:
 
 ### Preview Environment (or Ephemeral Environment)
 
-A **Preview Environment** is an ephemeral environment allowing you to get early feedback on your application changes before the changes are merged into production. A dedicated preview environment can be automatically created at each new PR on your repository to validate the change. The environment is automatically deleted once the PR is merged or closed.
+A **Preview Environment** is an ephemeral environment allowing you to get early feedback on your application changes before the changes are merged into production. A dedicated preview environment can be automatically created at each new PR on your repository to validate the change. The environment is automatically deleted once the PR is merged or closed. Learn how to [set up preview environments](/guides/advanced/preview-environments).
 
 <Info>
 Preview Environments are also known as **Ephemeral Environments**, **Temporary Environments**, **Review Environments**, or **Review Apps**. They're perfect for testing pull requests in isolation.
@@ -105,10 +105,12 @@ A **CronJob** is a service that runs scheduled tasks based on a cron expression.
 ### Lifecycle Job
 
 A **Lifecycle Job** is a Kubernetes job that executes only on selected events (deploy/stop/delete). Use cases include:
-- Database seeding in preview environments
+- [Database seeding in preview environments](/guides/others/database-seeding-lifecycle-job)
 - Pre-deployment validation
 - Post-deployment tasks
 - Environment cleanup
+
+Learn more about [configuring lifecycle jobs](/configuration/lifecycle-job).
 
 ### Helm
 
@@ -124,11 +126,11 @@ This enables you to deploy third-party applications like:
 
 ## Deployment Workflow
 
-Understanding Qovery's deployment workflow helps you troubleshoot issues and optimize your deployments.
+Understanding Qovery's [deployment workflow](/configuration/deployment/overview) helps you troubleshoot issues and optimize your deployments.
 
 ### Deployment Pipeline
 
-A **Deployment Pipeline** consists of ordered "Deployment Stages". Each service belongs to one deployment stage, allowing you to define service inter-dependencies and control deployment order.
+A **Deployment Pipeline** consists of ordered "Deployment Stages". Each service belongs to one deployment stage, allowing you to define service inter-dependencies and control deployment order. Learn more about [configuring deployment pipelines](/configuration/deployment/pipeline).
 
 **Default Pipeline Stages:**
 1. `0.DEFAULT DATABASE` - Databases deploy first
@@ -143,6 +145,8 @@ Each service has two status indicators:
 - **Deployment Status**: Shows if the deployment is in progress, succeeded, or failed
 - **Running Status**: Shows if the service is currently running and healthy
 
+Learn more about [deployment statuses](/configuration/deployment/statuses).
+
 ## GitOps Principles
 
 Qovery follows GitOps principles where:
@@ -154,7 +158,7 @@ Qovery follows GitOps principles where:
 
 ## Environment Variables and Secrets
 
-Qovery provides a powerful system for managing configuration and secrets:
+Qovery provides a powerful system for [managing configuration and secrets](/configuration/environment-variables):
 
 ### Variable Scopes
 
@@ -209,8 +213,10 @@ Services within the same environment communicate over a private internal network
 
 Applications can be exposed publicly through:
 - **Automatically generated domains**: `*.qovery.io`
-- **Custom domains**: Bring your own domain with automatic SSL/TLS
+- **[Custom domains](/guides/applications/configure-custom-domain)**: Bring your own domain with automatic SSL/TLS
 - **Port configuration**: Expose one or more ports
+
+Learn more about [networking configuration](/configuration/networking).
 
 ## Next Steps
 
