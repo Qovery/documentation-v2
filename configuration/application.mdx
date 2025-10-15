@@ -612,28 +612,28 @@ Clone an application to duplicate configuration:
 ## Best Practices
 
 <CardGroup cols={2}>
-  <Card title="Resource Management" icon="gauge">
+  <Card title="Resource Management" icon="gauge" href="/configuration/application">
     - Start with minimal resources
     - Monitor and adjust based on metrics
     - Use auto-scaling for variable traffic
     - Set memory limits to prevent OOM
   </Card>
 
-  <Card title="Health Checks" icon="heartbeat">
+  <Card title="Health Checks" icon="heartbeat" href="/configuration/application">
     - Always implement health endpoints
     - Use readiness for dependency checks
     - Set appropriate timeouts
     - Test health checks locally
   </Card>
 
-  <Card title="Environment Variables" icon="key">
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
     - Use secrets for sensitive data
     - Never commit secrets to Git
     - Use built-in variables for service connections
     - Document required variables
   </Card>
 
-  <Card title="Deployment" icon="rocket">
+  <Card title="Deployment" icon="rocket" href="/configuration/deployment/overview">
     - Use auto-deploy for dev/staging
     - Manual deploys for production
     - Test in staging before production
