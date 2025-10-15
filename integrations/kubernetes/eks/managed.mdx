@@ -5,45 +5,46 @@ description: "Fully automated Amazon EKS cluster provisioning and management"
 
 ## Overview
 
-Qovery-managed EKS provides zero-configuration Kubernetes clusters on AWS. Qovery creates, configures, and maintains your EKS cluster with best practices built-in.
+Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zero configuration. Qovery handles everything: cluster creation, networking, scaling, monitoring, and ongoing maintenance.
 
-## Quick Start
+**Perfect for**: Teams who want AWS but don't want to manage Kubernetes infrastructure.
+
+## Create Your First Cluster
 
 <Steps>
-  <Step title="Connect AWS Account">
-    **Set up AWS credentials** (choose one method):
-
-    - **STS Assume Role** (Recommended): Use CloudFormation to create a secure IAM role
-    - **Static Credentials**: Use Access Key ID and Secret Access Key
-
-    See the [detailed AWS installation guide](/installation/aws#step-2-attach-aws-credentials) for step-by-step instructions on both methods.
+  <Step title="Open Qovery Console">
+    1. Go to **Organization Settings** → **Clusters**
+    2. Click **Create Cluster**
+    3. Select **AWS**
   </Step>
 
-  <Step title="Create Cluster">
-    Settings → Clusters → Create Cluster
-    - Name: `production-eks`
-    - Provider: AWS
-    - Region: `us-east-1`
-    - Select your credentials
-    - Click **Create**
+  <Step title="Configure Cluster">
+    - **Name**: e.g., `production-eks`
+    - **Region**: Choose closest to your users (e.g., `us-east-1`)
   </Step>
 
-  <Step title="Wait for Provisioning">
-    Cluster creation takes 20-30 minutes:
-    - VPC and networking setup
-    - EKS control plane creation
-    - Worker node provisioning
-    - Qovery components installation
+  <Step title="Connect AWS (CloudFormation)">
+    1. Click the **CloudFormation link** in Qovery
+    2. In AWS, click **Next** → **Next** → check IAM acknowledgement → **Create stack**
+    3. Wait 1 minute for completion
+    4. Copy the **RoleArn** from Outputs tab
+    5. Paste back in Qovery and click **Save**
   </Step>
 
-  <Step title="Deploy Applications">
-    Once cluster is ready, start deploying applications
+  <Step title="Choose Instance Size">
+    - **t3.medium** - Testing
+    - **t3.large** - Light production (recommended for starters)
+    - **t3.xlarge** - Standard production
+  </Step>
+
+  <Step title="Create">
+    Click **Create and Deploy** - your cluster will be ready in 20-30 minutes!
   </Step>
 </Steps>
 
-<Info>
-For complete installation instructions including credential setup, see the [AWS Installation Guide](/installation/aws).
-</Info>
+<Card title="Need detailed instructions?" icon="book" href="/installation/aws">
+  See the complete AWS installation guide with screenshots and troubleshooting
+</Card>
 
 ## What Qovery Creates
 
