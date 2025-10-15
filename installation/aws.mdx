@@ -1,427 +1,220 @@
 ---
 title: "Install Qovery on AWS"
-description: "Install Qovery on your AWS account in less than 30 minutes"
+description: "Create your first Kubernetes cluster on AWS in 3 simple steps"
 ---
 
-Install Qovery on your AWS account in less than 30 minutes. Qovery will create a Kubernetes cluster for you and manage it for you.
+Get your first Kubernetes cluster running on AWS in under 30 minutes. This guide walks you through creating credentials and deploying a production-ready cluster.
 
 <Info>
-To install Qovery on an existing Kubernetes cluster, please refer to the [Kubernetes installation guide](/installation/kubernetes).
+Already have a Kubernetes cluster? See the [BYOK guide](/integrations/kubernetes/byok) instead.
 </Info>
 
-## Before You Begin
+## What You'll Get
 
-This guide assumes the following:
+After following this guide, you'll have:
+- ✅ Production-ready EKS cluster
+- ✅ Automatic scaling and load balancing
+- ✅ SSL certificates and ingress
+- ✅ Monitoring and logging
+- ✅ Ready to deploy applications
 
-<Check>You have an account and an Organization on Qovery</Check>
-<Check>You have an AWS account</Check>
-<Check>You have AWS credentials with appropriate permissions</Check>
+**Time required**: ~30 minutes (mostly automated)
 
-## Installation Overview
+## Prerequisites
 
-Qovery installation on AWS involves four main steps:
+<Check>You have a [Qovery account](https://console.qovery.com/signup)</Check>
+<Check>You have an [AWS account](https://aws.amazon.com)</Check>
+<Check>You can access the AWS Console</Check>
 
-```mermaid
-graph LR
-    A[Create Cluster Configuration] --> B[Attach AWS Credentials]
-    B --> C[Select Options]
-    C --> D[Deploy Cluster]
-    D --> E[Ready to Deploy Apps]
-```
+That's it! No AWS expertise required.
 
-## Step 1: Create a Kubernetes Cluster
+---
+
+## Step 1: Create AWS Credentials
+
+First, we need to connect your AWS account to Qovery. We'll use **CloudFormation** to create secure credentials automatically.
 
 <Steps>
-  <Step title="Navigate to Cluster Creation">
-    From your Qovery console, go to your organization settings and navigate to the **Clusters** section.
+  <Step title="Start Cluster Creation">
+    1. Log into [Qovery Console](https://console.qovery.com)
+    2. Go to **Organization Settings** → **Clusters**
+    3. Click **Create Cluster**
+    4. Select **AWS** as cloud provider
   </Step>
 
-  <Step title="Click New Cluster">
-    Click on **Create Cluster** button to start the cluster creation wizard.
+  <Step title="Click Add Credentials">
+    In the credentials section, click **Add Credentials** or **Create new credentials**
   </Step>
 
-  <Step title="Select AWS">
-    Choose **AWS** as your cloud provider.
+  <Step title="Launch CloudFormation Stack">
+    1. Qovery will show you a **CloudFormation stack link**
+    2. Click the link - it opens AWS CloudFormation in a new tab
+    3. You'll be automatically logged into AWS (or prompted to log in)
   </Step>
 
-  <Step title="Configure Cluster">
-    Provide the following information:
+  <Step title="Create the Stack">
+    In the AWS CloudFormation page:
 
-    - **Cluster Name**: A unique name for your cluster (e.g., `production-cluster`)
-    - **Description**: Optional description
-    - **AWS Region**: Select your preferred AWS region (e.g., `us-east-1`)
-    - **Cluster Type**: Choose **Managed by Qovery** for automatic management
+    1. Click **Next** (template is pre-filled)
+    2. Stack name: keep default or use `qovery-credentials`
+    3. Click **Next** twice
+    4. ✅ Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
+    5. Click **Create stack**
+
+    Wait ~1 minute for **Status: CREATE_COMPLETE**
+  </Step>
+
+  <Step title="Copy the Role ARN">
+    1. Click the **Outputs** tab
+    2. Copy the **RoleArn** value (starts with `arn:aws:iam::`)
+  </Step>
+
+  <Step title="Add to Qovery">
+    Back in Qovery console:
+
+    1. Paste the **Role ARN**
+    2. Give it a name like `AWS Production`
+    3. Click **Create**
+
+    Your credentials are now configured! 🎉
   </Step>
 </Steps>
 
-<Note>
-You can create multiple clusters on the same AWS account with different VPCs. You can also create multiple clusters on different AWS accounts. Qovery will manage them all for you.
-</Note>
+<Tip>
+**Why CloudFormation?** This creates a secure IAM role that gives Qovery temporary access to your AWS account. It's more secure than using permanent access keys, and you can revoke access anytime by deleting the CloudFormation stack.
+</Tip>
 
-## Step 2: Attach AWS Credentials
+---
 
-Qovery needs AWS credentials to provision and manage resources in your AWS account. You can choose between two methods:
+## Step 2: Configure Your Cluster
 
-<Warning>
-**Security Recommendation**: We strongly recommend using **STS Assume Role** for production environments. Static credentials are long-lived and more exposed to leaks, while Assume Role provides short-lived, automatically refreshed credentials with granular access control.
-</Warning>
+Now let's configure your Kubernetes cluster settings.
 
-<Tabs>
-  <Tab title="STS Assume Role (Recommended)">
-    ### Using STS Assume Role via CloudFormation
+<Steps>
+  <Step title="Basic Settings">
+    - **Cluster name**: e.g., `production` or `my-first-cluster`
+    - **Region**: Choose closest to your users (e.g., `us-east-1`)
+    - **Credentials**: Select the credentials you just created
+  </Step>
 
-    This is the most secure method as it uses temporary credentials that are automatically rotated.
+  <Step title="Instance Type (Optional)">
+    Choose the size of your cluster nodes:
 
-    <Steps>
-      <Step title="Deploy CloudFormation Stack">
-        In the Qovery console during cluster creation, click **Add Credentials** and select **STS Assume Role**.
+    - **t3.medium** (2 vCPU, 4GB) - Good for testing
+    - **t3.large** (2 vCPU, 8GB) - Light production ← **Recommended for starters**
+    - **t3.xlarge** (4 vCPU, 16GB) - Standard production
+    - **Custom** - Choose your own
 
-        Qovery will provide a CloudFormation stack URL. Click it to open AWS CloudFormation in a new tab.
-      </Step>
+    Don't worry - you can scale up/down later!
+  </Step>
 
-      <Step title="Create Stack in AWS">
-        In the AWS CloudFormation console:
+  <Step title="Review & Create">
+    Review your settings and click **Create and Deploy**
+  </Step>
+</Steps>
 
-        1. The template URL will be pre-filled
-        2. Click **Next**
-        3. Stack name: `qovery-assume-role` (or your preferred name)
-        4. Click **Next** through the configuration
-        5. Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
-        6. Click **Create stack**
-      </Step>
+---
 
-      <Step title="Wait for Stack Creation">
-        Wait 1-2 minutes for the stack to complete. The status should show **CREATE_COMPLETE**.
-      </Step>
+## Step 3: Wait for Cluster Creation
 
-      <Step title="Copy Role ARN">
-        1. Go to the **Outputs** tab of your CloudFormation stack
-        2. Copy the **RoleArn** value (format: `arn:aws:iam::ACCOUNT_ID:role/qovery-role`)
-      </Step>
+Your cluster is now being created! This takes **20-30 minutes**.
 
-      <Step title="Add Role ARN to Qovery">
-        Back in the Qovery console:
+**What's happening:**
+1. Creating VPC and networking (3-5 min)
+2. Launching EKS control plane (10-15 min)
+3. Starting worker nodes (5-10 min)
+4. Installing Qovery components (3-5 min)
 
-        1. Paste the **Role ARN** in the credentials form
-        2. Provide a **Credentials Name** (e.g., `aws-production`)
-        3. Click **Save**
-      </Step>
+<Info>
+You can close this page and come back later. You'll receive an email when your cluster is ready!
+</Info>
 
-      <Step title="Attach Credentials">
-        Select the credentials you just created and click **Continue**.
-      </Step>
-    </Steps>
+**While you wait**, you can:
+- ☕ Grab a coffee
+- 📖 Read about [deploying your first app](/guides/getting-started/deploy-your-first-application)
+- 👥 [Invite team members](/configuration/organization/members-rbac)
+- 🔗 [Connect your Git repository](/integrations/git-providers/overview)
 
-    **What the CloudFormation stack creates:**
-    - IAM Role with trust relationship to Qovery's AWS account
-    - Necessary IAM policies for cluster management
-    - Secure cross-account access without storing static credentials
+---
 
-  </Tab>
+## Next: Deploy Your First Application
 
-  <Tab title="Static Credentials (Access Key)">
-    ### Using IAM User Access Keys
-
-    <Warning>
-    This method uses long-lived credentials. Only use for development/testing or if STS Assume Role is not available.
-    </Warning>
-
-    <Steps>
-      <Step title="Create IAM User">
-        In your AWS console, create a new IAM user with programmatic access:
-
-        1. Go to **IAM** > **Users** > **Add users**
-        2. Enter user name: `qovery-admin`
-        3. Select **Programmatic access**
-        4. Attach the **AdministratorAccess** policy (or use custom policy)
-        5. Complete the user creation
-        6. **Save** the Access Key ID and Secret Access Key securely
-      </Step>
-
-      <Step title="Add Credentials to Qovery">
-        In the Qovery console:
-
-        1. Click **Add Credentials**
-        2. Select **Static Credentials**
-        3. Enter your **AWS Access Key ID**
-        4. Enter your **AWS Secret Access Key**
-        5. Provide a **Credentials Name**
-        6. Click **Save**
-      </Step>
-
-      <Step title="Attach Credentials">
-        Select the credentials you just created and click **Continue**.
-      </Step>
-    </Steps>
-
-    <Tip>
-    Regularly rotate your Access Keys (every 90 days recommended) and never commit them to version control.
-    </Tip>
-  </Tab>
-</Tabs>
-
-### Required IAM Permissions
-
-If you prefer to use a custom IAM policy instead of AdministratorAccess, here are the required permissions:
-
-<Accordion title="View Required IAM Permissions">
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:*",
-        "eks:*",
-        "elasticloadbalancing:*",
-        "autoscaling:*",
-        "iam:*",
-        "s3:*",
-        "rds:*",
-        "route53:*",
-        "acm:*",
-        "logs:*",
-        "cloudwatch:*",
-        "ecr:*"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-```
-</Accordion>
-
-## Step 3: Select Your Options
-
-Qovery provides multiple configuration options to customize your installation.
-
-### Instance Type
-
-Choose the EC2 instance type for your cluster nodes:
-
-- **t3.medium** (2 vCPU, 4GB RAM) - Good for development
-- **t3.large** (2 vCPU, 8GB RAM) - Light production workloads
-- **t3.xlarge** (4 vCPU, 16GB RAM) - Standard production workloads
-- **t3.2xlarge** (8 vCPU, 32GB RAM) - Heavy production workloads
-- **Custom** - Choose your own instance type
-
-### Cluster Features
+Once your cluster shows **Ready** status:
 
 <CardGroup cols={2}>
-  <Card title="VPC Configuration" icon="network-wired">
-    - **CIDR Block**: Default `10.0.0.0/16`
-    - **Availability Zones**: Multi-AZ by default
-    - **Public/Private Subnets**: Automatically configured
+  <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+    Step-by-step guide to deploy from Git
   </Card>
 
-  <Card title="Kubernetes Version" icon="kubernetes">
-    - Latest stable version by default
-    - Automatic patch updates
-    - Manual major version upgrades
+  <Card title="Connect Database" icon="database" href="/guides/getting-started/connect-database">
+    Add PostgreSQL, MySQL, MongoDB, or Redis
   </Card>
 
-  <Card title="Auto-scaling" icon="chart-line">
-    - **Min Nodes**: Default 3
-    - **Max Nodes**: Default 10
-    - Auto-scales based on workload
+  <Card title="Configure Domain" icon="globe" href="/guides/applications/configure-custom-domain">
+    Use your own domain name
   </Card>
 
-  <Card title="Managed Services" icon="server">
-    - Nginx Ingress Controller
-    - Cert-Manager (SSL/TLS)
-    - External DNS
-    - Loki (Logs)
-    - Metrics Server
+  <Card title="Invite Team" icon="users" href="/configuration/organization/members-rbac">
+    Add team members with permissions
   </Card>
 </CardGroup>
 
-### Advanced Options
-
-<AccordionGroup>
-  <Accordion title="Storage Configuration">
-    - **EBS Volume Type**: gp3 (default)
-    - **Volume Size**: Configurable per application
-    - **Snapshots**: Automatic daily backups
-  </Accordion>
-
-  <Accordion title="Networking">
-    - **Load Balancer Type**: Application Load Balancer (default)
-    - **SSL/TLS**: Automatic with Let's Encrypt
-    - **Private Cluster**: Option to keep API server private
-  </Accordion>
-
-  <Accordion title="Monitoring & Logging">
-    - **CloudWatch Integration**: Enabled by default
-    - **Log Retention**: 90 days (configurable)
-    - **Metrics**: Prometheus-compatible
-  </Accordion>
-</AccordionGroup>
-
-## Step 4: Install Qovery
-
-<Steps>
-  <Step title="Review Configuration">
-    Review all your cluster configuration settings.
-  </Step>
-
-  <Step title="Click Create and Deploy">
-    Click the **Create and Deploy** button to start the installation process.
-  </Step>
-
-  <Step title="Wait for Installation">
-    The installation process takes approximately **20-30 minutes**. During this time, Qovery will:
-
-    - Create VPC and networking infrastructure
-    - Provision EKS cluster
-    - Configure node groups
-    - Install Qovery agents and services
-    - Set up load balancers and DNS
-    - Configure monitoring and logging
-  </Step>
-
-  <Step title="Monitor Progress">
-    You can monitor the installation progress in the Qovery console. The status will update as each component is installed.
-  </Step>
-</Steps>
-
-<Note>
-While the cluster is being created, you can already start configuring your first application. It will deploy once the cluster is ready.
-</Note>
-
-## Verify Installation
-
-Once the installation is complete:
-
-<Steps>
-  <Step title="Check Cluster Status">
-    Your cluster should show a **Running** status in the Qovery console.
-  </Step>
-
-  <Step title="View Cluster Details">
-    Click on your cluster to view:
-    - Cluster information
-    - Node status
-    - Installed services
-    - Resource usage
-  </Step>
-
-  <Step title="Verify in AWS Console">
-    In your AWS console, you should see:
-    - New VPC created
-    - EKS cluster running
-    - EC2 instances (cluster nodes)
-    - Load balancers
-    - S3 buckets for logs and backups
-  </Step>
-</Steps>
-
-## What's Created in Your AWS Account
-
-Qovery creates the following resources in your AWS account:
-
-### Compute Resources
-- **EKS Cluster**: Managed Kubernetes control plane
-- **EC2 Instances**: Worker nodes for running applications
-- **Auto Scaling Groups**: For automatic node scaling
-- **Launch Templates**: Node configuration templates
-
-### Networking
-- **VPC**: Isolated network for your cluster
-- **Subnets**: Public and private subnets across multiple AZs
-- **Internet Gateway**: For public internet access
-- **NAT Gateways**: For private subnet internet access
-- **Route Tables**: Network routing configuration
-- **Security Groups**: Firewall rules
-- **Load Balancers**: Application Load Balancer for ingress
-
-### Storage
-- **EBS Volumes**: Block storage for applications
-- **S3 Buckets**: For logs, backups, and artifacts
-- **ECR Repositories**: Private Docker image registry
-
-### Security & Management
-- **IAM Roles**: For cluster and application permissions
-- **KMS Keys**: For encryption at rest
-- **CloudWatch Log Groups**: For centralized logging
-- **Route53 Records**: For DNS management
-
-## Cost Considerations
-
-Your AWS costs will primarily consist of:
-
-| Resource Type | Typical Monthly Cost | Description |
-|--------------|---------------------|-------------|
-| EKS Control Plane | $72 | Fixed cost per cluster |
-| EC2 Instances | $100-500+ | Depends on instance type and count |
-| Load Balancers | $20-30 | Per ALB |
-| EBS Volumes | $10-50 | Depends on size and type |
-| Data Transfer | Variable | Outbound data transfer costs |
-| NAT Gateway | $30-45 | Per availability zone |
-
-<Tip>
-**Cost Optimization Tips:**
-- Use spot instances for development environments
-- Enable cluster auto-scaling to match actual demand
-- Use deployment rules to stop dev environments outside working hours
-- Monitor costs with AWS Cost Explorer
-</Tip>
+---
 
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="Installation Stuck or Failed">
-    **Problem**: Installation doesn't complete or fails
+  <Accordion title="CloudFormation stack fails">
+    **Most common causes:**
+    - AWS account doesn't have permissions to create IAM roles
+    - AWS region doesn't support EKS
 
-    **Solutions**:
-    - Check AWS service quotas (vCPUs, VPCs, Elastic IPs)
-    - Verify IAM permissions are correct
-    - Check AWS region availability
-    - Contact Qovery support with cluster logs
+    **Solution**: Make sure you're logged in as AWS admin or have IAM permissions.
   </Accordion>
 
-  <Accordion title="AWS Quota Limits">
-    **Problem**: "Quota exceeded" error
-
-    **Solutions**:
-    - Request quota increase in AWS Service Quotas console
-    - Common limits: EC2 instances, Elastic IPs, VPCs
-    - Contact AWS support for faster approval
+  <Accordion title="Can't find the Role ARN">
+    1. Go to AWS CloudFormation console
+    2. Find your stack (status should be CREATE_COMPLETE)
+    3. Click the **Outputs** tab
+    4. Copy the value next to "RoleArn"
   </Accordion>
 
-  <Accordion title="Credential Issues">
-    **Problem**: "Invalid credentials" or permission errors
+  <Accordion title="Cluster creation is stuck">
+    If your cluster stays in "Creating" status for more than 45 minutes:
+    - Check AWS service quotas (especially EC2 instances)
+    - Try a different AWS region
+    - Contact support through Discord or email
+  </Accordion>
 
-    **Solutions**:
-    - Verify Access Key ID and Secret Access Key
-    - Check IAM user has required permissions
-    - Ensure credentials are not expired
-    - Test credentials with AWS CLI
+  <Accordion title="I want to use Access Keys instead">
+    While we recommend CloudFormation for security, you can use static credentials:
+
+    1. Create IAM user in AWS with AdministratorAccess
+    2. Generate Access Key ID and Secret Access Key
+    3. In Qovery, select "Static Credentials" instead
+    4. Enter your keys
+
+    ⚠️ Remember to rotate these keys regularly (every 90 days).
   </Accordion>
 </AccordionGroup>
 
-## Next Steps
+---
 
-Congratulations! Qovery is now installed on your AWS account. You can now:
+## Understanding Your AWS Costs
 
-<CardGroup cols={2}>
-  <Card title="Deploy Your First Application" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
-    Follow our quickstart guide
-  </Card>
-  <Card title="Configure Your Cluster" icon="sliders" href="/using-qovery/configuration/clusters">
-    Customize cluster settings
-  </Card>
-  <Card title="Add Team Members" icon="users" href="/using-qovery/configuration/organization">
-    Invite your team and set permissions
-  </Card>
-  <Card title="Set Up Monitoring" icon="chart-line" href="/using-qovery/observability/monitoring">
-    Configure monitoring and alerts
-  </Card>
-</CardGroup>
+Your cluster will cost approximately:
 
-## Additional Resources
+| Component | Monthly Cost |
+|-----------|-------------|
+| EKS control plane | $72 |
+| 3x t3.large nodes | ~$150 |
+| Load balancer | $20 |
+| NAT gateway | $30 |
+| **Total** | **~$270/month** |
 
-- [AWS EKS Documentation](https://docs.aws.amazon.com/eks/)
-- [Qovery AWS Best Practices](https://hub.qovery.com)
-- [Community Forum](https://discuss.qovery.com)
-- [Qovery Status Page](https://status.qovery.com)
+<Tip>
+**Save money:**
+- Use **spot instances** (60-90% cheaper) for non-production
+- Enable **auto-scaling** to use only what you need
+- Stop dev/test clusters outside working hours
+</Tip>
