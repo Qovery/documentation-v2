@@ -9,6 +9,19 @@ Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zer
 
 **Perfect for**: Teams who want AWS but don't want to manage Kubernetes infrastructure.
 
+### Karpenter-Powered Auto-Scaling
+
+All Qovery-managed EKS clusters use [Karpenter](https://karpenter.sh/) for intelligent node provisioning:
+
+- **60% cost savings** through spot instances and consolidation
+- **Fast scaling** in seconds (not minutes)
+- **Smart instance selection** across multiple instance families
+- **Automatic workload optimization** to minimize costs
+
+<Info>
+When you select an instance type (like t3.large), Karpenter uses it as a baseline and can provision similar instances (t3, m5, m6i families) to optimize cost and availability.
+</Info>
+
 ## Create Your First Cluster
 
 <Steps>
@@ -28,32 +41,55 @@ Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zer
 
     <Tabs>
       <Tab title="STS Assume Role (Recommended)">
-        **Most secure** - Temporary credentials that auto-rotate.
+        **Most secure** - Temporary credentials that auto-rotate automatically.
 
         1. Click the **CloudFormation link** in Qovery
-        2. In AWS, click **Next** → **Next** → check IAM acknowledgement → **Create stack**
-        3. Wait 1 minute for completion
-        4. Copy the **RoleArn** from Outputs tab
-        5. Paste back in Qovery and click **Save**
+        2. In AWS CloudFormation Console:
+           - Click **Next** → **Next** → **Next**
+           - ✅ Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
+           - Click **Create stack**
+        3. Wait 1 minute for `CREATE_COMPLETE` status
+        4. Go to **Outputs** tab
+        5. Copy the **RoleArn** value (starts with `arn:aws:iam::`)
+        6. Paste back in Qovery and click **Save**
+
+        <Tip>
+        CloudFormation creates an IAM role that uses AWS STS for temporary credentials. More secure than static access keys.
+        </Tip>
       </Tab>
 
       <Tab title="Static Credentials">
-        **Alternative** - AWS Access Keys (manual rotation required).
+        **Alternative** - AWS Access Keys (manual rotation required every 90 days).
 
-        1. In AWS IAM, create user with **AdministratorAccess**
-        2. Generate **Access Key ID** and **Secret Access Key**
-        3. In Qovery, select **Static Credentials**
-        4. Enter your keys and click **Save**
+        1. In AWS IAM Console, go to **Users** → **Create user**
+        2. User name: `qovery-admin`
+        3. Select **Attach policies directly** → Choose **AdministratorAccess**
+        4. Click **Create user**
+        5. Open user → **Security credentials** → **Create access key**
+        6. Select **Third-party service** → **Create access key**
+        7. Copy **Access Key ID** and **Secret Access Key**
+        8. In Qovery, select **Static Credentials**
+        9. Paste your keys and click **Save**
 
-        <Warning>Rotate keys every 90 days. STS Assume Role recommended for production.</Warning>
+        <Warning>
+        Static credentials require manual rotation every 90 days. STS Assume Role recommended for production environments.
+        </Warning>
       </Tab>
     </Tabs>
+
+    For detailed instructions with policy information, see [AWS Installation Guide](/installation/aws#connect-aws-account).
   </Step>
 
   <Step title="Choose Instance Size">
-    - **t3.medium** - Testing
-    - **t3.large** - Light production (recommended for starters)
-    - **t3.xlarge** - Standard production
+    Select baseline instance type (Karpenter optimizes from here):
+
+    - **t3.medium** (2 vCPU, 4GB) - Testing ($30/month)
+    - **t3.large** (2 vCPU, 8GB) - Light production ($60/month) ← **Recommended**
+    - **t3.xlarge** (4 vCPU, 16GB) - Standard production ($120/month)
+
+    <Info>
+    Karpenter can provision similar instances (t3, m5, m6i families) based on workload needs. Enable spot instances for 60-90% savings.
+    </Info>
   </Step>
 
   <Step title="Create">

@@ -12,10 +12,32 @@ Already have a Kubernetes cluster? See the [BYOK guide](/integrations/kubernetes
 ## What You'll Get
 
 - ✅ Production-ready EKS cluster in ~30 minutes
-- ✅ Automatic scaling and load balancing
-- ✅ SSL certificates and ingress controller
+- ✅ **Karpenter auto-scaling** - Save up to 60% on AWS costs
+- ✅ Automatic load balancing with SSL certificates
+- ✅ Spot instance support for cost optimization
 - ✅ Monitoring and logging built-in
 - ✅ Ready to deploy your applications
+
+### About Karpenter
+
+Qovery uses [Karpenter](https://karpenter.sh/) for intelligent node provisioning, which automatically selects the most cost-effective EC2 instances for your workloads:
+
+**Key Benefits**:
+- **60% cost savings** through spot instances and consolidation
+- **Fast scaling** - Provisions nodes in seconds (vs minutes with traditional auto-scaling)
+- **Smart instance selection** - Automatically chooses optimal instance types
+- **Workload consolidation** - Packs pods efficiently to minimize node count
+
+**How It Works**:
+When you select an instance type (like t3.large), Karpenter uses it as a **baseline** but can provision other similar or better instances based on:
+- Your application resource requirements
+- Availability and pricing across multiple instance families
+- Spot vs on-demand availability
+- ARM vs x86 architecture preferences
+
+<Info>
+The instance type you choose during setup defines the **default node pool**. Karpenter can provision from a range of similar instances (t3, m5, m6i families) to optimize cost and availability.
+</Info>
 
 ## Prerequisites
 
@@ -49,63 +71,174 @@ Follow these steps to create your first Qovery cluster on AWS:
 
     <Tabs>
       <Tab title="STS Assume Role (Recommended)">
-        **Most secure method** - Uses temporary credentials that auto-rotate.
+        **Most secure method** - Uses temporary credentials that auto-rotate. No access keys to manage.
 
-        1. Click the **CloudFormation link** shown in Qovery
-        2. This opens AWS CloudFormation in a new tab (you'll be logged in automatically)
-        3. In AWS CloudFormation:
-           - Click **Next** (template is pre-filled)
-           - Stack name: keep default or use `qovery-role`
-           - Click **Next** twice
-           - ✅ Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
+        **What gets created**: A CloudFormation stack creates an IAM role with this policy:
+
+        ```json
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "ec2:*",
+                "eks:*",
+                "iam:*",
+                "elasticloadbalancing:*",
+                "autoscaling:*",
+                "logs:*",
+                "s3:*"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+        ```
+
+        **Setup Steps**:
+
+        1. **In Qovery Console**: Click the **CloudFormation link** shown
+           - This opens AWS CloudFormation in a new tab (you're logged in automatically)
+
+        2. **In AWS CloudFormation Console**:
+           - Click **Next** (template is pre-filled with Qovery's requirements)
+           - Stack name: Keep default `qovery-iam-role` or customize
+           - Click **Next** (skip stack options)
+           - Click **Next** again (skip tags)
+           - ✅ **Important**: Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
            - Click **Create stack**
-        4. Wait ~1 minute until **Status: CREATE_COMPLETE**
-        5. Go to the **Outputs** tab
-        6. Copy the **RoleArn** value (starts with `arn:aws:iam::`)
-        7. Back in Qovery, paste the Role ARN
-        8. Give it a name like `AWS Production`
-        9. Click **Save**
+
+        3. **Wait for completion** (~1 minute):
+           - Status changes: `CREATE_IN_PROGRESS` → `CREATE_COMPLETE`
+           - Refresh page if needed
+
+        4. **Get the Role ARN**:
+           - Click on the **Outputs** tab
+           - Find **RoleArn** key
+           - Copy the value (looks like: `arn:aws:iam::123456789012:role/qovery-role`)
+
+        5. **Complete in Qovery**:
+           - Back in Qovery, paste the **Role ARN**
+           - Give it a name like `AWS Production`
+           - Click **Save**
 
         <Tip>
-        CloudFormation creates a secure IAM role for Qovery. This is safer than access keys because credentials are temporary and auto-rotated.
+        **Why this is recommended**: The IAM role uses AWS STS (Security Token Service) to generate temporary credentials that automatically rotate. Qovery never has access to long-lived credentials, and you can revoke access instantly by deleting the CloudFormation stack.
         </Tip>
+
+        <AccordionGroup>
+          <Accordion title="What permissions does Qovery need?">
+            Qovery requires these AWS permissions to manage your infrastructure:
+            - **EC2**: Create VPCs, subnets, security groups, and instances
+            - **EKS**: Create and manage Kubernetes clusters
+            - **IAM**: Create service roles for EKS and EC2
+            - **ELB**: Create load balancers for your applications
+            - **S3**: Store Terraform state and logs
+            - **CloudWatch**: Collect logs and metrics
+
+            You can review the full CloudFormation template before creating the stack.
+          </Accordion>
+
+          <Accordion title="Can I use a custom IAM policy?">
+            Yes! For production environments, you can create a custom IAM policy with minimum required permissions. Contact support for the minimal policy template.
+          </Accordion>
+        </AccordionGroup>
       </Tab>
 
       <Tab title="Static Credentials">
-        **Alternative method** - Uses AWS Access Keys (requires manual rotation).
+        **Alternative method** - Uses AWS Access Keys (requires manual rotation every 90 days).
 
-        1. In AWS Console, go to **IAM** → **Users**
-        2. Click **Create user**
-        3. User name: `qovery-admin`
-        4. Click **Next**
-        5. Select **Attach policies directly**
-        6. Search and select **AdministratorAccess**
-        7. Click **Next** → **Create user**
-        8. Click on the created user → **Security credentials** tab
-        9. Click **Create access key**
-        10. Select **Third-party service** → Click **Next** → **Create access key**
-        11. Copy the **Access Key ID** and **Secret Access Key**
-        12. Back in Qovery, select **Static Credentials**
-        13. Paste your Access Key ID and Secret Access Key
-        14. Give it a name like `AWS Production`
-        15. Click **Save**
+        **What gets created**: An IAM user with AdministratorAccess policy and programmatic access keys.
 
         <Warning>
-        Remember to rotate these keys regularly (every 90 days) for security. We recommend using STS Assume Role for production environments.
+        **Security Note**: Static credentials don't expire and must be manually rotated. Only use this method if CloudFormation is not available in your AWS environment. For production, we strongly recommend STS Assume Role.
         </Warning>
+
+        **Setup Steps**:
+
+        1. **Open AWS IAM Console**:
+           - Go to [IAM Users Console](https://console.aws.amazon.com/iam/home#/users)
+           - Click **Create user**
+
+        2. **Create User**:
+           - User name: `qovery-admin` (or your preferred name)
+           - ⚠️ **Don't** check "Provide user access to AWS Management Console"
+           - Click **Next**
+
+        3. **Attach Permissions**:
+           - Select **Attach policies directly**
+           - Search for **AdministratorAccess**
+           - ✅ Check the **AdministratorAccess** policy
+           - Click **Next**
+
+        4. **Review and Create**:
+           - Review settings
+           - Click **Create user**
+
+        5. **Generate Access Keys**:
+           - Click on the newly created **qovery-admin** user
+           - Go to **Security credentials** tab
+           - Scroll to **Access keys** section
+           - Click **Create access key**
+
+        6. **Select Use Case**:
+           - Choose **Third-party service**
+           - Check confirmation checkbox
+           - Click **Next**
+           - (Optional) Add description: "Qovery Production Access"
+           - Click **Create access key**
+
+        7. **Save Your Credentials** ⚠️:
+           - Copy **Access Key ID** (looks like: `AKIAIOSFODNN7EXAMPLE`)
+           - Copy **Secret Access Key** (looks like: `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`)
+           - **Download .csv file** as backup
+           - ⚠️ **Important**: You can't view the secret key again after closing this page!
+
+        8. **Complete in Qovery**:
+           - Back in Qovery, select **Static Credentials** option
+           - Paste **Access Key ID** in first field
+           - Paste **Secret Access Key** in second field
+           - Give it a name like `AWS Production`
+           - Click **Save**
+
+        <AccordionGroup>
+          <Accordion title="How to rotate access keys (every 90 days)">
+            1. Create a new access key for the same IAM user
+            2. Update credentials in Qovery with new keys
+            3. Wait 24 hours to ensure all systems use new keys
+            4. Delete old access key in AWS IAM console
+            5. Set calendar reminder for next rotation
+          </Accordion>
+
+          <Accordion title="What if I lost my secret access key?">
+            AWS doesn't allow retrieving secret keys after creation. You must:
+            1. Create a new access key pair
+            2. Update Qovery with new credentials
+            3. Delete the old access key
+          </Accordion>
+
+          <Accordion title="Can I use a less privileged IAM user?">
+            Yes, but the user needs extensive permissions to manage EKS, EC2, VPC, IAM, and other AWS services. Contact support for a minimal IAM policy template. Note that restrictive policies may cause deployment failures.
+          </Accordion>
+        </AccordionGroup>
       </Tab>
     </Tabs>
   </Step>
 
   <Step title="Choose Instance Type">
-    Select the size of your cluster nodes:
+    Select the baseline instance type for your cluster nodes:
 
-    - **t3.medium** (2 vCPU, 4GB) - Testing/dev
-    - **t3.large** (2 vCPU, 8GB) - Light production ← **Recommended for starters**
-    - **t3.xlarge** (4 vCPU, 16GB) - Standard production
+    - **t3.medium** (2 vCPU, 4GB) - Testing/dev ($30/month per node)
+    - **t3.large** (2 vCPU, 8GB) - Light production ($60/month) ← **Recommended**
+    - **t3.xlarge** (4 vCPU, 16GB) - Standard production ($120/month)
     - **Custom** - Pick your own
 
-    Don't worry - you can change this later!
+    <Info>
+    **Karpenter will optimize from here**: Your selected instance type is the baseline. Karpenter can provision similar instances (t3, m5, m6i families) based on workload needs and availability. Enable **spot instances** for 60-90% savings.
+    </Info>
+
+    Don't worry - you can adjust this later in cluster settings!
   </Step>
 
   <Step title="Review and Create">
