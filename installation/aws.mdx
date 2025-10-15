@@ -60,37 +60,105 @@ You can create multiple clusters on the same AWS account with different VPCs. Yo
 
 ## Step 2: Attach AWS Credentials
 
-Qovery needs AWS credentials to provision and manage resources in your AWS account.
-
-<Steps>
-  <Step title="Create IAM User">
-    In your AWS console, create a new IAM user with programmatic access:
-
-    1. Go to **IAM** > **Users** > **Add users**
-    2. Enter user name: `qovery-admin`
-    3. Select **Programmatic access**
-    4. Attach the **AdministratorAccess** policy (or use custom policy with required permissions)
-    5. Complete the user creation
-    6. **Save** the Access Key ID and Secret Access Key
-  </Step>
-
-  <Step title="Add Credentials to Qovery">
-    Back in the Qovery console:
-
-    1. In the cluster creation wizard, click **Add Credentials**
-    2. Enter your **AWS Access Key ID**
-    3. Enter your **AWS Secret Access Key**
-    4. Click **Save**
-  </Step>
-
-  <Step title="Attach Credentials">
-    Select the credentials you just created and click **Continue**.
-  </Step>
-</Steps>
+Qovery needs AWS credentials to provision and manage resources in your AWS account. You can choose between two methods:
 
 <Warning>
-Store your AWS credentials securely. Qovery encrypts credentials at rest, but you should also keep a secure backup.
+**Security Recommendation**: We strongly recommend using **STS Assume Role** for production environments. Static credentials are long-lived and more exposed to leaks, while Assume Role provides short-lived, automatically refreshed credentials with granular access control.
 </Warning>
+
+<Tabs>
+  <Tab title="STS Assume Role (Recommended)">
+    ### Using STS Assume Role via CloudFormation
+
+    This is the most secure method as it uses temporary credentials that are automatically rotated.
+
+    <Steps>
+      <Step title="Deploy CloudFormation Stack">
+        In the Qovery console during cluster creation, click **Add Credentials** and select **STS Assume Role**.
+
+        Qovery will provide a CloudFormation stack URL. Click it to open AWS CloudFormation in a new tab.
+      </Step>
+
+      <Step title="Create Stack in AWS">
+        In the AWS CloudFormation console:
+
+        1. The template URL will be pre-filled
+        2. Click **Next**
+        3. Stack name: `qovery-assume-role` (or your preferred name)
+        4. Click **Next** through the configuration
+        5. Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
+        6. Click **Create stack**
+      </Step>
+
+      <Step title="Wait for Stack Creation">
+        Wait 1-2 minutes for the stack to complete. The status should show **CREATE_COMPLETE**.
+      </Step>
+
+      <Step title="Copy Role ARN">
+        1. Go to the **Outputs** tab of your CloudFormation stack
+        2. Copy the **RoleArn** value (format: `arn:aws:iam::ACCOUNT_ID:role/qovery-role`)
+      </Step>
+
+      <Step title="Add Role ARN to Qovery">
+        Back in the Qovery console:
+
+        1. Paste the **Role ARN** in the credentials form
+        2. Provide a **Credentials Name** (e.g., `aws-production`)
+        3. Click **Save**
+      </Step>
+
+      <Step title="Attach Credentials">
+        Select the credentials you just created and click **Continue**.
+      </Step>
+    </Steps>
+
+    **What the CloudFormation stack creates:**
+    - IAM Role with trust relationship to Qovery's AWS account
+    - Necessary IAM policies for cluster management
+    - Secure cross-account access without storing static credentials
+
+  </Tab>
+
+  <Tab title="Static Credentials (Access Key)">
+    ### Using IAM User Access Keys
+
+    <Warning>
+    This method uses long-lived credentials. Only use for development/testing or if STS Assume Role is not available.
+    </Warning>
+
+    <Steps>
+      <Step title="Create IAM User">
+        In your AWS console, create a new IAM user with programmatic access:
+
+        1. Go to **IAM** > **Users** > **Add users**
+        2. Enter user name: `qovery-admin`
+        3. Select **Programmatic access**
+        4. Attach the **AdministratorAccess** policy (or use custom policy)
+        5. Complete the user creation
+        6. **Save** the Access Key ID and Secret Access Key securely
+      </Step>
+
+      <Step title="Add Credentials to Qovery">
+        In the Qovery console:
+
+        1. Click **Add Credentials**
+        2. Select **Static Credentials**
+        3. Enter your **AWS Access Key ID**
+        4. Enter your **AWS Secret Access Key**
+        5. Provide a **Credentials Name**
+        6. Click **Save**
+      </Step>
+
+      <Step title="Attach Credentials">
+        Select the credentials you just created and click **Continue**.
+      </Step>
+    </Steps>
+
+    <Tip>
+    Regularly rotate your Access Keys (every 90 days recommended) and never commit them to version control.
+    </Tip>
+  </Tab>
+</Tabs>
 
 ### Required IAM Permissions
 

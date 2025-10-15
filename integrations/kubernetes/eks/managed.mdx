@@ -11,9 +11,12 @@ Qovery-managed EKS provides zero-configuration Kubernetes clusters on AWS. Qover
 
 <Steps>
   <Step title="Connect AWS Account">
-    Organization Settings → Cloud Providers → Add AWS Account
-    - Provide AWS credentials (Access Key/Secret or IAM Role)
-    - Select region for cluster
+    **Set up AWS credentials** (choose one method):
+
+    - **STS Assume Role** (Recommended): Use CloudFormation to create a secure IAM role
+    - **Static Credentials**: Use Access Key ID and Secret Access Key
+
+    See the [detailed AWS installation guide](/installation/aws#step-2-attach-aws-credentials) for step-by-step instructions on both methods.
   </Step>
 
   <Step title="Create Cluster">
@@ -21,6 +24,7 @@ Qovery-managed EKS provides zero-configuration Kubernetes clusters on AWS. Qover
     - Name: `production-eks`
     - Provider: AWS
     - Region: `us-east-1`
+    - Select your credentials
     - Click **Create**
   </Step>
 
@@ -36,6 +40,10 @@ Qovery-managed EKS provides zero-configuration Kubernetes clusters on AWS. Qover
     Once cluster is ready, start deploying applications
   </Step>
 </Steps>
+
+<Info>
+For complete installation instructions including credential setup, see the [AWS Installation Guide](/installation/aws).
+</Info>
 
 ## What Qovery Creates
 
