@@ -1587,28 +1587,28 @@ Cluster 3: Azure AKS (Region-specific compliance)
 ## Best Practices
 
 <CardGroup cols={2}>
-  <Card title="Right-Size Your Cluster" icon="gauge-high" href="/configuration/clusters">
+  <Card title="Right-Size Your Cluster" icon="gauge-high">
     - Start with smaller instances
     - Enable auto-scaling for flexibility
     - Monitor utilization regularly
     - Leave 30% capacity buffer for traffic spikes
   </Card>
 
-  <Card title="Kubernetes Versions" icon="code-branch" href="/configuration/clusters">
+  <Card title="Kubernetes Versions" icon="code-branch">
     - Never manually upgrade from cloud console
     - Stay within supported version range
     - Upgrade non-production first
     - Review release notes before upgrading
   </Card>
 
-  <Card title="High Availability" icon="shield-check" href="/configuration/clusters">
+  <Card title="High Availability" icon="shield-check">
     - Use minimum 3 nodes for production
     - Enable multi-AZ/zone deployment
     - Implement pod disruption budgets
     - Test failover scenarios regularly
   </Card>
 
-  <Card title="Cost Optimization" icon="piggy-bank" href="/configuration/clusters">
+  <Card title="Cost Optimization" icon="piggy-bank">
     - Right-size node instance types
     - Use spot/preemptible instances where safe
     - Stop dev/test clusters after hours
