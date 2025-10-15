@@ -23,12 +23,31 @@ Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zer
     - **Region**: Choose closest to your users (e.g., `us-east-1`)
   </Step>
 
-  <Step title="Connect AWS (CloudFormation)">
-    1. Click the **CloudFormation link** in Qovery
-    2. In AWS, click **Next** → **Next** → check IAM acknowledgement → **Create stack**
-    3. Wait 1 minute for completion
-    4. Copy the **RoleArn** from Outputs tab
-    5. Paste back in Qovery and click **Save**
+  <Step title="Connect AWS Account">
+    Choose how to connect your AWS account:
+
+    <Tabs>
+      <Tab title="STS Assume Role (Recommended)">
+        **Most secure** - Temporary credentials that auto-rotate.
+
+        1. Click the **CloudFormation link** in Qovery
+        2. In AWS, click **Next** → **Next** → check IAM acknowledgement → **Create stack**
+        3. Wait 1 minute for completion
+        4. Copy the **RoleArn** from Outputs tab
+        5. Paste back in Qovery and click **Save**
+      </Tab>
+
+      <Tab title="Static Credentials">
+        **Alternative** - AWS Access Keys (manual rotation required).
+
+        1. In AWS IAM, create user with **AdministratorAccess**
+        2. Generate **Access Key ID** and **Secret Access Key**
+        3. In Qovery, select **Static Credentials**
+        4. Enter your keys and click **Save**
+
+        <Warning>Rotate keys every 90 days. STS Assume Role recommended for production.</Warning>
+      </Tab>
+    </Tabs>
   </Step>
 
   <Step title="Choose Instance Size">
@@ -48,15 +67,29 @@ Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zer
 
 ## What Qovery Creates
 
-- ✅ EKS cluster (latest stable Kubernetes)
-- ✅ VPC with public/private subnets across 3 AZs
-- ✅ NAT Gateways for internet access
-- ✅ Security groups and IAM roles
-- ✅ Karpenter for auto-scaling
-- ✅ AWS Load Balancer Controller
-- ✅ EBS CSI driver
-- ✅ Metrics server
-- ✅ Qovery agent and observability stack
+- ✅ **EKS Cluster** - Latest stable Kubernetes
+- ✅ **VPC & Networking** - Public/private subnets across 3 AZs
+- ✅ **NAT Gateways** - Secure internet access
+- ✅ **Security Groups & IAM Roles** - Pre-configured best practices
+- ✅ **Karpenter** - Intelligent auto-scaling (save up to 60% on costs)
+- ✅ **AWS Load Balancer Controller** - Automatic ingress management
+- ✅ **EBS CSI Driver** - Persistent volume support
+- ✅ **Metrics Server** - Resource monitoring
+- ✅ **Qovery Agent** - Observability and management
+
+### Karpenter Auto-Scaling
+
+Qovery uses [Karpenter](https://karpenter.sh/) to automatically provision optimal EC2 instances:
+
+- Scales nodes within seconds based on workload demands
+- Consolidates workloads to reduce costs
+- Handles spot instance interruptions gracefully
+- Supports wide range of instance types (t3, m5, m6i, c5, r5, GPU)
+- Mix of on-demand and spot instances for reliability
+
+<Tip>
+Configure Karpenter node pools and instance types in **Cluster Settings** after creation. Learn more in [Cluster Configuration](/configuration/clusters).
+</Tip>
 
 ## Configuration Options
 

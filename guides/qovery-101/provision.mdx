@@ -103,38 +103,40 @@ Before provisioning infrastructure with Qovery, you need:
 
 ### Step 2: Create a Cluster
 
-<Steps>
-  <Step title="Navigate to Clusters">
-    Go to **Organization** → **Clusters** → **Create Cluster**
-  </Step>
+Once your cloud credentials are connected, create your first cluster:
 
-  <Step title="Select Cloud Provider">
-    Choose your connected cloud provider (AWS, GCP, Azure, or Scaleway)
-  </Step>
+<CardGroup cols={2}>
+  <Card title="Install on AWS" icon="aws" href="/installation/aws">
+    Complete guide to create EKS cluster with Karpenter auto-scaling
+  </Card>
+  <Card title="Install on GCP" icon="google" href="/installation/gcp">
+    Complete guide to create GKE cluster with auto-scaling
+  </Card>
+  <Card title="Install on Azure" icon="microsoft" href="/installation/azure">
+    Complete guide to create AKS cluster with auto-scaling
+  </Card>
+  <Card title="Install on Scaleway" icon="server" href="/installation/scaleway">
+    Complete guide to create Kapsule cluster with auto-scaling
+  </Card>
+</CardGroup>
 
-  <Step title="Configure Cluster">
-    **Basic Configuration**:
-    - **Cluster Name**: e.g., `production-us-east-1`
-    - **Region**: Select geographic region
-    - **Kubernetes Version**: Latest stable version (recommended)
+Each installation guide covers:
+- Cluster configuration and sizing
+- Network setup (VPC, subnets, load balancers)
+- Auto-scaling configuration
+- Security and IAM setup
+- What gets provisioned automatically
+- Cost estimation
 
-    **Node Configuration**:
-    - **Instance Type**: Select based on workload requirements
-    - **Min Nodes**: Minimum nodes for auto-scaling (e.g., 3)
-    - **Max Nodes**: Maximum nodes for auto-scaling (e.g., 10)
-    - **Disk Size**: Node disk size in GB (e.g., 100)
-  </Step>
+**General Cluster Configuration**:
+- **Cluster Name**: e.g., `production-us-east-1`
+- **Region**: Geographic region closest to your users
+- **Instance Type**: Based on workload (start with t3.large/e2-standard-4)
+- **Auto-scaling**: Min 3 nodes, max 10 nodes (adjustable)
 
-  <Step title="Network Configuration (Optional)">
-    - **VPC CIDR**: Custom VPC CIDR range (default: auto-generated)
-    - **Custom Domain**: Your domain for services
-    - **Static IP**: Enable if required
-  </Step>
-
-  <Step title="Review and Create">
-    Review configuration and click **Create Cluster**. Provisioning takes 10-20 minutes.
-  </Step>
-</Steps>
+<Tip>
+Cluster provisioning takes 20-30 minutes. You'll receive an email when ready.
+</Tip>
 
 ## Cluster Provisioning Architecture
 
