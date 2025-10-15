@@ -45,6 +45,7 @@ html[data-page-mode="custom"] article > div {
   max-height: 36px !important;
   width: 36px !important;
   height: 36px !important;
+  background: transparent !important;
 }
 
 /* Ensure icons maintain aspect ratio */
@@ -53,6 +54,24 @@ html[data-page-mode="custom"] article > div {
   max-width: 36px !important;
   max-height: 36px !important;
   object-fit: contain !important;
+  background: transparent !important;
+}
+
+/* Remove background from card icons in dark mode */
+html[class*="dark"] .card-icon,
+html[data-theme="dark"] .card-icon,
+html[class*="dark"] [class*="CardIcon"],
+html[data-theme="dark"] [class*="CardIcon"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Ensure card icon containers don't have backgrounds */
+[class*="Card"] img[src*="logo"],
+.card img[src*="logo"],
+img[src*="/logos/"] {
+  background: transparent !important;
+  mix-blend-mode: normal !important;
 }
 
 /* Ensure proper spacing for card content */
@@ -64,4 +83,16 @@ html[data-page-mode="custom"] article > div {
 
 .card-icon {
   margin-bottom: 12px !important;
+}
+
+/* Light and Dark mode image switching */
+html[class*="dark"] .light-mode-only,
+html[data-theme="dark"] .light-mode-only {
+  display: none !important;
+}
+
+html[class*="light"] .dark-mode-only,
+html[data-theme="light"] .dark-mode-only,
+html:not([class*="dark"]):not([data-theme="dark"]) .dark-mode-only {
+  display: none !important;
 }
