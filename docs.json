@@ -113,25 +113,29 @@
             ]
           },
           {
-            "group": "Organization",
+            "group": "Infrastructure",
             "pages": [
-              "configuration/organization",
-              "configuration/organization/api-token",
+              "configuration/clusters",
               "configuration/organization/cloud-credentials",
               "configuration/organization/container-registry",
               "configuration/organization/git-repository-access",
-              "configuration/organization/helm-repository",
-              "configuration/organization/labels-annotations",
-              "configuration/organization/members-rbac",
-              "configuration/organization/sso"
+              "configuration/organization/helm-repository"
             ]
           },
           {
-            "group": "Resources",
+            "group": "Organization & Access",
+            "pages": [
+              "configuration/organization",
+              "configuration/organization/members-rbac",
+              "configuration/organization/sso",
+              "configuration/organization/api-token"
+            ]
+          },
+          {
+            "group": "Projects & Environments",
             "pages": [
               "configuration/project",
-              "configuration/environment",
-              "configuration/clusters"
+              "configuration/environment"
             ]
           },
           {
@@ -161,10 +165,11 @@
             ]
           },
           {
-            "group": "Settings",
+            "group": "Advanced Settings",
             "pages": [
-              "configuration/environment-variables",
-              "configuration/service-advanced-settings"
+              "configuration/service-advanced-settings",
+              "configuration/organization/labels-annotations",
+              "configuration/environment-variables"
             ]
           }
         ]

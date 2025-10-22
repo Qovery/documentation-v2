@@ -172,941 +172,139 @@ Advanced settings are configured via the **Qovery API**. Console UI support is c
 Some advanced settings may impact cluster stability or cost. Review documentation carefully before making changes. Settings marked with ⚠️ warnings can cause cluster instability if misconfigured.
 </Warning>
 
-## Cloud Provider Legend
-
-Advanced settings apply to different cloud providers:
-
-| Icon | Provider |
-|------|----------|
-| ![AWS](/images/advanced_settings/aws.svg) | Amazon Web Services |
-| ![GCP](/images/advanced_settings/gcp.svg) | Google Cloud Platform |
-| ![Azure](/images/advanced_settings/azure.svg) | Microsoft Azure |
-| ![Scaleway](/images/advanced_settings/scaleway.svg) | Scaleway |
-
-## Logs Settings
-
-Configure log retention and flow logs for your cluster.
-
-### aws.cloudwatch.eks_logs_retention_days
-
-Maximum retention days in CloudWatch for EKS logs.
-
-- **Default**: `90` days
-- **Type**: Integer
-- **Cloud Provider**: AWS
-- **Possible Values**: 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2192, 2557, 2922, 3288, 3653
-
-```json
-{
-  "aws.cloudwatch.eks_logs_retention_days": 180
-}
-```
-
-### aws.vpc.enable_s3_flow_logs
-
-Enable VPC flow logs and store them in S3.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.vpc.enable_s3_flow_logs": true
-}
-```
-
-### aws.vpc.flow_logs_retention_days
-
-Number of retention days for VPC flow logs.
-
-- **Default**: `365` days
-- **Type**: Integer
-- **Cloud Provider**: AWS
-
-<Info>
-Set to `0` for unlimited retention.
-</Info>
-
-```json
-{
-  "aws.vpc.flow_logs_retention_days": 0
-}
-```
-
-### loki.log_retention_in_week
-
-Maximum Kubernetes pod log retention in weeks (Loki).
-
-- **Default**: `12` weeks (84 days)
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "loki.log_retention_in_week": 24
-}
-```
-
-### gcp.vpc.enable_flow_logs
-
-Enable VPC flow logs on all VPC subnetworks.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Provider**: GCP
-
-```json
-{
-  "gcp.vpc.enable_flow_logs": true
-}
-```
-
-### gcp.vpc.flow_logs_sampling
-
-VPC flow logs sampling percentage.
-
-- **Default**: `0.0` (no sampling)
-- **Type**: Float (0.0 to 1.0)
-- **Cloud Provider**: GCP
-
-<Info>
-`0.0` = no sampling, `1.0` = capture all logs
-</Info>
-
-```json
-{
-  "gcp.vpc.flow_logs_sampling": 0.5
-}
-```
-
-## DNS Settings
-
-Configure custom DNS resolution rules.
-
-### dns.coredns.extra_config
-
-Add additional CoreDNS configuration for custom DNS resolution.
-
-- **Default**: `null`
-- **Type**: String
-- **Cloud Providers**: AWS, Scaleway, Azure
-
-**Example**: Forward `example.com` queries to custom DNS server.
-
-```json
-{
-  "dns.coredns.extra_config": "example.com:53 {\n  errors\n  cache 30\n  forward . 8.8.8.8\n}"
-}
-```
-
-## Image Registry Settings
-
-Configure container image registry behavior.
-
-### registry.image_retention_time
-
-Time in seconds before images in default registry are deleted.
-
-- **Default**: `31536000` (1 year)
-- **Type**: Integer (seconds)
-- **Cloud Provider**: AWS
-
-<Note>
-Only affects new ECR repositories created after this setting is changed.
-</Note>
-
-```json
-{
-  "registry.image_retention_time": 63072000
-}
-```
-
-### registry.mirroring_mode
-
-Image mirroring mode for cluster deployments.
-
-- **Default**: `"Service"`
-- **Type**: String
-- **Values**: `"Service"` or `"Cluster"`
-- **Cloud Provider**: AWS
-
-```json
-{
-  "registry.mirroring_mode": "Cluster"
-}
-```
-
-### cloud_provider.container_registry.tags
-
-Add custom tags to cluster-dedicated registry.
-
-- **Default**: Not specified
-- **Type**: Map (String keys and values)
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "cloud_provider.container_registry.tags": {
-    "Team": "platform",
-    "Environment": "production"
-  }
-}
-```
-
-## Network Settings
-
-Configure load balancers, Nginx controller, and networking behavior.
-
-### Load Balancer (Scaleway)
-
-#### load_balancer.size
-
-Specify load balancer size for Scaleway clusters.
-
-- **Default**: `"lb-s"`
-- **Type**: String
-- **Cloud Provider**: Scaleway
-- **Values**:
-  - `"lb-s"`: 200 Mbps
-  - `"lb-gp-m"`: 500 Mbps
-  - `"lb-gp-l"`: 1 Gbps
-  - `"lb-gp-xl"`: 4 Gbps
-
-```json
-{
-  "load_balancer.size": "lb-gp-l"
-}
-```
-
-### AWS Load Balancer Controller
-
-#### aws.eks.enable_alb_controller
-
-Enable AWS Application Load Balancer (ALB) controller.
-
-- **Default**: `true`
-- **Type**: Boolean
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.eks.enable_alb_controller": false
-}
-```
-
-#### aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu
-
-AWS ALB controller VPA minimum vCPU.
-
-- **Default**: `250` millicores
-- **Type**: Integer
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu": 500
-}
-```
-
-#### aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu
-
-AWS ALB controller VPA maximum vCPU.
-
-- **Default**: `250` millicores
-- **Type**: Integer
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu": 1000
-}
-```
-
-#### aws.eks.alb_controller.vpa.memory.min_in_mib
-
-AWS ALB controller VPA minimum memory.
-
-- **Default**: `128` MiB
-- **Type**: Integer
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.eks.alb_controller.vpa.memory.min_in_mib": 256
-}
-```
-
-#### aws.eks.alb_controller.vpa.memory.max_in_mib
-
-AWS ALB controller VPA maximum memory.
-
-- **Default**: `128` MiB
-- **Type**: Integer
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.eks.alb_controller.vpa.memory.max_in_mib": 512
-}
-```
-
-### Nginx Controller Resources
-
-#### nginx.vcpu.request_in_milli_cpu
-
-Nginx controller vCPU request.
-
-- **Default**: `200` millicores
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.vcpu.request_in_milli_cpu": 500
-}
-```
-
-#### nginx.vcpu.limit_in_milli_cpu
-
-Nginx controller vCPU limit.
-
-- **Default**: `700` millicores
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.vcpu.limit_in_milli_cpu": 1000
-}
-```
-
-#### nginx.memory.request_in_mib
-
-Nginx controller memory request.
-
-- **Default**: `768` MiB
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.memory.request_in_mib": 1024
-}
-```
-
-#### nginx.memory.limit_in_mib
-
-Nginx controller memory limit.
-
-- **Default**: `768` MiB
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.memory.limit_in_mib": 1024
-}
-```
-
-### Nginx Controller HPA
-
-#### nginx.hpa.cpu_utilization_percentage_threshold
-
-HPA CPU threshold for Nginx deployment.
-
-- **Default**: `50`%
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.hpa.cpu_utilization_percentage_threshold": 70
-}
-```
-
-#### nginx.hpa.min_number_instances
-
-Minimum number of Nginx instances.
-
-- **Default**: `2`
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.hpa.min_number_instances": 3
-}
-```
-
-#### nginx.hpa.max_number_instances
-
-Maximum number of Nginx instances.
-
-- **Default**: `25`
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.hpa.max_number_instances": 50
-}
-```
-
-### Nginx Controller Configuration
-
-#### nginx.controller.enable_client_ip
-
-Enable `ngx_http_realip_module` to pass client IP.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.enable_client_ip": true
-}
-```
-
-#### nginx.controller.enable_compression
-
-Enable Brotli compression for HTTP responses.
-
-- **Default**: `true`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.enable_compression": false
-}
-```
-
-#### nginx.controller.use_forwarded_headers
-
-Pass incoming `X-Forwarded-For` header upstream.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.use_forwarded_headers": true
-}
-```
-
-#### nginx.controller.compute_full_forwarded_for
-
-Append remote address to `X-Forwarded-For` header.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.compute_full_forwarded_for": true
-}
-```
-
-#### nginx.controller.log_format_upstream
-
-Customize Nginx log format.
-
-- **Default**: `null`
-- **Type**: String
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.log_format_upstream": "$remote_addr - $remote_user [$time_local] \"$request\" $status"
-}
-```
-
-#### nginx.controller.log_format_escaping
-
-Customize Nginx log format escaping.
-
-- **Default**: `"Default"`
-- **Type**: String
-- **Values**: `"Default"`, `"JSON"`, `"None"`
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.log_format_escaping": "JSON"
-}
-```
-
-#### nginx.controller.http_snippet
-
-Add custom Nginx HTTP snippet configuration.
-
-- **Default**: `null`
-- **Type**: String
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.http_snippet": "proxy_cache_path /tmp/cache keys_zone=cache:10m;"
-}
-```
-
-#### nginx.controller.server_snippet
-
-Add custom Nginx server snippet configuration.
-
-- **Default**: `null`
-- **Type**: String
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.server_snippet": "location /health { return 200; }"
-}
-```
-
-#### nginx.controller.limit_request_status_code
-
-Customize Nginx rate limit status code.
-
-- **Default**: `null` (Nginx defaults to 503)
-- **Type**: Integer
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.limit_request_status_code": 429
-}
-```
-
-#### nginx.controller.custom_http_errors
-
-Customize Nginx custom HTTP error codes.
-
-- **Default**: `null`
-- **Type**: String (comma-separated)
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.controller.custom_http_errors": "404,503"
-}
-```
-
-### Nginx Default Backend
-
-#### nginx.default_backend.enabled
-
-Enable Nginx default backend.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-<Note>
-Ensure cluster has nodes with amd64 architecture.
-</Note>
-
-```json
-{
-  "nginx.default_backend.enabled": true
-}
-```
-
-#### nginx.default_backend.image_repository
-
-Docker image repository for default backend.
-
-- **Default**: `null`
-- **Type**: String
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-<Info>
-Image must be publicly accessible.
-</Info>
-
-```json
-{
-  "nginx.default_backend.image_repository": "myregistry/custom-backend"
-}
-```
-
-#### nginx.default_backend.image_tag
-
-Image tag for default backend.
-
-- **Default**: `null`
-- **Type**: String
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "nginx.default_backend.image_tag": "1.4"
-}
-```
-
-## Service Settings
-
-Control resource overcommit and database access.
-
-### allow_service_cpu_overcommit
-
-Allow CPU overcommit (limit > request) for services.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-<Warning>
-⚠️ Enabling CPU overcommit can lead to cluster instability and unpredictable performance.
-</Warning>
-
-```json
-{
-  "allow_service_cpu_overcommit": true
-}
-```
-
-### allow_service_ram_overcommit
-
-Allow memory overcommit (limit > request) for services.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-<Warning>
-⚠️ Enabling memory overcommit can lead to cluster instability, pod evictions, and OOM errors.
-</Warning>
-
-```json
-{
-  "allow_service_ram_overcommit": true
-}
-```
-
-### Database Access Control
-
-Configure network access restrictions for managed and container databases.
-
-**Database Icons**:
-- ![Database Container](/images/advanced_settings/database-container.svg) Container Database
-- ![Database Managed](/images/advanced_settings/database-managed.svg) Managed Database
-
-#### database.postgresql.deny_any_access
-
-Deny all access to PostgreSQL databases.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.postgresql.deny_any_access": true
-}
-```
-
-#### database.postgresql.allowed_cidrs
-
-List of allowed CIDR ranges for PostgreSQL.
-
-- **Default**: `["0.0.0.0/0"]`
-- **Type**: Array of strings
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.postgresql.allowed_cidrs": ["10.0.0.0/8", "172.16.0.0/12"]
-}
-```
-
-#### database.mysql.deny_any_access
-
-Deny all access to MySQL databases.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.mysql.deny_any_access": true
-}
-```
-
-#### database.mysql.allowed_cidrs
-
-List of allowed CIDR ranges for MySQL.
-
-- **Default**: `["0.0.0.0/0"]`
-- **Type**: Array of strings
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.mysql.allowed_cidrs": ["10.0.0.0/8"]
-}
-```
-
-#### database.mongodb.deny_any_access
-
-Deny all access to MongoDB databases.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.mongodb.deny_any_access": true
-}
-```
-
-#### database.mongodb.allowed_cidrs
-
-List of allowed CIDR ranges for MongoDB.
-
-- **Default**: `["0.0.0.0/0"]`
-- **Type**: Array of strings
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.mongodb.allowed_cidrs": ["10.0.0.0/8"]
-}
-```
-
-#### database.redis.deny_any_access
-
-Deny all access to Redis databases.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.redis.deny_any_access": true
-}
-```
-
-#### database.redis.allowed_cidrs
-
-List of allowed CIDR ranges for Redis.
-
-- **Default**: `["0.0.0.0/0"]`
-- **Type**: Array of strings
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "database.redis.allowed_cidrs": ["10.0.0.0/8"]
-}
-```
-
-## IAM Settings (AWS)
-
-Configure AWS IAM integration for cluster access.
-
-### aws.iam.enable_admin_group_sync
-
-Enable IAM admin group synchronization.
-
-- **Default**: `true`
-- **Type**: Boolean
-- **Cloud Provider**: AWS
-
-<Note>
-Requires `aws.iam.admin_group` to be set.
-</Note>
-
-```json
-{
-  "aws.iam.enable_admin_group_sync": false
-}
-```
-
-### aws.iam.admin_group
-
-IAM group name associated with Qovery users in AWS console.
-
-- **Default**: `"Admins"`
-- **Type**: String
-- **Cloud Provider**: AWS
-
-<Info>
-Can be changed after cluster installation.
-</Info>
-
-```json
-{
-  "aws.iam.admin_group": "QoveryAdministrators"
-}
-```
-
-### aws.iam.enable_sso
-
-Enable SSO sync for IAM users.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Provider**: AWS
-
-<Note>
-Requires `aws.iam.sso_role_arn` to be set.
-</Note>
-
-```json
-{
-  "aws.iam.enable_sso": true
-}
-```
-
-### aws.iam.sso_role_arn
-
-SSO role ARN for cluster access.
-
-- **Default**: `""` (empty)
-- **Type**: String
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.iam.sso_role_arn": "arn:aws:iam::123456789012:role/QoverySSORole"
-}
-```
-
-## Object Storage
-
-Configure logging for cluster object storage buckets.
-
-### object_storage.enable_logging
-
-Enable logging for cluster buckets into `{bucket-name}-log` bucket.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP, Azure
-
-**Documentation**:
-- [AWS S3 Logging](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html)
-- [GCP Cloud Logging](https://cloud.google.com/logging/docs/buckets)
-
-```json
-{
-  "object_storage.enable_logging": true
-}
-```
-
-## Miscellaneous Settings
-
-Additional cluster configuration options.
-
-### storageclass.fast_ssd
-
-Specify Kubernetes storageClass for container databases and applications.
-
-- **Default**: Varies by cloud provider
-- **Type**: String
-- **Cloud Providers**: AWS, GCP, Azure, Scaleway
-
-```json
-{
-  "storageclass.fast_ssd": "gp3"
-}
-```
-
-### aws.eks.ec2.metadata_imds
-
-Specify EC2 Instance Metadata Service (IMDS) version.
-
-- **Default**: `"required"` (IMDS v2)
-- **Type**: String
-- **Values**: `"required"` (IMDS v2 only), `"optional"` (IMDS v1 and v2)
-- **Cloud Provider**: AWS
-
-```json
-{
-  "aws.eks.ec2.metadata_imds": "optional"
-}
-```
-
-### aws.eks.ec2.ami
-
-Specify the Amazon Machine Image (AMI) for EKS nodes.
-
-- **Default**: `"AmazonLinux2023"`
-- **Type**: String
-- **Values**: `"AmazonLinux2"` (deprecated), `"AmazonLinux2023"`, `"Bottlerocket"`
-- **Cloud Provider**: AWS
-
-<Warning>
-`AmazonLinux2` is deprecated and won't work after Kubernetes 1.32.
-</Warning>
-
-```json
-{
-  "aws.eks.ec2.ami": "Bottlerocket"
-}
-```
-
-### aws.eks.encrypt_secrets_kms_key_arn
-
-Activate KMS encryption of Kubernetes secrets.
-
-- **Default**: `null`
-- **Type**: String (ARN)
-- **Cloud Provider**: AWS
-
-<Warning>
-Cannot be reversed once activated.
-</Warning>
-
-```json
-{
-  "aws.eks.encrypt_secrets_kms_key_arn": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-}
-```
-
-### qovery.static_ip_mode
-
-Enable static IP mode for Qovery control plane.
-
-- **Default**: `false`
-- **Type**: Boolean
-- **Cloud Providers**: AWS, GCP
-
-<Note>
-Requires Docker Hub credentials.
-</Note>
-
-```json
-{
-  "qovery.static_ip_mode": true
-}
-```
-
-### k8s.api.allowed_public_access_cidrs
-
-Whitelist additional CIDRs to access Kubernetes API.
-
-- **Default**: `[]` (empty array)
-- **Type**: Array of strings
-- **Cloud Providers**: AWS, GCP, Azure
-
-<Info>
-Requires `qovery.static_ip_mode = true`.
-</Info>
-
-```json
-{
-  "k8s.api.allowed_public_access_cidrs": ["203.0.113.0/24", "198.51.100.0/24"]
-}
-```
+## Quick Reference
+
+### Settings by Category
+
+<AccordionGroup>
+  <Accordion title="Logs Settings (6 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `aws.cloudwatch.eks_logs_retention_days` | 90 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | CloudWatch EKS logs retention (days) |
+    | `aws.vpc.enable_s3_flow_logs` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable VPC flow logs in S3 |
+    | `aws.vpc.flow_logs_retention_days` | 365 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | VPC flow logs retention (days) |
+    | `loki.log_retention_in_week` | 12 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Pod logs retention (weeks) |
+    | `gcp.vpc.enable_flow_logs` | false | <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> | Enable VPC flow logs |
+    | `gcp.vpc.flow_logs_sampling` | 0.0 | <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> | VPC flow logs sampling rate |
+  </Accordion>
+
+  <Accordion title="DNS Settings (1 setting)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `dns.coredns.extra_config` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Custom CoreDNS configuration |
+  </Accordion>
+
+  <Accordion title="Image Registry (3 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `registry.image_retention_time` | 31536000 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ECR image retention (seconds) |
+    | `registry.mirroring_mode` | Service | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Image mirroring mode |
+    | `cloud_provider.container_registry.tags` | - | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Registry custom tags |
+  </Accordion>
+
+  <Accordion title="Load Balancer (6 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `load_balancer.size` | lb-s | <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Load balancer size |
+    | `aws.eks.enable_alb_controller` | true | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable ALB controller |
+    | `aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu` | 250 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA min CPU |
+    | `aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu` | 250 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA max CPU |
+    | `aws.eks.alb_controller.vpa.memory.min_in_mib` | 128 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA min memory |
+    | `aws.eks.alb_controller.vpa.memory.max_in_mib` | 128 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA max memory |
+  </Accordion>
+
+  <Accordion title="Nginx Controller Resources (4 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `nginx.vcpu.request_in_milli_cpu` | 200 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Nginx CPU request |
+    | `nginx.vcpu.limit_in_milli_cpu` | 700 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Nginx CPU limit |
+    | `nginx.memory.request_in_mib` | 768 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Nginx memory request |
+    | `nginx.memory.limit_in_mib` | 768 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Nginx memory limit |
+  </Accordion>
+
+  <Accordion title="Nginx HPA (3 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `nginx.hpa.cpu_utilization_percentage_threshold` | 50 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | HPA CPU threshold (%) |
+    | `nginx.hpa.min_number_instances` | 2 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Min Nginx instances |
+    | `nginx.hpa.max_number_instances` | 25 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Max Nginx instances |
+  </Accordion>
+
+  <Accordion title="Nginx Configuration (10 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `nginx.controller.enable_client_ip` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Pass client IP to services |
+    | `nginx.controller.enable_compression` | true | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Enable Brotli compression |
+    | `nginx.controller.use_forwarded_headers` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Use X-Forwarded-For header |
+    | `nginx.controller.compute_full_forwarded_for` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Append to X-Forwarded-For |
+    | `nginx.controller.log_format_upstream` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Custom log format |
+    | `nginx.controller.log_format_escaping` | Default | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Log format escaping |
+    | `nginx.controller.http_snippet` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Custom HTTP config |
+    | `nginx.controller.server_snippet` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Custom server config |
+    | `nginx.controller.limit_request_status_code` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Rate limit status code |
+    | `nginx.controller.custom_http_errors` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Custom error codes |
+  </Accordion>
+
+  <Accordion title="Nginx Default Backend (3 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `nginx.default_backend.enabled` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Enable default backend |
+    | `nginx.default_backend.image_repository` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Backend image repository |
+    | `nginx.default_backend.image_tag` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Backend image tag |
+  </Accordion>
+
+  <Accordion title="Service Resources (2 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `allow_service_cpu_overcommit` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | ⚠️ Allow CPU overcommit |
+    | `allow_service_ram_overcommit` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | ⚠️ Allow memory overcommit |
+  </Accordion>
+
+  <Accordion title="Database Access Control (8 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `database.postgresql.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Deny all PostgreSQL access |
+    | `database.postgresql.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | PostgreSQL allowed CIDRs |
+    | `database.mysql.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Deny all MySQL access |
+    | `database.mysql.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | MySQL allowed CIDRs |
+    | `database.mongodb.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Deny all MongoDB access |
+    | `database.mongodb.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | MongoDB allowed CIDRs |
+    | `database.redis.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Deny all Redis access |
+    | `database.redis.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Redis allowed CIDRs |
+  </Accordion>
+
+  <Accordion title="IAM Settings (4 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `aws.iam.enable_admin_group_sync` | true | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable IAM admin group sync |
+    | `aws.iam.admin_group` | Admins | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | IAM admin group name |
+    | `aws.iam.enable_sso` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable SSO sync |
+    | `aws.iam.sso_role_arn` | "" | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | SSO role ARN |
+  </Accordion>
+
+  <Accordion title="Object Storage (1 setting)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `object_storage.enable_logging` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> | Enable bucket logging |
+  </Accordion>
+
+  <Accordion title="Miscellaneous (6 settings)">
+    | Setting | Default | Providers | Description |
+    |---------|---------|-----------|-------------|
+    | `storageclass.fast_ssd` | varies | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon" /> | Storage class for SSD |
+    | `aws.eks.ec2.metadata_imds` | required | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | EC2 IMDS version |
+    | `aws.eks.ec2.ami` | AmazonLinux2023 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | EKS node AMI |
+    | `aws.eks.encrypt_secrets_kms_key_arn` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | KMS key for secret encryption |
+    | `qovery.static_ip_mode` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> | Static IP for control plane |
+    | `k8s.api.allowed_public_access_cidrs` | [] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> | K8s API whitelist CIDRs |
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Use the **Settings by Category** tables above to quickly find settings. The **Providers** column shows which cloud providers support each setting using icons.
+</Tip>
+
+---
 
 ## Configuring Advanced Settings via API
 
@@ -1158,6 +356,8 @@ For complete API documentation, see the [Qovery API Reference](/api-reference/in
     Enable VPC flow logs for production clusters to aid in security audits and troubleshooting network issues.
   </Accordion>
 </AccordionGroup>
+
+---
 
 ## Cluster Actions
 

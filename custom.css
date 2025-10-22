@@ -96,3 +96,149 @@ html[data-theme="light"] .dark-mode-only,
 html:not([class*="dark"]):not([data-theme="dark"]) .dark-mode-only {
   display: none !important;
 }
+
+/* Advanced Settings Badges */
+.badge-icon {
+  display: inline-block;
+  height: 20px;
+  width: auto;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  vertical-align: middle;
+}
+
+/* AWS logo - light mode (default) */
+.badge-icon-aws-light {
+  display: inline-block;
+  height: 20px;
+  width: auto;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  vertical-align: middle;
+}
+
+.badge-icon-aws-dark {
+  display: none;
+  height: 20px;
+  width: auto;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  vertical-align: middle;
+}
+
+/* AWS logo switching for dark mode */
+html[class*="dark"] .badge-icon-aws-light,
+html[data-theme="dark"] .badge-icon-aws-light {
+  display: none;
+}
+
+html[class*="dark"] .badge-icon-aws-dark,
+html[data-theme="dark"] .badge-icon-aws-dark {
+  display: inline-block;
+}
+
+.badge-aws,
+.badge-gcp,
+.badge-azure,
+.badge-scw,
+.badge-app,
+.badge-container,
+.badge-cronjob,
+.badge-job,
+.badge-helm {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+
+/* Cloud Provider Badges - Official Brand Colors */
+.badge-aws {
+  background-color: #FF9900; /* AWS Orange */
+}
+
+.badge-gcp {
+  background-color: #EA4335; /* Google Cloud Red */
+}
+
+.badge-azure {
+  background-color: #0089D6; /* Microsoft Azure Blue */
+}
+
+.badge-scw {
+  background-color: #4F0599; /* Scaleway Purple */
+}
+
+/* Service Type Badges */
+.badge-app {
+  background-color: #10B981; /* Green */
+}
+
+.badge-container {
+  background-color: #3B82F6; /* Blue */
+}
+
+.badge-cronjob {
+  background-color: #F59E0B; /* Orange */
+}
+
+.badge-job {
+  background-color: #8B5CF6; /* Purple */
+}
+
+.badge-helm {
+  background-color: #0F1689; /* Helm Blue */
+}
+
+.badge-terraform {
+  background-color: #4040B2; /* Terraform Purple */
+}
+
+/* Helm logo icon */
+.helm-icon {
+  display: inline-block;
+  height: 20px;
+  width: auto;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  vertical-align: middle;
+}
+
+/* Terraform logo icon */
+.terraform-icon {
+  display: inline-block;
+  height: 20px;
+  width: auto;
+  margin-right: 8px;
+  margin-bottom: 4px;
+  vertical-align: middle;
+}
+
+/* Helm and Terraform icon color switching for dark mode */
+/* Swap to dark versions using content property */
+
+/* Light mode - use default light versions */
+img[src*="/terraform-icon.svg"],
+img[src*="/helm-icon.svg"] {
+  /* Light mode uses default colors in SVG */
+}
+
+/* Dark mode - swap to dark versions with exact #D8CBFF color */
+html[class*="dark"] img[src*="/terraform-icon.svg"],
+html[data-theme="dark"] img[src*="/terraform-icon.svg"],
+.dark img[src*="/terraform-icon.svg"] {
+  content: url("/images/logos/terraform-icon-dark.svg");
+}
+
+html[class*="dark"] img[src*="/helm-icon.svg"],
+html[data-theme="dark"] img[src*="/helm-icon.svg"],
+.dark img[src*="/helm-icon.svg"] {
+  content: url("/images/logos/helm-icon-dark.svg");
+}

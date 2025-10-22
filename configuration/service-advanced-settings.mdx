@@ -41,689 +41,98 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ## Quick Reference
 
-### Service Types Legend
-- **App**: Application
-- **Con**: Container
-- **Cron**: Cronjob
-- **Job**: Lifecycle Job
-- **Helm**: Helm Chart
-
 ### Settings by Category
 
 <AccordionGroup>
   <Accordion title="Build Settings (4 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `build.timeout_max_sec` | 1800 | App, Cron, Job | Build timeout in seconds |
-    | `build.cpu_max_in_milli` | 4000 | App, Cron, Job | Build CPU allocation (millicores) |
-    | `build.ram_max_in_gib` | 8 | App, Cron, Job | Build RAM allocation (GiB) |
-    | `build.ephemeral_storage_in_gib` | null | App, Cron, Job | Build ephemeral storage (GiB) |
+    | `build.timeout_max_sec` | 1800 | <span class="badge-app">App</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> | Build timeout in seconds |
+    | `build.cpu_max_in_milli` | 4000 | <span class="badge-app">App</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> | Build CPU allocation (millicores) |
+    | `build.ram_max_in_gib` | 8 | <span class="badge-app">App</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> | Build RAM allocation (GiB) |
+    | `build.ephemeral_storage_in_gib` | null | <span class="badge-app">App</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> | Build ephemeral storage (GiB) |
   </Accordion>
 
   <Accordion title="Deployment Settings (2 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `deployment.termination_grace_period_seconds` | 60 | App, Con, Cron, Job | Graceful shutdown timeout |
-    | `deployment.affinity.node.required` | {} | App, Con, Cron, Job | Node affinity requirements |
+    | `deployment.termination_grace_period_seconds` | 60 | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> | Graceful shutdown timeout |
+    | `deployment.affinity.node.required` | {} | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> | Node affinity requirements |
   </Accordion>
 
   <Accordion title="Network - CORS (4 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `network.ingress.enable_cors` | false | App, Con, Helm | Enable CORS |
-    | `network.ingress.cors_allow_origin` | * | App, Con, Helm | Allowed origins |
-    | `network.ingress.cors_allow_methods` | GET, PUT, POST, DELETE, PATCH, OPTIONS | App, Con, Helm | Allowed HTTP methods |
-    | `network.ingress.cors_allow_headers` | DNT, Keep-Alive, User-Agent, ... | App, Con, Helm | Allowed headers |
+    | `network.ingress.enable_cors` | false | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Enable CORS |
+    | `network.ingress.cors_allow_origin` | * | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Allowed origins |
+    | `network.ingress.cors_allow_methods` | GET, PUT, POST, DELETE, PATCH, OPTIONS | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Allowed HTTP methods |
+    | `network.ingress.cors_allow_headers` | DNT, Keep-Alive, User-Agent, ... | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Allowed headers |
   </Accordion>
 
   <Accordion title="Network - Proxy & Headers (2 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `network.ingress.proxy_body_size_mb` | 100 | App, Con, Helm | Max request body size (MB) |
-    | `network.ingress.proxy_set_headers` | {} | App, Con, Helm | Custom request headers |
+    | `network.ingress.proxy_body_size_mb` | 100 | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Max request body size (MB) |
+    | `network.ingress.proxy_set_headers` | {} | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Custom request headers |
   </Accordion>
 
   <Accordion title="Network - Access Control (5 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `network.ingress.whitelist_source_range` | 0.0.0.0/0 | App, Con, Helm | IP whitelist (CIDR) |
-    | `network.ingress.denylist_source_range` | null | App, Con, Helm | IP denylist (CIDR) |
-    | `network.ingress.basic_auth_env_var` | null | App, Con, Helm | Basic auth credentials (env var) |
-    | `network.ingress.enable_sticky_session` | false | App, Con, Helm | Session affinity |
-    | `network.ingress.sticky_session_cookie_name` | QOVERY_COOKIE_ID | App, Con, Helm | Session cookie name |
+    | `network.ingress.whitelist_source_range` | 0.0.0.0/0 | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | IP whitelist (CIDR) |
+    | `network.ingress.denylist_source_range` | null | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | IP denylist (CIDR) |
+    | `network.ingress.basic_auth_env_var` | null | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Basic auth credentials (env var) |
+    | `network.ingress.enable_sticky_session` | false | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Session affinity |
+    | `network.ingress.sticky_session_cookie_name` | QOVERY_COOKIE_ID | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Session cookie name |
   </Accordion>
 
   <Accordion title="Network - gRPC (2 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `network.ingress.grpc` | false | App, Con, Helm | Enable gRPC protocol |
-    | `network.ingress.grpc_send_timeout_seconds` | 60 | App, Con, Helm | gRPC send timeout |
+    | `network.ingress.grpc` | false | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Enable gRPC protocol |
+    | `network.ingress.grpc_send_timeout_seconds` | 60 | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | gRPC send timeout |
   </Accordion>
 
   <Accordion title="Network - Rate Limiting (2 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `network.ingress.add_rate_limit` | false | App, Con, Helm | Enable rate limiting |
-    | `network.ingress.rate_limit_rpm` | 0 | App, Con, Helm | Requests per minute limit |
+    | `network.ingress.add_rate_limit` | false | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Enable rate limiting |
+    | `network.ingress.rate_limit_rpm` | 0 | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Requests per minute limit |
   </Accordion>
 
   <Accordion title="Auto-scaling (HPA) (4 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `hpa.cpu.average_utilization_percent` | 60 | App, Con, Helm | CPU target for HPA |
-    | `hpa.memory.average_utilization_percent` | null | App, Con, Helm | Memory target for HPA |
-    | `hpa.scale_down_policy_strategy` | Max | App, Con, Helm | Scale down strategy |
-    | `hpa.scale_up_policy_strategy` | Max | App, Con, Helm | Scale up strategy |
+    | `hpa.cpu.average_utilization_percent` | 60 | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | CPU target for HPA |
+    | `hpa.memory.average_utilization_percent` | null | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Memory target for HPA |
+    | `hpa.scale_down_policy_strategy` | Max | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Scale down strategy |
+    | `hpa.scale_up_policy_strategy` | Max | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Scale up strategy |
   </Accordion>
 
   <Accordion title="Job Settings (2 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `job.delete_ttl_seconds_after_finished` | null | Cron, Job | Delete job after completion |
-    | `cronjob.failed_jobs_history_limit` | 1 | Cron | Failed jobs history limit |
+    | `job.delete_ttl_seconds_after_finished` | null | <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> | Delete job after completion |
+    | `cronjob.failed_jobs_history_limit` | 1 | <span class="badge-cronjob">Cronjob</span> | Failed jobs history limit |
   </Accordion>
 
   <Accordion title="Resources (2 settings)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `resources.override` | {} | App, Con, Cron, Job, Helm | Override resource requests/limits |
-    | `readiness_probe.initial_delay_seconds` | 30 | App, Con, Helm | Readiness probe initial delay |
+    | `resources.override` | {} | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> <span class="badge-helm">Helm</span> | Override resource requests/limits |
+    | `readiness_probe.initial_delay_seconds` | 30 | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span> | Readiness probe initial delay |
   </Accordion>
 
   <Accordion title="Security (1 setting)">
     | Setting | Default | Service Types | Description |
     |---------|---------|---------------|-------------|
-    | `security.service_account_name` | null | App, Con, Cron, Job, Helm | Kubernetes ServiceAccount name |
+    | `security.service_account_name` | null | <span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> <span class="badge-helm">Helm</span> | Kubernetes ServiceAccount name |
   </Accordion>
 </AccordionGroup>
 
-## Detailed Settings Reference
-
----
-
-## Build Settings
-
-Configure build process parameters for Applications, Cronjobs, and Jobs.
-
-<Tabs>
-  <Tab title="build.timeout_max_sec">
-    Maximum duration for application build before timeout.
-
-    - **Default**: `1800` (30 minutes)
-    - **Type**: Integer (seconds)
-    - **Applies to**: Application, Cronjob, Job
-
-    ```json
-    {
-      "build.timeout_max_sec": 3600
-    }
-    ```
-  </Tab>
-
-  <Tab title="build.cpu_max_in_milli">
-    CPU allocated to your build process.
-
-    - **Default**: `4000` (4 vCPU)
-    - **Type**: Integer (millicores)
-    - **Applies to**: Application, Cronjob, Job
-
-    ```json
-    {
-      "build.cpu_max_in_milli": 8000
-    }
-    ```
-  </Tab>
-
-  <Tab title="build.ram_max_in_gib">
-    RAM allocated to your build process.
-
-    - **Default**: `8` GB
-    - **Type**: Integer (GiB)
-    - **Applies to**: Application, Cronjob, Job
-
-    ```json
-    {
-      "build.ram_max_in_gib": 16
-    }
-    ```
-  </Tab>
-
-  <Tab title="build.ephemeral_storage_in_gib">
-    Ephemeral storage allocated to your build process.
-
-    - **Default**: `null` (10 GB on GKE)
-    - **Type**: Integer (GiB)
-    - **Applies to**: Application, Cronjob, Job
-
-    <Note>
-    On GKE, the default ephemeral storage is 10 GB if not specified.
-    </Note>
-
-    ```json
-    {
-      "build.ephemeral_storage_in_gib": 20
-    }
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Deployment Settings
-
-Control how your services are deployed and updated on Kubernetes.
-
-<Tabs>
-  <Tab title="deployment.termination_grace_period_seconds">
-    Maximum time allowed for graceful shutdown before force termination.
-
-    - **Default**: `60` seconds
-    - **Type**: Integer (seconds)
-    - **Applies to**: Application, Container, Cronjob, Job
-
-    ```json
-    {
-      "deployment.termination_grace_period_seconds": 120
-    }
-    ```
-
-    <Info>
-    This allows your application to finish processing requests before being terminated. Increase for long-running requests.
-    </Info>
-  </Tab>
-
-  <Tab title="deployment.affinity.node.required">
-    Place pods on specific Kubernetes nodes based on node labels.
-
-    - **Default**: `{}` (empty)
-    - **Type**: Map (String keys and values)
-    - **Applies to**: Application, Container, Cronjob, Job
-
-    **Use cases**:
-    - Run on specific instance types (e.g., GPU nodes)
-    - Separate workloads by architecture (amd64, arm64)
-    - Compliance requirements (specific availability zones)
-
-    ```json
-    {
-      "deployment.affinity.node.required": {
-        "node.kubernetes.io/instance-type": "c5.xlarge",
-        "topology.kubernetes.io/zone": "us-east-1a"
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Network Settings
-
-### CORS Configuration
-
-Enable and configure Cross-Origin Resource Sharing (CORS) for your services.
-
-<Tabs>
-  <Tab title="network.ingress.enable_cors">
-    Enable CORS for your service.
-
-    - **Default**: `false`
-    - **Type**: Boolean
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.enable_cors": true
-    }
-    ```
-  </Tab>
-
-  <Tab title="network.ingress.cors_allow_origin">
-    Specify allowed origins for CORS requests.
-
-    - **Default**: `"*"` (all origins)
-    - **Type**: String
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.cors_allow_origin": "https://example.com, https://app.example.com"
-    }
-    ```
-  </Tab>
-
-  <Tab title="network.ingress.cors_allow_methods">
-    Allowed HTTP methods for CORS requests.
-
-    - **Default**: `"GET, PUT, POST, DELETE, PATCH, OPTIONS"`
-    - **Type**: String (comma-separated)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.cors_allow_methods": "GET, POST, OPTIONS"
-    }
-    ```
-  </Tab>
-
-  <Tab title="network.ingress.cors_allow_headers">
-    Allowed headers for CORS requests.
-
-    - **Default**: `"DNT, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization"`
-    - **Type**: String (comma-separated)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.cors_allow_headers": "Authorization, Content-Type, X-Custom-Header"
-    }
-    ```
-  </Tab>
-</Tabs>
-
-### Proxy & Headers
-
-<Tabs>
-  <Tab title="network.ingress.proxy_body_size_mb">
-    Maximum allowed request body size in megabytes.
-
-    - **Default**: `100` MB
-    - **Type**: Integer (MB)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.proxy_body_size_mb": 250
-    }
-    ```
-
-    <Tip>
-    Increase this value for file upload endpoints or large API payloads.
-    </Tip>
-  </Tab>
-
-  <Tab title="network.ingress.proxy_set_headers">
-    Add custom headers to incoming requests.
-
-    - **Default**: `{}` (empty)
-    - **Type**: Map (String keys and values)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.proxy_set_headers": {
-        "X-Forwarded-Proto": "$scheme",
-        "X-Real-IP": "$remote_addr"
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
-
-### Access Control
-
-<Tabs>
-  <Tab title="network.ingress.whitelist_source_range">
-    Restrict access to specific IP addresses or CIDR ranges.
-
-    - **Default**: `"0.0.0.0/0"` (allow all)
-    - **Type**: String (comma-separated CIDRs)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.whitelist_source_range": "10.0.0.0/8, 172.16.0.0/12, 203.0.113.0/24"
-    }
-    ```
-
-    <Info>
-    Use this to restrict access to internal networks, VPN, or specific office IPs.
-    </Info>
-  </Tab>
-
-  <Tab title="network.ingress.denylist_source_range">
-    Block access from specific IP addresses or CIDR ranges.
-
-    - **Default**: `null` (no blocking)
-    - **Type**: String (comma-separated CIDRs)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.denylist_source_range": "192.0.2.0/24, 198.51.100.0/24"
-    }
-    ```
-  </Tab>
-
-  <Tab title="network.ingress.basic_auth_env_var">
-    Enable HTTP Basic Authentication using credentials from environment variable.
-
-    - **Default**: `null` (disabled)
-    - **Type**: String (environment variable name)
-    - **Applies to**: Application, Container, Helm
-
-    **Environment variable format**: `username:encrypted_password`
-
-    Generate encrypted password:
-    ```bash
-    htpasswd -nb username password
-    ```
-
-    ```json
-    {
-      "network.ingress.basic_auth_env_var": "BASIC_AUTH_CREDENTIALS"
-    }
-    ```
-  </Tab>
-
-  <Tab title="network.ingress.enable_sticky_session">
-    Enable session affinity (sticky sessions) for load balancing.
-
-    - **Default**: `false`
-    - **Type**: Boolean
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.enable_sticky_session": true
-    }
-    ```
-
-    <Info>
-    Useful for stateful applications that store session data in memory.
-    </Info>
-  </Tab>
-
-  <Tab title="network.ingress.sticky_session_cookie_name">
-    Cookie name used for sticky sessions.
-
-    - **Default**: `"QOVERY_COOKIE_ID"`
-    - **Type**: String
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.sticky_session_cookie_name": "MY_SESSION_ID"
-    }
-    ```
-  </Tab>
-</Tabs>
-
-### gRPC Protocol
-
-<Tabs>
-  <Tab title="network.ingress.grpc">
-    Enable gRPC protocol support for your service.
-
-    - **Default**: `false`
-    - **Type**: Boolean
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.grpc": true
-    }
-    ```
-
-    <Note>
-    When enabled, the ingress controller will use HTTP/2 protocol for gRPC traffic.
-    </Note>
-  </Tab>
-
-  <Tab title="network.ingress.grpc_send_timeout_seconds">
-    Timeout for gRPC send operations.
-
-    - **Default**: `60` seconds
-    - **Type**: Integer (seconds)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.grpc_send_timeout_seconds": 120
-    }
-    ```
-  </Tab>
-</Tabs>
-
-### Rate Limiting
-
-<Tabs>
-  <Tab title="network.ingress.add_rate_limit">
-    Enable rate limiting for incoming requests.
-
-    - **Default**: `false`
-    - **Type**: Boolean
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.add_rate_limit": true
-    }
-    ```
-  </Tab>
-
-  <Tab title="network.ingress.rate_limit_rpm">
-    Maximum requests per minute allowed per IP address.
-
-    - **Default**: `0` (unlimited)
-    - **Type**: Integer (requests per minute)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "network.ingress.rate_limit_rpm": 300
-    }
-    ```
-
-    <Info>
-    Rate limiting is applied per client IP address. Set to `0` to disable.
-    </Info>
-  </Tab>
-</Tabs>
-
----
-
-## Auto-scaling (HPA)
-
-Configure Horizontal Pod Autoscaler behavior for your services.
-
-<Tabs>
-  <Tab title="hpa.cpu.average_utilization_percent">
-    Target CPU utilization percentage for horizontal pod autoscaling.
-
-    - **Default**: `60`%
-    - **Type**: Integer (percentage)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "hpa.cpu.average_utilization_percent": 75
-    }
-    ```
-
-    <Info>
-    When average CPU exceeds this threshold, HPA will scale up pods. When it drops below, it will scale down.
-    </Info>
-  </Tab>
-
-  <Tab title="hpa.memory.average_utilization_percent">
-    Target memory utilization percentage for horizontal pod autoscaling.
-
-    - **Default**: `null` (disabled)
-    - **Type**: Integer (percentage)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "hpa.memory.average_utilization_percent": 80
-    }
-    ```
-  </Tab>
-
-  <Tab title="hpa.scale_down_policy_strategy">
-    Strategy for scaling down pods when load decreases.
-
-    - **Default**: `"Max"`
-    - **Type**: String
-    - **Values**: `"Max"`, `"Min"`, `"Disabled"`
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "hpa.scale_down_policy_strategy": "Min"
-    }
-    ```
-
-    **Strategies**:
-    - `Max`: Use highest number of pods from all policies
-    - `Min`: Use lowest number of pods from all policies
-    - `Disabled`: Disable scale down
-  </Tab>
-
-  <Tab title="hpa.scale_up_policy_strategy">
-    Strategy for scaling up pods when load increases.
-
-    - **Default**: `"Max"`
-    - **Type**: String
-    - **Values**: `"Max"`, `"Min"`, `"Disabled"`
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "hpa.scale_up_policy_strategy": "Max"
-    }
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Job Settings
-
-Configure behavior for Cronjobs and Lifecycle Jobs.
-
-<Tabs>
-  <Tab title="job.delete_ttl_seconds_after_finished">
-    Automatically delete job pods after completion.
-
-    - **Default**: `null` (never delete)
-    - **Type**: Integer (seconds)
-    - **Applies to**: Cronjob, Job
-
-    ```json
-    {
-      "job.delete_ttl_seconds_after_finished": 3600
-    }
-    ```
-
-    <Tip>
-    Set this value to automatically clean up completed job pods and reduce cluster clutter.
-    </Tip>
-  </Tab>
-
-  <Tab title="cronjob.failed_jobs_history_limit">
-    Number of failed job executions to keep in history.
-
-    - **Default**: `1`
-    - **Type**: Integer
-    - **Applies to**: Cronjob
-
-    ```json
-    {
-      "cronjob.failed_jobs_history_limit": 3
-    }
-    ```
-
-    <Info>
-    Increase this value to retain more failed job history for debugging purposes.
-    </Info>
-  </Tab>
-</Tabs>
-
----
-
-## Resources
-
-Fine-tune resource allocation and health checks.
-
-<Tabs>
-  <Tab title="resources.override">
-    Override default resource requests and limits for your service.
-
-    - **Default**: `{}` (use Qovery defaults)
-    - **Type**: Map
-    - **Applies to**: Application, Container, Cronjob, Job, Helm
-
-    ```json
-    {
-      "resources.override": {
-        "requests": {
-          "cpu": "500m",
-          "memory": "512Mi"
-        },
-        "limits": {
-          "cpu": "2000m",
-          "memory": "2Gi"
-        }
-      }
-    }
-    ```
-
-    <Warning>
-    Overriding resources can impact cluster scheduling and cost. Monitor usage carefully.
-    </Warning>
-  </Tab>
-
-  <Tab title="readiness_probe.initial_delay_seconds">
-    Initial delay before readiness probe starts checking service health.
-
-    - **Default**: `30` seconds
-    - **Type**: Integer (seconds)
-    - **Applies to**: Application, Container, Helm
-
-    ```json
-    {
-      "readiness_probe.initial_delay_seconds": 60
-    }
-    ```
-
-    <Tip>
-    Increase for applications with slow startup times (e.g., loading large datasets, warming caches).
-    </Tip>
-  </Tab>
-</Tabs>
-
----
-
-## Security
-
-Configure Kubernetes security settings for your services.
-
-<Tabs>
-  <Tab title="security.service_account_name">
-    Specify a custom Kubernetes ServiceAccount for pod identity and RBAC.
-
-    - **Default**: `null` (use default ServiceAccount)
-    - **Type**: String
-    - **Applies to**: Application, Container, Cronjob, Job, Helm
-
-    ```json
-    {
-      "security.service_account_name": "my-custom-service-account"
-    }
-    ```
-
-    **Use cases**:
-    - AWS IRSA (IAM Roles for Service Accounts)
-    - GCP Workload Identity
-    - Custom RBAC permissions
-    - Pod security policies
-
-    <Info>
-    The ServiceAccount must already exist in the same namespace as your service.
-    </Info>
-  </Tab>
-</Tabs>
+<Tip>
+Use the **Settings by Category** tables above to quickly find settings. The **Service Types** column shows which services support each setting using icons (<span class="badge-app">App</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> <span class="badge-helm">Helm</span>).
+</Tip>
 
 ---
 
@@ -805,7 +214,7 @@ resource "qovery_application" "my_app" {
   <Accordion title="Resource Optimization">
     - Set realistic build timeouts to catch hanging builds early
     - Configure HPA thresholds based on actual traffic patterns
-    - Use resource overrides sparingly and monitor cluster impact
+    - Use resource overrides sparingly and monitor cluster impact.
   </Accordion>
 </AccordionGroup>
 
