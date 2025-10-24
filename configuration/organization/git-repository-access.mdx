@@ -118,6 +118,45 @@ For enhanced security, you can use GitHub's fine-grained tokens:
      - Metadata: Read
      - Workflows: Read and write (if using GitHub Actions)
 
+### GitHub vs GitHub Enterprise
+
+When adding a GitHub token in the Qovery console, you can choose between **GitHub** and **GitHub Enterprise**:
+
+<Tabs>
+  <Tab title="GitHub (Cloud)">
+    **Use this option if your repositories are hosted on github.com**
+
+    - No additional configuration needed
+    - Uses the standard GitHub.com API
+    - Default option for most users
+    - Configure your personal access token as shown above
+  </Tab>
+
+  <Tab title="GitHub Enterprise">
+    **Use this option if your organization runs its own GitHub Enterprise instance**
+
+    When selecting GitHub Enterprise, you must provide:
+
+    1. **GitHub Host URL**: Your GitHub Enterprise server URL
+       - Example: `https://github.example.com`
+       - Example: `https://ghe.yourcompany.com`
+
+    2. **Personal Access Token**: Same token configuration as GitHub.com (see above)
+
+    Qovery will then use this URL together with your token to access your repositories.
+
+    ![GitHub Enterprise Configuration](/img/configuration/organization/Github_enterprise.png)
+
+    <Info>
+    **Supported Versions**: Qovery supports GitHub Enterprise Server 3.0 and above.
+    </Info>
+
+    <Warning>
+    Ensure your GitHub Enterprise server is accessible from Qovery. If your server is behind a firewall, you may need to whitelist Qovery's IP addresses.
+    </Warning>
+  </Tab>
+</Tabs>
+
 ### GitLab Personal Access Token
 
 <Steps>

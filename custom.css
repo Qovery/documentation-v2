@@ -242,3 +242,73 @@ html[data-theme="dark"] img[src*="/helm-icon.svg"],
 .dark img[src*="/helm-icon.svg"] {
   content: url("/images/logos/helm-icon-dark.svg");
 }
+
+/* Product logo color switching for dark mode */
+/* Provision logo */
+html[class*="dark"] img[src*="/logos/provision-logo-only.svg"],
+html[data-theme="dark"] img[src*="/logos/provision-logo-only.svg"],
+.dark img[src*="/logos/provision-logo-only.svg"] {
+  content: url("/logos/provision-logo-only-dark.svg");
+}
+
+/* Deploy logo */
+html[class*="dark"] img[src*="/logos/deploy-logo-only.svg"],
+html[data-theme="dark"] img[src*="/logos/deploy-logo-only.svg"],
+.dark img[src*="/logos/deploy-logo-only.svg"] {
+  content: url("/logos/deploy-logo-only-dark.svg");
+}
+
+/* Observe logo */
+html[class*="dark"] img[src*="/logos/observe-logo-only.svg"],
+html[data-theme="dark"] img[src*="/logos/observe-logo-only.svg"],
+.dark img[src*="/logos/observe-logo-only.svg"] {
+  content: url("/logos/observe-logo-only-dark.svg");
+}
+
+/* Optimize logo */
+html[class*="dark"] img[src*="/logos/optimize-logo-only.svg"],
+html[data-theme="dark"] img[src*="/logos/optimize-logo-only.svg"],
+.dark img[src*="/logos/optimize-logo-only.svg"] {
+  content: url("/logos/optimize-logo-only-dark.svg");
+}
+
+/* Secure logo */
+html[class*="dark"] img[src*="/logos/secure-logo-only.svg"],
+html[data-theme="dark"] img[src*="/logos/secure-logo-only.svg"],
+.dark img[src*="/logos/secure-logo-only.svg"] {
+  content: url("/logos/secure-logo-only-dark.svg");
+}
+
+/* Remove duplicate page titles */
+/* Mintlify shows the title from frontmatter in both header and as H1 */
+article > h1:first-of-type,
+main > h1:first-of-type,
+[class*="Content"] > h1:first-of-type {
+  display: none !important;
+}
+
+/* Fix footer overlapping sidebar navigation */
+footer,
+[class*="footer"],
+[class*="Footer"] {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Ensure footer doesn't overlap with sidebar on desktop */
+@media (min-width: 768px) {
+  footer,
+  [class*="footer"],
+  [class*="Footer"] {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  /* Push footer content away from sidebar */
+  footer > div,
+  [class*="footer"] > div,
+  [class*="Footer"] > div {
+    margin-left: 260px !important;
+    padding-left: 2rem !important;
+  }
+}

@@ -53,44 +53,35 @@
             "group": "Overview",
             "pages": [
               "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Tutorials",
+            "pages": [
+              "guides/getting-started/deploy-your-first-application",
+              "guides/getting-started/connect-database",
+              "guides/getting-started/create-environment"
+            ]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
               "how-it-works",
-              "basic-concepts",
-              "installation"
-            ]
-          },
-          {
-            "group": "Qovery 101",
-            "pages": [
-              "guides/qovery-101/provision",
-              "guides/qovery-101/deploy",
-              "guides/qovery-101/observe",
-              "guides/qovery-101/optimize",
-              "guides/qovery-101/secure"
-            ]
-          },
-          {
-            "group": "Use Cases",
-            "pages": [
-              "guides/use-cases/production-environment-management",
-              "guides/use-cases/cloud-migration-and-scaling",
-              "guides/use-cases/ephemeral-environment",
-              "guides/use-cases/multi-kubernetes-clusters-management",
-              "guides/use-cases/disaster-recovery"
-            ]
-          },
-          {
-            "group": "Advanced Topics",
-            "pages": [
-              "guides/others/database-seeding-lifecycle-job"
-            ]
-          },
-          {
-            "group": "Security & Compliance",
-            "pages": [
-              "security-and-compliance/overview",
               {
-                "group": "Compliance",
+                "group": "Platform Products",
                 "pages": [
+                  "guides/qovery-101/provision",
+                  "guides/qovery-101/deploy",
+                  "guides/qovery-101/observe",
+                  "guides/qovery-101/optimize",
+                  "guides/qovery-101/secure"
+                ]
+              },
+              {
+                "group": "Security & Compliance",
+                "pages": [
+                  "security-and-compliance/overview",
                   "security-and-compliance/soc2",
                   "security-and-compliance/gdpr",
                   "security-and-compliance/dora",
@@ -98,6 +89,23 @@
                   "security-and-compliance/hds"
                 ]
               }
+            ]
+          },
+          {
+            "group": "How-to Guides",
+            "pages": [
+              "guides/use-cases/production-environment-management",
+              "guides/use-cases/cloud-migration-and-scaling",
+              "guides/use-cases/ephemeral-environment",
+              "guides/use-cases/multi-kubernetes-clusters-management",
+              "guides/use-cases/disaster-recovery",
+              "guides/others/database-seeding-lifecycle-job"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "basic-concepts"
             ]
           }
         ]
@@ -445,37 +453,8 @@
         "title": "Product",
         "items": [
           {
-            "label": "Provision",
-            "href": "https://www.qovery.com/products/provision"
-          },
-          {
-            "label": "Deploy",
-            "href": "https://www.qovery.com/products/deploy"
-          },
-          {
-            "label": "Observe",
-            "href": "https://www.qovery.com/products/observe"
-          },
-          {
-            "label": "Secure",
-            "href": "https://www.qovery.com/products/secure"
-          },
-          {
-            "label": "Optimize",
-            "href": "https://www.qovery.com/products/optimize"
-          }
-        ]
-      },
-      {
-        "title": "Resources",
-        "items": [
-          {
-            "label": "Blog",
-            "href": "https://www.qovery.com/blog"
-          },
-          {
-            "label": "Documentation",
-            "href": "https://hub.qovery.com"
+            "label": "Pricing",
+            "href": "https://www.qovery.com/pricing"
           },
           {
             "label": "Changelog",
@@ -483,7 +462,7 @@
           },
           {
             "label": "Roadmap",
-            "href": "https://roadmap.qovery.com"
+            "href": "https://roadmap.qovery.com/en/roadmap"
           },
           {
             "label": "Case Studies",
@@ -492,27 +471,48 @@
         ]
       },
       {
+        "title": "Resources",
+        "items": [
+          {
+            "label": "Documentation",
+            "href": "https://hub.qovery.com"
+          },
+          {
+            "label": "Blog",
+            "href": "https://www.qovery.com/blog"
+          },
+          {
+            "label": "GitHub",
+            "href": "https://github.com/Qovery"
+          },
+          {
+            "label": "Forum",
+            "href": "https://discuss.qovery.com"
+          },
+          {
+            "label": "Replibyte",
+            "href": "https://www.replibyte.com"
+          }
+        ]
+      },
+      {
         "title": "Company",
         "items": [
           {
-            "label": "About",
-            "href": "https://www.qovery.com/about"
-          },
-          {
-            "label": "Careers",
-            "href": "https://www.qovery.com/careers"
+            "label": "Contact",
+            "href": "https://www.qovery.com/contact"
           },
           {
             "label": "Security",
-            "href": "https://www.qovery.com/security"
+            "href": "https://trust.qovery.com"
           },
           {
             "label": "Terms",
-            "href": "https://www.qovery.com/terms"
+            "href": "https://www.qovery.com/terms-of-service"
           },
           {
-            "label": "Privacy",
-            "href": "https://www.qovery.com/privacy"
+            "label": "Privacy Policy",
+            "href": "https://www.qovery.com/private-policy"
           }
         ]
       }

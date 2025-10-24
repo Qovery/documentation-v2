@@ -36,7 +36,7 @@ Each deployment goes through several stages:
 
   <Step title="Building">
     - Repository is cloned
-    - Dockerfile is built (or Buildpack detects language)
+    - Dockerfile is built
     - Container image is created
     - Image is pushed to container registry
   </Step>
@@ -129,7 +129,7 @@ For applications built from source code:
     **What happens**:
     1. Clone repository from GitHub/GitLab/Bitbucket
     2. Checkout specified branch/commit/tag
-    3. Detect Dockerfile or use Buildpacks
+    3. Detect and build Dockerfile
     4. Build container image
     5. Tag image with commit SHA
     6. Push to container registry (ECR, GCR, ACR, etc.)

@@ -13,13 +13,13 @@ Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zer
 
 All Qovery-managed EKS clusters use [Karpenter](https://karpenter.sh/) for intelligent node provisioning:
 
-- **60% cost savings** through spot instances and consolidation
+- **60-90% cost savings** through spot instances and consolidation
 - **Fast scaling** in seconds (not minutes)
-- **Smart instance selection** across multiple instance families
+- **Smart instance selection** from your chosen instance types
 - **Automatic workload optimization** to minimize costs
 
 <Info>
-When you select an instance type (like t3.large), Karpenter uses it as a baseline and can provision similar instances (t3, m5, m6i families) to optimize cost and availability.
+You **select multiple instance types** during setup (e.g., t3.medium, t3.large, m5.xlarge). Karpenter then automatically picks the best option based on your workload requirements, spot availability, and cost.
 </Info>
 
 ## Create Your First Cluster
@@ -80,16 +80,31 @@ When you select an instance type (like t3.large), Karpenter uses it as a baselin
     For detailed instructions with policy information, see [AWS Installation Guide](/installation/aws#connect-aws-account).
   </Step>
 
-  <Step title="Choose Instance Size">
-    Select baseline instance type (Karpenter optimizes from here):
+  <Step title="Select Instance Types">
+    **Select ALL instance types** you want Karpenter to choose from:
 
-    - **t3.medium** (2 vCPU, 4GB) - Testing ($30/month)
-    - **t3.large** (2 vCPU, 8GB) - Light production ($60/month) ← **Recommended**
-    - **t3.xlarge** (4 vCPU, 16GB) - Standard production ($120/month)
+    Recommended selections:
+    - ✅ **t3.medium** (2 vCPU, 4GB)
+    - ✅ **t3.large** (2 vCPU, 8GB)
+    - ✅ **t3.xlarge** (4 vCPU, 16GB)
+    - ✅ **t3.2xlarge** (8 vCPU, 32GB)
+    - ✅ **m5.large** (2 vCPU, 8GB)
+    - ✅ **m5.xlarge** (4 vCPU, 16GB)
+    - ✅ **m6i.large** (2 vCPU, 8GB)
+    - ✅ **m6i.xlarge** (4 vCPU, 16GB)
 
     <Info>
-    Karpenter can provision similar instances (t3, m5, m6i families) based on workload needs. Enable spot instances for 60-90% savings.
+    Karpenter will automatically select the **best instance type** from your list based on:
+    - Current workload requirements
+    - Spot instance availability
+    - Cost optimization
+
+    More instance types = better optimization and availability!
     </Info>
+
+    <Tip>
+    Enable **spot instances** for 60-90% cost savings. Karpenter automatically falls back to on-demand if spot is unavailable.
+    </Tip>
   </Step>
 
   <Step title="Create">
@@ -97,7 +112,7 @@ When you select an instance type (like t3.large), Karpenter uses it as a baselin
   </Step>
 </Steps>
 
-<Card title="Need detailed instructions?" icon="book" href="/installation/aws">
+<Card title="Need detailed instructions?" icon="book" href="/integrations/kubernetes/eks/overview">
   See the complete AWS installation guide with screenshots and troubleshooting
 </Card>
 
@@ -135,6 +150,7 @@ Configure Karpenter node pools and instance types in **Cluster Settings** after 
 - General Purpose: t3, m5, m6i, m6g (Graviton)
 - Compute Optimized: c5, c6i, c6g (Graviton)
 - Memory Optimized: r5, r6i, r6g (Graviton)
+- GPU Instances: g4dn, g5, p3, p4 (for AI/ML workloads)
 
 **Auto-Scaling**:
 - Min nodes: 1
@@ -145,6 +161,57 @@ Configure Karpenter node pools and instance types in **Cluster Settings** after 
 - Enable Spot instances for cost savings (60-90% off)
 - Qovery handles interruptions gracefully
 - Mix of Spot and On-Demand for reliability
+
+### GPU Support
+
+Karpenter clusters support GPU-enabled instances for AI/ML workloads, scientific computing, and graphics-intensive applications.
+
+**Available GPU Instance Types**:
+
+| Instance Type | GPU | vCPU | Memory | Use Case |
+|--------------|-----|------|--------|----------|
+| g4dn.xlarge | 1x NVIDIA T4 | 4 | 16 GB | ML inference, video processing |
+| g4dn.2xlarge | 1x NVIDIA T4 | 8 | 32 GB | ML training, rendering |
+| g5.xlarge | 1x NVIDIA A10G | 4 | 16 GB | High-performance ML inference |
+| g5.2xlarge | 1x NVIDIA A10G | 8 | 32 GB | ML training, graphics workloads |
+| p3.2xlarge | 1x NVIDIA V100 | 8 | 61 GB | Deep learning training |
+| p4d.24xlarge | 8x NVIDIA A100 | 96 | 1152 GB | Large-scale ML training |
+
+**Setup Steps**:
+
+<Steps>
+  <Step title="Include GPU Instance Types">
+    When creating your cluster, select GPU instance types (g4dn, g5, p3, p4) in addition to your standard instances.
+  </Step>
+
+  <Step title="Configure Application">
+    In your application settings, configure the GPU resource requirement:
+
+    ```yaml
+    resources:
+      gpu: 1  # Number of GPUs needed
+    ```
+
+    See [Application GPU Configuration](/configuration/application#gpu-configuration) for details.
+  </Step>
+
+  <Step title="Karpenter Auto-Provisioning">
+    Karpenter will automatically provision GPU instances when your application requests GPU resources, and deprovision them when not needed.
+  </Step>
+</Steps>
+
+<Info>
+**GPU Instance Costs**: GPU instances are significantly more expensive than standard instances. Ensure your workload actually utilizes GPU acceleration before enabling.
+
+**Example Pricing** (us-east-1):
+- g4dn.xlarge: ~$0.526/hour
+- g5.xlarge: ~$1.006/hour
+- p3.2xlarge: ~$3.06/hour
+</Info>
+
+<Tip>
+Use Spot instances for GPU workloads to save 60-90% on costs. Karpenter handles spot interruptions gracefully, making them suitable for batch processing and training workloads.
+</Tip>
 
 ### Network Settings
 

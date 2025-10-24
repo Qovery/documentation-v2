@@ -6,296 +6,89 @@ mode: "wide"
 
 ## Welcome to Qovery
 
-Qovery is a DevOps Automation Platform that empowers developers to deploy and manage their applications on their own cloud infrastructure without requiring deep DevOps expertise. It provides a self-service platform that abstracts away the complexity of Kubernetes and cloud infrastructure management.
-
-## Core Principles
+Qovery is a **DevOps Automation Platform** that empowers developers to deploy and manage applications on their own cloud infrastructure—without requiring deep DevOps expertise. Focus on building features while Qovery handles Kubernetes, infrastructure, and deployment complexity.
 
 <CardGroup cols={2}>
   <Card title="Developer-Centric" icon="user">
-    Built for developers who want to focus on building features, not managing infrastructure
-  </Card>
-  <Card title="Cloud Native" icon="cloud">
-    Leverages Kubernetes and cloud-native technologies for reliability and scalability
+    Self-service platform for deploying apps without waiting for DevOps
   </Card>
   <Card title="Your Infrastructure" icon="server">
-    Deploy on your own AWS, GCP, or Azure accounts - you maintain full control
+    Runs on your own AWS, GCP, Azure, or Scaleway—you maintain full control
+  </Card>
+  <Card title="Cloud Native" icon="cloud">
+    Built on Kubernetes with production-ready best practices
   </Card>
   <Card title="GitOps Driven" icon="code-branch">
-    Git-based workflows with automatic deployments on every push
+    Automatic deployments on every Git push
   </Card>
 </CardGroup>
 
-## The Qovery Platform
+## Five Integrated Products
 
-Qovery consists of five integrated products that work together to provide a complete platform solution:
+Qovery provides a complete platform through five products that work together seamlessly:
 
 <CardGroup cols={2}>
   <Card title="Provision" icon="/logos/provision-logo-only.svg" href="/guides/qovery-101/provision">
-    Install Qovery on Kubernetes and manage multiple clusters in a unified way
+    Install and manage Kubernetes clusters across any cloud
   </Card>
   <Card title="Deploy" icon="/logos/deploy-logo-only.svg" href="/guides/qovery-101/deploy">
-    Deploy applications, databases, and services with GitOps workflows
+    Deploy applications, databases, and services with GitOps
   </Card>
   <Card title="Observe" icon="/logos/observe-logo-only.svg" href="/guides/qovery-101/observe">
-    Get visibility into applications and clusters with correlated observability
+    Unified observability for apps and infrastructure
   </Card>
   <Card title="Optimize" icon="/logos/optimize-logo-only.svg" href="/guides/qovery-101/optimize">
-    Control Kubernetes and application costs with intelligent optimization
+    Intelligent cost control and resource optimization
   </Card>
   <Card title="Secure" icon="/logos/secure-logo-only.svg" href="/guides/qovery-101/secure">
-    Enforce security best practices and meet compliance standards
+    Built-in security and compliance (SOC2, GDPR, HIPAA)
   </Card>
 </CardGroup>
 
-## How Qovery Works
-
-Qovery uses Kubernetes as a universal orchestrator to manage your applications and infrastructure across multiple cloud providers. The platform integrates five core products that work together seamlessly:
-
-<img src="/images/qovery-architecture.svg" alt="Qovery Architecture - Five products (Provision, Deploy, Observe, Optimize, Secure) running on Kubernetes across AWS, Google Cloud, Azure, and Scaleway" className="light-mode-only" />
-<img src="/images/qovery-architecture-dark.svg" alt="Qovery Architecture - Five products (Provision, Deploy, Observe, Optimize, Secure) running on Kubernetes across AWS, Google Cloud, Azure, and Scaleway" className="dark-mode-only" />
-
-This architecture allows you to:
-- **Provision** infrastructure and Kubernetes clusters across any cloud provider
-- **Deploy** applications, databases, and services with GitOps workflows
-- **Observe** your entire stack with unified monitoring and logging
-- **Optimize** costs and resources with intelligent recommendations
-- **Secure** your infrastructure with built-in security and compliance
-
-All orchestrated through Kubernetes, running on your own cloud infrastructure.
-
-## Key Features
-
-### Self-Service Platform
-
-Qovery provides developers with a self-service platform where they can:
-
-- Deploy applications, databases, and jobs without waiting for DevOps
-- Manage multiple environments (dev, staging, production)
-- Configure CI/CD pipelines automatically
-- Monitor application health and logs in real-time
-
-### Multi-Cloud Support
-
-Deploy on your preferred cloud provider:
-
-- **AWS** - Full support for EKS and AWS services
-- **Google Cloud Platform** - GKE integration
-- **Azure** - AKS support
-- **On-Premise** - Kubernetes cluster support
-
-### Infrastructure as Code
-
-Manage your infrastructure with:
-
-- **Terraform Provider** - Define infrastructure declaratively
-- **CLI** - Command-line automation
-- **API** - Programmatic access for custom integrations
-- **Web Console** - Intuitive visual interface
-
-### Built-in Best Practices
-
-Qovery implements industry best practices out of the box:
-
-- **High Availability** - Multi-zone deployments
-- **Auto-Scaling** - Horizontal and vertical scaling
-- **Security** - Network policies, secrets management, RBAC
-- **Monitoring** - Integrated observability stack
-- **Disaster Recovery** - Automated backups and restore
-
-## Why Qovery?
-
-### For Developers
-
-<AccordionGroup>
-  <Accordion title="Deploy in Minutes">
-    Connect your Git repository and deploy your application in minutes without configuring CI/CD pipelines, Dockerfiles, or Kubernetes manifests.
-  </Accordion>
-
-  <Accordion title="Multiple Environments">
-    Easily create and manage development, staging, and production environments with consistent configurations.
-  </Accordion>
-
-  <Accordion title="Preview Environments">
-    Automatically create temporary environments for every pull request to test changes before merging.
-  </Accordion>
-
-  <Accordion title="Database Management">
-    Provision PostgreSQL, MySQL, MongoDB, Redis, and more with a few clicks. Automated backups included.
-  </Accordion>
-</AccordionGroup>
-
-### For Platform Teams
-
-- **Standardization**: Enforce best practices across all teams
-- **Cost Visibility**: Track and optimize cloud spending
-- **Security Compliance**: Meet SOC 2, GDPR, HIPAA requirements
-- **Multi-Cluster Management**: Manage all your Kubernetes clusters
-
-### For Engineering Teams
-
-<AccordionGroup>
-  <Accordion title="Standardization">
-    Enforce organizational standards and best practices across all applications and teams.
-  </Accordion>
-
-  <Accordion title="Cost Optimization">
-    Monitor and optimize cloud costs with built-in cost tracking and resource recommendations.
-  </Accordion>
-
-  <Accordion title="Governance & Compliance">
-    Implement role-based access control, audit logs, and compliance policies.
-  </Accordion>
-
-  <Accordion title="Platform Engineering">
-    Leverage Qovery's DevOps Automation Platform with extensible architecture for your platform engineering needs.
-  </Accordion>
-</AccordionGroup>
-
-### Your Infrastructure, Your Control
-
-Unlike traditional PaaS solutions, Qovery runs on **your own cloud infrastructure**:
-
-- Full ownership and control
-- No vendor lock-in
-- Cost transparency
-- Data sovereignty
-
-## Supported Technologies
-
-### Languages & Frameworks
-
-Qovery supports any language or framework that can be containerized:
-
-- Node.js, Python, Java, Go, Ruby, PHP
-- React, Vue, Angular, Next.js, Nuxt
-- Django, Flask, FastAPI, Express, Spring Boot
-- And many more...
-
-### Databases
-
-- **SQL**: PostgreSQL, MySQL, MariaDB
-- **NoSQL**: MongoDB, Redis
-- **Search**: Elasticsearch
-- **Message Queues**: RabbitMQ
-
-### Container Registries
-
-- Docker Hub
-- AWS ECR
-- Google Container Registry (GCR)
-- Azure Container Registry (ACR)
-- GitHub Container Registry (GHCR)
-- GitLab Container Registry
-- Private registries
-
-## Comparison
-
-### Qovery vs Traditional DevOps
-
-| Traditional DevOps | Qovery |
-|-------------------|--------|
-| Manual Kubernetes setup | One-click cluster creation |
-| Write Dockerfiles & CI/CD | Automatic detection and deployment |
-| Manual scaling configuration | Auto-scaling out of the box |
-| DIY monitoring & logging | Built-in observability |
-| Custom security policies | Security best practices included |
-
-### Qovery vs Heroku/Platform.sh
-
-| Managed PaaS | Qovery |
-|--------------|--------|
-| Runs on vendor infrastructure | Your own cloud account |
-| Limited cloud provider choice | AWS, GCP, Azure, on-premise |
-| Vendor lock-in | Full portability |
-| Higher costs at scale | Cost-efficient |
-| Black box infrastructure | Full visibility and control |
-
-## Platform Capabilities
-
-### Provision: Multi-Cluster Management
-
-- One-click Kubernetes cluster provisioning
-- Multi-cloud and on-premise support
-- Unified cluster management interface
-- Automated infrastructure setup
-
-### Deploy: Application Delivery
-
-- Containerized applications and databases
-- Automatic CI/CD pipeline generation
-- Blue/green and canary deployments
-- Rollback and disaster recovery
-
-### Observe: Unified Observability
-
-- Real-time metrics and logs
-- Correlated application and infrastructure views
-- Performance monitoring
-- Alert management
-
-### Optimize: Cost Control
-
-- Real-time cost tracking
-- Resource right-sizing recommendations
-- Spot instance management
-- Cost allocation by team/project
-
-### Secure: Compliance & Security
-
-- Role-based access control (RBAC)
-- Secrets management
-- Network policies and isolation
-- SOC 2, GDPR, HIPAA compliance
-
-## Use Cases
-
-<AccordionGroup>
-  <Accordion title="Startups">
-    **Fast Time to Market**: Get production infrastructure running in hours, not weeks. Focus on building features, not managing infrastructure. Pay only for what you use on your own cloud account.
-  </Accordion>
-
-  <Accordion title="Scale-ups">
-    **Developer Productivity**: Enable self-service deployments while maintaining security and compliance. Reduce DevOps bottlenecks. Manage infrastructure for multiple products and teams.
-  </Accordion>
-
-  <Accordion title="Enterprises">
-    **Platform Engineering**: Leverage Qovery's DevOps Automation Platform for enterprise-scale deployments. Multi-cloud, multi-cluster management with enterprise security, RBAC, and audit logs.
-  </Accordion>
-</AccordionGroup>
-
-## Getting Started
-
-<Steps>
-  <Step title="Learn How It Works">
-    Understand [how Qovery works](/how-it-works) and the [basic concepts](/basic-concepts)
-  </Step>
-
-  <Step title="Install Qovery">
-    Follow the [installation guide](/installation) to set up Qovery on your infrastructure
-  </Step>
-
-  <Step title="Deploy Your First App">
-    Use the [quickstart guide](/quickstart) to deploy your first application
-  </Step>
-
-  <Step title="Explore Configuration">
-    Learn about [configuration options](/configuration/overview) and [security](/security/overview)
-  </Step>
-</Steps>
+## Why Choose Qovery?
+
+<Tabs>
+  <Tab title="For Developers">
+    **Ship faster without DevOps bottlenecks**
+
+    - Deploy apps in minutes without Kubernetes knowledge
+    - Auto-generated CI/CD pipelines
+    - Preview environments for every pull request
+    - Real-time logs and monitoring
+  </Tab>
+
+  <Tab title="For Platform Teams">
+    **Standardize and scale across teams**
+
+    - Enforce best practices organization-wide
+    - Multi-cluster management from one interface
+    - Cost visibility and optimization
+    - SOC2, GDPR, HIPAA compliance built-in
+  </Tab>
+
+  <Tab title="Your Infrastructure">
+    **Unlike Heroku or Platform.sh**
+
+    - Runs on **your** AWS, GCP, Azure, or Scaleway
+    - No vendor lock-in (standard Kubernetes)
+    - Full cost transparency
+    - Complete data sovereignty
+  </Tab>
+</Tabs>
 
 ## What's Next?
 
 <CardGroup cols={2}>
-  <Card title="How It Works" icon="gears" href="/how-it-works">
+  <Card title="Quick Start Guide" icon="rocket" href="/quickstart">
+    Deploy your first app in 15 minutes
+  </Card>
+  <Card title="How Qovery Works" icon="gears" href="/how-it-works">
     Understand the architecture
   </Card>
-  <Card title="Basic Concepts" icon="book" href="/basic-concepts">
-    Learn core concepts and terminology
+  <Card title="Core Concepts" icon="book" href="/basic-concepts">
+    Learn essential terminology
   </Card>
-  <Card title="Installation" icon="download" href="/installation">
-    Get started with installation
-  </Card>
-  <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Deploy your first app
+  <Card title="Platform Products" icon="graduation-cap" href="/guides/qovery-101/provision">
+    Deep dive into all five products
   </Card>
 </CardGroup>

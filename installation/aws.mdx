@@ -23,20 +23,20 @@ Already have a Kubernetes cluster? See the [BYOK guide](/integrations/kubernetes
 Qovery uses [Karpenter](https://karpenter.sh/) for intelligent node provisioning, which automatically selects the most cost-effective EC2 instances for your workloads:
 
 **Key Benefits**:
-- **60% cost savings** through spot instances and consolidation
+- **60-90% cost savings** through spot instances and consolidation
 - **Fast scaling** - Provisions nodes in seconds (vs minutes with traditional auto-scaling)
-- **Smart instance selection** - Automatically chooses optimal instance types
+- **Smart instance selection** - Picks the best from your allowed instance types
 - **Workload consolidation** - Packs pods efficiently to minimize node count
 
 **How It Works**:
-When you select an instance type (like t3.large), Karpenter uses it as a **baseline** but can provision other similar or better instances based on:
+During setup, you **select multiple instance types** (e.g., t3.medium, t3.large, m5.xlarge, m6i.large). Karpenter then automatically chooses the best option based on:
 - Your application resource requirements
-- Availability and pricing across multiple instance families
 - Spot vs on-demand availability
-- ARM vs x86 architecture preferences
+- Cost optimization across your selected instance types
+- Current capacity and pricing
 
 <Info>
-The instance type you choose during setup defines the **default node pool**. Karpenter can provision from a range of similar instances (t3, m5, m6i families) to optimize cost and availability.
+**More instance types = better optimization!** Select a variety of instance types (t3, m5, m6i families) to give Karpenter maximum flexibility for cost and availability optimization.
 </Info>
 
 ## Prerequisites
@@ -226,19 +226,22 @@ Follow these steps to create your first Qovery cluster on AWS:
     </Tabs>
   </Step>
 
-  <Step title="Choose Instance Type">
-    Select the baseline instance type for your cluster nodes:
+  <Step title="Select Instance Types">
+    **Select ALL instance types** Karpenter can use:
 
-    - **t3.medium** (2 vCPU, 4GB) - Testing/dev ($30/month per node)
-    - **t3.large** (2 vCPU, 8GB) - Light production ($60/month) ← **Recommended**
-    - **t3.xlarge** (4 vCPU, 16GB) - Standard production ($120/month)
-    - **Custom** - Pick your own
+    Recommended selections:
+    - ✅ **t3.medium** (2 vCPU, 4GB)
+    - ✅ **t3.large** (2 vCPU, 8GB) ← Start here
+    - ✅ **t3.xlarge** (4 vCPU, 16GB)
+    - ✅ **t3.2xlarge** (8 vCPU, 32GB)
+    - ✅ **m5.large, m5.xlarge** (alternative instance family)
+    - ✅ **m6i.large, m6i.xlarge** (newer generation)
 
     <Info>
-    **Karpenter will optimize from here**: Your selected instance type is the baseline. Karpenter can provision similar instances (t3, m5, m6i families) based on workload needs and availability. Enable **spot instances** for 60-90% savings.
+    **Select multiple types!** Karpenter will automatically pick the best instance from your selections based on cost, availability, and workload requirements. Enable **spot instances** for 60-90% savings.
     </Info>
 
-    Don't worry - you can adjust this later in cluster settings!
+    You can adjust these selections later in cluster settings!
   </Step>
 
   <Step title="Review and Create">
@@ -252,17 +255,45 @@ Follow these steps to create your first Qovery cluster on AWS:
 
 ## What Qovery Creates for You
 
-When you create a cluster, Qovery automatically provisions:
+When you create a cluster, Qovery automatically provisions a complete, production-ready infrastructure:
 
-- ✅ **EKS Cluster** - Latest stable Kubernetes version
-- ✅ **VPC & Networking** - Private/public subnets across 3 availability zones
-- ✅ **NAT Gateways** - Secure internet access for private subnets
-- ✅ **Security Groups & IAM Roles** - Pre-configured with best practices
+### Network Architecture
+
+- ✅ **Dedicated VPC** - Multi-AZ VPC isolating your infrastructure
+- ✅ **Subnets & Routing** - Public/private subnets across 3 availability zones with routing tables
+- ✅ **Internet Gateway** - For outbound container connectivity
+- ✅ **Network Load Balancer** - Redirects HTTPS traffic to Nginx Ingress
+- ✅ **NAT Gateways (Optional)** - With Elastic IPs for static outbound addresses
+- ✅ **Database Networks** - Dedicated security groups and subnets for:
+  - RDS (relational databases)
+  - DocumentDB (document storage)
+  - ElastiCache (cache layers)
+
+### Kubernetes Infrastructure
+
+- ✅ **EKS Cluster** - Multi-AZ, latest stable Kubernetes version
+- ✅ **Managed Worker Nodes** - AWS-managed EC2 instances with Karpenter
+- ✅ **Security Groups** - Dual authentication for EKS remote access (TLS + IAM authenticator)
+- ✅ **IAM Components**:
+  - EBS CSI driver access for persistent volumes
+  - IAM User Sync for Kubernetes authentication
+  - Cluster Autoscaler permissions
+  - EKS CNI and EC2 Container Registry policies
+
+### Installed Components
+
 - ✅ **Karpenter** - Intelligent auto-scaling for cost optimization
 - ✅ **AWS Load Balancer Controller** - Automatic ingress management
 - ✅ **EBS CSI Driver** - Persistent volume support
 - ✅ **Metrics Server** - Resource monitoring
 - ✅ **Qovery Agent** - Observability and management
+
+### Storage & Logging
+
+- ✅ **KMS-Encrypted S3 Buckets** - For:
+  - Application logs
+  - Kubeconfig storage (versioned, private)
+- ✅ **CloudWatch Log Groups** - Cluster diagnostics and logging
 
 ### Karpenter Auto-Scaling
 

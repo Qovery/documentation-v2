@@ -1,156 +1,130 @@
 ---
-title: "How It Works"
-description: "Understand how Qovery extends Kubernetes into a production-ready super orchestrator"
+title: "How Qovery Works"
+description: "Understand the architecture behind Qovery's DevOps Automation Platform"
 ---
 
-## Overview
+## The Big Picture
 
-Qovery works on top of Kubernetes and extends it into a production-ready super orchestrator. By adding powerful automation, management capabilities, and developer-friendly interfaces on top of Kubernetes, Qovery transforms it into a complete DevOps Automation Platform.
+Qovery extends Kubernetes into a **production-ready super orchestrator** that manages not just containers, but your entire cloud infrastructure—databases, storage, serverless functions, and more—all orchestrated through Kubernetes.
 
 <img src="/images/qovery-architecture.svg" alt="Qovery Architecture - Five products running on Kubernetes across multiple cloud providers" className="light-mode-only" />
 <img src="/images/qovery-architecture-dark.svg" alt="Qovery Architecture - Five products running on Kubernetes across multiple cloud providers" className="dark-mode-only" />
 
-## Kubernetes as the Foundation
+## Why Kubernetes?
 
-Kubernetes is a powerful container orchestration platform, but it was designed for infrastructure operators, not developers. Qovery extends Kubernetes with:
+Kubernetes was designed for infrastructure operators—not developers. Qovery bridges this gap by adding:
 
-- **Developer Experience** - Self-service [deployment](/configuration/deployment/overview) without Kubernetes expertise
-- **Production Readiness** - Built-in [security](/guides/qovery-101/secure), [monitoring](/guides/qovery-101/observe), and compliance
-- **Multi-Cloud Support** - Deploy to [AWS](/installation/aws), [Google Cloud](/installation/gcp), [Azure](/installation/azure), or [Scaleway](/installation/scaleway)
-- **Infrastructure Orchestration** - Manage not just containers, but [databases](/configuration/database), storage, and any cloud resource via [Terraform](/configuration/terraform)
+- **Developer Experience** - Deploy without Kubernetes expertise
+- **Production Readiness** - Security, monitoring, and compliance built-in
+- **Multi-Cloud** - Works on AWS, GCP, Azure, Scaleway, on-premise
+- **Universal Orchestration** - Manages containers, databases, Terraform, and more
 
-## The Super Orchestrator
+## The Five Products
 
-Qovery turns Kubernetes into a super orchestrator that manages:
+Qovery's architecture consists of five integrated products:
 
 <CardGroup cols={2}>
   <Card title="Provision" icon="/logos/provision-logo-only.svg" href="/guides/qovery-101/provision">
-    **Infrastructure Management**
-
-    [Install and manage Kubernetes clusters](/installation) across multiple clouds. Provision infrastructure resources using [Terraform](/configuration/terraform) directly from Kubernetes. Learn more about [provisioning](/guides/qovery-101/provision).
+    Manage Kubernetes clusters across any cloud. Deploy infrastructure as code with Terraform.
   </Card>
 
   <Card title="Deploy" icon="/logos/deploy-logo-only.svg" href="/guides/qovery-101/deploy">
-    **Application Delivery**
-
-    Deploy [applications](/configuration/application), [databases](/configuration/database), and services with GitOps workflows. Automatic builds, rolling updates, and rollbacks. Learn more about [deployment](/guides/qovery-101/deploy).
+    GitOps-based deployment for applications, databases, and services. Automatic builds and rollbacks.
   </Card>
 
   <Card title="Observe" icon="/logos/observe-logo-only.svg" href="/guides/qovery-101/observe">
-    **Unified Observability**
-
-    Get visibility into your entire stack with correlated metrics, logs, and events across applications and infrastructure. Learn more about [observability](/guides/qovery-101/observe).
+    Unified observability with correlated metrics, logs, and events across your stack.
   </Card>
 
   <Card title="Optimize" icon="/logos/optimize-logo-only.svg" href="/guides/qovery-101/optimize">
-    **Cost Control**
-
-    Monitor and optimize Kubernetes and application costs with intelligent recommendations and automation. Learn more about [optimization](/guides/qovery-101/optimize).
+    Intelligent cost tracking and optimization recommendations for Kubernetes and apps.
   </Card>
 
   <Card title="Secure" icon="/logos/secure-logo-only.svg" href="/guides/qovery-101/secure">
-    **Security & Compliance**
-
-    Enforce security best practices and meet compliance standards (SOC2, GDPR, HIPAA, HDS, DORA). Learn more about [security](/guides/qovery-101/secure).
+    Built-in security and compliance for SOC2, GDPR, HIPAA, HDS, and DORA.
   </Card>
 </CardGroup>
 
 ## Your Infrastructure, Your Control
 
-Unlike traditional PaaS solutions, Qovery runs on **your own Kubernetes clusters** in **your cloud accounts**:
+Unlike traditional PaaS (Heroku, Platform.sh), Qovery runs on **your own cloud accounts**:
 
-- **Full Ownership** - Complete control over your infrastructure
+- **Full Ownership** - Your infrastructure, your rules
 - **No Vendor Lock-in** - Standard Kubernetes underneath
-- **Cost Transparency** - Direct cloud provider billing
-- **Data Sovereignty** - Your data stays in your infrastructure
+- **Cost Transparency** - Direct cloud billing, no markup
+- **Data Sovereignty** - Data stays in your chosen region
 
-## How Qovery Extends Kubernetes
+## Three Layers of Abstraction
 
-### 1. Developer-Friendly Abstraction
+### 1. Multiple Interfaces
 
-Qovery provides multiple interfaces to work with Kubernetes without requiring deep Kubernetes knowledge:
+Work with Qovery through your preferred method:
 
-- **Web Console** - Visual interface for managing applications
-- **[CLI](/cli/overview)** - Command-line interface for automation
-- **[Terraform Provider](/configuration/terraform)** - Infrastructure as Code
-- **[REST API](/api/overview)** - Programmatic access
-- **[MCP Server](/copilot/mcp-server)** - AI Copilot integration with agentic capabilities
+- **Web Console** - Visual interface for teams
+- **[CLI](/cli/overview)** - Command-line for developers
+- **[Terraform](/terraform/overview)** - Infrastructure as Code
+- **[API](/api/overview)** - Programmatic control
+- **[MCP Server](/copilot/mcp-server)** - AI agent integration
 
 ### 2. Production-Ready Features
 
-Qovery adds enterprise features that Kubernetes doesn't provide out of the box:
+Qovery adds what Kubernetes lacks:
 
-- **Automatic HTTPS** - Free SSL certificates with Let's Encrypt
-- **GitOps Workflow** - [Automatic deployments](/configuration/deployment/auto-deploy) from [Git](/configuration/organization/git-repository-access)
-- **[Preview Environments](/guides/advanced/preview-environments)** - Temporary environments for pull requests
-- **[Database Management](/configuration/database)** - Provision and manage databases alongside applications
-- **[Secrets Management](/configuration/environment-variables)** - Encrypted secret storage with audit logging
-- **Cost Tracking** - Real-time visibility into resource costs
+- **Automatic HTTPS** - Free SSL via Let's Encrypt
+- **GitOps Workflow** - Auto-deploy on Git push
+- **Preview Environments** - Per-pull-request environments
+- **Database Management** - Provision PostgreSQL, MySQL, MongoDB, Redis
+- **Secrets Management** - Encrypted storage with audit logs
+- **Cost Tracking** - Real-time spend visibility
 
-### 3. Universal Infrastructure Orchestration
+### 3. Universal Orchestration
 
-Qovery uses Kubernetes as a universal control plane for managing **any cloud resource**, not just containers:
+Manage **any cloud resource** from Kubernetes:
 
-- **Databases** - AWS RDS, Cloud SQL, Azure Database
-- **Storage** - S3 buckets, Cloud Storage, Azure Blob
-- **Networking** - VPCs, load balancers, DNS
-- **Serverless** - Lambda functions, Cloud Functions, Cloudflare Workers
-- **Analytics** - BigQuery, Redshift, data pipelines
-- **Any Terraform Module** - Deploy any cloud resource via Terraform
+| Resource Type | Examples |
+|---------------|----------|
+| **Containers** | Docker images, applications |
+| **Databases** | RDS, Cloud SQL, Azure Database |
+| **Storage** | S3, Cloud Storage, Azure Blob |
+| **Serverless** | Lambda, Cloud Functions, Workers |
+| **Networking** | VPCs, load balancers, DNS |
+| **Custom** | Any Terraform module |
 
-This means you can manage your entire cloud infrastructure—from containers to databases to serverless functions—through a single unified platform orchestrated by Kubernetes.
+This means **one control plane** for your entire cloud infrastructure.
 
-## Simple Workflow
-
-Here's how it works in practice:
+## The Workflow
 
 <Steps>
-  <Step title="Connect Your Git Repository">
-    Link your GitHub, GitLab, or Bitbucket repository to Qovery
+  <Step title="Connect Git">
+    Link GitHub, GitLab, or Bitbucket
   </Step>
 
-  <Step title="Configure Your Application">
-    Define your application settings, environment variables, and dependencies
+  <Step title="Configure">
+    Set app settings, variables, resources
   </Step>
 
   <Step title="Deploy">
-    Push your code to Git. Qovery automatically builds, tests, and [deploys to Kubernetes](/configuration/deployment/overview)
+    Push code → Qovery builds and deploys automatically
   </Step>
 
-  <Step title="Monitor & Scale">
-    Track performance, scale resources, and optimize costs—all from the Qovery interface
+  <Step title="Scale & Monitor">
+    Track metrics, scale, optimize—all from one interface
   </Step>
 </Steps>
-
-## Key Benefits
-
-<AccordionGroup>
-  <Accordion title="For Developers">
-    **Self-Service Platform**: Deploy without waiting for DevOps. GitOps workflow with automatic deployments. Preview environments for every pull request.
-  </Accordion>
-
-  <Accordion title="For Platform Teams">
-    **Standardization & Control**: Enforce best practices across all teams. Multi-cluster management. Cost visibility and optimization.
-  </Accordion>
-
-  <Accordion title="For Enterprises">
-    **Security & Compliance**: Meet SOC2, GDPR, HIPAA, HDS, and DORA requirements. Full audit trail. Role-based access control.
-  </Accordion>
-</AccordionGroup>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Basic Concepts" icon="book" href="/basic-concepts">
-    Learn core concepts and terminology
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Deploy your first app in 15 minutes
   </Card>
-  <Card title="Installation" icon="download" href="/installation">
-    Install Qovery on your infrastructure
+  <Card title="Core Concepts" icon="book" href="/basic-concepts">
+    Learn essential terminology
   </Card>
-  <Card title="Deploy Your App" icon="rocket" href="/deploy-my-app">
-    Deploy your first application
+  <Card title="Platform Products" icon="graduation-cap" href="/guides/qovery-101/provision">
+    Deep dive into all five products
   </Card>
-  <Card title="Security & Compliance" icon="shield" href="/security-and-compliance/overview">
-    Understand security features
+  <Card title="Configuration" icon="sliders" href="/configuration/overview">
+    Explore all configuration options
   </Card>
 </CardGroup>

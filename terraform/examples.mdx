@@ -178,8 +178,8 @@ resource "qovery_application" "app" {
   environment_id = qovery_environment.production.id
   name           = "my-app"
 
-  # Use pre-built image from registry
-  build_mode = "BUILDPACKS"
+  # Use Dockerfile
+  build_mode = "DOCKER"
 
   git_repository = {
     url    = "https://github.com/your-org/app"

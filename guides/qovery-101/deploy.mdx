@@ -47,7 +47,7 @@ Deploy containerized applications from Git repositories.
 
 **Deployment Sources**:
 - GitHub, GitLab, Bitbucket repositories
-- Dockerfile or Buildpacks
+- Dockerfile
 - Monorepo support with path-based builds
 
 ### Containers
@@ -99,7 +99,7 @@ Deploy batch jobs and scheduled tasks.
     - **Name**: `my-app`
     - **Git Repository**: Select connected repo
     - **Branch**: `main` or `production`
-    - **Build Mode**: Dockerfile or Buildpack
+    - **Build Mode**: Dockerfile
     - **Port**: Application port (e.g., `3000`)
   </Step>
 
@@ -282,23 +282,6 @@ CMD ["npm", "start"]
 - **Build Mode**: Dockerfile
 - **Dockerfile Path**: `./Dockerfile` (default)
 - **Build Context**: `.` (root directory)
-
-### Buildpack Deployment
-
-Automatic language detection and build.
-
-**Supported Buildpacks**:
-- Node.js (npm, yarn, pnpm)
-- Python (pip, poetry, pipenv)
-- Go (go modules)
-- Java (Maven, Gradle)
-- Ruby (Bundler)
-- PHP (Composer)
-
-**Qovery Configuration**:
-- **Build Mode**: Buildpack
-- **Language**: Auto-detected
-- **Build Command**: Automatic
 
 ### Monorepo Support
 

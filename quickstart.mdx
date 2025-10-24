@@ -1,55 +1,962 @@
 ---
-title: "Quickstart"
-description: "Get started with Qovery in minutes"
+title: "Get Started"
+description: "Deploy your first app in 15 minutes. No Kubernetes knowledge required."
+mode: "wide"
 ---
 
-## Prerequisites
-
-Before you begin, make sure you have:
-
-- A Qovery account ([sign up here](https://console.qovery.com/signup))
-- A cloud provider account (AWS, GCP, or Azure)
-- An application to deploy
-
-## Step 1: Create a Project
-
-<Steps>
-  <Step title="Sign in to Qovery Console">
-    Navigate to [console.qovery.com](https://console.qovery.com) and sign in with your account.
-  </Step>
-
-  <Step title="Create a new project">
-    Click on "Create Project" and give it a meaningful name.
-  </Step>
-
-  <Step title="Connect your cloud provider">
-    Link your AWS, GCP, or Azure account to deploy your applications.
-  </Step>
-</Steps>
-
-## Step 2: Deploy Your First Application
-
-<Steps>
-  <Step title="Add an application">
-    Click on "Add Application" and connect your Git repository.
-  </Step>
-
-  <Step title="Configure your application">
-    Set up environment variables, resources, and deployment settings.
-  </Step>
-
-  <Step title="Deploy">
-    Click "Deploy" and watch Qovery build and deploy your application.
-  </Step>
-</Steps>
-
-## Next Steps
-
 <CardGroup cols={2}>
-  <Card title="Explore Guides" icon="book" href="/guides">
-    Learn more about Qovery features
+  <Card title="🚀 I Want to Deploy Now" icon="rocket" href="#deploy-now">
+    **Start with Docker Desktop** (5 min setup)
+
+    - No cloud account needed
+    - Learn Qovery risk-free
+    - Move to production later
+
+    **Best for:** First-time users, testing
   </Card>
-  <Card title="API Reference" icon="code" href="/api-reference">
-    Integrate Qovery with your tools
+
+  <Card title="☁️ I Want Production Ready" icon="cloud" href="#production-ready">
+    **Start with AWS/GCP/Azure** (20 min setup)
+
+    - Production infrastructure
+    - Auto-scaling & monitoring
+    - Your cloud account
+
+    **Best for:** Production deployments
   </Card>
 </CardGroup>
+
+---
+
+<div id="deploy-now"></div>
+
+## Path 1: Deploy Now with Docker Desktop
+
+**Time:** ~15 minutes total | **Cost:** Free
+
+Perfect for learning Qovery without cloud accounts or costs.
+
+### Step 1: Prerequisites
+
+<Steps>
+  <Step title="Install Docker Desktop">
+    Download and install Docker Desktop: [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+
+    **System Requirements:**
+    - 4 CPU cores
+    - 8 GB RAM minimum
+    - macOS, Windows (WSL2), or Linux
+
+    Make sure Docker Desktop is running before proceeding.
+  </Step>
+
+  <Step title="Install Qovery CLI">
+    Run this command to install the Qovery CLI:
+
+    ```bash
+    curl -s https://get.qovery.com | bash
+    ```
+
+    <Tip>
+    The CLI works on Linux, macOS, and Windows (WSL only).
+    </Tip>
+  </Step>
+</Steps>
+
+### Step 2: Authenticate with Qovery
+
+<Steps>
+  <Step title="Sign Up">
+    Create your free account: [console.qovery.com/signup](https://console.qovery.com/signup)
+  </Step>
+
+  <Step title="Authenticate CLI">
+    Run the auth command:
+
+    ```bash
+    qovery auth
+    ```
+
+    This opens your browser to complete authentication.
+
+    <Info>
+    **Running in a terminal without browser?** Use `qovery auth --headless` instead.
+    </Info>
+  </Step>
+
+  <Step title="Set Context">
+    Configure your CLI context:
+
+    ```bash
+    qovery context set
+    ```
+
+    Select your organization when prompted.
+  </Step>
+</Steps>
+
+### Step 3: Deploy Local Demo Cluster
+
+<Steps>
+  <Step title="Start Demo Cluster">
+    Deploy a local k3s Kubernetes cluster with Qovery:
+
+    ```bash
+    qovery demo up
+    ```
+
+    This command:
+    - Installs k3s (lightweight Kubernetes)
+    - Installs Qovery agent and components
+    - Configures networking and ingress
+    - Typically takes 5-10 minutes
+
+    <Warning>
+    **Demo clusters are for testing only** - not for production use!
+    </Warning>
+  </Step>
+
+  <Step title="Verify Installation">
+    Once complete, visit [console.qovery.com](https://console.qovery.com)
+
+    You should see your demo cluster listed and connected.
+  </Step>
+</Steps>
+
+### Step 4: Choose Your Deployment Method
+
+Qovery supports multiple ways to deploy your applications. Choose the method that fits your workflow:
+
+<Tabs>
+  <Tab title="Build from Git (Recommended)">
+    **Best for:** Building and deploying source code directly
+
+    <Steps>
+      <Step title="Navigate to Git Settings">
+        In Qovery Console: **Organization Settings** → **Git Repository Access**
+      </Step>
+
+      <Step title="Connect Your Git Provider">
+        <Tabs>
+          <Tab title="GitHub">
+            1. Click **Connect GitHub**
+            2. Authorize Qovery (read access only)
+            3. Select repositories to access
+          </Tab>
+          <Tab title="GitLab">
+            1. Click **Connect GitLab**
+            2. Authorize Qovery
+            3. Select repositories
+          </Tab>
+          <Tab title="Bitbucket">
+            1. Click **Connect Bitbucket**
+            2. Authorize Qovery
+            3. Select repositories
+          </Tab>
+        </Tabs>
+
+        <Info>
+        Don't have a repo ready? Use one of our samples:
+        - [Node.js App](https://github.com/Qovery/simple-example-node)
+        - [Python FastAPI](https://github.com/Qovery/simple-example-python-fastapi)
+        - [Go App](https://github.com/Qovery/simple-example-go-gin)
+
+        Fork to your account, then connect!
+        </Info>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Deploy Pre-Built Containers">
+    **Best for:** Deploying existing Docker images from registries
+
+    <Steps>
+      <Step title="Connect Container Registry">
+        In Qovery Console: **Organization Settings** → **Container Registry**
+
+        Choose your registry:
+        - **Docker Hub**
+        - **AWS ECR**
+        - **Google Artifact Registry**
+        - **Azure ACR**
+        - **GitHub Container Registry**
+        - **GitLab Container Registry**
+        - **Scaleway Container Registry**
+        - **Generic Registry** (Harbor, Artifactory, etc.)
+      </Step>
+
+      <Step title="Provide Credentials">
+        Enter registry credentials (username/password or access token)
+
+        [Detailed registry setup guides →](/integrations/container-registries/overview)
+      </Step>
+    </Steps>
+
+    <Info>
+    You'll select the container image when creating your application in Step 5.
+    </Info>
+  </Tab>
+
+  <Tab title="Deploy Helm Charts">
+    **Best for:** Deploying pre-packaged Helm applications
+
+    <Steps>
+      <Step title="Connect Helm Repository">
+        In Qovery Console: **Organization Settings** → **Helm Repository**
+
+        Add your Helm repository URL (e.g., Bitnami, custom chart museum)
+      </Step>
+
+      <Step title="Provide Authentication (if needed)">
+        For private repositories, provide credentials
+
+        [Detailed Helm setup →](/integrations/helm/overview)
+      </Step>
+    </Steps>
+
+    <Info>
+    You'll select the Helm chart when creating a Helm service in Step 5.
+    </Info>
+  </Tab>
+</Tabs>
+
+### Step 5: Deploy Your First App
+
+<Steps>
+  <Step title="Create a Project">
+    Projects organize your apps.
+
+    1. Click **Projects** in sidebar
+    2. Click **Create Project**
+    3. Name: "My First Project"
+    4. Select cluster: "docker-desktop"
+    5. Click **Create**
+  </Step>
+
+  <Step title="Create an Environment">
+    Environments are deployment stages (dev/staging/prod).
+
+    1. Inside your project, click **Create Environment**
+    2. Name: "development"
+    3. Type: **DEVELOPMENT**
+    4. Click **Create**
+  </Step>
+
+  <Step title="Add Your Service">
+    The configuration depends on your deployment method from Step 4:
+
+    <Tabs>
+      <Tab title="From Git Repository">
+        1. Click **Add Service** → **Application**
+        2. **General:**
+           - Name: (auto-filled from repo name)
+        3. **Source:**
+           - Source: **Git Repository**
+           - Git Provider: (your connected provider)
+           - Repository: (select your app)
+           - Branch: `main` or `master`
+        4. **Build:**
+           - Qovery auto-detects your Dockerfile
+           - Leave defaults unless you have custom needs
+        5. **Port:**
+           - Application port: `3000` (or whatever your app uses)
+           - Publicly accessible: **Enable**
+        6. Click **Create**
+      </Tab>
+
+      <Tab title="From Container Registry">
+        1. Click **Add Service** → **Container**
+        2. **General:**
+           - Name: "my-app"
+        3. **Source:**
+           - Source: **Container Registry**
+           - Registry: (your connected registry)
+           - Image name: `my-org/my-app`
+           - Tag: `latest` (or specific version)
+        4. **Port:**
+           - Container port: `8080` (or whatever your container exposes)
+           - Publicly accessible: **Enable**
+        5. Click **Create**
+
+        <Info>
+        Qovery will pull the image directly from your registry—no build needed!
+        </Info>
+      </Tab>
+
+      <Tab title="From Helm Chart">
+        1. Click **Add Service** → **Helm**
+        2. **General:**
+           - Name: "my-helm-app"
+        3. **Source:**
+           - Source: **Helm Repository**
+           - Repository: (your connected Helm repo)
+           - Chart name: `my-chart`
+           - Chart version: (select version)
+        4. **Values (optional):**
+           - Override default Helm values if needed
+           - Example: `replicaCount: 2`
+        5. Click **Create**
+
+        <Info>
+        Qovery will deploy the Helm chart with your custom values.
+        </Info>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Deploy!">
+    Click the **Deploy** button (top right)
+
+    What happens next depends on your deployment method:
+
+    <Tabs>
+      <Tab title="Git Repository">
+        Watch Qovery build and deploy:
+        - 🔄 Cloning repository
+        - 🏗️ Building container image
+        - 📦 Pushing to registry
+        - 🚀 Deploying to Kubernetes
+        - ✅ Configuring networking
+
+        **First deploy:** 3-5 minutes
+      </Tab>
+
+      <Tab title="Container Registry">
+        Watch Qovery deploy your pre-built image:
+        - 📥 Pulling image from registry
+        - 🚀 Deploying to Kubernetes
+        - ✅ Configuring networking
+
+        **First deploy:** 1-2 minutes (no build needed!)
+      </Tab>
+
+      <Tab title="Helm Chart">
+        Watch Qovery deploy your Helm chart:
+        - 📥 Fetching Helm chart
+        - ⚙️ Rendering templates with values
+        - 🚀 Deploying to Kubernetes
+        - ✅ Configuring resources
+
+        **First deploy:** 1-3 minutes
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Access Your App">
+    Once status shows **Running**:
+    1. Click your application name
+    2. Find the **Public URL**
+    3. Click to open in browser
+
+    🎉 Your app is live!
+  </Step>
+</Steps>
+
+<Accordion title="⚠️ Deployment Failed? Troubleshooting Tips">
+  **Build failed?**
+  - Check build logs for missing dependencies
+  - Verify Dockerfile syntax
+  - Ensure all dependencies are in `package.json`/`requirements.txt`/etc.
+
+  **App crashes after deploy?**
+  - Check application logs
+  - Verify port matches your app (3000, 8080, etc.)
+  - Make sure app listens on `0.0.0.0` not `127.0.0.1`
+  - Check for missing environment variables
+
+  **Can't access URL?**
+  - Wait 1-2 minutes for DNS propagation
+  - Verify "Publicly accessible" is enabled
+  - Check application status is "Running"
+</Accordion>
+
+### 🧹 Clean Up Demo (When Done)
+
+When you're finished testing, destroy the demo cluster:
+
+```bash
+qovery demo destroy
+```
+
+This removes the local k3s cluster and all Qovery components.
+
+### 🎯 What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Add a Database" icon="database" href="/guides/getting-started/connect-database">
+    Deploy PostgreSQL, MySQL, or MongoDB
+  </Card>
+  <Card title="Add Environment Variables" icon="key" href="/configuration/environment-variables">
+    Configure secrets and settings
+  </Card>
+  <Card title="Move to Production Cloud" icon="cloud" href="#production-ready">
+    Ready for AWS/GCP/Azure?
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/cli/overview">
+    Explore more CLI commands
+  </Card>
+</CardGroup>
+
+---
+
+<div id="production-ready"></div>
+
+## Path 2: Production-Ready Setup (AWS/GCP/Azure)
+
+**Time:** ~30 minutes total | **Cost:** Cloud provider charges apply
+
+Choose your cloud provider and follow the steps to create production infrastructure.
+
+<Tabs>
+  <Tab title="AWS">
+    ### Prerequisites
+
+    Before starting:
+    - AWS account
+
+    ### Step 1: Create AWS Credentials
+
+    <Tabs>
+      <Tab title="STS Assume Role (Recommended)">
+        **Most secure** - Short-lived, automatically refreshed credentials with granular access control.
+
+        <Warning>
+        **We strongly recommend using Assume Role via STS.** Static credentials are long-lived and more exposed to leaks, while Assume Role provides short-lived, automatically refreshed credentials with granular access control, reducing security risks.
+        </Warning>
+
+        <Steps>
+          <Step title="Access AWS Console">
+            - Log into [console.aws.amazon.com](https://console.aws.amazon.com)
+            - Ensure you're on the correct AWS account
+          </Step>
+
+          <Step title="Deploy CloudFormation Stack">
+            - In Qovery Console, click the **CloudFormation link** provided
+            - This opens AWS CloudFormation with a pre-built template
+            - Click **Next** → **Next** → **Next**
+            - ✅ Check **"I acknowledge that AWS CloudFormation might create IAM resources with custom names"**
+            - Click **Create stack**
+          </Step>
+
+          <Step title="Wait for Stack Creation">
+            Wait ~1 minute for stack status: `CREATE_COMPLETE`
+          </Step>
+
+          <Step title="Retrieve Role ARN">
+            - Go to the **Outputs** tab
+            - Copy the **RoleArn** value (starts with `arn:aws:iam::`)
+
+            ![Stack Output](/images/aws-credentials/stack-output.png)
+          </Step>
+
+          <Step title="Configure in Qovery">
+            - Paste the Role ARN into Qovery
+            - Give your credentials a name for easy identification
+            - Click **Save**
+          </Step>
+        </Steps>
+      </Tab>
+
+      <Tab title="Static Credentials">
+        **Alternative** - Access Key and Secret Access Key (long-lived credentials).
+
+        <Warning>
+        Static credentials are more exposed to leaks and require manual rotation. Use STS Assume Role for production environments.
+        </Warning>
+
+        <Steps>
+          <Step title="Create IAM User">
+            - Go to AWS IAM Console → **Users**
+            - Click **Create user**
+
+            ![Create User](/images/aws-credentials/aws-create-user-1.jpg)
+          </Step>
+
+          <Step title="Attach Permissions">
+            - User name: `qovery-admin`
+            - Attach **AdministratorAccess** policy (or custom policy with required permissions)
+
+            ![Attach Policy](/images/aws-credentials/aws-add-policy-1.jpg)
+          </Step>
+
+          <Step title="Generate Access Keys">
+            - Go to user's **Security credentials** tab
+            - Click **Create access key**
+            - Select use case: **Third-party service**
+            - Copy **Access Key ID** and **Secret Access Key**
+
+            ![Create Access Key](/images/aws-credentials/aws-create-credentials-1.png)
+          </Step>
+
+          <Step title="Configure in Qovery">
+            - In Qovery, select **Static Credentials**
+            - Paste Access Key ID and Secret Access Key
+            - Click **Save**
+
+            <Warning>
+            Remember to rotate these credentials regularly (recommended every 90 days).
+            </Warning>
+          </Step>
+        </Steps>
+      </Tab>
+    </Tabs>
+
+    ### Step 2: Create Cluster
+
+    <Steps>
+      <Step title="Navigate to Qovery">
+        1. Go to [console.qovery.com](https://console.qovery.com)
+        2. Click **Clusters** in the left panel
+        3. Click **Create Cluster** → Select **AWS**
+      </Step>
+
+      <Step title="Configure Cluster">
+        - **Name:** `production-eks`
+        - **Region:** Choose closest to users (e.g., `us-east-1`, `eu-west-1`)
+        - **Credentials:** Select the credentials you just created
+      </Step>
+
+      <Step title="Select Instance Types">
+        **Select ALL instance types** Karpenter can choose from:
+
+        Example selection:
+        - ✅ **t3.medium** (2 vCPU, 4GB)
+        - ✅ **t3.large** (2 vCPU, 8GB)
+        - ✅ **t3.xlarge** (4 vCPU, 16GB)
+        - ✅ **t3.2xlarge** (8 vCPU, 32GB)
+        - ✅ **m5.large** (2 vCPU, 8GB)
+        - ✅ **m5.xlarge** (4 vCPU, 16GB)
+        - ✅ **m6i.large** (2 vCPU, 8GB)
+        - ✅ **m6i.xlarge** (4 vCPU, 16GB)
+
+        <Info>
+        Karpenter automatically picks the **best instance** from your selections based on workload needs, spot availability, and cost.
+
+        **More types = better optimization!**
+        </Info>
+
+        <Tip>
+        Enable **spot instances** for 60-90% cost savings. Karpenter handles interruptions gracefully and automatically falls back to on-demand if needed.
+        </Tip>
+      </Step>
+
+      <Step title="Create & Deploy">
+        Click **Create and Deploy**
+
+        ⏱️ **Time:** Up to 30 minutes
+
+        **What's created:**
+        - EKS control plane & nodes
+        - VPC with public/private subnets
+        - NAT Gateways
+        - Load balancers
+        - Karpenter auto-scaling
+        - Security groups & IAM roles
+        - Monitoring & logging
+
+        <Info>
+        You can configure applications while the cluster is being created!
+        </Info>
+      </Step>
+    </Steps>
+
+    ### Step 3: Connect Git & Deploy
+
+    Once cluster is ready, follow these steps from Path 1:
+    - [Choose Your Deployment Method](#step-4-choose-your-deployment-method)
+    - [Deploy Your First App](#step-5-deploy-your-first-app)
+
+    [Detailed AWS guide →](/integrations/kubernetes/eks/managed)
+  </Tab>
+
+  <Tab title="GCP">
+    ### Prerequisites
+
+    Before starting:
+    - GCP account with an **active project** and **billing enabled**
+    - Minimum quotas: **4 CPUs** and **8 GB memory**
+
+    ### Step 1: Create GCP Credentials
+
+    <Steps>
+      <Step title="Open GCP Console">
+        Go to [Google Cloud Console](https://console.cloud.google.com) and select your project (or create a new one)
+
+        ![GCP Project](/images/gcp-credentials/gcp_project.png)
+      </Step>
+
+      <Step title="Open Cloud Shell">
+        Click the **Cloud Shell** icon in the top right corner of the GCP Console
+
+        ![Open Cloud Shell](/images/gcp-credentials/gcp_shell_1.png)
+      </Step>
+
+      <Step title="Run Credential Script">
+        Execute this command in Cloud Shell:
+
+        ```bash
+        curl https://hub.qovery.com/files/create_credentials_gcp.sh | bash -s -- $GOOGLE_CLOUD_PROJECT qovery_role qovery-service-account
+        ```
+
+        This creates:
+        - Service account: `qovery-service-account`
+        - Custom role: `qovery_role` with required permissions
+        - JSON key file: `key.json`
+
+        <Info>
+        You can customize the service account name and role name by changing the parameters.
+        </Info>
+
+        ![Run Script](/images/gcp-credentials/gcp_shell_5.png)
+      </Step>
+
+      <Step title="Download JSON Key">
+        After successful execution, download the generated `key.json` file:
+
+        1. Click the **⋮** (three dots) menu in Cloud Shell
+        2. Select **Download**
+        3. Enter file path: `key.json`
+        4. Save the file locally
+
+        ![Download Key](/images/gcp-credentials/gcp_shell_6.png)
+
+        <Warning>
+        Keep this JSON file secure! It provides access to your GCP project.
+        </Warning>
+      </Step>
+    </Steps>
+
+    ### Step 2: Create Cluster
+
+    <Steps>
+      <Step title="Navigate to Qovery">
+        1. Go to [console.qovery.com](https://console.qovery.com)
+        2. Click **Clusters** in the left panel
+        3. Click **Create Cluster** → Select **GCP**
+      </Step>
+
+      <Step title="Configure Cluster">
+        - **Name:** `production-gke`
+        - **Region:** Choose closest to users (e.g., `us-central1`, `europe-west1`)
+        - **Credentials:** Upload the `key.json` file you downloaded
+      </Step>
+
+      <Step title="Select Machine Types">
+        **Select machine types** for your node pools:
+
+        Example selection:
+        - ✅ **e2-medium** (2 vCPU, 4GB) - cost-effective
+        - ✅ **e2-standard-2** (2 vCPU, 8GB)
+        - ✅ **e2-standard-4** (4 vCPU, 16GB)
+        - ✅ **n2-standard-2** (2 vCPU, 8GB) - higher performance
+
+        <Tip>
+        Enable **preemptible VMs** for up to 80% cost savings. GKE handles interruptions gracefully.
+        </Tip>
+      </Step>
+
+      <Step title="Create & Deploy">
+        Click **Create and Deploy**
+
+        ⏱️ **Time:** Up to 20 minutes
+
+        **What's created:**
+        - GKE control plane & nodes
+        - VPC with custom subnets
+        - Cloud NAT for outbound traffic
+        - Load balancers
+        - Cluster autoscaler
+        - Monitoring & logging
+
+        <Info>
+        You can configure applications while the cluster is being created!
+        </Info>
+      </Step>
+    </Steps>
+
+    ### Step 3: Connect Git & Deploy
+
+    Once cluster is ready, follow these steps from Path 1:
+    - [Choose Your Deployment Method](#step-4-choose-your-deployment-method)
+    - [Deploy Your First App](#step-5-deploy-your-first-app)
+
+    [Detailed GCP guide →](/integrations/kubernetes/gke/managed)
+  </Tab>
+
+  <Tab title="Azure">
+    ### Prerequisites
+
+    Before starting:
+    - Azure account with an **active subscription**
+    - Access to an **Azure tenant**
+
+    ### Step 1: Create Azure Credentials
+
+    <Steps>
+      <Step title="Get Tenant and Subscription IDs">
+        1. Go to [Azure Portal](https://portal.azure.com)
+        2. Navigate to **Azure Active Directory** → Copy your **Tenant ID**
+        3. Go to **Subscriptions** → Select your subscription → Copy your **Subscription ID**
+      </Step>
+
+      <Step title="Generate Installation Command">
+        1. In Qovery Console, start creating a cluster and select **Azure**
+        2. Enter your **Tenant ID** and **Subscription ID**
+        3. Click **Next** to generate the installation command
+
+        <Info>
+        Qovery generates a secure script that creates a service principal using Azure's app registration. This approach avoids storing credentials directly.
+        </Info>
+      </Step>
+
+      <Step title="Open Azure Cloud Shell">
+        1. In Azure Portal, click the **Cloud Shell** icon (>_) in the top navigation bar
+        2. **Important:** Select **Bash** mode (not PowerShell)
+
+        ![Azure Cloud Shell](/images/azure-credentials/azure_shell_1.png)
+      </Step>
+
+      <Step title="Run Generated Command">
+        1. Copy the command provided by Qovery
+        2. Paste it into Azure Cloud Shell and press Enter
+        3. Review the subscription context details displayed
+        4. The script creates a service principal with proper permissions
+
+        <Info>
+        If you have multiple subscriptions, you can specify which one to use as a parameter in the command.
+        </Info>
+
+        <Warning>
+        Verify the Subscription ID shown matches your intended subscription before proceeding.
+        </Warning>
+      </Step>
+
+      <Step title="Verify Completion">
+        After successful execution, the script returns:
+        - Subscription ID (confirmation)
+        - Tenant ID (confirmation)
+
+        These confirm your credentials are properly configured.
+      </Step>
+    </Steps>
+
+    ### Step 2: Create Cluster
+
+    <Steps>
+      <Step title="Configure Cluster">
+        - **Name:** `production-aks`
+        - **Region:** Choose closest to users (e.g., `eastus`, `westeurope`, `northeurope`)
+      </Step>
+
+      <Step title="Select VM Sizes">
+        **Select VM sizes** for your node pools:
+
+        Example selection:
+        - ✅ **Standard_B2s** (2 vCPU, 4GB) - cost-effective
+        - ✅ **Standard_D2s_v3** (2 vCPU, 8GB)
+        - ✅ **Standard_D4s_v3** (4 vCPU, 16GB)
+        - ✅ **Standard_F4s_v2** (4 vCPU, 8GB) - compute-optimized
+
+        <Tip>
+        Enable **Spot VMs** for up to 80% cost savings. AKS handles evictions gracefully.
+        </Tip>
+      </Step>
+
+      <Step title="Create & Deploy">
+        Click **Create and Deploy**
+
+        ⏱️ **Time:** Up to 20 minutes
+
+        **What's created:**
+        - AKS control plane & nodes
+        - VNet with subnets
+        - NAT Gateway for outbound traffic
+        - Load balancers
+        - Cluster autoscaler
+        - Monitoring & logging
+
+        <Info>
+        You can configure applications while the cluster is being created!
+        </Info>
+      </Step>
+    </Steps>
+
+    ### Step 3: Connect Git & Deploy
+
+    Once cluster is ready, follow these steps from Path 1:
+    - [Choose Your Deployment Method](#step-4-choose-your-deployment-method)
+    - [Deploy Your First App](#step-5-deploy-your-first-app)
+
+    [Detailed Azure guide →](/integrations/kubernetes/aks/managed)
+  </Tab>
+
+  <Tab title="Scaleway">
+    ### Prerequisites
+
+    Before starting:
+    - Scaleway account
+
+    ### Step 1: Create Scaleway Credentials
+
+    <Steps>
+      <Step title="Create Application & API Key">
+        1. Go to [Scaleway Console](https://console.scaleway.com)
+        2. Navigate to **IAM** (Identity and Access Management)
+        3. Go to **Applications** → Click **Create application**
+        4. Application name: `qovery-admin`
+        5. Once created, click **Generate API key**
+        6. Set the preferred **Project** for **Object Storage**
+        7. Save both:
+           - **Access Key ID**
+           - **Secret Access Key**
+
+        ![Create Credentials](/images/scaleway-credentials/create-credentials.jpg)
+
+        <Warning>
+        Save the Secret Access Key immediately - it won't be shown again!
+        </Warning>
+      </Step>
+
+      <Step title="Get Organization and Project IDs">
+        1. Go to **Organization settings** → Copy your **Organization ID**
+        2. Go to your **Project dashboard** → Copy your **Project ID**
+
+        <Info>
+        You'll need all four values: Access Key ID, Secret Access Key, Organization ID, and Project ID.
+        </Info>
+      </Step>
+
+      <Step title="Configure Permissions Policy">
+        1. In IAM, go to **Policies** → Click **Create policy**
+        2. Link the policy to your `qovery-admin` application
+        3. Set **Scope** to your specific project
+        4. Grant these permissions:
+           - **Containers** permissions
+           - **Network Service** permissions
+           - **Compute** permissions
+           - **Storage** permissions
+           - **VPC** permissions
+        5. Click **Create** to apply the policy
+
+        <Info>
+        These permissions allow Qovery to create Kapsule clusters, VPCs, and manage compute resources in your project.
+        </Info>
+      </Step>
+    </Steps>
+
+    ### Step 2: Create Cluster
+
+    <Steps>
+      <Step title="Navigate to Qovery">
+        1. Go to [console.qovery.com](https://console.qovery.com)
+        2. Click **Clusters** in the left panel
+        3. Click **Create Cluster** → Select **Scaleway**
+      </Step>
+
+      <Step title="Configure Cluster & Credentials">
+        - **Name:** `production-kapsule`
+        - **Region:** Choose your preferred EU region:
+          - `fr-par` (Paris, France)
+          - `nl-ams` (Amsterdam, Netherlands)
+          - `pl-waw` (Warsaw, Poland)
+        - **Credentials:** Enter the four values from Step 1:
+          - Access Key ID
+          - Secret Access Key
+          - Organization ID
+          - Project ID
+      </Step>
+
+      <Step title="Select Instance Types">
+        **Select instance types** for your node pools:
+
+        Example selection:
+        - ✅ **DEV1-M** (2 vCPU, 4GB) - development
+        - ✅ **GP1-S** (2 vCPU, 8GB) - general purpose
+        - ✅ **GP1-M** (4 vCPU, 16GB) - general purpose
+        - ✅ **PRO2-S** (2 vCPU, 8GB) - production-grade
+
+        <Tip>
+        Scaleway offers **competitive pricing** (up to 50% less than major cloud providers) with transparent billing.
+        </Tip>
+      </Step>
+
+      <Step title="Create & Deploy">
+        Click **Create and Deploy**
+
+        ⏱️ **Time:** Up to 20 minutes
+
+        **What's created:**
+        - Kapsule control plane & nodes
+        - Private VPC
+        - Load balancers
+        - Cluster autoscaler
+        - Monitoring & logging
+
+        **Benefits:**
+        - 🇪🇺 **100% European** infrastructure (GDPR-compliant)
+        - 💰 **Cost-effective** pricing
+        - 🌱 **Eco-friendly** (renewable energy)
+
+        <Info>
+        You can configure applications while the cluster is being created!
+        </Info>
+      </Step>
+    </Steps>
+
+    ### Step 3: Connect Git & Deploy
+
+    Once cluster is ready, follow these steps from Path 1:
+    - [Choose Your Deployment Method](#step-4-choose-your-deployment-method)
+    - [Deploy Your First App](#step-5-deploy-your-first-app)
+
+    [Detailed Scaleway guide →](/integrations/kubernetes/scaleway/managed)
+  </Tab>
+</Tabs>
+
+---
+
+## Need More Detail?
+
+<CardGroup cols={2}>
+  <Card title="Detailed AWS Guide" icon="aws" href="/integrations/kubernetes/eks/managed">
+    Complete AWS EKS setup with IAM roles, VPC config, and more
+  </Card>
+
+  <Card title="Detailed GCP Guide" icon="google" href="/integrations/kubernetes/gke/managed">
+    Complete GKE setup with service accounts and networking
+  </Card>
+
+  <Card title="Detailed Azure Guide" icon="microsoft" href="/integrations/kubernetes/aks/managed">
+    Complete AKS setup with Azure AD and networking
+  </Card>
+
+  <Card title="Bring Your Own Kubernetes" icon="server" href="/integrations/kubernetes/byok">
+    Connect existing clusters (on-premise, edge, custom)
+  </Card>
+</CardGroup>
+
+---
+
+## Learn More
+
+<CardGroup cols={2}>
+  <Card title="How Qovery Works" icon="gears" href="/how-it-works">
+    Understand the architecture
+  </Card>
+
+  <Card title="Core Concepts" icon="book" href="/basic-concepts">
+    Projects, Environments, Services
+  </Card>
+
+  <Card title="Configuration" icon="sliders" href="/configuration/overview">
+    All configuration options
+  </Card>
+
+  <Card title="Platform Products" icon="graduation-cap" href="/guides/qovery-101/provision">
+    Deep dive into all products
+  </Card>
+</CardGroup>
+
+<Tip>
+**New to Qovery terminology?** Check out [Basic Concepts](/basic-concepts) to understand Projects, Environments, Services, and other key terms.
+</Tip>

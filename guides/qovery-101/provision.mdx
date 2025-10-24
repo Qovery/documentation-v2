@@ -30,68 +30,126 @@ Qovery Provision automates the setup and configuration of your cloud infrastruct
 
 Before provisioning infrastructure with Qovery, you need:
 
-1. **Cloud Provider Account**: AWS, GCP, Azure, or Scaleway
-2. **Cloud Credentials**: API keys or service account credentials
-3. **Qovery Organization**: Created in Qovery Console
+<Tabs>
+  <Tab title="AWS">
+    - **Qovery account** and Organization
+    - **AWS account** with appropriate permissions
+    - For BYOK: Kubernetes cluster with minimum **4 CPUs** and **8GB RAM**
+  </Tab>
+
+  <Tab title="GCP">
+    - **Qovery account** and Organization
+    - **GCP account**
+    - **GCP project with billing activated and linked**
+    - **Minimum quotas**: At least **4 CPUs** and **8 GB of memory** available in your GCP quotas
+
+    <Info>
+    You can request quota increases through GCP support if needed.
+    </Info>
+  </Tab>
+
+  <Tab title="Azure">
+    - **Qovery account** and Organization
+    - **Azure account**
+    - **Azure tenant with an active subscription**
+    - For BYOK: Kubernetes cluster with minimum **4 CPUs** and **8GB RAM**
+  </Tab>
+
+  <Tab title="Scaleway">
+    - **Qovery account** and Organization
+    - **Scaleway account** with billing configured
+    - For BYOK: Kubernetes cluster with minimum **4 CPUs** and **8GB RAM**
+  </Tab>
+
+  <Tab title="BYOK (Bring Your Own Kubernetes)">
+    - **Qovery account** at https://start.qovery.com
+    - **Operational Kubernetes cluster** (any cloud or on-premise)
+    - **Minimum resources**: 4 CPUs and 8GB RAM
+    - **`kubectl`** installed and configured
+    - **`helm`** installed and configured
+
+    <Warning>
+    Qovery does **not manage the Kubernetes cluster** for you. You are responsible for managing dependency components (ingress, DNS, logging, etc.).
+    </Warning>
+  </Tab>
+</Tabs>
 
 ### Step 1: Connect Cloud Provider
 
 <Steps>
-  <Step title="Navigate to Cloud Account Settings">
-    Go to **Organization Settings** → **Cloud Accounts** in Qovery Console
+  <Step title="Navigate to Cluster Section">
+    In Qovery Console, click **Clusters** in the left panel
   </Step>
 
   <Step title="Add Cloud Credentials">
-    Select your cloud provider and enter your credentials:
+    When creating a new cluster, you'll be prompted to add cloud credentials if you haven't already:
+    Select your cloud provider and configure credentials:
 
     <Tabs>
       <Tab title="AWS">
-        Provide AWS Access Key ID and Secret Access Key, or use AWS IAM role
+        **Two authentication methods available:**
 
-        ```json
-        {
-          "access_key_id": "AKIAIOSFODNN7EXAMPLE",
-          "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-        }
-        ```
+        **1. STS Assume Role (Strongly Recommended)**
+
+        <Warning>
+        **We strongly recommend using Assume Role via STS.** Static credentials are long-lived and more exposed to leaks, while Assume Role provides short-lived, automatically refreshed credentials with granular access control, reducing security risks.
+        </Warning>
+
+        How it works:
+        1. Qovery provides a **CloudFormation template**
+        2. The template automatically creates the necessary IAM role and grants assume role permissions
+        3. You acknowledge that CloudFormation will create IAM resources
+        4. Copy the Role ARN from CloudFormation outputs back to Qovery
+
+        **2. Static Credentials (Alternative)**
+
+        Use IAM user access keys (requires manual rotation every 90 days for security)
+
+        <Info>
+        **Detailed setup guide:** [AWS Credentials Configuration →](/integrations/kubernetes/eks/managed#step-3-connect-aws-account)
+
+        Includes step-by-step instructions for both STS Assume Role and Static Credentials.
+
+        **Note:** Credentials are managed centrally at the organization level.
+        </Info>
       </Tab>
 
       <Tab title="GCP">
-        Upload GCP Service Account JSON key file
+        **Upload GCP Service Account JSON key file**
 
-        ```json
-        {
-          "type": "service_account",
-          "project_id": "my-project",
-          "private_key_id": "key-id",
-          "private_key": "-----BEGIN PRIVATE KEY-----\n...",
-          "client_email": "service-account@my-project.iam.gserviceaccount.com"
-        }
-        ```
+        You need to create a service account in GCP with the required permissions and download the JSON key file.
+
+        <Info>
+        **Detailed setup guide:** [GCP Credentials Configuration →](/integrations/kubernetes/gke/managed#step-1-create-cluster)
+
+        Includes instructions for creating service accounts with proper permissions.
+        </Info>
       </Tab>
 
       <Tab title="Azure">
-        Provide Azure Subscription ID, Tenant ID, Client ID, and Client Secret
+        **Provide Azure Service Principal credentials:**
+        - Subscription ID
+        - Tenant ID
+        - Client ID
+        - Client Secret
 
-        ```json
-        {
-          "subscription_id": "00000000-0000-0000-0000-000000000000",
-          "tenant_id": "00000000-0000-0000-0000-000000000000",
-          "client_id": "00000000-0000-0000-0000-000000000000",
-          "client_secret": "your-client-secret"
-        }
-        ```
+        <Info>
+        **Detailed setup guide:** [Azure Credentials Configuration →](/integrations/kubernetes/aks/managed)
+
+        Includes instructions for creating service principals with proper permissions.
+        </Info>
       </Tab>
 
       <Tab title="Scaleway">
-        Provide Scaleway Access Key and Secret Key
+        **Provide Scaleway API credentials:**
+        - Access Key
+        - Secret Key
 
-        ```json
-        {
-          "access_key": "SCWXXXXXXXXXXXXXXXXX",
-          "secret_key": "00000000-0000-0000-0000-000000000000"
-        }
-        ```
+        <Info>
+        **Detailed setup guide:** [Scaleway Credentials Configuration →](/integrations/kubernetes/scaleway/managed)
+
+        Includes instructions for generating API keys with proper permissions.
+        </Info>
       </Tab>
     </Tabs>
   </Step>
@@ -106,16 +164,16 @@ Before provisioning infrastructure with Qovery, you need:
 Once your cloud credentials are connected, create your first cluster:
 
 <CardGroup cols={2}>
-  <Card title="Install on AWS" icon="aws" href="/installation/aws">
+  <Card title="Install on AWS" icon="aws" href="/integrations/kubernetes/eks/overview">
     Complete guide to create EKS cluster with Karpenter auto-scaling
   </Card>
-  <Card title="Install on GCP" icon="google" href="/installation/gcp">
+  <Card title="Install on GCP" icon="google" href="/integrations/kubernetes/gke/overview">
     Complete guide to create GKE cluster with auto-scaling
   </Card>
-  <Card title="Install on Azure" icon="microsoft" href="/installation/azure">
+  <Card title="Install on Azure" icon="microsoft" href="/integrations/kubernetes/aks/overview">
     Complete guide to create AKS cluster with auto-scaling
   </Card>
-  <Card title="Install on Scaleway" icon="server" href="/installation/scaleway">
+  <Card title="Install on Scaleway" icon="server" href="/integrations/kubernetes/scaleway/overview">
     Complete guide to create Kapsule cluster with auto-scaling
   </Card>
 </CardGroup>
@@ -130,13 +188,27 @@ Each installation guide covers:
 
 **General Cluster Configuration**:
 - **Cluster Name**: e.g., `production-us-east-1`
-- **Region**: Geographic region closest to your users
+- **Region**: Geographic region closest to your users (choose datacenter near your user base to minimize latency)
 - **Instance Type**: Based on workload (start with t3.large/e2-standard-4)
 - **Auto-scaling**: Min 3 nodes, max 10 nodes (adjustable)
 
+<Info>
+**Multi-cluster Support**: You can create **multiple clusters on the same cloud account with different VPCs**, or across different accounts. Each cluster is independently managed.
+</Info>
+
+**Provisioning Timeline**:
+- **AWS**: Up to 30 minutes
+- **GCP**: Up to 20 minutes
+- **Azure**: Up to 20 minutes
+- **Scaleway**: Up to 20 minutes
+
 <Tip>
-Cluster provisioning takes 20-30 minutes. You'll receive an email when ready.
+**Start working immediately!** While your cluster provisions, you can **already configure your first application** in Qovery Console. Your app will deploy automatically once the cluster is ready.
 </Tip>
+
+<Info>
+**Post-deployment configuration**: Many cluster settings can be changed after deployment. You're not locked into your initial choices.
+</Info>
 
 ## Cluster Provisioning Architecture
 
@@ -187,29 +259,88 @@ Qovery provisions and manages the entire cluster lifecycle.
 
 ### BYOK (Bring Your Own Kubernetes)
 
-Connect your existing Kubernetes cluster to Qovery.
+Connect your existing Kubernetes cluster to Qovery. Designed for **Kubernetes experts** managing their own clusters.
+
+**What Qovery Manages**:
+- ✅ Qovery components (automatically updated via Helm chart)
+- ✅ Application deployments and orchestration
+- ✅ Monitoring and observability for your apps
+
+**What You Manage**:
+- ❌ Kubernetes cluster itself
+- ❌ Dependency components (ingress, DNS, logging, etc.)
+- ❌ Kubernetes version upgrades
+- ❌ Infrastructure maintenance
+
+<Warning>
+Qovery does **not manage the Kubernetes cluster** for you. Components bundled with the Helm chart (ingress, DNS, logging) are **not maintained by Qovery**—you're responsible for their upkeep.
+</Warning>
 
 **Pros**:
-- Use existing infrastructure
+- Use existing infrastructure (on-premise, edge, any cloud)
 - Full control over cluster configuration
 - Integrate with existing tooling
+- No vendor lock-in
 
 **Best For**: Organizations with existing Kubernetes expertise
 
-<Tabs>
-  <Tab title="Connect BYOK Cluster">
-    ```bash
-    # Install Qovery Agent on your cluster
-    helm repo add qovery https://helm.qovery.com
-    helm repo update
+#### Installation Steps
 
-    helm install qovery-agent qovery/qovery-agent \
-      --namespace qovery \
-      --create-namespace \
-      --set agent.clusterToken=YOUR_CLUSTER_TOKEN
+<Steps>
+  <Step title="Install Qovery CLI">
+    ```bash
+    curl -s https://get.qovery.com | bash
     ```
-  </Tab>
-</Tabs>
+
+    The CLI will be installed and ready to use.
+  </Step>
+
+  <Step title="Authenticate with Qovery">
+    ```bash
+    qovery auth
+    ```
+
+    This opens your browser for authentication. For environments without GUI (servers, CI/CD), use:
+
+    ```bash
+    qovery auth --headless
+    ```
+  </Step>
+
+  <Step title="Deploy Qovery to Your Cluster">
+    ```bash
+    qovery cluster install
+    ```
+
+    Follow the interactive prompts to:
+    - Select your Kubernetes context
+    - Configure cluster settings
+    - Install Qovery Agent and components
+  </Step>
+
+  <Step title="Validate Installation">
+    1. Go to [console.qovery.com](https://console.qovery.com)
+    2. Verify your cluster appears in the cluster list
+    3. Check that cluster status shows as "Running"
+    4. Deploy a test application to confirm everything works
+  </Step>
+</Steps>
+
+<Info>
+**Manual Helm Installation**: Advanced users can also install directly via Helm:
+
+```bash
+helm repo add qovery https://helm.qovery.com
+helm repo update
+
+helm install qovery-agent qovery/qovery-agent \
+  --namespace qovery \
+  --create-namespace \
+  --set agent.clusterToken=YOUR_CLUSTER_TOKEN
+```
+
+Get your cluster token from Qovery Console → Clusters → Create BYOK Cluster.
+</Info>
 
 ## Multi-Cloud Strategy
 
@@ -320,6 +451,79 @@ curl -X POST "https://api.qovery.com/organization/{org_id}/cluster" \
   </Accordion>
 </AccordionGroup>
 
+## Advanced Cluster Features
+
+### Cluster Management Operations
+
+<AccordionGroup>
+  <Accordion title="Instance Configuration">
+    **Edit after deployment:**
+    - Instance type (upgrade/downgrade)
+    - Minimum and maximum number of instances
+    - Spot instance configuration (indicated by hourglass icon in UI)
+    - Node pool definitions (for Karpenter-based clusters)
+
+    Track reserved resources:
+    - CPU capacity per node
+    - Memory allocation per node
+    - Disk size and age
+  </Accordion>
+
+  <Accordion title="Kubernetes Version Management">
+    **Automatic upgrades**: Qovery handles Kubernetes upgrades automatically.
+
+    <Warning>
+    **DO NOT** upgrade Kubernetes versions independently through your cloud provider (AWS, GCP, Azure). Always use Qovery's upgrade mechanism.
+    </Warning>
+
+    **Manual upgrade**: When new versions are available, click **"Upgrade to XX.XX"** in the cluster menu.
+
+    Qovery will warn you about unsupported or incompatible versions.
+  </Accordion>
+
+  <Accordion title="Cluster Actions">
+    Available operations:
+    - **Update**: Modify cluster configuration
+    - **Stop/Pause** (AWS only): Stop cluster to save costs
+    - **Restart**: Bring paused cluster back online
+    - **Delete**: Remove cluster (multiple confirmation options)
+    - **Download Kubeconfig**: Direct cluster access via kubectl
+  </Accordion>
+
+  <Accordion title="Custom Domain & Wildcard TLS (Beta)">
+    **Feature**: Custom domain with wildcard TLS certificate for the entire cluster
+
+    **How it works**:
+    - Integrate with Cloudflare
+    - Apply wildcard TLS to all services in the cluster
+    - Bypass Let's Encrypt rate limits
+
+    **Best for**: Organizations with multiple subdomains that would otherwise hit Let's Encrypt's rate limits.
+
+    <Info>
+    This feature is currently in Beta. Contact support for setup assistance.
+    </Info>
+  </Accordion>
+
+  <Accordion title="Monitoring & Observability">
+    Built-in cluster monitoring:
+    - Real-time cluster status tracking
+    - Deployment status monitoring
+    - Comprehensive logging with error detail tabs
+    - Health checks for cluster and deployments
+    - Audit log filtering by cluster
+    - Reserved resource tracking (CPU, memory, disk)
+  </Accordion>
+
+  <Accordion title="Image Mirroring">
+    Configure image mirroring registry to:
+    - Cache container images locally
+    - Reduce pull times and bandwidth
+    - Improve deployment reliability
+    - Work around registry rate limits
+  </Accordion>
+</AccordionGroup>
+
 ## Best Practices
 
 <CardGroup cols={2}>
@@ -348,6 +552,75 @@ curl -X POST "https://api.qovery.com/organization/{org_id}/cluster" \
   </Card>
 </CardGroup>
 
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="How do I choose the right region?">
+    **Best practice**: Select a datacenter **geographically close to your user base** to minimize latency.
+
+    **Example**:
+    - US users → `us-east-1` (AWS) or `us-central1` (GCP)
+    - European users → `eu-west-1` (AWS) or `europe-west1` (GCP)
+    - Asian users → `ap-southeast-1` (AWS) or `asia-southeast1` (GCP)
+  </Accordion>
+
+  <Accordion title="What if my region isn't available?">
+    If you can't find the AWS/GCP/Azure region you need in Qovery Console:
+
+    1. **Contact us** to check the status—we may be testing support for that region
+    2. Check the [public roadmap](https://roadmap.qovery.com) for upcoming regions
+    3. Vote for your region on the roadmap to prioritize it
+  </Accordion>
+
+  <Accordion title="Can I migrate a cluster to another region?">
+    **No.** You **cannot migrate an environment from one region to another** after it has been created.
+
+    **Workaround**:
+    1. Create a new cluster in the target region
+    2. Recreate environments and deploy applications to the new cluster
+    3. Update DNS/routing to point to new cluster
+    4. Delete old cluster once migration is complete
+
+    <Info>
+    If this is a critical feature for you, please [vote on the roadmap](https://roadmap.qovery.com) to help us prioritize it!
+    </Info>
+  </Accordion>
+
+  <Accordion title="How long does cluster setup take?">
+    **Typical provisioning time**:
+    - **Managed Clusters**: 15-30 minutes (includes VPC, Kubernetes, Qovery installation)
+    - **BYOK**: 5-10 minutes (Qovery Agent installation only)
+
+    **What's created**:
+    - Kubernetes control plane and worker nodes
+    - VPC with public/private subnets
+    - Load balancers and networking
+    - IAM roles and security groups
+    - Qovery Agent for management
+  </Accordion>
+
+  <Accordion title="What about data security and encryption?">
+    **Security model**:
+    - All data is **encrypted at rest** using cloud provider's native encryption (AWS KMS, GCP KMS, Azure Key Vault)
+    - Data is stored in **your cloud account**, not Qovery's infrastructure
+    - **Qovery cannot access your data**—we only manage the infrastructure
+    - Production databases use cloud provider managed services (RDS, Cloud SQL, etc.)
+
+    **Compliance**: See [Security & Compliance](/security-and-compliance/overview) for SOC2, GDPR, HIPAA details.
+  </Accordion>
+
+  <Accordion title="Can I stop a cluster to save costs?">
+    **AWS only**: Yes! You can **pause/stop clusters** when not in use (e.g., development clusters outside business hours).
+
+    **How it works**:
+    1. Click cluster → **Stop**
+    2. Cluster infrastructure is paused (no compute charges)
+    3. Click **Restart** to bring it back online
+
+    **Other clouds**: GCP, Azure, Scaleway don't currently support pause/stop. Vote on the roadmap if you need this feature!
+  </Accordion>
+</AccordionGroup>
+
 ## Troubleshooting
 
 <AccordionGroup>
@@ -365,7 +638,7 @@ curl -X POST "https://api.qovery.com/organization/{org_id}/cluster" \
   </Accordion>
 
   <Accordion title="Slow Provisioning">
-    **Expected Duration**: 10-20 minutes for managed clusters
+    **Expected Duration**: 15-30 minutes for managed clusters
 
     **If Exceeding 30 Minutes**:
     - Check cloud provider status page

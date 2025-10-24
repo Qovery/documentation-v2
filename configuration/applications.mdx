@@ -17,7 +17,7 @@ Applications in Qovery are containerized workloads that run continuously. They c
    - **Name**: Unique identifier
    - **Git Repository**: Source code location
    - **Branch**: Git branch to deploy
-   - **Build Method**: Dockerfile, Buildpacks, or pre-built image
+   - **Build Method**: Dockerfile or pre-built image
 
 ### Via Terraform
 
@@ -112,11 +112,6 @@ COPY . .
 EXPOSE 3000
 CMD ["npm", "start"]
 ```
-
-### Buildpacks
-
-Automatic detection - no Dockerfile needed. Supported:
-- Node.js, Python, Go, Java, Ruby, PHP
 
 ### Pre-built Image
 

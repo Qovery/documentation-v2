@@ -1,238 +1,204 @@
 ---
-title: "Basic Concepts"
-description: "Core concepts and terminology in Qovery"
+title: "Core Concepts"
+description: "Essential Qovery terminology - Organizations, Projects, Environments, and Services"
 ---
 
-Understanding Qovery's basic concepts will help you get the most out of the platform. This page covers the fundamental building blocks and terminology used throughout Qovery.
+## Quick Overview
+
+Qovery organizes your infrastructure in a simple hierarchy:
+
+```
+Organization (your company)
+└── Project (group of related apps)
+    └── Environment (dev/staging/production)
+        └── Services (apps, databases, jobs)
+```
+
+Let's break down each level.
+
+---
 
 ## Organization
 
-An **Organization** is the workspace where DevOps and developers can collaborate across many projects at once and it usually corresponds to your company. A user can have access to one or more organizations and have different roles & permissions assigned within it thanks to our [RBAC system](/configuration/organization/members-rbac).
+Your **Organization** is your company's workspace—the top-level container for everything in Qovery.
 
-<Note>
-Think of an Organization as your company's workspace in Qovery. It's the top-level container for all your infrastructure and team members.
-</Note>
-
-## Cluster
-
-At Qovery, when we refer to **Cluster**, we mean Kubernetes cluster. A Kubernetes cluster is a collection of node machines that allows you to run containerized applications.
-
-### Managed Cluster
-
-A **Managed Cluster** is a Kubernetes cluster managed by Qovery. It means that Qovery will create the cluster for you and will take care of the cluster lifecycle (creation, upgrade, deletion, etc.). Zero maintenance for you. Learn how to [install Qovery on your cloud provider](/installation).
-
-### Self-Managed Cluster
-
-A **Self-Managed Cluster** is a Kubernetes cluster managed by you. It means that you have to create the cluster yourself and you have to take care of the cluster lifecycle (creation, upgrade, deletion, etc.). You can [install Qovery on your Kubernetes cluster](/installation/kubernetes) to let Qovery manage the deployment of your applications on your cluster.
+**Key features:**
+- Team collaboration across multiple projects
+- Role-based access control ([RBAC](/configuration/organization/members-rbac))
+- Shared cloud credentials and integrations
+- Billing and cost management
 
 <Tip>
-Choose **Managed Cluster** if you want Qovery to handle all Kubernetes operations. Choose **Self-Managed Cluster** (also known as BYOK - Bring Your Own Kubernetes) if you have specific Kubernetes requirements or existing clusters.
+Most companies have one Organization. Users can belong to multiple Organizations with different roles.
 </Tip>
+
+---
 
 ## Project
 
-A **Project** allows you to group together a set of services interacting between each other to serve a common purpose. For example, you can have one project to run your main application (composed by a front-end, back-end and a database) and another project to manage your internal tools. Learn more about [configuring projects](/configuration/project).
+A **Project** groups related services that work together for a common purpose.
 
+**Examples:**
+- Main Application (frontend + backend + database)
+- Internal Tools
+- Marketing Website
+
+**Structure:**
 ```
-Organization
-└── Project (e.g., "Main Application")
-    ├── Production Environment
-    ├── Staging Environment
-    └── Development Environment
+Project: "E-commerce Platform"
+├── Production Environment
+├── Staging Environment
+└── Development Environment
 ```
+
+[Learn more about Projects →](/configuration/project)
+
+---
 
 ## Environment
 
-An **Environment** allows you to group together a set of services having a specific version, usually based on a branch of your repository. For example, you can have one `Production` environment (all the services pointing to the main branch), one `Staging` environment (all services pointing to the staging branch) etc.
+An **Environment** is a deployment stage containing services at a specific version (usually tied to a Git branch).
 
-### Environment Types
-
-Qovery supports three types of environments:
-
-- **Production**: Should not be stopped or deleted. Contains your live applications.
-- **Staging**: Reflects critical work processes. Used for final testing before production.
-- **Development**: Used for developing and testing features.
-
-### Preview Environment (or Ephemeral Environment)
-
-A **Preview Environment** is an ephemeral environment allowing you to get early feedback on your application changes before the changes are merged into production. A dedicated preview environment can be automatically created at each new PR on your repository to validate the change. The environment is automatically deleted once the PR is merged or closed. Learn how to [set up preview environments](/guides/advanced/preview-environments).
+**Common types:**
+- **Production** - Live applications (`main` branch)
+- **Staging** - Pre-production testing (`staging` branch)
+- **Development** - Feature development (`develop` branch)
+- **Preview** - Temporary per-pull-request environments
 
 <Info>
-Preview Environments are also known as **Ephemeral Environments**, **Temporary Environments**, **Review Environments**, or **Review Apps**. They're perfect for testing pull requests in isolation.
+**Preview Environments** are automatically created for each pull request and deleted when merged. Perfect for testing changes in isolation before production. [Setup guide →](/guides/advanced/preview-environments)
 </Info>
 
-## Service
+[Learn more about Environments →](/configuration/environment)
 
-A **Service** is the basic unit that you can add to an environment, representing one of the elements of your tech stack (front-end, database, etc.).
+---
 
-Qovery provides five types of services:
+## Services
 
-### Application
+**Services** are the building blocks of your environment—applications, databases, jobs, and more.
 
-An **Application** is a service that runs your containerized application code. It can be built from:
-- A Git repository (Qovery builds the Docker image for you)
-- A pre-built container image from a registry
+<CardGroup cols={2}>
+  <Card title="Application" icon="window">
+    Your containerized apps built from Git or container registries.
 
-Applications support:
-- Auto-scaling based on CPU/RAM usage
-- Custom domains with automatic SSL/TLS
-- Health checks and rolling deployments
-- Environment variables and secrets
-- Port configuration
-- Resource allocation (CPU/RAM)
+    **Features:**
+    - Auto-scaling
+    - Custom domains + HTTPS
+    - Health checks
+    - Rolling deployments
 
-### Database
+    [Configuration →](/configuration/application)
+  </Card>
 
-A **Database** service provides managed or containerized database instances. Qovery supports:
+  <Card title="Database" icon="database">
+    Managed databases or containerized instances.
 
-- **PostgreSQL**
-- **MySQL**
-- **MongoDB**
-- **Redis**
+    **Supported:**
+    - PostgreSQL, MySQL
+    - MongoDB, Redis
 
-Databases can run in two modes:
-- **Container mode**: Database runs as a container (ideal for development/testing)
-- **Managed mode**: Cloud provider managed database (ideal for production)
+    **Modes:**
+    - Container (dev/test)
+    - Managed (production)
 
-### CronJob
+    [Configuration →](/configuration/database)
+  </Card>
 
-A **CronJob** is a service that runs scheduled tasks based on a cron expression. Perfect for:
-- Periodic data processing
-- Scheduled backups
-- Report generation
-- Cleanup tasks
+  <Card title="Cron Job" icon="clock">
+    Scheduled tasks on a cron schedule.
 
-### Lifecycle Job
+    **Use cases:**
+    - Data processing
+    - Backups
+    - Report generation
 
-A **Lifecycle Job** is a Kubernetes job that executes only on selected events (deploy/stop/delete). Use cases include:
-- [Database seeding in preview environments](/guides/others/database-seeding-lifecycle-job)
-- Pre-deployment validation
-- Post-deployment tasks
-- Environment cleanup
+    [Configuration →](/configuration/cronjob)
+  </Card>
 
-Learn more about [configuring lifecycle jobs](/configuration/lifecycle-job).
+  <Card title="Lifecycle Job" icon="bolt">
+    One-time jobs triggered by events (deploy/stop/delete).
 
-### Helm
+    **Use cases:**
+    - Database seeding
+    - Pre-deployment checks
+    - Environment cleanup
 
-A **Helm** service allows you to deploy Helm charts from:
-- Git repositories
-- Helm repositories
+    [Configuration →](/configuration/lifecycle-job)
+  </Card>
 
-This enables you to deploy third-party applications like:
-- Monitoring tools (Prometheus, Grafana)
-- Databases
-- Message queues
-- Any Helm-packaged application
+  <Card title="Helm Chart" icon="helm">
+    Deploy packaged Helm applications.
 
-## Deployment Workflow
+    **Examples:**
+    - Prometheus
+    - Grafana
+    - Message queues
 
-Understanding Qovery's [deployment workflow](/configuration/deployment/overview) helps you troubleshoot issues and optimize your deployments.
+    [Configuration →](/configuration/helm)
+  </Card>
+
+  <Card title="Terraform" icon="code">
+    Deploy any infrastructure via Terraform.
+
+    **Use cases:**
+    - AWS RDS, S3
+    - Serverless functions
+    - Custom cloud resources
+
+    [Configuration →](/configuration/terraform)
+  </Card>
+</CardGroup>
+
+---
+
+## Key Features
 
 ### Deployment Pipeline
 
-A **Deployment Pipeline** consists of ordered "Deployment Stages". Each service belongs to one deployment stage, allowing you to define service inter-dependencies and control deployment order. Learn more about [configuring deployment pipelines](/configuration/deployment/pipeline).
+Services deploy in stages to respect dependencies:
 
-**Default Pipeline Stages:**
-1. `0.DEFAULT DATABASE` - Databases deploy first
-2. `1.DEFAULT JOB` - Jobs deploy after databases
-3. `2.DEFAULT CONTAINER` - Containers deploy next
-4. `3.DEFAULT APPLICATION` - Applications deploy last
+1. **Databases** → 2. **Jobs** → 3. **Containers** → 4. **Applications**
 
-### Deployment Status
+You can customize stages for complex workflows. [Learn more →](/configuration/deployment/pipeline)
 
-Each service has two status indicators:
+### Environment Variables
 
-- **Deployment Status**: Shows if the deployment is in progress, succeeded, or failed
-- **Running Status**: Shows if the service is currently running and healthy
+Configure apps with variables at three levels:
 
-Learn more about [deployment statuses](/configuration/deployment/statuses).
+- **Project level** - Shared across all environments
+- **Environment level** - Shared across services in one environment
+- **Service level** - Specific to one service
 
-## GitOps Principles
-
-Qovery follows GitOps principles where:
-
-1. **Git is the single source of truth**: Your application configuration lives in Git
-2. **Declarative configuration**: Define what you want, not how to get there
-3. **Automated deployments**: Push to Git triggers automatic deployments
-4. **Version control**: All changes are tracked and auditable
-
-## Environment Variables and Secrets
-
-Qovery provides a powerful system for [managing configuration and secrets](/configuration/environment-variables):
-
-### Variable Scopes
-
-Variables can be defined at three levels:
-
-1. **Project level**: Shared across all environments in a project
-2. **Environment level**: Shared across all services in an environment
-3. **Service level**: Specific to a single service
-
-### Variable Types
-
-- **Standard variables**: Plain-text configuration values
-- **Secrets**: Encrypted sensitive data (passwords, API keys)
-- **Variable as File**: Variables exposed as files in containers
-
-### Built-in Variables
-
-Qovery automatically generates built-in variables for service interconnection:
-
+Qovery auto-generates connection variables:
 ```bash
-# Example built-in variables
-QOVERY_PROJECT_ID
-QOVERY_ENVIRONMENT_ID
-QOVERY_APPLICATION_ID
-QOVERY_DATABASE_MY_DB_CONNECTION_URI
 QOVERY_DATABASE_MY_DB_HOST
 QOVERY_DATABASE_MY_DB_PORT
+QOVERY_DATABASE_MY_DB_CONNECTION_URI
 ```
 
-## Resource Allocation
+[Learn more →](/configuration/environment-variables)
 
-### Default Resources
+### Networking
 
-By default, each application is allocated:
-- **CPU**: 500m (0.5 cores)
-- **RAM**: 512MB
+- **Internal**: Services communicate privately within an environment
+- **Public**: Expose apps with auto-generated domains (`*.qovery.io`) or [custom domains](/guides/applications/configure-custom-domain)
+- **HTTPS**: Automatic SSL/TLS certificates
 
-### Auto-scaling
-
-Applications can automatically scale based on:
-- **CPU utilization**: Default trigger at 60%
-- **Memory utilization**: Configurable threshold
-- **Min/Max replicas**: Control scaling bounds
-
-## Networking
-
-### Internal Network
-
-Services within the same environment communicate over a private internal network. This network is not accessible from outside the cluster.
-
-### Public Exposure
-
-Applications can be exposed publicly through:
-- **Automatically generated domains**: `*.qovery.io`
-- **[Custom domains](/guides/applications/configure-custom-domain)**: Bring your own domain with automatic SSL/TLS
-- **Port configuration**: Expose one or more ports
-
-Learn more about [networking configuration](/configuration/networking).
+---
 
 ## Next Steps
 
-Now that you understand the basic concepts, you're ready to:
-
 <CardGroup cols={2}>
-  <Card title="Install Qovery" icon="download" href="/installation/aws">
-    Set up Qovery on your cloud provider
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Deploy your first app in 15 minutes
   </Card>
-  <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
-    Follow our quickstart guide
-  </Card>
-  <Card title="Configuration" icon="sliders" href="/using-qovery/configuration/organization">
-    Learn about configuration options
-  </Card>
-  <Card title="How It Works" icon="gears" href="/how-it-works">
+  <Card title="How Qovery Works" icon="gears" href="/how-it-works">
     Understand the architecture
+  </Card>
+  <Card title="Configuration Guide" icon="sliders" href="/configuration/overview">
+    Explore all configuration options
+  </Card>
+  <Card title="Deployment Guide" icon="rocket" href="/configuration/deployment/overview">
+    Learn about deployment workflows
   </Card>
 </CardGroup>

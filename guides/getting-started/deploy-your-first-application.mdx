@@ -1,11 +1,15 @@
 ---
 title: "Deploy Your First Application"
-description: "Step-by-step guide to deploying your first application with Qovery"
+description: "Detailed step-by-step guide to deploying your first application with Qovery"
 ---
+
+<Note>
+**New to Qovery?** Check out our [Quick Start Guide](/quickstart) for a complete walkthrough including infrastructure setup.
+</Note>
 
 ## Overview
 
-This guide walks you through deploying your first application on Qovery, from connecting your Git repository to seeing your app live in production.
+This guide provides detailed instructions for deploying your first application on Qovery, from connecting your Git repository to seeing your app live.
 
 ## Prerequisites
 
@@ -13,7 +17,7 @@ Before you begin, make sure you have:
 
 - A Qovery account ([sign up here](https://console.qovery.com/signup))
 - A Git repository (GitHub, GitLab, or Bitbucket) with your application code
-- A Kubernetes cluster set up in Qovery ([Installation Guide](/installation))
+- A Kubernetes cluster connected to Qovery ([Quick Start Guide](/quickstart))
 
 ## Step 1: Create a Project
 
@@ -72,9 +76,7 @@ Now let's deploy your first application!
   </Step>
 
   <Step title="Configure Build">
-    Qovery will auto-detect your application:
-    - **With Dockerfile**: Qovery will use it automatically
-    - **Without Dockerfile**: Qovery uses Buildpacks to detect your language/framework
+    Qovery will auto-detect your Dockerfile and use it automatically.
 
     You can customize:
     - Dockerfile path (if not in root)
@@ -140,7 +142,7 @@ graph LR
 ```
 
 1. **Cloned your repository** from Git
-2. **Built a container image** using Docker or Buildpacks
+2. **Built a container image** using Docker
 3. **Pushed to container registry** in your cloud account
 4. **Deployed to Kubernetes** with proper configurations
 5. **Configured networking** with automatic HTTPS
@@ -224,7 +226,7 @@ app.listen(PORT, () => {
 ### Qovery Configuration
 
 - **Port**: 3000 (internal), 443 (external)
-- **Build**: Automatic (Buildpacks detects Node.js)
+- **Build**: Automatic (Dockerfile detected)
 - **Health Check**: GET /health
 - **Auto Deploy**: Enabled on `main` branch
 

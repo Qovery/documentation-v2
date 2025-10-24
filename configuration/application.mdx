@@ -40,16 +40,11 @@ Deploy directly from your source code:
   </Step>
 
   <Step title="Configure Build">
-    Qovery auto-detects your application:
+    Qovery auto-detects your Dockerfile:
 
-    **With Dockerfile**:
     - Dockerfile path (default: `Dockerfile` at root)
     - Build arguments (optional)
     - Target stage (for multi-stage builds)
-
-    **Without Dockerfile** (Buildpacks):
-    - Qovery automatically detects language/framework
-    - Supports Node.js, Python, Go, Ruby, Java, PHP, etc.
   </Step>
 </Steps>
 
@@ -108,24 +103,6 @@ When deploying from Git:
     ```
     Configure as key-value pairs in Qovery console
   </Accordion>
-
-  <Accordion title="Buildpacks (No Dockerfile)">
-    Qovery uses Cloud Native Buildpacks to detect and build:
-
-    **Supported Languages**:
-    - Node.js (detects `package.json`)
-    - Python (detects `requirements.txt`, `Pipfile`)
-    - Go (detects `go.mod`)
-    - Ruby (detects `Gemfile`)
-    - Java (detects `pom.xml`, `build.gradle`)
-    - PHP (detects `composer.json`)
-
-    **Advantages**:
-    - No Dockerfile needed
-    - Automatic dependency detection
-    - Security updates included
-    - Best practices built-in
-  </Accordion>
 </AccordionGroup>
 
 ## Resource Configuration
@@ -154,6 +131,43 @@ Configure resources for your application:
 Start with lower resources and scale up based on actual usage. Monitor CPU and memory metrics in the Qovery console to right-size your resources.
 </Tip>
 
+### GPU Configuration
+
+Configure GPU resources for AI/ML workloads, scientific computing, or graphics-intensive applications.
+
+**Requirements**:
+- GPU-enabled cluster (AWS with Karpenter)
+- GPU instance types configured on your cluster
+
+**Configuration**:
+- **GPU**: Number of GPUs assigned to each instance (default: 0)
+
+<Info>
+The GPU feature must be enabled on your cluster to use GPU instances. See [AWS with Karpenter setup](/integrations/kubernetes/eks/managed) for details on configuring GPU instance types.
+</Info>
+
+**Example Use Cases**:
+- **Machine Learning Training**: TensorFlow, PyTorch workloads
+- **Inference Workloads**: Real-time ML predictions
+- **Video Processing**: Transcoding, rendering
+- **Scientific Computing**: CUDA applications
+
+**Example Configuration**:
+```yaml
+resources:
+  cpu: 4000m
+  memory: 16 GB
+  gpu: 1  # Allocate 1 GPU
+```
+
+<Warning>
+GPU resources are expensive. Ensure your application actually utilizes the GPU to justify the cost. Monitor GPU utilization in your application metrics.
+</Warning>
+
+<Tip>
+Start with `gpu: 0` and only add GPU resources when you've confirmed your application needs them. Many ML inference workloads perform well on CPU-only instances.
+</Tip>
+
 ### Auto-Scaling
 
 Enable horizontal auto-scaling based on resource usage:
@@ -163,6 +177,12 @@ Enable horizontal auto-scaling based on resource usage:
 - **Max Instances**: Maximum number of replicas (default: 3)
 - **CPU Threshold**: Trigger scaling at CPU percentage (default: 60%)
 - **Memory Threshold**: Trigger scaling at memory percentage (optional)
+
+**How It Works**:
+- Auto-scaling triggers when CPU consumption exceeds 60% for 15 seconds
+- Additional instances are added automatically
+- Downscaling occurs if CPU stays below 60% for at least 5 minutes
+- Kubernetes metrics-server monitors resource usage
 
 **Example Configuration**:
 ```yaml
@@ -174,6 +194,10 @@ cpu_threshold: 70%
 <Warning>
 Auto-scaling requires your application to be stateless. Use external storage (databases, Redis) for shared state.
 </Warning>
+
+<Info>
+GPU-enabled instances do not auto-scale. Each GPU instance runs with the configured GPU allocation.
+</Info>
 
 ## Port Configuration
 
