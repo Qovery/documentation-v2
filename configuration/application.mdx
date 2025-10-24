@@ -182,7 +182,7 @@ Enable horizontal auto-scaling based on resource usage:
 - Auto-scaling triggers when CPU consumption exceeds 60% for 15 seconds
 - Additional instances are added automatically
 - Downscaling occurs if CPU stays below 60% for at least 5 minutes
-- Kubernetes metrics-server monitors resource usage
+- Kubernetes [metrics-server](https://github.com/kubernetes-sigs/metrics-server) monitors resource usage
 
 **Example Configuration**:
 ```yaml
@@ -228,6 +228,10 @@ Configure how your application exposes services:
 </Steps>
 
 ### Port Examples
+
+<Note>
+**Important**: Your application should listen on `0.0.0.0:$PORT` rather than `127.0.0.1` or `localhost`. While most things work with localhost, some frameworks (like Node.js) may have issues.
+</Note>
 
 <Tabs>
   <Tab title="Web Application">
@@ -586,10 +590,18 @@ Add persistent volumes for data that survives restarts:
 Advanced network configuration:
 
 - **CORS**: Configure cross-origin requests
-- **Timeouts**: Request/connection timeouts
+- **Timeouts**: Request/connection timeouts (default: 60 seconds for public connections)
 - **Rate Limiting**: Requests per second limits
 - **IP Whitelist**: Restrict access by IP
 - **Basic Auth**: Add authentication layer
+
+<Warning>
+**Connection Timeouts**: Public port connections are automatically closed after 60 seconds by default. For long-lived connections (like WebSockets), configure custom ingress timeouts in [Advanced Settings](/configuration/service-advanced-settings#network-settings).
+</Warning>
+
+<Info>
+**TCP/UDP Ports**: Exposing TCP/UDP ports publicly requires a dedicated load balancer, which takes approximately 15 minutes to provision and incurs additional cloud provider costs.
+</Info>
 
 ## Lifecycle Hooks
 

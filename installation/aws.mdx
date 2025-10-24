@@ -23,7 +23,7 @@ Already have a Kubernetes cluster? See the [BYOK guide](/integrations/kubernetes
 Qovery uses [Karpenter](https://karpenter.sh/) for intelligent node provisioning, which automatically selects the most cost-effective EC2 instances for your workloads:
 
 **Key Benefits**:
-- **60-90% cost savings** through spot instances and consolidation
+- **Cost optimization** through spot instances and consolidation
 - **Fast scaling** - Provisions nodes in seconds (vs minutes with traditional auto-scaling)
 - **Smart instance selection** - Picks the best from your allowed instance types
 - **Workload consolidation** - Packs pods efficiently to minimize node count
@@ -227,19 +227,38 @@ Follow these steps to create your first Qovery cluster on AWS:
   </Step>
 
   <Step title="Select Instance Types">
-    **Select ALL instance types** Karpenter can use:
-
-    Recommended selections:
-    - ✅ **t3.medium** (2 vCPU, 4GB)
-    - ✅ **t3.large** (2 vCPU, 8GB) ← Start here
-    - ✅ **t3.xlarge** (4 vCPU, 16GB)
-    - ✅ **t3.2xlarge** (8 vCPU, 32GB)
-    - ✅ **m5.large, m5.xlarge** (alternative instance family)
-    - ✅ **m6i.large, m6i.xlarge** (newer generation)
+    **Select instance types** that Karpenter can choose from for your workloads.
 
     <Info>
-    **Select multiple types!** Karpenter will automatically pick the best instance from your selections based on cost, availability, and workload requirements. Enable **spot instances** for 60-90% savings.
+    Karpenter automatically picks the **best instance type** from your selections based on:
+    - Pod resource requirements (CPU/memory)
+    - Current spot availability and pricing
+    - Cost optimization
+    - Workload constraints
+
+    **More instance types = better optimization and flexibility!**
     </Info>
+
+    **How to Select:**
+    You can filter and select instances by:
+    - **Instance Family**: t3, t3a, m5, m6i, c5, c6i, r5, r6i, etc.
+    - **Size**: medium, large, xlarge, 2xlarge, etc.
+    - **Architecture**: x86_64 or ARM (Graviton - t4g, m6g, c6g)
+    - **Generation**: Latest generations (m6i, m7i, c6i, c7i) are more cost-effective
+
+    **Tips for Selection:**
+    - **Start broad**: Select multiple families and sizes
+    - **Mix families**: Combine general purpose (t3, m5), compute (c5), memory (r5)
+    - **Include multiple sizes**: Give Karpenter flexibility to bin-pack efficiently
+    - **Consider Graviton**: ARM-based instances offer better price/performance
+
+    <Tip>
+    Enable **spot instances** for cost optimization. Karpenter handles interruptions gracefully and automatically falls back to on-demand if needed.
+    </Tip>
+
+    <Warning>
+    Avoid selecting only one or two instance types as this limits Karpenter's ability to optimize for cost and availability. Aim for 10-20 instance types.
+    </Warning>
 
     You can adjust these selections later in cluster settings!
   </Step>
@@ -318,7 +337,7 @@ Karpenter can provision from a wide range of instance types:
 - **GPU Instances**: g4dn, g5 (if GPU node pool enabled)
 
 **Cost Optimization with Spot Instances**:
-- Enable spot instances for 60-90% cost savings
+- Enable spot instances for significant cost reduction
 - Karpenter automatically handles spot interruptions
 - Mix of spot and on-demand for reliability
 
@@ -413,23 +432,3 @@ Once your cluster shows **Ready** status:
   </Accordion>
 </AccordionGroup>
 
----
-
-## Understanding Your AWS Costs
-
-Your cluster will cost approximately:
-
-| Component | Monthly Cost |
-|-----------|-------------|
-| EKS control plane | $72 |
-| 3x t3.large nodes | ~$150 |
-| Load balancer | $20 |
-| NAT gateway | $30 |
-| **Total** | **~$270/month** |
-
-<Tip>
-**Save money:**
-- Use **spot instances** (60-90% cheaper) for non-production
-- Enable **auto-scaling** to use only what you need
-- Stop dev/test clusters outside working hours
-</Tip>

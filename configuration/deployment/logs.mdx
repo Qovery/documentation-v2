@@ -81,7 +81,7 @@ Access logs from past deployments through deployment history:
 ![Deployment History](/images/deployment/deployment_history.png)
 
 <Info>
-Historical logs are available based on your plan's retention period. See the [Deployment History](/configuration/deployment/history) documentation for retention details.
+Qovery retains logs for the **last 20 deployments** plus the latest failed deployment. Historical logs are available based on your plan's retention period. See the [Deployment History](/configuration/deployment/history) documentation for more details.
 </Info>
 
 ## Live Logs Interface
@@ -231,8 +231,8 @@ Log retention depends on your Qovery plan and observability package:
   <Card title="Live Logs" icon="circle-dot">
     Latest 1,000 lines per service
   </Card>
-  <Card title="Basic Retention" icon="clock">
-    12 weeks retention (limited access)
+  <Card title="Limited Retention" icon="clock">
+    24 hours maximum
   </Card>
   <Card title="Basic Filtering" icon="filter">
     Simple text search only

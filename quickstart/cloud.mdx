@@ -1,0 +1,109 @@
+---
+title: "Choose Your Cloud Provider"
+description: "Deploy Qovery on AWS, GCP, Azure, or Scaleway"
+---
+
+<Info>
+**Perfect for:** Production applications, serious projects, scalable infrastructure
+</Info>
+
+**Time:** ~30 minutes
+
+## Select Your Cloud Provider
+
+<CardGroup cols={2}>
+  <Card title="Amazon Web Services" icon="aws" href="/installation/aws">
+    **Most Popular Choice**
+
+    - 🌍 Global presence - 30+ regions
+    - 🎯 EKS with Karpenter auto-scaling
+    - ⚡ Spot instances available
+
+    **Best for:** Production workloads, scalability
+  </Card>
+
+  <Card title="Google Cloud Platform" icon="google" href="/installation/gcp">
+    **Best Performance**
+
+    - 🌍 Global fiber network
+    - 🎯 GKE with autopilot
+    - ⚡ Efficient resource management
+
+    **Best for:** Data-intensive applications
+  </Card>
+
+  <Card title="Microsoft Azure" icon="microsoft" href="/installation/azure">
+    **Enterprise Ready**
+
+    - 🏢 Azure AD integration
+    - 🎯 AKS managed Kubernetes
+    - 🔒 Hybrid cloud support
+
+    **Best for:** Enterprise environments
+  </Card>
+
+  <Card title="Scaleway" icon="/images/logos/cloud-providers/scaleway-icon-light.svg" href="/installation/scaleway">
+    **Europe First**
+
+    - 🇪🇺 EU data residency (Paris, Amsterdam, Warsaw)
+    - 🎯 Kapsule Kubernetes
+    - 🌍 European infrastructure
+
+    **Best for:** European startups, GDPR compliance
+  </Card>
+</CardGroup>
+
+---
+
+## What You'll Get
+
+<AccordionGroup>
+  <Accordion title="🎯 Managed Kubernetes Cluster">
+    Full production-ready Kubernetes cluster managed by your cloud provider:
+    - **AWS**: EKS with Karpenter auto-scaling
+    - **GCP**: GKE Autopilot
+    - **Azure**: AKS with cluster autoscaler
+    - **Scaleway**: Kapsule managed Kubernetes
+
+    Qovery handles the setup and configuration automatically.
+  </Accordion>
+
+  <Accordion title="🌐 Production Networking">
+    Complete networking infrastructure:
+    - VPC/VNet with public and private subnets
+    - Load balancers for incoming traffic
+    - NAT gateways for outbound connectivity
+    - Security groups and firewall rules
+    - Automatic SSL/TLS certificates
+    - Custom domain support
+  </Accordion>
+
+  <Accordion title="📊 Auto-Scaling & High Availability">
+    Built-in scalability and reliability:
+    - Automatic node scaling based on workload
+    - Multi-availability zone deployment
+    - Pod auto-scaling (CPU/memory based)
+    - Health checks and automatic recovery
+    - Rolling updates with zero downtime
+  </Accordion>
+
+  <Accordion title="🔒 Security & Compliance">
+    Production-grade security:
+    - Private container registries
+    - Secrets management
+    - Network isolation
+    - RBAC (Role-Based Access Control)
+    - Audit logs
+    - Encryption at rest and in transit
+  </Accordion>
+
+  <Accordion title="📈 Monitoring & Logging">
+    Complete observability:
+    - Real-time application logs
+    - Resource usage metrics
+    - Deployment history
+    - Build logs and artifacts
+    - Optional: Datadog, New Relic integration
+  </Accordion>
+</AccordionGroup>
+

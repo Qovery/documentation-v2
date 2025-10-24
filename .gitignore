@@ -4,3 +4,4 @@ node_modules
 out
 .cache
 .DS_Store
+VERIFICATION_SUMMARY.md
