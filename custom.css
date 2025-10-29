@@ -292,6 +292,12 @@ html[data-theme="dark"] img[src*="/terraform-icon.svg"],
   content: url("/images/logos/terraform-icon-dark.svg");
 }
 
+html[class*="dark"] img[src*="/helm-icon-light.svg"],
+html[data-theme="dark"] img[src*="/helm-icon-light.svg"],
+.dark img[src*="/helm-icon-light.svg"] {
+  content: url("/images/logos/helm-icon-dark.svg");
+}
+
 html[class*="dark"] img[src*="/helm-icon.svg"],
 html[data-theme="dark"] img[src*="/helm-icon.svg"],
 .dark img[src*="/helm-icon.svg"] {

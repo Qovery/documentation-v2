@@ -1,13 +1,26 @@
 ---
-title: "Choose Your Cloud Provider"
-description: "Deploy Qovery on AWS, GCP, Azure, or Scaleway"
+title: "Create Your Cluster"
+description: "Set up a managed Kubernetes cluster as the foundation for your Qovery deployment"
 ---
 
 <Info>
-**Perfect for:** Production applications, serious projects, scalable infrastructure
+**This is Step 1**: Creating a cluster is the prerequisite for deploying applications with Qovery. After setting up your cluster, you'll continue with your specific use case guide.
 </Info>
 
 **Time:** ~30 minutes
+
+## Why Create a Cluster First?
+
+Your Kubernetes cluster is the foundation where all your applications, databases, and services will run. Qovery provisions and manages this cluster for you, handling:
+- Kubernetes installation and configuration
+- Networking, load balancing, and SSL/TLS
+- Auto-scaling and high availability
+- Security and compliance
+- Monitoring and logging
+
+**After cluster creation**, you'll return to complete your chosen use case:
+- **Production Applications** → [Continue with production guide](/guides/use-cases/production-environment-management)
+- **Ephemeral Environments** → [Continue with ephemeral guide](/guides/use-cases/ephemeral-environment)
 
 ## Select Your Cloud Provider
 
@@ -106,4 +119,45 @@ description: "Deploy Qovery on AWS, GCP, Azure, or Scaleway"
     - Optional: Datadog, New Relic integration
   </Accordion>
 </AccordionGroup>
+
+---
+
+## What's Next?
+
+<Warning>
+**Cluster creation is just Step 1!** Once your cluster is ready, return to your use case guide to complete your setup.
+</Warning>
+
+Choose where to continue based on your use case:
+
+<CardGroup cols={2}>
+  <Card title="Production Applications" icon="rocket" href="/guides/use-cases/production-environment-management">
+    Continue with the production environment setup guide
+
+    - Deploy your applications
+    - Configure auto-scaling
+    - Set up monitoring
+    - Add custom domains
+  </Card>
+
+  <Card title="Ephemeral Environments" icon="code-branch" href="/guides/use-cases/ephemeral-environment">
+    Continue with the ephemeral environment setup guide
+
+    - Enable preview environments
+    - Configure automatic PR deployments
+    - Set up cleanup policies
+  </Card>
+
+  <Card title="Deploy First App" icon="play" href="/guides/getting-started/deploy-your-first-application">
+    Just want to deploy a simple application?
+
+    Follow our quick start guide
+  </Card>
+
+  <Card title="Explore More Use Cases" icon="compass" href="/quickstart">
+    Not sure yet?
+
+    Return to browse all use cases
+  </Card>
+</CardGroup>
 

@@ -59,6 +59,10 @@ Follow these steps to create your first Qovery cluster on AWS:
     2. Go to **Organization Settings** → **Clusters**
     3. Click **Create Cluster**
     4. Select **AWS** as your cloud provider
+
+    <Frame>
+      <img src="/images/install-qovery/common/add-cluster.jpg" alt="Create cluster in Qovery Console" />
+    </Frame>
   </Step>
 
   <Step title="Name Your Cluster">
@@ -272,78 +276,80 @@ Follow these steps to create your first Qovery cluster on AWS:
 
 ---
 
-## What Qovery Creates for You
+<AccordionGroup>
+  <Accordion title="What Qovery Creates for You" icon="list-check">
+    When you create a cluster, Qovery automatically provisions a complete, production-ready infrastructure:
 
-When you create a cluster, Qovery automatically provisions a complete, production-ready infrastructure:
+    ### Network Architecture
 
-### Network Architecture
+    - ✅ **Dedicated VPC** - Multi-AZ VPC isolating your infrastructure
+    - ✅ **Subnets & Routing** - Public/private subnets across 3 availability zones with routing tables
+    - ✅ **Internet Gateway** - For outbound container connectivity
+    - ✅ **Network Load Balancer** - Redirects HTTPS traffic to Nginx Ingress
+    - ✅ **NAT Gateways (Optional)** - With Elastic IPs for static outbound addresses
+    - ✅ **Database Networks** - Dedicated security groups and subnets for:
+      - RDS (relational databases)
+      - DocumentDB (document storage)
+      - ElastiCache (cache layers)
 
-- ✅ **Dedicated VPC** - Multi-AZ VPC isolating your infrastructure
-- ✅ **Subnets & Routing** - Public/private subnets across 3 availability zones with routing tables
-- ✅ **Internet Gateway** - For outbound container connectivity
-- ✅ **Network Load Balancer** - Redirects HTTPS traffic to Nginx Ingress
-- ✅ **NAT Gateways (Optional)** - With Elastic IPs for static outbound addresses
-- ✅ **Database Networks** - Dedicated security groups and subnets for:
-  - RDS (relational databases)
-  - DocumentDB (document storage)
-  - ElastiCache (cache layers)
+    ### Kubernetes Infrastructure
 
-### Kubernetes Infrastructure
+    - ✅ **EKS Cluster** - Multi-AZ, latest stable Kubernetes version
+    - ✅ **Managed Worker Nodes** - AWS-managed EC2 instances with Karpenter
+    - ✅ **Security Groups** - Dual authentication for EKS remote access (TLS + IAM authenticator)
+    - ✅ **IAM Components**:
+      - EBS CSI driver access for persistent volumes
+      - IAM User Sync for Kubernetes authentication
+      - Cluster Autoscaler permissions
+      - EKS CNI and EC2 Container Registry policies
 
-- ✅ **EKS Cluster** - Multi-AZ, latest stable Kubernetes version
-- ✅ **Managed Worker Nodes** - AWS-managed EC2 instances with Karpenter
-- ✅ **Security Groups** - Dual authentication for EKS remote access (TLS + IAM authenticator)
-- ✅ **IAM Components**:
-  - EBS CSI driver access for persistent volumes
-  - IAM User Sync for Kubernetes authentication
-  - Cluster Autoscaler permissions
-  - EKS CNI and EC2 Container Registry policies
+    ### Installed Components
 
-### Installed Components
+    - ✅ **Karpenter** - Intelligent auto-scaling for cost optimization
+    - ✅ **AWS Load Balancer Controller** - Automatic ingress management
+    - ✅ **EBS CSI Driver** - Persistent volume support
+    - ✅ **Metrics Server** - Resource monitoring
+    - ✅ **Qovery Agent** - Observability and management
 
-- ✅ **Karpenter** - Intelligent auto-scaling for cost optimization
-- ✅ **AWS Load Balancer Controller** - Automatic ingress management
-- ✅ **EBS CSI Driver** - Persistent volume support
-- ✅ **Metrics Server** - Resource monitoring
-- ✅ **Qovery Agent** - Observability and management
+    ### Storage & Logging
 
-### Storage & Logging
+    - ✅ **KMS-Encrypted S3 Buckets** - For:
+      - Application logs
+      - Kubeconfig storage (versioned, private)
+    - ✅ **CloudWatch Log Groups** - Cluster diagnostics and logging
 
-- ✅ **KMS-Encrypted S3 Buckets** - For:
-  - Application logs
-  - Kubeconfig storage (versioned, private)
-- ✅ **CloudWatch Log Groups** - Cluster diagnostics and logging
+    ### Karpenter Auto-Scaling
 
-### Karpenter Auto-Scaling
+    Qovery uses [Karpenter](https://karpenter.sh/) for intelligent node provisioning, which can **save up to 60% on AWS costs**:
 
-Qovery uses [Karpenter](https://karpenter.sh/) for intelligent node provisioning, which can **save up to 60% on AWS costs**:
+    **How Karpenter Works**:
+    - Automatically provisions optimal EC2 instances based on your workload requirements
+    - Scales nodes up within seconds when pods need resources
+    - Consolidates workloads onto fewer nodes to reduce costs
+    - Handles spot instance interruptions gracefully
 
-**How Karpenter Works**:
-- Automatically provisions optimal EC2 instances based on your workload requirements
-- Scales nodes up within seconds when pods need resources
-- Consolidates workloads onto fewer nodes to reduce costs
-- Handles spot instance interruptions gracefully
+    **Default Configuration**:
+    - **Stable Node Pool**: For Qovery system components (single instance, on-demand)
+    - **Default Node Pool**: For your applications (auto-scaling, mixed on-demand/spot)
+    - **Optional GPU Node Pool**: For ML/AI workloads (if enabled)
 
-**Default Configuration**:
-- **Stable Node Pool**: For Qovery system components (single instance, on-demand)
-- **Default Node Pool**: For your applications (auto-scaling, mixed on-demand/spot)
-- **Optional GPU Node Pool**: For ML/AI workloads (if enabled)
+    **Instance Type Selection**:
+    Karpenter can provision from a wide range of instance types:
+    - **General Purpose**: t3, m5, m6i, m6g (Graviton ARM)
+    - **Compute Optimized**: c5, c6i, c6g (Graviton ARM)
+    - **Memory Optimized**: r5, r6i, r6g (Graviton ARM)
+    - **GPU Instances**: g4dn, g5 (if GPU node pool enabled)
 
-**Instance Type Selection**:
-Karpenter can provision from a wide range of instance types:
-- **General Purpose**: t3, m5, m6i, m6g (Graviton ARM)
-- **Compute Optimized**: c5, c6i, c6g (Graviton ARM)
-- **Memory Optimized**: r5, r6i, r6g (Graviton ARM)
-- **GPU Instances**: g4dn, g5 (if GPU node pool enabled)
+    **Cost Optimization with Spot Instances**:
+    - Enable spot instances for significant cost reduction
+    - Karpenter automatically handles spot interruptions
+    - Mix of spot and on-demand for reliability
 
-**Cost Optimization with Spot Instances**:
-- Enable spot instances for significant cost reduction
-- Karpenter automatically handles spot interruptions
-- Mix of spot and on-demand for reliability
-
-<Tip>
-You can configure Karpenter settings after cluster creation in **Cluster Settings** → **Node Pools**. Learn more in the [Cluster Configuration](/configuration/clusters) guide.
-</Tip>
+    <Tip>
+    You can configure Karpenter settings after cluster creation in **Cluster Settings** → **Node Pools**. Learn more in the [Cluster Configuration](/configuration/clusters) guide.
+    </Tip>
+  </Accordion>
+</AccordionGroup>
 
 ---
 
