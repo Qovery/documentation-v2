@@ -198,15 +198,6 @@
             "pages": [
               "configuration/organization/git-repository-access",
               {
-                "group": "Git Providers",
-                "pages": [
-                  "integrations/git-providers/github",
-                  "integrations/git-providers/github-enterprise",
-                  "integrations/git-providers/gitlab",
-                  "integrations/git-providers/bitbucket"
-                ]
-              },
-              {
                 "group": "Container Registries",
                 "pages": [
                   "configuration/organization/container-registry",

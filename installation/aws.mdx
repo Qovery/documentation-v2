@@ -73,6 +73,10 @@ Follow these steps to create your first Qovery cluster on AWS:
   <Step title="Connect AWS Account">
     Choose how to connect your AWS account to Qovery:
 
+    <Info>
+    **Source**: Content below is maintained in `/snippets/aws-credentials-*.mdx`. Update snippets first, then copy to all usage locations.
+    </Info>
+
     <Tabs>
       <Tab title="STS Assume Role (Recommended)">
         **Most secure method** - Uses temporary credentials that auto-rotate. No access keys to manage.
@@ -122,10 +126,18 @@ Follow these steps to create your first Qovery cluster on AWS:
            - Find **RoleArn** key
            - Copy the value (looks like: `arn:aws:iam::123456789012:role/qovery-role`)
 
+           <Frame>
+             <img src="/images/aws-credentials/stack-output.png" alt="CloudFormation stack output with Role ARN" />
+           </Frame>
+
         5. **Complete in Qovery**:
            - Back in Qovery, paste the **Role ARN**
            - Give it a name like `AWS Production`
            - Click **Save**
+
+           <Frame>
+             <img src="/images/install-qovery/aws/create-credentials.jpg" alt="Enter Role ARN in Qovery Console" />
+           </Frame>
 
         <Tip>
         **Why this is recommended**: The IAM role uses AWS STS (Security Token Service) to generate temporary credentials that automatically rotate. Qovery never has access to long-lived credentials, and you can revoke access instantly by deleting the CloudFormation stack.
@@ -170,21 +182,37 @@ Follow these steps to create your first Qovery cluster on AWS:
            - ⚠️ **Don't** check "Provide user access to AWS Management Console"
            - Click **Next**
 
+           <Frame>
+             <img src="/images/aws-credentials/create-user-1.png" alt="Create IAM user - step 1" />
+           </Frame>
+
         3. **Attach Permissions**:
            - Select **Attach policies directly**
            - Search for **AdministratorAccess**
            - ✅ Check the **AdministratorAccess** policy
            - Click **Next**
 
+           <Frame>
+             <img src="/images/aws-credentials/create-user-2.png" alt="Attach AdministratorAccess policy" />
+           </Frame>
+
         4. **Review and Create**:
            - Review settings
            - Click **Create user**
+
+           <Frame>
+             <img src="/images/aws-credentials/create-user-3.png" alt="Review and create IAM user" />
+           </Frame>
 
         5. **Generate Access Keys**:
            - Click on the newly created **qovery-admin** user
            - Go to **Security credentials** tab
            - Scroll to **Access keys** section
            - Click **Create access key**
+
+           <Frame>
+             <img src="/images/aws-credentials/aws-create-credentials-1.png" alt="Navigate to access keys section" />
+           </Frame>
 
         6. **Select Use Case**:
            - Choose **Third-party service**
@@ -193,11 +221,19 @@ Follow these steps to create your first Qovery cluster on AWS:
            - (Optional) Add description: "Qovery Production Access"
            - Click **Create access key**
 
+           <Frame>
+             <img src="/images/aws-credentials/aws-create-credentials-2.png" alt="Select third-party service use case" />
+           </Frame>
+
         7. **Save Your Credentials** ⚠️:
            - Copy **Access Key ID** (looks like: `AKIAIOSFODNN7EXAMPLE`)
            - Copy **Secret Access Key** (looks like: `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`)
            - **Download .csv file** as backup
            - ⚠️ **Important**: You can't view the secret key again after closing this page!
+
+           <Frame>
+             <img src="/images/aws-credentials/aws-create-credentials-3.png" alt="Copy access keys" />
+           </Frame>
 
         8. **Complete in Qovery**:
            - Back in Qovery, select **Static Credentials** option
@@ -205,6 +241,10 @@ Follow these steps to create your first Qovery cluster on AWS:
            - Paste **Secret Access Key** in second field
            - Give it a name like `AWS Production`
            - Click **Save**
+
+           <Frame>
+             <img src="/images/aws-credentials/aws-create-credentials-4.png" alt="Enter credentials in Qovery Console" />
+           </Frame>
 
         <AccordionGroup>
           <Accordion title="How to rotate access keys (every 90 days)">

@@ -63,6 +63,10 @@ Qovery needs credentials to manage resources in your GCP project. We use a secur
     2. Either create a new project or select an existing one
     3. Ensure billing is enabled for the project
 
+    <Frame>
+      <img src="/images/gcp-credentials/gcp_project.png" alt="Select or create GCP project" />
+    </Frame>
+
     <Tip>
     Use a dedicated project for Qovery to keep resources organized and costs trackable.
     </Tip>
@@ -130,6 +134,10 @@ Qovery needs credentials to manage resources in your GCP project. We use a secur
        - Assign necessary IAM roles
        - Generate and download a JSON key file (`key.json`)
 
+    <Frame>
+      <img src="/images/gcp-credentials/gcp_shell_1.png" alt="Run credential creation script" />
+    </Frame>
+
     **Example output:**
     ```bash
     Activating services APIs
@@ -146,8 +154,12 @@ Qovery needs credentials to manage resources in your GCP project. We use a secur
   <Step title="Download the Key File">
     1. In Cloud Shell, click the **More** menu (three dots)
     2. Select **Download**
-    3. Enter the file path: `/home/YOUR_USERNAME/key.json`
+    3. Enter the file path: `key.json`
     4. Save the file securely
+
+    <Frame>
+      <img src="/images/gcp-credentials/gcp_shell_5.png" alt="Download key.json file from Cloud Shell" />
+    </Frame>
 
     <Warning>
     **Keep this JSON key file secure!** It provides access to your GCP project. Never commit it to version control.
@@ -159,11 +171,19 @@ Qovery needs credentials to manage resources in your GCP project. We use a secur
     2. Upload the `key.json` file when prompted
     3. Qovery will verify the credentials
 
+    <Frame>
+      <img src="/images/gcp-credentials/gcp_shell_6.png" alt="Upload credentials to Qovery Console" />
+    </Frame>
+
     <Tip>
     You can reuse these credentials for multiple clusters in the same GCP project.
     </Tip>
   </Step>
 </Steps>
+
+<Info>
+**Source**: Content above is maintained in `/snippets/gcp-credentials.mdx`. Update snippet first, then copy to all usage locations.
+</Info>
 
 ## Step 2: Configure Your Cluster
 

@@ -5,14 +5,21 @@ description: "Manage Git tokens for GitHub, GitLab, and Bitbucket"
 
 ## Overview
 
-Git repository access allows Qovery to connect to your source code repositories on GitHub, GitLab, or Bitbucket. By configuring Git tokens, you enable Qovery to:
+Qovery enables centralized management of git repository access through Git tokens. This token-based approach provides organizations with decoupled permission control independent of individual user accounts.
+
+By configuring Git tokens, you enable Qovery to:
 
 - Clone your application source code
 - Monitor repository changes for auto-deployment
 - Access Dockerfiles and build contexts
 - Read configuration files
+- Configure webhooks for auto-deploy and preview environments
 
 Qovery supports multiple Git providers and allows you to manage multiple tokens per provider for different organizations or access levels.
+
+<Note>
+**Legacy GitHub App**: The Qovery GitHub App is being phased out in favor of the token system. Existing users can continue using it while gradually migrating to tokens for better flexibility and control.
+</Note>
 
 ## Supported Git Providers
 
@@ -36,6 +43,10 @@ Qovery integrates with the following Git providers:
   </Step>
 </Steps>
 
+<Note>
+**Required Permissions**: Only users with **Owner**, **Admin**, or **DevOps** roles can manage Git tokens in organization settings.
+</Note>
+
 ## Add a Git Token
 
 <Steps>
@@ -55,6 +66,7 @@ Qovery integrates with the following Git providers:
     - **Name**: Descriptive name for this token (e.g., "GitHub Main Org", "GitLab Production")
     - **Token**: Your Git provider access token
     - **URL** (for self-hosted only): Your Git server URL
+    - **Workspace** (for Bitbucket only): Your Bitbucket workspace name
   </Step>
 
   <Step title="Test Connection">
@@ -72,51 +84,76 @@ Once added, the Git token will be available for all projects and applications in
 
 ## Creating Git Provider Tokens
 
-### GitHub Personal Access Token
+### GitHub Tokens
 
-<Steps>
-  <Step title="Navigate to GitHub Settings">
-    Go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)
+Qovery supports two GitHub token types:
 
-    Or use this direct link: [GitHub Token Settings](https://github.com/settings/tokens)
-  </Step>
+<Tabs>
+  <Tab title="Classic Token (Recommended)">
+    Classic tokens provide full control with simpler configuration:
 
-  <Step title="Generate New Token">
-    Click **Generate new token (classic)**
-  </Step>
+    <Steps>
+      <Step title="Navigate to GitHub Settings">
+        Go to GitHub Settings > Developer settings > Personal access tokens > Tokens (classic)
 
-  <Step title="Configure Token">
-    - **Note**: Give your token a descriptive name (e.g., "Qovery Access")
-    - **Expiration**: Choose an appropriate expiration period (90 days, 1 year, or no expiration)
-    - **Select scopes**: Check the following permissions:
-      - `repo` (Full control of private repositories)
-      - `read:org` (Read org and team membership, read org projects) - if using GitHub organizations
-      - `workflow` (Update GitHub Action workflows) - if using GitHub Actions
-  </Step>
+        Or use this direct link: [GitHub Token Settings](https://github.com/settings/tokens)
+      </Step>
 
-  <Step title="Generate and Copy Token">
-    Click **Generate token** and copy the token immediately
-  </Step>
-</Steps>
+      <Step title="Generate New Token">
+        Click **Generate new token (classic)**
+      </Step>
 
-<Warning>
-GitHub will only show your personal access token once. Make sure to copy it immediately after generation.
-</Warning>
+      <Step title="Configure Token">
+        - **Note**: Give your token a descriptive name (e.g., "Qovery Access")
+        - **Expiration**: Choose an appropriate expiration period (90 days, 1 year, or no expiration)
+        - **Select scopes**: Check the following permissions:
+          - `repo` (Full control of private repositories) - **Required**
+          - `admin:repo_hook` (Full control of repository hooks) - **Required**
+          - `read:org` (Read org and team membership) - if using GitHub organizations
+      </Step>
 
-### GitHub Fine-Grained Token (Alternative)
+      <Step title="Generate and Copy Token">
+        Click **Generate token** and copy the token immediately
+      </Step>
+    </Steps>
 
-For enhanced security, you can use GitHub's fine-grained tokens:
+    <Warning>
+    GitHub will only show your personal access token once. Make sure to copy it immediately after generation.
+    </Warning>
+  </Tab>
 
-1. Go to Settings > Developer settings > Personal access tokens > Fine-grained tokens
-2. Click **Generate new token**
-3. Configure:
-   - **Token name**: Descriptive name
-   - **Expiration**: Choose expiration period
-   - **Repository access**: Select repositories Qovery needs access to
-   - **Permissions**:
-     - Contents: Read
-     - Metadata: Read
-     - Workflows: Read and write (if using GitHub Actions)
+  <Tab title="Fine-Grained Token">
+    Fine-grained tokens offer more granular control:
+
+    <Steps>
+      <Step title="Navigate to Fine-Grained Tokens">
+        Go to Settings > Developer settings > Personal access tokens > Fine-grained tokens
+      </Step>
+
+      <Step title="Generate New Token">
+        Click **Generate new token**
+      </Step>
+
+      <Step title="Configure Token">
+        - **Token name**: Descriptive name
+        - **Expiration**: Choose expiration period
+        - **Repository access**: Select repositories Qovery needs access to
+        - **Permissions** (required):
+          - **Contents**: Read-only access
+          - **Webhooks**: Read and write
+          - **Pull requests**: Read and write
+      </Step>
+
+      <Step title="Generate and Copy Token">
+        Click **Generate token** and copy the token immediately
+      </Step>
+    </Steps>
+
+    <Info>
+    Fine-grained tokens require you to explicitly select which repositories Qovery can access.
+    </Info>
+  </Tab>
+</Tabs>
 
 ### GitHub vs GitHub Enterprise
 
@@ -157,58 +194,218 @@ When adding a GitHub token in the Qovery console, you can choose between **GitHu
   </Tab>
 </Tabs>
 
-### GitLab Personal Access Token
+### GitLab Tokens
+
+GitLab supports both project and group tokens with identical requirements:
+
+<Tabs>
+  <Tab title="Project Access Token">
+    For access to specific projects:
+
+    <Steps>
+      <Step title="Navigate to Project Settings">
+        Go to your GitLab project > Settings > Access Tokens
+      </Step>
+
+      <Step title="Create New Token">
+        Click **Add new token**
+      </Step>
+
+      <Step title="Configure Token">
+        - **Token name**: Give your token a descriptive name (e.g., "Qovery Access")
+        - **Role**: Select **Maintainer** or **Owner**
+        - **Expiration date**: Set an expiration date
+        - **Select scopes**: Check the following permissions:
+          - `api` (Access the API) - **Required**
+          - `read_repository` (Read access to repositories) - **Required**
+      </Step>
+
+      <Step title="Create and Copy Token">
+        Click **Create project access token** and copy the token immediately
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Group Access Token">
+    For access to all projects in a group:
+
+    <Steps>
+      <Step title="Navigate to Group Settings">
+        Go to your GitLab group > Settings > Access Tokens
+      </Step>
+
+      <Step title="Create New Token">
+        Click **Add new token**
+      </Step>
+
+      <Step title="Configure Token">
+        - **Token name**: Give your token a descriptive name (e.g., "Qovery Access")
+        - **Role**: Select **Maintainer** or **Owner**
+        - **Expiration date**: Set an expiration date
+        - **Select scopes**: Check the following permissions:
+          - `api` (Access the API) - **Required**
+          - `read_repository` (Read access to repositories) - **Required**
+      </Step>
+
+      <Step title="Create and Copy Token">
+        Click **Create group access token** and copy the token immediately
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Personal Access Token">
+    For access across all your repositories:
+
+    <Steps>
+      <Step title="Navigate to GitLab Settings">
+        Go to GitLab User Settings > Access Tokens
+
+        Or use this link: [GitLab Token Settings](https://gitlab.com/-/profile/personal_access_tokens)
+      </Step>
+
+      <Step title="Create New Token">
+        Click **Add new token**
+      </Step>
+
+      <Step title="Configure Token">
+        - **Token name**: Give your token a descriptive name (e.g., "Qovery Access")
+        - **Expiration date**: Set an expiration date
+        - **Select scopes**: Check the following permissions:
+          - `api` (Access the API) - **Required**
+          - `read_repository` (Read access to repositories) - **Required**
+          - `read_registry` (Read container registry) - if using GitLab Container Registry
+      </Step>
+
+      <Step title="Create and Copy Token">
+        Click **Create personal access token** and copy the token immediately
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+### Bitbucket Tokens
+
+Bitbucket supports repository and workspace access tokens:
+
+<Tabs>
+  <Tab title="Repository Access Token">
+    For access to specific repositories:
+
+    <Steps>
+      <Step title="Navigate to Repository Settings">
+        Go to your Bitbucket repository > Repository settings > Access tokens
+      </Step>
+
+      <Step title="Create Access Token">
+        Click **Create Repository Access Token**
+      </Step>
+
+      <Step title="Configure Token">
+        - **Name**: Give your token a descriptive name (e.g., "Qovery Access")
+        - **Expiration**: Set an expiration period
+        - **Permissions**: Select the following:
+          - **Repositories**: Read - **Required**
+          - **Pull requests**: Read and write - **Required**
+          - **Webhooks**: Read and write - **Required**
+      </Step>
+
+      <Step title="Create and Copy Token">
+        Click **Create** and copy the token immediately
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Workspace Access Token (Premium)">
+    For access to all repositories in a workspace (requires Bitbucket Premium):
+
+    <Steps>
+      <Step title="Navigate to Workspace Settings">
+        Go to your Bitbucket workspace > Settings > Access tokens
+      </Step>
+
+      <Step title="Create Access Token">
+        Click **Create Access Token**
+      </Step>
+
+      <Step title="Configure Token">
+        - **Name**: Give your token a descriptive name (e.g., "Qovery Access")
+        - **Expiration**: Set an expiration period
+        - **Permissions**: Select the following:
+          - **Repositories**: Read - **Required**
+          - **Pull requests**: Read and write - **Required**
+          - **Webhooks**: Read and write - **Required**
+      </Step>
+
+      <Step title="Create and Copy Token">
+        Click **Create** and copy the token immediately
+      </Step>
+    </Steps>
+
+    <Note>
+    When adding a Bitbucket token to Qovery, you'll need to specify the **workspace name** where the token was created.
+    </Note>
+  </Tab>
+
+  <Tab title="App Password (Legacy)">
+    Personal app passwords for individual user accounts:
+
+    <Steps>
+      <Step title="Navigate to Bitbucket Settings">
+        Go to Bitbucket Personal settings > App passwords
+
+        Or use this link: [Bitbucket App Passwords](https://bitbucket.org/account/settings/app-passwords/)
+      </Step>
+
+      <Step title="Create App Password">
+        Click **Create app password**
+      </Step>
+
+      <Step title="Configure Password">
+        - **Label**: Give your app password a descriptive name (e.g., "Qovery Access")
+        - **Permissions**: Select the following:
+          - **Repositories**: Read - **Required**
+          - **Pull requests**: Read and write - **Required**
+          - **Webhooks**: Read and write - **Required**
+      </Step>
+
+      <Step title="Create and Copy Password">
+        Click **Create** and copy the generated password immediately
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Token Lifecycle Management
+
+Git provider tokens typically include expiration dates. To ensure continuous repository access:
 
 <Steps>
-  <Step title="Navigate to GitLab Settings">
-    Go to GitLab User Settings > Access Tokens
-
-    Or use this link: [GitLab Token Settings](https://gitlab.com/-/profile/personal_access_tokens)
+  <Step title="Monitor Token Expiration">
+    Check your Git provider settings to view token expiration dates. Set calendar reminders before expiration.
   </Step>
 
-  <Step title="Create New Token">
-    Click **Add new token**
+  <Step title="Renew or Generate New Token">
+    Before expiration, either:
+    - **Renew**: Extend the expiration date at your Git provider (if supported)
+    - **Generate New**: Create a new token with the same permissions
   </Step>
 
-  <Step title="Configure Token">
-    - **Token name**: Give your token a descriptive name (e.g., "Qovery Access")
-    - **Expiration date**: Set an expiration date
-    - **Select scopes**: Check the following permissions:
-      - `read_repository` (Read access to repositories)
-      - `read_api` (Read API)
-      - `read_registry` (Read container registry) - if using GitLab Container Registry
+  <Step title="Update in Qovery Console">
+    Update the token value in Qovery's organization settings before the old token expires
   </Step>
 
-  <Step title="Create and Copy Token">
-    Click **Create personal access token** and copy the token immediately
+  <Step title="Verify Connection">
+    Test the new token to ensure all services can still access repositories
+  </Step>
+
+  <Step title="Revoke Old Token">
+    Once verified, revoke the old token at your Git provider for security
   </Step>
 </Steps>
 
-### Bitbucket App Password
-
-<Steps>
-  <Step title="Navigate to Bitbucket Settings">
-    Go to Bitbucket Personal settings > App passwords
-
-    Or use this link: [Bitbucket App Passwords](https://bitbucket.org/account/settings/app-passwords/)
-  </Step>
-
-  <Step title="Create App Password">
-    Click **Create app password**
-  </Step>
-
-  <Step title="Configure Password">
-    - **Label**: Give your app password a descriptive name (e.g., "Qovery Access")
-    - **Permissions**: Select the following:
-      - Repositories: Read
-      - Pull requests: Read
-      - Webhooks: Read and write (for auto-deployment)
-  </Step>
-
-  <Step title="Create and Copy Password">
-    Click **Create** and copy the generated password immediately
-  </Step>
-</Steps>
+<Warning>
+Always update tokens in Qovery BEFORE they expire to avoid deployment interruptions.
+</Warning>
 
 ## Edit a Git Token
 
@@ -282,21 +479,29 @@ For Bitbucket Server (Data Center):
 
 ## Using Git Tokens
 
-Once configured, Git tokens are automatically used when:
+Once configured, Git tokens are used when:
 
-- Creating new applications from Git repositories
+- Creating new applications or services from Git repositories
 - Cloning repository code during builds
 - Monitoring repository changes for auto-deployment
 - Accessing Dockerfile and build context
+- Configuring webhooks for auto-deploy and preview environments
 
-### Selecting Repository During App Creation
+### Selecting Repository During Service Creation
 
-When creating an application:
+When creating an application, container, job, or cronjob:
 
-1. Choose "Git Repository" as the source
-2. Select the Git provider from available tokens
-3. Choose the repository from the dropdown
-4. Select the branch to deploy
+1. Choose **Git Repository** as the source
+2. Select from:
+   - **Personal Git Account**: Your individual Git provider connection (if linked)
+   - **Organization Token**: A configured organizational Git token
+3. Choose the Git provider type (GitHub, GitLab, or Bitbucket)
+4. Select the repository from the dropdown
+5. Select the branch to deploy
+
+<Info>
+Using organizational tokens instead of personal accounts provides better security and decouples deployments from individual user access.
+</Info>
 
 ## Best Practices
 

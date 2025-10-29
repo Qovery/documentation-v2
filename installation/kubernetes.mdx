@@ -3,85 +3,132 @@ title: "BYOK (Bring Your Own Kubernetes)"
 description: "Install Qovery on your own Kubernetes cluster"
 ---
 
-<Warning>
-**For Kubernetes Experts Only**: If you are not familiar with Kubernetes, we recommend using Qovery on a Managed Kubernetes cluster on [AWS](/installation/aws), [GCP](/installation/gcp), [Azure](/installation/azure), or [Scaleway](/installation/scaleway).
-</Warning>
-
 Qovery Self-Managed (also known as BYOK: Bring Your Own Kubernetes) is a self-hosted version of Qovery. It allows you to install Qovery on your own Kubernetes cluster.
 
-## Managed vs Self-Managed
-
-<CardGroup cols={2}>
-  <Card title="Managed by Qovery" icon="robot">
-    - Qovery manages the Kubernetes cluster
-    - Automatic updates and maintenance
-    - Zero cluster management overhead
-    - Best for most users
-  </Card>
-
-  <Card title="Self-Managed (BYOK)" icon="user">
-    - You manage the Kubernetes cluster
-    - Full control over cluster configuration
-    - You handle updates and maintenance
-    - Best for Kubernetes experts
-  </Card>
-</CardGroup>
+<Warning>
+**For Kubernetes Experts Only**: Qovery BYOK is for Kubernetes experts who want to manage their own Kubernetes cluster. If you are not familiar with Kubernetes, we recommend using [Qovery-Managed Kubernetes](/installation/aws) on AWS, GCP, Azure, or Scaleway.
+</Warning>
 
 <Note>
 Qovery automatically updates ONLY the Qovery applications (agent, shell-agent, etc.) via the Qovery Helm chart. With the self-managed offer, it will be up to you to manage any dependency components (ingress, DNS, logging), making sure they run with the right version over time.
 
-The dependencies provided with the Qovery Helm chart are here to help you with the bootstrap, and are not maintained by Qovery. If you want to simplify the maintenance of your cluster, please look at the Qovery managed Kubernetes offer.
+The dependencies provided with the Qovery Helm chart are here to help you with the bootstrap, and are not maintained by Qovery. If you want to simplify the maintenance of your cluster, please look at the [Qovery managed Kubernetes offer](/installation/aws).
 </Note>
 
 ## Prerequisites
 
 Before you begin, ensure you have:
 
-<Check>A Kubernetes cluster up and running (v1.23+)</Check>
-<Check>At least 4 CPUs and 8GB of RAM available in your cluster</Check>
-<Check>`kubectl` installed and configured to access your cluster</Check>
-<Check>`helm` installed (v3.0+)</Check>
-<Check>A Qovery account - [Sign up here](https://start.qovery.com)</Check>
+<Check>An operational Kubernetes cluster (any distribution)</Check>
+<Check>Minimum 4 CPUs and 8GB RAM available in your cluster</Check>
+<Check>`kubectl` installed and configured for cluster access</Check>
+<Check>`helm` package manager installed</Check>
+<Check>Active Qovery account - [Sign up here](https://start.qovery.com)</Check>
 
-### Supported Kubernetes Distributions
-
-Qovery Self-Managed works with any Kubernetes distribution, including:
-
-- Amazon EKS
-- Google GKE
-- Azure AKS
-- DigitalOcean Kubernetes
-- Linode Kubernetes Engine
-- Self-hosted Kubernetes (kubeadm, k3s, etc.)
-- On-premise Kubernetes clusters
-
-## Installation Steps
+## Installation
 
 ### Step 1: Install Qovery CLI
 
 Install the Qovery CLI on your local machine:
 
-<CodeGroup>
-```bash Linux / macOS
-curl -s https://get.qovery.com | bash
-```
+<Tabs>
+  <Tab title="Linux">
+    <Tabs>
+      <Tab title="*nix">
+        To download and install Qovery CLI on any Linux distribution:
 
-```bash Windows (PowerShell)
-iwr -useb https://get.qovery.com/install.ps1 | iex
-```
+        ```bash
+        curl -s https://get.qovery.com | bash
+        ```
+      </Tab>
 
-```bash Homebrew
-brew install qovery-cli
-```
-</CodeGroup>
+      <Tab title="Arch Linux">
+        Qovery is part of [AUR](https://aur.archlinux.org/packages) packages, so you can install it with [yay](https://github.com/Jguer/yay):
 
-Verify the installation:
+        ```bash
+        yay qovery-cli
+        ```
+      </Tab>
 
-```bash
-qovery version
-```
+      <Tab title="Manual">
+        Install the Qovery CLI on Linux manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+      </Tab>
+    </Tabs>
+  </Tab>
 
-### Step 2: Authenticate with Qovery
+  <Tab title="MacOS">
+    <Tabs>
+      <Tab title="Homebrew">
+        The common solution to install a command line binary on the MacOS is to use [Homebrew](https://brew.sh).
+
+        ```bash
+        # Add Qovery brew repository
+        brew tap Qovery/qovery-cli
+
+        # Install the CLI
+        brew install qovery-cli
+        ```
+      </Tab>
+
+      <Tab title="Script">
+        To download and install Qovery CLI from the command line:
+
+        ```bash
+        curl -s https://get.qovery.com | bash
+        ```
+      </Tab>
+
+      <Tab title="Manual">
+        Install the Qovery CLI on Mac OS manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+      </Tab>
+    </Tabs>
+  </Tab>
+
+  <Tab title="Windows">
+    <Tabs>
+      <Tab title="Scoop">
+        The classic way to install binaries on Windows is to use [Scoop](https://scoop.sh).
+
+        ```bash
+        # Add Qovery bucket
+        scoop bucket add qovery https://github.com/Qovery/scoop-qovery-cli
+
+        # Install the CLI
+        scoop install qovery-cli
+        ```
+      </Tab>
+
+      <Tab title="Manual">
+        Install the Qovery CLI on Windows manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to `C:\Windows`.
+      </Tab>
+    </Tabs>
+  </Tab>
+
+  <Tab title="Docker">
+    Install Docker on your local machine and run the following command:
+
+    ```bash
+    # Pull and Run the latest Qovery CLI
+    docker run ghcr.io/qovery/qovery-cli:latest help
+    ```
+
+    Change `latest` by the version you want to use. For example, to use the version 0.58.4, run:
+
+    ```bash
+    docker run ghcr.io/qovery/qovery-cli:0.58.4 help
+    ```
+
+    <Info>
+    `ghcr.io` is the [GitHub Container Registry](https://github.com/Qovery/qovery-cli/pkgs/container/qovery-cli).
+    </Info>
+  </Tab>
+</Tabs>
+
+<Info>
+**Source**: CLI installation instructions are maintained in `/snippets/install-qovery-cli.mdx`. Update snippet first, then copy to all usage locations.
+</Info>
+
+### Step 2: Authenticate
 
 Authenticate with your Qovery account:
 
@@ -91,345 +138,50 @@ qovery auth
 
 This will open a browser window for authentication.
 
-<Accordion title="Headless Authentication (for CI/CD or servers)">
-If you're running this in a headless environment (CI/CD, remote server), use:
+<Tip>
+For headless environments (CI/CD, remote servers) without a graphical interface, use `qovery auth --headless` and follow the instructions to authenticate manually.
+</Tip>
 
-```bash
-qovery auth --headless
-```
+### Step 3: Deploy to Kubernetes
 
-Follow the instructions to authenticate manually.
-</Accordion>
-
-### Step 3: Install Qovery on Your Cluster
-
-Run the installation command:
+Run the installation command and follow the interactive prompts:
 
 ```bash
 qovery cluster install
 ```
 
-The CLI will guide you through the installation process:
-
-<Steps>
-  <Step title="Select Organization">
-    Choose the Qovery organization where you want to add this cluster.
-  </Step>
-
-  <Step title="Name Your Cluster">
-    Provide a name for your cluster (e.g., `production-byok`).
-  </Step>
-
-  <Step title="Select Features">
-    Choose which Qovery components to install:
-    - **Core Services** (required): Qovery engine, agents
-    - **Ingress Controller**: Nginx (recommended)
-    - **Certificate Manager**: cert-manager for SSL/TLS
-    - **DNS**: External DNS for automatic DNS management
-    - **Logging**: Promtail + Loki for log aggregation
-    - **Monitoring**: Prometheus + Grafana (optional)
-  </Step>
-
-  <Step title="Configure Ingress">
-    If installing Nginx ingress:
-    - Choose load balancer type (if supported by your provider)
-    - Configure ingress class name
-  </Step>
-
-  <Step title="Confirm Installation">
-    Review the configuration and confirm to proceed.
-  </Step>
-</Steps>
-
 The installation typically takes 5-10 minutes.
 
-## Installation Process
+## Post-Installation
 
-During installation, Qovery will:
+After successful deployment:
 
-1. **Create Namespace**: `qovery` namespace for all Qovery components
-2. **Install Helm Charts**: Deploy Qovery services via Helm
-3. **Configure RBAC**: Set up necessary permissions
-4. **Install Dependencies**: Deploy ingress, cert-manager, etc. (if selected)
-5. **Register Cluster**: Connect your cluster to Qovery control plane
-6. **Verify Installation**: Run health checks
+1. **Validate Installation**: Check that all Qovery components are running:
+   ```bash
+   kubectl get pods -n qovery
+   ```
 
-## Verify Installation
+2. **Verify in Console**: Log in to [Qovery Console](https://console.qovery.com) to confirm your cluster appears with a **Connected** status.
 
-Once installation is complete:
+3. **Deploy Applications**: You can now start deploying your applications through the Qovery Console.
 
-### Check Cluster Status
-
-```bash
-kubectl get pods -n qovery
-```
-
-You should see pods running:
-
-```
-NAME                                 READY   STATUS    RESTARTS   AGE
-qovery-engine-xxx                    1/1     Running   0          5m
-qovery-shell-agent-xxx               1/1     Running   0          5m
-qovery-cluster-agent-xxx             1/1     Running   0          5m
-```
-
-### Verify in Qovery Console
-
-1. Log in to the [Qovery Console](https://console.qovery.com)
-2. Navigate to your organization's clusters
-3. Your cluster should appear with a **Connected** status
-
-### Test Deployment
-
-Deploy a test application to verify everything works:
-
-```bash
-qovery application deploy <app-name>
-```
-
-## Cluster Requirements
-
-### Minimum Resources
-
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| CPU | 4 cores | 8+ cores |
-| Memory | 8 GB | 16+ GB |
-| Storage | 50 GB | 100+ GB |
-| Kubernetes Version | 1.23+ | 1.27+ (latest stable) |
-
-### Required Kubernetes Features
-
-- **RBAC**: Role-Based Access Control must be enabled
-- **Persistent Volumes**: For stateful applications and databases
-- **Load Balancer**: Service type LoadBalancer support (or alternative ingress)
-- **Storage Classes**: At least one storage class for dynamic provisioning
-
-### Network Requirements
-
-**Outbound Access Required**:
-- `api.qovery.com` - Qovery API
-- `*.pkg.dev` - Container registries
-- `*.docker.io` - Docker Hub
-- `*.github.com` - Git repositories
-- Your container registry
-- Your cloud provider APIs (if applicable)
-
-**Inbound Access** (if exposing applications):
-- Port 80 (HTTP)
-- Port 443 (HTTPS)
-
-## Configuration Options
-
-### Custom Helm Values
-
-You can customize the Qovery installation by providing custom Helm values:
-
-```bash
-qovery cluster install --values custom-values.yaml
-```
-
-Example `custom-values.yaml`:
-
-```yaml
-# Resource limits for Qovery components
-engine:
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 2Gi
-    requests:
-      cpu: 500m
-      memory: 1Gi
-
-# Ingress configuration
-ingress:
-  enabled: true
-  className: nginx
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-
-# Logging configuration
-loki:
-  enabled: true
-  retention: 720h  # 30 days
-```
-
-### Environment-Specific Configurations
-
-<Tabs>
-  <Tab title="AWS EKS">
-    **Additional Considerations**:
-    - Use AWS Load Balancer Controller for ingress
-    - Configure IAM roles for service accounts (IRSA)
-    - Use EBS CSI driver for persistent volumes
-    - Consider using AWS Secrets Manager integration
-  </Tab>
-
-  <Tab title="Google GKE">
-    **Additional Considerations**:
-    - Use GKE Ingress or Nginx
-    - Configure Workload Identity for GCP service accounts
-    - Use GCE Persistent Disk for storage
-    - Consider using Google Secret Manager integration
-  </Tab>
-
-  <Tab title="Azure AKS">
-    **Additional Considerations**:
-    - Use Azure Load Balancer
-    - Configure Azure AD Workload Identity
-    - Use Azure Disk for persistent volumes
-    - Consider using Azure Key Vault integration
-  </Tab>
-
-  <Tab title="On-Premise">
-    **Additional Considerations**:
-    - Set up MetalLB for load balancing
-    - Configure local storage provisioner
-    - Ensure adequate network connectivity
-    - Set up backup solutions for persistent data
-  </Tab>
-</Tabs>
-
-## Managing Your Self-Managed Cluster
-
-### Updating Qovery
-
-Qovery components are automatically updated by the Qovery control plane. However, you can manually trigger updates:
-
-```bash
-qovery cluster update
-```
-
-<Warning>
-**You are responsible for**:
-- Kubernetes cluster upgrades
-- Dependency updates (ingress, cert-manager, etc.)
-- Security patches for cluster nodes
-- Backup and disaster recovery
-</Warning>
-
-### Monitoring
-
-Monitor your Qovery installation:
-
-```bash
-# Check Qovery component status
-kubectl get pods -n qovery
-
-# View Qovery engine logs
-kubectl logs -n qovery deployment/qovery-engine -f
-
-# Check cluster agent status
-kubectl logs -n qovery deployment/qovery-cluster-agent -f
-```
-
-### Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Pods Not Starting">
-    **Problem**: Qovery pods stuck in Pending or CrashLoopBackOff
-
-    **Solutions**:
-    - Check resource availability: `kubectl describe pod -n qovery <pod-name>`
-    - Verify image pull: `kubectl get events -n qovery`
-    - Check logs: `kubectl logs -n qovery <pod-name>`
-    - Ensure sufficient cluster resources
-  </Accordion>
-
-  <Accordion title="Cluster Not Connecting">
-    **Problem**: Cluster shows as disconnected in Qovery console
-
-    **Solutions**:
-    - Verify outbound network connectivity
-    - Check cluster agent logs
-    - Ensure Qovery API is accessible
-    - Verify authentication token is valid
-  </Accordion>
-
-  <Accordion title="Application Deployment Failures">
-    **Problem**: Applications fail to deploy
-
-    **Solutions**:
-    - Check deployment logs in Qovery console
-    - Verify sufficient cluster resources
-    - Ensure storage classes are configured
-    - Check ingress controller is working
-    - Verify network policies allow traffic
-  </Accordion>
-</AccordionGroup>
-
-## Uninstalling Qovery
-
-To remove Qovery from your cluster:
-
-<Warning>
-**This will delete all Qovery-managed resources**. Ensure you have backups of any important data.
-</Warning>
-
-```bash
-qovery cluster uninstall
-```
-
-Or manually with Helm:
-
-```bash
-helm uninstall qovery -n qovery
-kubectl delete namespace qovery
-```
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="High Availability" icon="shield-check">
-    - Run multiple node pools across availability zones
-    - Use pod disruption budgets
-    - Configure resource requests and limits
-    - Enable cluster autoscaling
-  </Card>
-
-  <Card title="Security" icon="lock">
-    - Enable RBAC and network policies
-    - Use secrets management (external secrets)
-    - Regular security updates
-    - Audit logging enabled
-  </Card>
-
-  <Card title="Backup & Recovery" icon="database">
-    - Regular etcd backups
-    - Persistent volume snapshots
-    - Document disaster recovery procedures
-    - Test recovery processes
-  </Card>
-
-  <Card title="Monitoring" icon="chart-line">
-    - Enable Prometheus and Grafana
-    - Set up alerting
-    - Monitor resource usage
-    - Track application metrics
-  </Card>
-</CardGroup>
+<Tip>
+For comprehensive validation steps and troubleshooting, see the [BYOK Integration Guide](/integrations/kubernetes/byok).
+</Tip>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Deploy Your First Application" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+  <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
     Follow our quickstart guide
   </Card>
-  <Card title="Configure Your Cluster" icon="sliders" href="/configuration/cluster">
-    Customize cluster settings
-  </Card>
-  <Card title="Add Team Members" icon="users" href="/configuration/organization">
-    Invite your team
+  <Card title="BYOK Advanced Configuration" icon="sliders" href="/integrations/kubernetes/byok">
+    Detailed setup and configuration options
   </Card>
   <Card title="Qovery Helm Chart" icon="/images/logos/helm-icon-light.svg" href="https://github.com/Qovery/qovery-chart">
     View on GitHub
   </Card>
+  <Card title="Get Help" icon="headset" href="https://www.qovery.com/support">
+    Contact support
+  </Card>
 </CardGroup>
-
-## Additional Resources
-
-- [Qovery Helm Chart Repository](https://github.com/Qovery/qovery-chart)
-- [Community Forum](https://discuss.qovery.com)
-- [Kubernetes Documentation](https://kubernetes.io/docs/)
-- [Get Help](https://www.qovery.com/support)

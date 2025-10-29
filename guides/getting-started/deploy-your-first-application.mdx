@@ -1,268 +1,258 @@
 ---
 title: "Deploy Your First Application"
-description: "Detailed step-by-step guide to deploying your first application with Qovery"
+description: "Quick guide to deploying your first application on Qovery"
 ---
 
-<Note>
-**New to Qovery?** Check out our [Quick Start Guide](/quickstart) for a complete walkthrough including infrastructure setup.
-</Note>
-
-## Overview
-
-This guide provides detailed instructions for deploying your first application on Qovery, from connecting your Git repository to seeing your app live.
+Deploy a containerized application on Qovery in minutes. This guide walks you through creating and deploying your first application from a Git repository.
 
 ## Prerequisites
 
-Before you begin, make sure you have:
+<Check>Qovery account - [Sign up here](https://console.qovery.com/signup)</Check>
+<Check>A cluster connected to Qovery - [Setup guide](/installation/aws)</Check>
+<Check>Git repository with your application code (GitHub, GitLab, or Bitbucket)</Check>
 
-- A Qovery account ([sign up here](https://console.qovery.com/signup))
-- A Git repository (GitHub, GitLab, or Bitbucket) with your application code
-- A Kubernetes cluster connected to Qovery ([Quick Start Guide](/quickstart))
+<Note>
+Don't have a cluster yet? Follow our [Quick Start Guide](/quickstart) for complete setup.
+</Note>
 
 ## Step 1: Create a Project
 
-[Projects](/configuration/project) help you organize related applications and environments.
+[Projects](/configuration/project) organize your applications and environments.
 
-<Steps>
-  <Step title="Navigate to Projects">
-    In the Qovery Console, click on **Projects** in the left sidebar
-  </Step>
+**Two ways to create a project:**
 
-  <Step title="Create New Project">
-    Click **Create Project** and enter:
-    - **Name**: e.g., "My First Project"
-    - **Description**: Optional description
-  </Step>
+**Option A - From Project Selector (Quick):**
+1. In [Qovery Console](https://console.qovery.com), click the **Project selector** in the header
+2. Click **New** button
+3. Enter a project name (e.g., "My First Project")
+4. Click **Create**
 
-  <Step title="Select Cluster">
-    Choose the cluster where you want to deploy your applications
-  </Step>
-</Steps>
+**Option B - From Organization Settings:**
+1. Go to **Organization Settings**
+2. Navigate to the **Projects** section
+3. Click **Create Project**
+4. Enter project details
+5. Click **Create**
+
+<Frame>
+  <img src="/images/configuration/project/project_creation.png" alt="Create a new project in Qovery" />
+</Frame>
 
 ## Step 2: Create an Environment
 
-[Environments](/configuration/environment) represent different stages of your application lifecycle (dev, staging, production).
+[Environments](/configuration/environment) represent deployment stages (production, staging, development).
+
+1. Open your project
+2. Click **Create Environment**
+3. Enter an environment name (e.g., "production")
+4. Select the environment type (PRODUCTION, STAGING, or DEVELOPMENT)
+5. Select the cluster where you want to deploy
+6. Click **Create**
+
+<Frame>
+  <img src="/images/configuration/environment/create_environment_1.png" alt="Create a new environment" />
+</Frame>
+
+## Step 3: Create Your Application
+
+Now let's deploy your application:
 
 <Steps>
-  <Step title="Open Your Project">
-    Click on the project you just created
+  <Step title="Start Application Creation">
+    In your environment, click **New Service** → **Create application**
+
+    <Frame>
+      <img src="/images/configuration/environment/create_service.png" alt="Click New Service to create an application" />
+    </Frame>
   </Step>
 
-  <Step title="Create Environment">
-    Click **Create Environment** and configure:
-    - **Name**: e.g., "production"
-    - **Type**: Select PRODUCTION, STAGING, or DEVELOPMENT
-    - **Cluster**: Already selected from project
+  <Step title="Configure Basic Settings">
+    **Application Name**: Enter a name for your application
+
+    **Application Source**: Choose your deployment method:
+    - **Git Repository** (recommended for most cases)
+    - **Container Registry** (if you have pre-built images)
   </Step>
 
-  <Step title="Create">
-    Click **Create** to set up your environment
-  </Step>
-</Steps>
-
-## Step 3: Deploy Your Application
-
-Now let's deploy your first application!
-
-<Steps>
-  <Step title="Add Application">
-    In your environment, click **Add Application**
-  </Step>
-
-  <Step title="Connect Git Repository">
-    - Select your Git provider (GitHub, GitLab, or Bitbucket)
+  <Step title="Configure Source">
+    **For Git Repository:**
+    - Select your Git provider (GitHub, GitLab, Bitbucket)
     - Choose your repository
     - Select the branch to deploy (e.g., `main`)
+    - Set root application path if needed
+
+    <Info>
+    Need to connect your Git provider? See [Git Repository Access](/configuration/organization/git-repository-access) for GitHub, GitLab, or Bitbucket setup.
+    </Info>
+
+    **For Container Registry:**
+    - Select your registry
+    - Enter image name and tag
+    - **Important**: Use unique tags (avoid `latest`, `dev`, `master`)
+
+    <Info>
+    Need to connect a container registry? See [Container Registry](/configuration/organization/container-registry) for Docker Hub, ECR, GCR, ACR, and other registries.
+    </Info>
   </Step>
 
-  <Step title="Configure Build">
-    Qovery will auto-detect your Dockerfile and use it automatically.
+  <Step title="Allocate Resources">
+    Set compute resources for your application:
 
-    You can customize:
-    - Dockerfile path (if not in root)
-    - Build arguments
-    - Root application path
+    - **vCPU**: Default 500m (0.5 core) - adjust as needed
+    - **RAM**: Default 512 MB - adjust as needed
+    - **Instances**: Min and max for auto-scaling (default: 1-1)
 
-    Learn more about [application configuration](/configuration/application).
+    <Tip>
+    Start with defaults and scale up based on actual usage.
+    </Tip>
   </Step>
 
-  <Step title="Set Resources">
-    Configure your application resources:
-    ```yaml
-    CPU: 500m (0.5 CPU cores)
-    Memory: 512 MB
-    ```
-    You can adjust these later based on your needs.
-  </Step>
+  <Step title="Define Ports">
+    If your application serves traffic:
 
-  <Step title="Configure Port">
-    If your application exposes a port:
-    - **Internal Port**: The port your app listens on (e.g., 8080, 3000)
-    - **External Port**: 443 (HTTPS)
+    - **Port**: The port your app listens on (e.g., 8080, 3000)
+    - **Protocol**: Select HTTPS, gRPC, TCP, or UDP
     - **Publicly Accessible**: Enable to expose to the internet
+    - **External Port**: 443 for HTTPS
+
+    <Warning>
+    Make sure your application listens on `0.0.0.0:$PORT` not just `localhost`.
+    </Warning>
   </Step>
 
-  <Step title="Deploy">
-    Click **Deploy** to start your first deployment!
+  <Step title="Configure Health Checks">
+    Set up health checks for reliability:
+
+    - **Liveness Probe**: Checks if app is running
+    - **Readiness Probe**: Checks if app is ready for traffic
+
+    Configure based on your declared ports and endpoints.
+  </Step>
+
+  <Step title="Set Environment Variables (Optional)">
+    Add any environment variables your application needs:
+
+    - Configuration values
+    - API keys (use secrets for sensitive data)
+    - Feature flags
+
+    <Info>
+    You can add these later in the application settings.
+    </Info>
+  </Step>
+
+  <Step title="Review and Deploy">
+    Review your configuration, then:
+
+    - Click **Create and Deploy** to deploy immediately
+    - Or **Create** to deploy later
+
+    Your application will start deploying!
   </Step>
 </Steps>
 
-## Step 4: Monitor Deployment
+## Monitor Your Deployment
+
+Watch your application come to life:
 
 <Steps>
-  <Step title="View Logs">
-    Click on your application to see real-time deployment logs:
-    - **Build logs**: Container image building
-    - **Deployment logs**: Kubernetes deployment
-    - **Application logs**: Your app's stdout/stderr
+  <Step title="View Deployment Progress">
+    Click on your application to see:
+    - **Build logs**: Container image creation
+    - **Deployment logs**: Kubernetes deployment status
+    - **Application logs**: Your app's output
+
+    <Frame>
+      <img src="/images/deployment/deployment_logs_view.png" alt="View deployment logs in real-time" />
+    </Frame>
   </Step>
 
-  <Step title="Check Status">
-    Wait for the status to change to **Running** (usually 2-5 minutes)
+  <Step title="Wait for Running Status">
+    Deployment typically takes 2-5 minutes.
+
+    Status progression: `Building` → `Deploying` → `Running`
+
+    <Frame>
+      <img src="/images/deployment/deployment_status.png" alt="Application deployment status" />
+    </Frame>
   </Step>
 
   <Step title="Access Your Application">
-    Once running, click on the application URL to view your live app!
+    Once running, click the application URL to view your live app!
+
+    The URL format: `https://your-app-xxx.qovery.io`
   </Step>
 </Steps>
 
-## Understanding the Deployment
+## What Happened Behind the Scenes
 
-Here's what Qovery did behind the scenes:
+Qovery automatically:
 
-```mermaid
-graph LR
-    A[Git Push] --> B[Qovery Detects Change]
-    B --> C[Clone Repository]
-    C --> D[Build Container]
-    D --> E[Push to Registry]
-    E --> F[Deploy to Kubernetes]
-    F --> G[Configure Ingress]
-    G --> H[Application Running]
-```
+1. ✅ Cloned your Git repository
+2. ✅ Built a container image
+3. ✅ Pushed to container registry
+4. ✅ Deployed to Kubernetes
+5. ✅ Configured networking with HTTPS
+6. ✅ Started health checks
 
-1. **Cloned your repository** from Git
-2. **Built a container image** using Docker
-3. **Pushed to container registry** in your cloud account
-4. **Deployed to Kubernetes** with proper configurations
-5. **Configured networking** with automatic HTTPS
-6. **Started health checks** to ensure your app is running
-
-## Common Issues
+## Troubleshooting
 
 <AccordionGroup>
   <Accordion title="Build Failed">
-    **Problem**: Build logs show errors
-
-    **Solutions**:
-    - Check if all dependencies are listed in your package manager file
-    - Verify Dockerfile syntax if using custom Dockerfile
-    - Ensure build commands are correct
-    - Check build logs for specific error messages
+    **Check**:
+    - All dependencies listed in package manager file
+    - Dockerfile syntax (if custom)
+    - Build logs for specific errors
   </Accordion>
 
   <Accordion title="Application Crashes">
-    **Problem**: App deploys but immediately crashes
-
-    **Solutions**:
-    - Check [application logs](/configuration/deployment/logs) for errors
-    - Verify [environment variables](/configuration/environment-variables) are set correctly
-    - Ensure the port configuration matches your app
-    - Check resource limits (CPU/memory might be too low)
+    **Check**:
+    - Application logs for errors
+    - Environment variables are correct
+    - Port configuration matches your app
+    - Resource limits (CPU/memory) are sufficient
   </Accordion>
 
   <Accordion title="Cannot Access Application">
-    **Problem**: Deployment successful but can't access URL
-
-    **Solutions**:
-    - Verify "Publicly Accessible" is enabled
-    - Check if application is listening on the correct port
-    - Ensure health checks are passing
+    **Check**:
+    - "Publicly Accessible" is enabled
+    - App listens on `0.0.0.0:$PORT` not `localhost`
+    - Health checks are passing
     - Wait a few minutes for DNS propagation
   </Accordion>
 </AccordionGroup>
 
-## Example: Deploying a Node.js App
-
-Here's a complete example of a simple Node.js app:
-
-### Application Code
-
-```javascript
-// server.js
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello from Qovery!' });
-});
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-```
-
-### Package.json
-
-```json
-{
-  "name": "my-first-app",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.0"
-  }
-}
-```
-
-### Qovery Configuration
-
-- **Port**: 3000 (internal), 443 (external)
-- **Build**: Automatic (Dockerfile detected)
-- **Health Check**: GET /health
-- **Auto Deploy**: Enabled on `main` branch
-
 ## Next Steps
-
-Congratulations! You've deployed your first application. Now you can:
 
 <CardGroup cols={2}>
   <Card title="Add a Database" icon="database" href="/guides/getting-started/connect-database">
-    Connect a PostgreSQL, MySQL, or other database
+    Connect PostgreSQL, MySQL, or other databases
   </Card>
-  <Card title="Configure Custom Domain" icon="globe" href="/guides/applications/configure-custom-domain">
+  <Card title="Custom Domain" icon="globe" href="/configuration/application#domains">
     Use your own domain name
   </Card>
-  <Card title="Manage Environment Variables" icon="key" href="/guides/applications/manage-environment-variables">
-    Add secrets and configuration
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Manage secrets and configuration
   </Card>
-  <Card title="Create More Environments" icon="layer-group" href="/guides/getting-started/create-environment">
-    Set up staging and development environments
+  <Card title="Auto Deploy" icon="rotate" href="/configuration/deployment/auto-deploy">
+    Enable automatic deployments from Git
   </Card>
 </CardGroup>
 
-## Tips for Success
+## Quick Tips
 
 <Tip>
-**Start Small**: Begin with minimal resources and scale up based on actual usage. Qovery makes it easy to adjust.
+**Start Small**: Begin with minimal resources (500m CPU, 512MB RAM) and scale based on actual usage.
 </Tip>
 
 <Tip>
-**Use Auto-Deploy**: Enable [automatic deployments](/configuration/deployment/auto-deploy) for development and staging. Keep production manual for control.
+**Use Health Checks**: Configure `/health` or `/healthz` endpoints in your app for better reliability.
 </Tip>
 
 <Tip>
-**Check Logs**: Always check logs if something isn't working. They contain valuable debugging information.
+**Enable Auto Deploy**: For development environments, enable auto-deploy to automatically deploy on Git push.
 </Tip>
 
 <Tip>
-**Health Checks**: Configure health check endpoints in your application for better reliability.
+**Check Logs First**: When troubleshooting, always check application logs - they contain valuable debugging information.
 </Tip>
