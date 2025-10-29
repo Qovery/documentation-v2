@@ -23,58 +23,137 @@ Qovery is a **DevOps Automation Platform** that empowers developers to deploy an
   </Card>
 </CardGroup>
 
-## Five Integrated Products
+## What You Can Do With Qovery
 
-Qovery provides a complete platform through five products that work together seamlessly:
+Qovery is a complete DevOps automation platform built on five integrated products that work together seamlessly. From provisioning infrastructure to deploying applications, monitoring performance, optimizing costs, and securing your workloads—everything you need to run production applications on your own cloud infrastructure.
 
-<CardGroup cols={2}>
-  <Card title="Provision" icon="/logos/provision-logo-only.svg" href="/guides/qovery-101/provision">
-    Install and manage Kubernetes clusters across any cloud
+### Provision - Infrastructure Management
+
+<CardGroup cols={3}>
+  <Card title="Multi-Cloud Kubernetes" icon="dharmachakra" href="/guides/qovery-101/provision">
+    **Clusters on Any Cloud**
+
+    AWS EKS, Google GKE, Azure AKS, Scaleway Kapsule. Production-ready in 30 minutes with BYOK* support
   </Card>
-  <Card title="Deploy" icon="/logos/deploy-logo-only.svg" href="/guides/qovery-101/deploy">
-    Deploy applications, databases, and services with GitOps
+  <Card title="Managed Databases" icon="database">
+    **PostgreSQL, MySQL, MongoDB, Redis**
+
+    Automated backups, replicas, high availability. Managed by your cloud provider with one-click setup
   </Card>
-  <Card title="Observe" icon="/logos/observe-logo-only.svg" href="/guides/qovery-101/observe">
-    Unified observability for apps and infrastructure
-  </Card>
-  <Card title="Optimize" icon="/logos/optimize-logo-only.svg" href="/guides/qovery-101/optimize">
-    Intelligent cost control and resource optimization
-  </Card>
-  <Card title="Secure" icon="/logos/secure-logo-only.svg" href="/guides/qovery-101/secure">
-    Built-in security and compliance (SOC2, GDPR, HIPAA)
+  <Card title="Cloud Resources" icon="server">
+    **Terraform Integration**
+
+    Provision S3 buckets, RDS instances, CloudFront, load balancers, VPCs, and networking infrastructure
   </Card>
 </CardGroup>
 
-## Why Choose Qovery?
+### Deploy - Application Deployment
 
-<Tabs>
-  <Tab title="For Developers">
-    **Ship faster without DevOps bottlenecks**
+<CardGroup cols={3}>
+  <Card title="Applications" icon="rocket" href="/guides/qovery-101/deploy">
+    **All Languages & Frameworks**
 
-    - Deploy apps in minutes without Kubernetes knowledge
-    - Auto-generated CI/CD pipelines
-    - Preview environments for every pull request
-    - Real-time logs and monitoring
-  </Tab>
+    Node.js, Python, Go, Java, PHP, Ruby, .NET, containers. Framework auto-detection and automatic builds
+  </Card>
+  <Card title="Helm Charts" icon="helm">
+    **Deploy Complex Applications**
 
-  <Tab title="For Platform Teams">
-    **Standardize and scale across teams**
+    Prometheus, Grafana, Elasticsearch, Redis, or any Helm chart from public or private repositories
+  </Card>
+  <Card title="GitOps Automation" icon="code-branch">
+    **Preview Environments**
 
-    - Enforce best practices organization-wide
-    - Multi-cluster management from one interface
-    - Cost visibility and optimization
-    - SOC2, GDPR, HIPAA compliance built-in
-  </Tab>
+    Auto-deploy on Git push. Environment per PR. Dev → Staging → Prod pipelines. Zero downtime deployments
+  </Card>
+  <Card title="Microservices" icon="cubes">
+    **Service Orchestration**
 
-  <Tab title="Your Infrastructure">
-    **Unlike Heroku or Platform.sh**
+    Deploy dozens of services with Kubernetes. Service mesh, load balancing, centralized configuration
+  </Card>
+  <Card title="API Services" icon="plug">
+    **REST, GraphQL, gRPC**
 
-    - Runs on **your** AWS, GCP, Azure, or Scaleway
-    - No vendor lock-in (standard Kubernetes)
-    - Full cost transparency
-    - Complete data sovereignty
-  </Tab>
-</Tabs>
+    Load balancing, auto-scaling, custom domains, automatic SSL. Monitor with real-time logs and metrics
+  </Card>
+  <Card title="Background Jobs" icon="clock">
+    **Cron & Lifecycle Jobs**
+
+    Scheduled tasks, background workers, database migrations, seeding, pre/post-deployment hooks
+  </Card>
+</CardGroup>
+
+### Observe - Monitoring & Logging
+
+<CardGroup cols={2}>
+  <Card title="Qovery Observe (Built-in)" icon="eye" href="/guides/qovery-101/observe">
+    **Complete Observability Included**
+
+    📊 **Metrics:** CPU, memory, disk, network usage per service
+
+    📝 **Logs:** Real-time application logs (stdout/stderr), build logs, search and filter
+
+    ⚙️ **Events:** Kubernetes events tracking (pod restarts, failures, scaling)
+
+    📜 **History:** Full deployment history and status tracking
+
+    ✨ **No setup required** - Available immediately for all services
+  </Card>
+  <Card title="External Integrations" icon="puzzle-piece">
+    **Connect Your Monitoring Tools**
+
+    Integrate with your existing observability stack:
+    - **Datadog** - Full platform integration
+    - **New Relic** - APM and infrastructure monitoring
+    - **Custom solutions** - Prometheus, Grafana, ELK
+    - **Webhooks** - Send deployment events to any endpoint
+  </Card>
+</CardGroup>
+
+### Optimize - Cost & Performance
+
+<CardGroup cols={3}>
+  <Card title="Cost Optimization" icon="piggy-bank" href="/guides/qovery-101/optimize">
+    **Save Up to 60% on Infrastructure**
+
+    Karpenter intelligent provisioning (AWS EKS). Spot instances for non-production. Sleep mode for dev/staging environments
+  </Card>
+  <Card title="Auto-Scaling" icon="arrows-up-down">
+    **Scale Based on CPU**
+
+    Horizontal pod auto-scaling based on CPU usage. Automatic load balancing across replicas
+  </Card>
+  <Card title="Resource Efficiency" icon="gauge">
+    **Right-Size Your Apps**
+
+    Monitor resource usage to optimize container sizes. Set CPU and memory limits per service
+  </Card>
+</CardGroup>
+
+### Secure - Security & Compliance
+
+<CardGroup cols={3}>
+  <Card title="Compliance Certified" icon="file-certificate" href="/guides/qovery-101/secure">
+    **SOC2, GDPR, HIPAA, DORA, HDS**
+
+    Enterprise compliance built-in. Audit logs. Security best practices by default
+  </Card>
+  <Card title="Security Features" icon="shield-check">
+    **Secrets & Access Control**
+
+    Secrets management with Doppler or External Secrets. RBAC for team permissions. SSO. Network isolation. Automatic SSL/TLS
+  </Card>
+  <Card title="Your Infrastructure" icon="lock-open">
+    **Full Control & Transparency**
+
+    Runs on your cloud account. kubectl access. No vendor lock-in. BYOK* support. Direct cloud billing
+  </Card>
+</CardGroup>
+
+<Info>
+*BYOK = Bring Your Own Kubernetes - Connect your existing Kubernetes cluster to Qovery
+</Info>
+
+---
 
 ## What's Next?
 

@@ -4,82 +4,204 @@ description: "Deploy your first app in 15 minutes. No Kubernetes knowledge requi
 mode: "wide"
 ---
 
-## Choose Your Path
+## Choose Your Use Case
 
-Select how you want to get started with Qovery:
+Select the scenario that best matches your needs:
 
-<CardGroup cols={3}>
-  <Card title="🐳 Docker Desktop" icon="docker" href="/quickstart/docker-desktop">
-    **Start Local** - 15 minutes
+<CardGroup cols={2}>
+  <Card title="Test & Learn Locally" icon="flask" href="/quickstart/docker-desktop">
+    **Explore Qovery without cloud costs**
 
-    - ✅ No cloud account needed
-    - ✅ Learn Qovery risk-free
-    - ✅ Free local development
-    - ✅ Move to production later
+    Perfect for:
+    - **First-time users** exploring the platform
+    - **Local development** and testing
+    - **Learning** Qovery features risk-free
+    - **Proof of concepts** before production
 
-    **Perfect for:** First-time users, learning, testing
+    What you get:
+    - Free local k3s cluster on your laptop
+    - Full Qovery feature access
+    - No cloud account or credit card needed
+
+    **Time:** ~15 minutes | **Cost:** Free
+
+    → **Path: Docker Desktop**
   </Card>
 
-  <Card title="☁️ Managed Cluster" icon="cloud" href="/quickstart/cloud">
-    **Fully Managed** - 30 minutes
+  <Card title="Production SaaS & Web Apps" icon="rocket" href="/quickstart/cloud">
+    **Deploy scalable applications to production**
 
-    - ✅ Qovery manages your Kubernetes
-    - ✅ AWS, GCP, Azure, or Scaleway
-    - ✅ No Kubernetes expertise needed
-    - ✅ Production-ready infrastructure
+    Perfect for:
+    - **SaaS platforms** with multi-tenant architecture
+    - **Web applications** needing auto-scaling
+    - **API services** (REST, GraphQL, gRPC)
+    - **Microservices** architectures
 
-    **Perfect for:** Teams wanting hands-off infrastructure
+    What you get:
+    - Production-ready Kubernetes in 30 minutes
+    - Auto-scaling, load balancing, SSL
+    - Managed databases (PostgreSQL, MySQL, MongoDB, Redis)
+
+    **Time:** ~30 minutes | **Expertise:** None required
+
+    → **Path: Managed Cluster** (AWS, GCP, Azure, Scaleway)
   </Card>
 
-  <Card title="🔧 Bring Your Own Cluster" icon="server" href="/integrations/kubernetes/byok">
-    **Self-Managed** - 20 minutes
+  <Card title="Preview & Ephemeral Environments" icon="code-branch" href="/quickstart/cloud">
+    **Temporary environments for every pull request**
 
-    - ✅ Use your existing Kubernetes cluster
-    - ✅ Full control over infrastructure
-    - ✅ Any cloud provider or on-premise
-    - ✅ Custom configurations
+    Perfect for:
+    - **Preview environments** for each PR/branch
+    - **QA testing** with isolated environments
+    - **Feature testing** before merging to main
+    - **Demo environments** for stakeholders
 
-    **Perfect for:** Organizations with specific Kubernetes needs
+    What you get:
+    - Auto-created environment per pull request
+    - Automatic cleanup when PR closes
+    - Full-stack previews with databases
+    - Share URLs with team instantly
+
+    **Time:** ~30 minutes setup | **Per PR:** Automatic
+
+    → **Path: Managed Cluster** (AWS, GCP, Azure, Scaleway)
+  </Card>
+
+  <Card title="Enterprise with Custom Requirements" icon="building" href="/integrations/kubernetes/byok">
+    **Full control over infrastructure**
+
+    Perfect for:
+    - **Existing Kubernetes clusters** to connect
+    - **Compliance requirements** (HIPAA, PCI-DSS, custom)
+    - **On-premise or hybrid** infrastructure
+    - **Custom networking** and security configs
+
+    What you get:
+    - Use your existing cluster (any cloud or on-prem)
+    - Complete infrastructure control
+    - Qovery developer experience layer
+    - Custom Kubernetes configurations
+
+    **Time:** ~20 minutes | **Control:** Complete
+
+    → **Path: Bring Your Own Cluster** (BYOK)
   </Card>
 </CardGroup>
 
 ---
 
-## Managed vs Self-Managed
+## Detailed Use Case Comparison
 
 <AccordionGroup>
-  <Accordion title="Cluster Managed by Qovery">
-    **Best for teams who prefer a hands-off approach**
+  <Accordion title="Testing & Learning" icon="flask">
+    **Use Case: Local Development & Exploration**
 
-    **What you get:**
-    - Fully managed by Qovery - no Kubernetes expertise required
-    - Automatic setup of Kubernetes cluster, autoscaling, DNS, ingress controllers
-    - Built-in monitoring and logging
-    - Simplified developer experience
-    - Qovery handles all maintenance and updates
+    **Best for:**
+    - Developers new to Qovery wanting to explore features
+    - Teams evaluating Qovery for adoption
+    - Students and learners practicing DevOps
+    - Building POCs before cloud deployment
 
-    **Supported providers:** AWS (EKS), GCP (GKE Autopilot), Azure (AKS), Scaleway (Kapsule)
+    **What you can do:**
+    - Deploy apps, databases, and jobs locally
+    - Test GitOps workflows with GitHub/GitLab
+    - Practice Qovery CLI and Console
+    - Experiment with environment configurations
+    - Learn Kubernetes concepts without cloud costs
 
-    **Control:** Limited control over Kubernetes infrastructure (optimized for ease of use)
+    **Limitations:**
+    - Runs on laptop (limited resources)
+    - Not for production workloads
+    - Single-node cluster
 
-    **Time:** ~30 minutes
+    **Path:** Docker Desktop | **Time:** 15 min | **Cost:** Free
   </Accordion>
 
-  <Accordion title="Self-Managed Cluster (BYOK)">
-    **Best for organizations with specific Kubernetes requirements**
+  <Accordion title="Production Applications" icon="rocket">
+    **Use Case: SaaS, Web Apps, APIs, Microservices**
 
-    **What you get:**
-    - Full control over your Kubernetes setup and configuration
-    - Use any cloud provider, on-premise, or hybrid infrastructure
-    - Bring your existing cluster or create one with your specifications
-    - Same developer experience as managed clusters
-    - Greater customization flexibility for organizational needs
+    **Best for:**
+    - SaaS platforms with paying customers
+    - High-traffic web applications
+    - RESTful/GraphQL/gRPC APIs
+    - Microservices architectures
+    - Production workloads requiring 99.9% uptime
 
-    **Supported providers:** Any Kubernetes cluster (AWS, GCP, Azure, DigitalOcean, OVH, on-premise, etc.)
+    **What you can do:**
+    - Deploy Node.js, Python, Go, Java, PHP, Ruby, .NET apps
+    - Auto-scale based on traffic (CPU/memory)
+    - Managed databases with automatic backups
+    - Custom domains with automatic SSL
+    - Zero-downtime deployments
+    - Monitor with Datadog, New Relic, or Qovery Observe
 
-    **Control:** Complete control over infrastructure
+    **Infrastructure:**
+    - Qovery provisions and manages Kubernetes
+    - Multi-AZ for high availability
+    - Automatic updates and security patches
 
-    **Time:** ~20 minutes (assuming cluster already exists)
+    **Path:** Managed Cluster (AWS, GCP, Azure, Scaleway) | **Time:** 30 min
+  </Accordion>
+
+  <Accordion title="Preview & Ephemeral Environments" icon="code-branch">
+    **Use Case: Temporary Environments for Testing & Review**
+
+    **Best for:**
+    - Preview environments for every pull request
+    - QA teams testing features in isolation
+    - Product managers reviewing features before release
+    - Stakeholder demos without affecting production
+    - Short-lived environments for testing
+
+    **What you can do:**
+    - Automatically create environment when PR is opened
+    - Full-stack preview with application + database
+    - Share unique URL with team for review
+    - Test API integrations in isolated environment
+    - Automatic cleanup when PR is closed/merged
+    - Cost-effective (only pay when environments are active)
+
+    **How it works:**
+    1. Open pull request in GitHub/GitLab
+    2. Qovery auto-creates preview environment
+    3. Get unique URL to access (e.g., `pr-123.preview.example.com`)
+    4. Test, review, and iterate
+    5. Merge PR → Environment auto-deleted
+
+    **Path:** Managed Cluster (AWS, GCP, Azure, Scaleway) | **Time:** 30 min setup
+  </Accordion>
+
+  <Accordion title="Enterprise & Custom Requirements" icon="building">
+    **Use Case: Existing Clusters, Compliance, On-Premise**
+
+    **Best for:**
+    - Organizations with existing Kubernetes clusters
+    - Regulated industries (Healthcare, Finance, Government)
+    - Companies with strict compliance (HIPAA, PCI-DSS, SOC2)
+    - On-premise or air-gapped environments
+    - Hybrid cloud architectures
+    - Teams with dedicated platform/SRE engineers
+
+    **What you can do:**
+    - Connect any Kubernetes 1.24+ cluster to Qovery
+    - Maintain complete control over networking, security, storage
+    - Custom Kubernetes configurations and policies
+    - Use with AWS, GCP, Azure, DigitalOcean, OVH, Civo, on-premise
+    - Implement custom monitoring and logging
+    - Define your own autoscaling rules
+
+    **You manage:**
+    - Kubernetes cluster provisioning and upgrades
+    - Infrastructure security and networking
+    - Backup and disaster recovery
+
+    **Qovery provides:**
+    - Developer-friendly UI and CLI
+    - GitOps workflows and CI/CD
+    - Environment management
+    - Application deployment and monitoring
+
+    **Path:** Bring Your Own Cluster (BYOK) | **Time:** 20 min | **Control:** 100%
   </Accordion>
 </AccordionGroup>
 

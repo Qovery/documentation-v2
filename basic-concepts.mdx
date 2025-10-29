@@ -1,6 +1,6 @@
 ---
 title: "Core Concepts"
-description: "Essential Qovery terminology - Organizations, Projects, Environments, and Services"
+description: "Essential Qovery terminology - Organizations, Clusters, Projects, Environments, Services, and Deployments"
 ---
 
 ## Quick Overview
@@ -9,9 +9,10 @@ Qovery organizes your infrastructure in a simple hierarchy:
 
 ```
 Organization (your company)
-└── Project (group of related apps)
-    └── Environment (dev/staging/production)
-        └── Services (apps, databases, jobs)
+└── Cluster (Kubernetes cluster)
+    └── Project (group of related apps)
+        └── Environment (dev/staging/production)
+            └── Services (apps, databases, jobs)
 ```
 
 Let's break down each level.
@@ -31,6 +32,42 @@ Your **Organization** is your company's workspace—the top-level container for 
 <Tip>
 Most companies have one Organization. Users can belong to multiple Organizations with different roles.
 </Tip>
+
+---
+
+## Cluster
+
+A **Cluster** is a Kubernetes cluster where your services run—a collection of machines (nodes) that execute containerized applications.
+
+**Two types of clusters:**
+
+<Tabs>
+  <Tab title="Managed by Qovery">
+    Qovery provisions and manages the entire cluster lifecycle:
+    - Automatic setup and configuration
+    - Upgrades and security patches
+    - Monitoring and maintenance
+    - Auto-scaling with Karpenter (AWS)
+
+    **Supported providers:** AWS (EKS), GCP (GKE), Azure (AKS), Scaleway (Kapsule)
+
+    [Create a managed cluster →](/installation/aws)
+  </Tab>
+
+  <Tab title="Self-Managed (BYOK)">
+    You manage the cluster, Qovery provides the developer experience:
+    - Use your existing Kubernetes cluster
+    - Complete control over configuration
+    - Any cloud provider or on-premise
+    - Custom security and networking
+
+    **Supported:** Any Kubernetes 1.24+ cluster
+
+    [Connect your cluster →](/integrations/kubernetes/byok)
+  </Tab>
+</Tabs>
+
+[Learn more about Clusters →](/configuration/clusters)
 
 ---
 
@@ -66,7 +103,7 @@ An **Environment** is a deployment stage containing services at a specific versi
 - **Preview** - Temporary per-pull-request environments
 
 <Info>
-**Preview Environments** are automatically created for each pull request and deleted when merged. Perfect for testing changes in isolation before production. [Setup guide →](/guides/advanced/preview-environments)
+**Preview Environments** are automatically created for each pull request and deleted when merged. Perfect for testing changes in isolation before production. [Learn more →](/guides/use-cases/ephemeral-environment)
 </Info>
 
 [Learn more about Environments →](/configuration/environment)
@@ -151,15 +188,51 @@ An **Environment** is a deployment stage containing services at a specific versi
 
 ---
 
+## Deployment
+
+**Deployment** is the operational process that takes your code from Git and makes it run on Kubernetes.
+
+**What happens during deployment:**
+
+<Steps>
+  <Step title="Code Retrieval">
+    Qovery fetches your code from Git (GitHub, GitLab, Bitbucket) based on the branch configured for your environment
+  </Step>
+
+  <Step title="Build">
+    Your code is built into a container image using Docker. Qovery auto-detects your framework or uses your Dockerfile
+  </Step>
+
+  <Step title="Push to Registry">
+    The container image is pushed to a registry (AWS ECR, Docker Hub, GCP Artifact Registry, etc.)
+  </Step>
+
+  <Step title="Deploy to Kubernetes">
+    Qovery provisions all necessary Kubernetes resources (pods, services, ingress, secrets) and deploys your application
+  </Step>
+
+  <Step title="Health Checks">
+    Qovery monitors your application health and reports deployment status
+  </Step>
+</Steps>
+
+**Deployment features:**
+- **GitOps automation** - Auto-deploy on every Git push
+- **Preview environments** - Auto-deploy pull requests
+- **Zero downtime** - Rolling updates with health checks
+- **Rollback** - One-click rollback to any previous version
+- **Pipeline stages** - Databases → Jobs → Containers → Applications
+
+**Monitor deployments:**
+- Real-time deployment logs
+- Service logs (stdout/stderr)
+- Deployment history with status tracking
+
+[Learn more about Deployments →](/configuration/deployment/overview)
+
+---
+
 ## Key Features
-
-### Deployment Pipeline
-
-Services deploy in stages to respect dependencies:
-
-1. **Databases** → 2. **Jobs** → 3. **Containers** → 4. **Applications**
-
-You can customize stages for complex workflows. [Learn more →](/configuration/deployment/pipeline)
 
 ### Environment Variables
 
@@ -181,7 +254,7 @@ QOVERY_DATABASE_MY_DB_CONNECTION_URI
 ### Networking
 
 - **Internal**: Services communicate privately within an environment
-- **Public**: Expose apps with auto-generated domains (`*.qovery.io`) or [custom domains](/guides/applications/configure-custom-domain)
+- **Public**: Expose apps with auto-generated domains (`*.qovery.io`) or custom domains
 - **HTTPS**: Automatic SSL/TLS certificates
 
 ---

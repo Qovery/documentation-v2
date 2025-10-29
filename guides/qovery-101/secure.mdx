@@ -46,99 +46,18 @@ graph TB
     L[Compliance Reports] --> C
 ```
 
-## Getting Started with Security
+## Quick Start
 
-### Step 1: Secure Your Organization
+<CardGroup cols={2}>
+  <Card title="Organization Security" icon="building-shield" href="/configuration/organization">
+    Configure SSO, RBAC, and access control for your organization
+  </Card>
+  <Card title="Secrets Management" icon="key" href="/configuration/environment-variables">
+    Securely manage environment variables and secrets
+  </Card>
+</CardGroup>
 
-<Steps>
-  <Step title="Enable Two-Factor Authentication">
-    Require 2FA for all organization members:
-
-    **Setup 2FA**:
-    1. Go to **User Settings** → **Security**
-    2. Click **Enable Two-Factor Authentication**
-    3. Scan QR code with authenticator app (Google Authenticator, Authy, 1Password)
-    4. Enter verification code
-    5. Save recovery codes securely
-
-    **Enforce for Organization**:
-    1. Go to **Organization Settings** → **Security**
-    2. Enable **Require 2FA for all members**
-    3. Set grace period for compliance (e.g., 7 days)
-  </Step>
-
-  <Step title="Configure Single Sign-On (SSO)">
-    Integrate with your identity provider:
-
-    <Tabs>
-      <Tab title="Google Workspace">
-        ```yaml
-        SSO Configuration:
-          Provider: Google Workspace
-          Domain: company.com
-
-        Setup:
-          1. Enable Google OAuth in Qovery
-          2. Configure authorized domains
-          3. Test SSO login
-          4. Enforce SSO for organization
-        ```
-      </Tab>
-
-      <Tab title="Okta">
-        ```yaml
-        SSO Configuration:
-          Provider: Okta
-          Domain: company.okta.com
-
-        Setup:
-          1. Create SAML 2.0 app in Okta
-          2. Configure Qovery as service provider
-          3. Copy IdP metadata URL
-          4. Configure in Qovery
-          5. Test SSO connection
-        ```
-      </Tab>
-
-      <Tab title="Azure AD">
-        ```yaml
-        SSO Configuration:
-          Provider: Azure AD
-          Tenant ID: your-tenant-id
-
-        Setup:
-          1. Register Qovery in Azure AD
-          2. Configure redirect URIs
-          3. Create client secret
-          4. Configure in Qovery
-          5. Test SSO login
-        ```
-      </Tab>
-    </Tabs>
-  </Step>
-
-  <Step title="Set Up Audit Logging">
-    Enable comprehensive audit trails:
-
-    ```yaml
-    Audit Log Configuration:
-      - User authentication events
-      - Permission changes
-      - Resource creation/deletion
-      - Deployment actions
-      - Configuration changes
-      - API access
-
-    Retention: 90 days (configurable)
-    Export: Available via API or S3
-    ```
-
-    **Access Audit Logs**:
-    1. Go to **Organization Settings** → **Audit Logs**
-    2. Filter by user, action, date range
-    3. Export logs for compliance
-  </Step>
-</Steps>
+---
 
 ## Secrets Management
 

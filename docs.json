@@ -50,26 +50,42 @@
         "icon": "rocket",
         "groups": [
           {
-            "group": "Overview",
+            "group": "Get Started",
             "pages": [
               "introduction",
-              "quickstart"
+              "quickstart",
+              "how-it-works",
+              "basic-concepts",
+              {
+                "group": "Installation",
+                "pages": [
+                  "quickstart/docker-desktop",
+                  {
+                    "group": "Managed Cluster",
+                    "pages": [
+                      "installation/aws",
+                      "installation/gcp",
+                      "installation/azure",
+                      "installation/scaleway"
+                    ]
+                  },
+                  "installation/kubernetes"
+                ]
+              }
             ]
           },
           {
             "group": "Tutorials",
             "pages": [
               "guides/getting-started/deploy-your-first-application",
-              "guides/getting-started/connect-database",
-              "guides/getting-started/create-environment"
+              "guides/getting-started/connect-database"
             ]
           },
           {
-            "group": "Concepts",
+            "group": "Platform Capabilities",
             "pages": [
-              "how-it-works",
               {
-                "group": "Platform Products",
+                "group": "Core Products",
                 "pages": [
                   "guides/qovery-101/provision",
                   "guides/qovery-101/deploy",
@@ -92,7 +108,7 @@
             ]
           },
           {
-            "group": "How-to Guides",
+            "group": "Use Cases",
             "pages": [
               "guides/use-cases/production-environment-management",
               "guides/use-cases/cloud-migration-and-scaling",
@@ -100,12 +116,6 @@
               "guides/use-cases/multi-kubernetes-clusters-management",
               "guides/use-cases/disaster-recovery",
               "guides/others/database-seeding-lifecycle-job"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "basic-concepts"
             ]
           }
         ]
@@ -121,81 +131,24 @@
             ]
           },
           {
-            "group": "Infrastructure",
+            "group": "Organization",
+            "pages": [
+              "configuration/organization",
+              {
+                "group": "Access & Security",
+                "pages": [
+                  "configuration/organization/members-rbac",
+                  "configuration/organization/sso",
+                  "configuration/organization/api-token"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Clusters & Cloud",
             "pages": [
               "configuration/clusters",
               "configuration/organization/cloud-credentials",
-              "configuration/organization/container-registry",
-              "configuration/organization/git-repository-access",
-              "configuration/organization/helm-repository"
-            ]
-          },
-          {
-            "group": "Organization & Access",
-            "pages": [
-              "configuration/organization",
-              "configuration/organization/members-rbac",
-              "configuration/organization/sso",
-              "configuration/organization/api-token"
-            ]
-          },
-          {
-            "group": "Projects & Environments",
-            "pages": [
-              "configuration/project",
-              "configuration/environment"
-            ]
-          },
-          {
-            "group": "Services",
-            "pages": [
-              "configuration/application",
-              "configuration/database",
-              "configuration/helm",
-              "configuration/cronjob",
-              "configuration/lifecycle-job",
-              "configuration/terraform"
-            ]
-          },
-          {
-            "group": "Deployment",
-            "pages": [
-              "configuration/deployment/overview",
-              "configuration/deployment/auto-deploy",
-              "configuration/deployment/ci-cd",
-              "configuration/deployment/pipeline",
-              "configuration/deployment/actions",
-              "configuration/deployment/history",
-              "configuration/deployment/statuses",
-              "configuration/deployment/logs",
-              "configuration/deployment/strategies",
-              "configuration/deployment/image-mirroring"
-            ]
-          },
-          {
-            "group": "Advanced Settings",
-            "pages": [
-              "configuration/service-advanced-settings",
-              "configuration/organization/labels-annotations",
-              "configuration/environment-variables"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Integrations",
-        "icon": "plug",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "integrations/overview"
-            ]
-          },
-          {
-            "group": "Kubernetes",
-            "pages": [
-              "integrations/kubernetes/overview",
               {
                 "group": "AWS EKS",
                 "pages": [
@@ -229,101 +182,198 @@
                   "integrations/kubernetes/scaleway/byok"
                 ]
               },
-              "integrations/kubernetes/eks-anywhere",
-              "integrations/kubernetes/byok",
-              "integrations/kubernetes/docker",
-              "integrations/kubernetes/keda"
+              {
+                "group": "Other Kubernetes",
+                "pages": [
+                  "integrations/kubernetes/byok",
+                  "integrations/kubernetes/eks-anywhere",
+                  "integrations/kubernetes/docker",
+                  "integrations/kubernetes/keda"
+                ]
+              }
             ]
           },
           {
-            "group": "Git Providers",
+            "group": "Source Control",
             "pages": [
-              "integrations/git-providers/overview",
-              "integrations/git-providers/github",
-              "integrations/git-providers/github-enterprise",
-              "integrations/git-providers/gitlab",
-              "integrations/git-providers/bitbucket"
+              "configuration/organization/git-repository-access",
+              {
+                "group": "Git Providers",
+                "pages": [
+                  "integrations/git-providers/github",
+                  "integrations/git-providers/github-enterprise",
+                  "integrations/git-providers/gitlab",
+                  "integrations/git-providers/bitbucket"
+                ]
+              },
+              {
+                "group": "Container Registries",
+                "pages": [
+                  "configuration/organization/container-registry",
+                  "integrations/container-registries/docker-hub",
+                  {
+                    "group": "Cloud Registries",
+                    "pages": [
+                      "integrations/container-registries/aws-ecr",
+                      "integrations/container-registries/gcp-artifact-registry",
+                      "integrations/container-registries/azure-acr",
+                      "integrations/container-registries/scaleway-cr"
+                    ]
+                  },
+                  {
+                    "group": "Git-based Registries",
+                    "pages": [
+                      "integrations/container-registries/github-cr",
+                      "integrations/container-registries/gitlab-cr"
+                    ]
+                  },
+                  "integrations/container-registries/generic"
+                ]
+              },
+              {
+                "group": "Helm Repositories",
+                "pages": [
+                  "configuration/organization/helm-repository"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Projects & Environments",
+            "pages": [
+              "configuration/project",
+              "configuration/environment",
+              "configuration/environment-variables"
+            ]
+          },
+          {
+            "group": "Services",
+            "pages": [
+              {
+                "group": "Workloads",
+                "pages": [
+                  "configuration/application",
+                  "configuration/helm"
+                ]
+              },
+              {
+                "group": "Jobs",
+                "pages": [
+                  "configuration/cronjob",
+                  "configuration/lifecycle-job"
+                ]
+              },
+              {
+                "group": "Data & Infrastructure",
+                "pages": [
+                  "configuration/database",
+                  "configuration/terraform"
+                ]
+              },
+              "configuration/service-advanced-settings"
+            ]
+          },
+          {
+            "group": "Deployment",
+            "pages": [
+              "configuration/deployment/overview",
+              "configuration/deployment/pipeline",
+              "configuration/deployment/auto-deploy",
+              {
+                "group": "Deployment Configuration",
+                "pages": [
+                  "configuration/deployment/actions",
+                  "configuration/deployment/strategies",
+                  "configuration/deployment/image-mirroring"
+                ]
+              },
+              {
+                "group": "Monitoring Deployments",
+                "pages": [
+                  "configuration/deployment/statuses",
+                  "configuration/deployment/logs",
+                  "configuration/deployment/history"
+                ]
+              }
             ]
           },
           {
             "group": "CI/CD",
             "pages": [
-              "integrations/ci-cd/overview",
-              "integrations/ci-cd/qovery-deploy",
-              "integrations/ci-cd/github-actions",
-              "integrations/ci-cd/github-actions-enterprise",
-              "integrations/ci-cd/gitlab-ci",
-              "integrations/ci-cd/circleci",
-              "integrations/ci-cd/jenkins"
+              "configuration/deployment/ci-cd",
+              {
+                "group": "Qovery",
+                "pages": [
+                  "integrations/ci-cd/qovery-deploy"
+                ]
+              },
+              {
+                "group": "GitHub",
+                "pages": [
+                  "integrations/ci-cd/github-actions",
+                  "integrations/ci-cd/github-actions-enterprise"
+                ]
+              },
+              {
+                "group": "Other Platforms",
+                "pages": [
+                  "integrations/ci-cd/gitlab-ci",
+                  "integrations/ci-cd/circleci",
+                  "integrations/ci-cd/jenkins"
+                ]
+              }
             ]
           },
           {
-            "group": "Container Registries",
+            "group": "Secrets & Monitoring",
             "pages": [
-              "integrations/container-registries/overview",
-              "integrations/container-registries/aws-ecr",
-              "integrations/container-registries/docker-hub",
-              "integrations/container-registries/gcp-artifact-registry",
-              "integrations/container-registries/azure-acr",
-              "integrations/container-registries/github-cr",
-              "integrations/container-registries/gitlab-cr",
-              "integrations/container-registries/scaleway-cr",
-              "integrations/container-registries/generic"
+              {
+                "group": "Secrets Management",
+                "pages": [
+                  "integrations/secret-managers/doppler",
+                  "integrations/secret-managers/aws-secrets-manager",
+                  "integrations/secret-managers/external-secrets"
+                ]
+              },
+              {
+                "group": "Observability",
+                "pages": [
+                  "integrations/observability/qovery-observe",
+                  "integrations/observability/datadog",
+                  "integrations/observability/new-relic",
+                  "integrations/observability/other-solutions"
+                ]
+              }
             ]
           },
           {
-            "group": "Secret Managers",
+            "group": "Networking & Advanced",
             "pages": [
-              "integrations/secret-managers/overview",
-              "integrations/secret-managers/doppler",
-              "integrations/secret-managers/aws-secrets-manager",
-              "integrations/secret-managers/external-secrets"
-            ]
-          },
-          {
-            "group": "Terraform",
-            "pages": [
-              "integrations/terraform/overview",
-              "integrations/terraform/aws-rds",
-              "integrations/terraform/aws-s3",
-              "integrations/terraform/cloudflare-worker",
-              "integrations/terraform/google-bigquery",
-              "integrations/terraform/others"
-            ]
-          },
-          {
-            "group": "Helm Repositories",
-            "pages": [
-              "integrations/helm/overview"
-            ]
-          },
-          {
-            "group": "AWS",
-            "pages": [
-              "integrations/aws/vpc-peering"
-            ]
-          },
-          {
-            "group": "Observability",
-            "pages": [
-              "integrations/observability/overview",
-              "integrations/observability/qovery-observe",
-              "integrations/observability/datadog",
-              "integrations/observability/new-relic",
-              "integrations/observability/other-solutions"
-            ]
-          },
-          {
-            "group": "Webhooks",
-            "pages": [
-              "integrations/webhooks"
-            ]
-          },
-          {
-            "group": "API Gateway",
-            "pages": [
-              "integrations/api-gateway-nginx",
-              "integrations/api-gateway-caddy"
+              {
+                "group": "Networking",
+                "pages": [
+                  "integrations/aws/vpc-peering",
+                  "integrations/api-gateway-nginx",
+                  "integrations/api-gateway-caddy"
+                ]
+              },
+              {
+                "group": "Advanced Configuration",
+                "pages": [
+                  "configuration/organization/labels-annotations",
+                  "integrations/webhooks"
+                ]
+              },
+              {
+                "group": "Terraform Integrations",
+                "pages": [
+                  "integrations/terraform/aws-rds",
+                  "integrations/terraform/aws-s3",
+                  "integrations/terraform/cloudflare-worker",
+                  "integrations/terraform/google-bigquery",
+                  "integrations/terraform/others"
+                ]
+              }
             ]
           }
         ]
