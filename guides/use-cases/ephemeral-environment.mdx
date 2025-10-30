@@ -9,6 +9,14 @@ Ephemeral environments are temporary, isolated environments that are automatical
 
 Qovery offers **two approaches** to create and manage ephemeral environments, depending on your team's needs and technical requirements.
 
+### Why E2E Testing Matters
+
+End-to-end testing validates that your application works cohesively from start to finish, mimicking real-world user scenarios. While unit and integration tests provide value, they don't replicate how multiple components interact in live environments.
+
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/e2e-testing-pyramid.png" alt="E2E vs UI Tests vs Integration Tests vs Unit Tests" />
+</Frame>
+
 ## Prerequisites
 
 <Warning>
@@ -34,34 +42,6 @@ Choose your deployment option:
 </CardGroup>
 
 **Already have a cluster connected to Qovery?** Continue with this guide below.
-
-## Two Ways to Create Ephemeral Environments
-
-<CardGroup cols={2}>
-  <Card title="Simple Approach" icon="bolt">
-    **Fully Automated Preview Environments**
-
-    Turn on auto-preview environment feature in Qovery and let it handle everything automatically.
-
-    - Zero configuration required
-    - Instant setup (enable and go)
-    - Automatic creation/destruction
-    - Perfect for quick feedback
-    - Best for teams wanting simplicity
-  </Card>
-
-  <Card title="Advanced Approach" icon="code">
-    **Custom CI/CD Integration**
-
-    Integrate ephemeral environments into your existing CI/CD pipeline for complete control.
-
-    - Full workflow customization
-    - E2E testing automation
-    - Custom creation/deletion logic
-    - Integration with GitHub Actions, GitLab CI, etc.
-    - Best for advanced testing scenarios
-  </Card>
-</CardGroup>
 
 ## Benefits of Ephemeral Environments
 
@@ -91,644 +71,37 @@ Choose your deployment option:
   </Card>
 </CardGroup>
 
----
-
-## Approach 1: Simple Automated Preview Environments
-
-The simplest way to get started with ephemeral environments is to enable Qovery's built-in preview environment feature. This requires minimal configuration and provides instant results.
-
-### How It Works
-
-<Steps>
-  <Step title="Enable Preview Environments">
-    Navigate to your Environment settings in the Qovery Console and enable "Preview Environments"
-
-    **Configuration Options**:
-    - Trigger on pull request creation
-    - Trigger on branch push
-    - Auto-delete on PR close/merge
-    - Set lifecycle timeout (e.g., 7 days)
-  </Step>
-
-  <Step title="Qovery Handles Everything">
-    Once enabled, Qovery automatically:
-    - Creates a new environment for each pull request
-    - Deploys your application with the PR changes
-    - Generates a unique URL for the environment
-    - Updates the environment on each new commit
-    - Destroys the environment when the PR is closed
-  </Step>
-
-  <Step title="Get Instant Feedback">
-    Team members and stakeholders can access the live environment via the generated URL to review changes before merging
-  </Step>
-</Steps>
-
-### Basic Configuration
-
-**Via Qovery Console**:
-1. Navigate to Environment settings
-2. Enable "Preview Environments"
-3. Configure triggers (PR creation, branch push)
-4. Set lifecycle policies (auto-delete after X days)
-
-**Via Configuration**:
-```yaml
-# Application configuration
-applications:
-  - name: web-app
-    git:
-      repo: https://github.com/org/repo
-      branch: main
-    preview_environments:
-      enabled: true
-      triggers:
-        - pull_request
-      lifecycle:
-        auto_delete_on_close: true
-        auto_delete_after: 7d
-        auto_stop_after: 24h
-```
-
-### Environment Variables
-
-```yaml
-environment_variables:
-  - name: APP_ENV
-    value: preview
-  - name: DATABASE_URL
-    value_from_secret: PREVIEW_DB_URL
-  - name: PREVIEW_MODE
-    value: "true"
-```
-
-### Resource Configuration
-
-For preview environments, you typically want smaller resource allocations:
-
-```yaml
-resources:
-  requests:
-    cpu: 500m
-    memory: 1Gi
-  limits:
-    cpu: 1000m
-    memory: 2Gi
-instances:
-  min: 1
-  max: 2
-```
-
-### Database Strategy
-
-<Tabs>
-  <Tab title="Shared Database">
-    **Pros**: Lower cost, faster creation
-    **Cons**: Risk of data conflicts
-
-    ```yaml
-    # Use a single shared database
-    # Isolate data using prefixes or schemas
-    environment_variables:
-      - name: DB_SCHEMA_PREFIX
-        value: ${QOVERY_ENVIRONMENT_NAME}
-    ```
-  </Tab>
-
-  <Tab title="Isolated Database">
-    **Pros**: Complete isolation, better for testing migrations
-    **Cons**: Higher cost, slower creation
-
-    ```yaml
-    databases:
-      - name: preview-db
-        type: postgresql
-        version: "15"
-        mode: CONTAINER  # Lightweight for preview
-        storage: 10GB
-        lifecycle:
-          delete_on_environment_delete: true
-    ```
-  </Tab>
-
-  <Tab title="Database Snapshot">
-    **Pros**: Realistic data, best balance
-    **Cons**: Moderate cost and creation time
-
-    ```bash
-    # Clone from production snapshot (sanitized)
-    qovery database clone \
-      --from production-db \
-      --to preview-db \
-      --sanitize-pii
-    ```
-  </Tab>
-</Tabs>
-
-### Database Seeding
-
-Once your ephemeral environment is created, you'll typically need to populate it with test data. Qovery provides multiple approaches for database seeding.
-
-<Tabs>
-  <Tab title="Lifecycle Jobs">
-    **Use Qovery Lifecycle Jobs** to automatically seed data after environment creation.
-
-    **Step 1: Create a Dockerfile for your seed job**:
-
-    ```dockerfile
-    # Dockerfile.seed
-    FROM node:18-alpine
-
-    WORKDIR /app
-
-    # Install PostgreSQL client for database readiness check
-    RUN apk add --no-cache postgresql-client
-
-    # Copy your seed scripts
-    COPY package*.json ./
-    COPY db/ ./db/
-    COPY migrations/ ./migrations/
-
-    # Install dependencies
-    RUN npm ci --only=production
-
-    # Create the seed script
-    COPY seed.sh /seed.sh
-    RUN chmod +x /seed.sh
-
-    ENTRYPOINT ["/seed.sh"]
-    ```
-
-    **Step 2: Create the seed script**:
-
-    ```bash
-    #!/bin/sh
-    # seed.sh
-
-    echo "Waiting for database to be ready..."
-    while ! pg_isready -h $DATABASE_HOST -U $DATABASE_USER; do
-      sleep 2
-      echo "Waiting..."
-    done
-
-    echo "Database is ready!"
-
-    echo "Running migrations..."
-    npm run db:migrate
-
-    echo "Seeding database..."
-    npm run db:seed
-
-    echo "Seeding completed successfully!"
-    ```
-
-    **Step 3: Create a Lifecycle Job in Qovery Console**:
-    1. Navigate to your Environment
-    2. Click "Add Service" → "Lifecycle Job"
-    3. Configure the job:
-       - **Name**: `seed-database`
-       - **Image**: `your-registry/seed-job:latest`
-       - **Event**: `START` (runs when environment starts)
-       - **Environment Variables**: Add `DATABASE_URL` (from secret)
-       - **Resources**: 500m CPU, 512Mi Memory
-
-    **Benefits**:
-    - Automatic execution on environment creation
-    - Integrated with Qovery's lifecycle management
-    - Runs before application starts
-    - Logs available in Qovery Console
-  </Tab>
-
-  <Tab title="CI/CD Pipeline">
-    **Seed via your CI/CD pipeline** during environment creation:
-
-    ```yaml
-    # GitHub Actions example
-    - name: Wait for Database
-      run: |
-        echo "Waiting for database to be ready..."
-        for i in {1..30}; do
-          if qovery application list --environment pr-${{ github.event.number }} | grep -q "RUNNING"; then
-            break
-          fi
-          sleep 10
-        done
-
-    - name: Get Database Connection
-      id: get-db
-      env:
-        QOVERY_API_TOKEN: ${{ secrets.QOVERY_API_TOKEN }}
-      run: |
-        ENV_NAME="pr-${{ github.event.number }}"
-        DB_URL=$(qovery database get --environment $ENV_NAME --output json | jq -r '.url')
-        echo "database_url=$DB_URL" >> $GITHUB_OUTPUT
-
-    - name: Run Migrations
-      env:
-        DATABASE_URL: ${{ steps.get-db.outputs.database_url }}
-      run: |
-        npm run db:migrate
-
-    - name: Seed Test Data
-      env:
-        DATABASE_URL: ${{ steps.get-db.outputs.database_url }}
-      run: |
-        npm run db:seed:test
-    ```
-
-    **Benefits**:
-    - Full control over seeding process
-    - Can run different seeds based on PR labels
-    - Easy to debug in CI/CD logs
-    - Can fail the workflow if seeding fails
-  </Tab>
-
-  <Tab title="Application Startup">
-    **Seed on application startup** using initialization code:
-
-    ```javascript
-    // Node.js example - server.js
-    const express = require('express');
-    const { seedDatabase } = require('./db/seed');
-
-    const app = express();
-
-    async function startServer() {
-      // Check if seeding is needed
-      if (process.env.APP_ENV === 'preview' || process.env.AUTO_SEED === 'true') {
-        console.log('Running database migrations...');
-        await runMigrations();
-
-        console.log('Seeding database...');
-        await seedDatabase();
-
-        console.log('Database ready!');
-      }
-
-      app.listen(3000, () => {
-        console.log('Server running on port 3000');
-      });
-    }
-
-    startServer().catch(console.error);
-    ```
-
-    **Benefits**:
-    - No additional infrastructure needed
-    - Guaranteed to run before app serves requests
-    - Simple for small applications
-    - Works across all platforms
-  </Tab>
-
-  <Tab title="Clone Production Data">
-    **Clone sanitized production data** for realistic testing:
-
-    ```bash
-    # Clone and sanitize production database
-    qovery database clone \
-      --from production-db \
-      --to pr-123-db \
-      --sanitize-pii
-
-    # Or using API
-    curl -X POST "https://api.qovery.com/database/$PROD_DB_ID/clone" \
-      -H "Authorization: Token $QOVERY_API_TOKEN" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "name": "pr-123-db",
-        "environment_id": "'$PREVIEW_ENV_ID'",
-        "sanitize": true
-      }'
-    ```
-
-    **PII Sanitization Options**:
-    ```sql
-    -- Example sanitization script
-    UPDATE users
-    SET
-      email = CONCAT('user-', id, '@example.com'),
-      phone = CONCAT('+1555', LPAD(id::text, 7, '0')),
-      first_name = 'Test',
-      last_name = CONCAT('User', id),
-      address = '123 Test Street',
-      ssn = NULL,
-      credit_card = NULL;
-
-    UPDATE orders
-    SET
-      billing_address = '123 Test Street',
-      shipping_address = '123 Test Street';
-    ```
-
-    **Benefits**:
-    - Realistic data volumes and patterns
-    - Test with production-like scenarios
-    - Catch edge cases early
-    - Better for performance testing
-  </Tab>
-</Tabs>
-
-### Seeding Strategies
-
-<AccordionGroup>
-  <Accordion title="Minimal Seed Data" icon="seedling">
-    **Best for**: Unit tests, fast feedback, low resource usage
-
-    ```javascript
-    // seed-minimal.js
-    async function seedMinimal() {
-      // Create just enough data to run the application
-      await createUser({ email: 'test@example.com', role: 'admin' });
-      await createUser({ email: 'user@example.com', role: 'user' });
-
-      // Minimal product catalog
-      await createProduct({ name: 'Test Product 1', price: 10.00 });
-      await createProduct({ name: 'Test Product 2', price: 20.00 });
-
-      console.log('Minimal seed completed: 2 users, 2 products');
-    }
-    ```
-
-    **Characteristics**:
-    - 10-100 records total
-    - Seeds in under 5 seconds
-    - Minimal storage requirements
-    - Good for development and quick tests
-  </Accordion>
-
-  <Accordion title="Representative Seed Data" icon="database">
-    **Best for**: Integration tests, QA testing, demos
-
-    ```javascript
-    // seed-representative.js
-    async function seedRepresentative() {
-      // Create realistic user base
-      const users = await createUsers(100);
-
-      // Create product catalog
-      const products = await createProducts(50);
-
-      // Create orders with realistic patterns
-      for (let i = 0; i < 500; i++) {
-        const user = users[Math.floor(Math.random() * users.length)];
-        const product = products[Math.floor(Math.random() * products.length)];
-
-        await createOrder({
-          userId: user.id,
-          productId: product.id,
-          quantity: Math.floor(Math.random() * 5) + 1,
-          createdAt: randomDateInPast(90) // Last 90 days
-        });
-      }
-
-      console.log('Representative seed completed: 100 users, 50 products, 500 orders');
-    }
-    ```
-
-    **Characteristics**:
-    - 1,000-10,000 records
-    - Seeds in 30-60 seconds
-    - Represents real-world distribution
-    - Good for realistic testing
-  </Accordion>
-
-  <Accordion title="Large-Scale Seed Data" icon="chart-simple">
-    **Best for**: Performance testing, load testing, stress testing
-
-    ```javascript
-    // seed-large-scale.js
-    async function seedLargeScale() {
-      console.log('Creating large-scale seed data...');
-
-      // Batch insert for performance
-      const batchSize = 1000;
-
-      // Create 10k users in batches
-      for (let i = 0; i < 10; i++) {
-        await createUserBatch(batchSize);
-      }
-
-      // Create 5k products
-      for (let i = 0; i < 5; i++) {
-        await createProductBatch(batchSize);
-      }
-
-      // Create 100k orders
-      for (let i = 0; i < 100; i++) {
-        await createOrderBatch(batchSize);
-      }
-
-      console.log('Large-scale seed completed: 10k users, 5k products, 100k orders');
-    }
-    ```
-
-    **Characteristics**:
-    - 100,000+ records
-    - Seeds in 5-15 minutes
-    - Realistic performance characteristics
-    - Good for load and stress testing
-  </Accordion>
-
-  <Accordion title="Scenario-Based Seeding" icon="list-check">
-    **Best for**: E2E testing, specific feature testing
-
-    ```javascript
-    // seed-scenarios.js
-    async function seedScenarios() {
-      // Scenario 1: New user signup flow
-      await createScenario({
-        name: 'new-user-signup',
-        setup: async () => {
-          // Empty cart, no order history
-          return await createUser({ email: 'newuser@example.com' });
-        }
-      });
-
-      // Scenario 2: Returning customer with history
-      await createScenario({
-        name: 'returning-customer',
-        setup: async () => {
-          const user = await createUser({ email: 'returning@example.com' });
-          await createOrderHistory(user.id, 5); // 5 past orders
-          await createCart(user.id, 3); // 3 items in cart
-          return user;
-        }
-      });
-
-      // Scenario 3: Admin user workflow
-      await createScenario({
-        name: 'admin-workflow',
-        setup: async () => {
-          return await createUser({
-            email: 'admin@example.com',
-            role: 'admin',
-            permissions: ['manage-users', 'manage-products', 'view-reports']
-          });
-        }
-      });
-
-      console.log('Scenario-based seed completed');
-    }
-    ```
-
-    **Characteristics**:
-    - Targeted test scenarios
-    - Predictable test data
-    - Easy to maintain
-    - Good for specific feature testing
-  </Accordion>
-</AccordionGroup>
-
-### Best Practices for Database Seeding
+## Two Ways to Create Ephemeral Environments
 
 <CardGroup cols={2}>
-  <Card title="Idempotent Seeds" icon="rotate">
-    Make seeds rerunnable without errors - check if data exists before inserting
+  <Card title="Simple Approach" icon="bolt" href="/configuration/environment#preview-environments">
+    **Fully Automated Preview Environments**
+
+    Turn on auto-preview environment feature in Qovery and let it handle everything automatically.
+
+    - Zero configuration required
+    - Instant setup (enable and go)
+    - Automatic creation/destruction
+    - Perfect for quick feedback
+    - Best for teams wanting simplicity
   </Card>
 
-  <Card title="Fast Execution" icon="bolt">
-    Optimize seed scripts with batch inserts and transactions
-  </Card>
+  <Card title="Advanced Approach" icon="code" href="#advanced-cicd-integration-with-e2e-testing">
+    **Custom CI/CD Integration**
 
-  <Card title="Deterministic Data" icon="fingerprint">
-    Use fixed seeds for random data to ensure reproducibility
-  </Card>
+    Integrate ephemeral environments into your existing CI/CD pipeline for complete control.
 
-  <Card title="Environment-Aware" icon="circle-nodes">
-    Use different seed strategies based on environment (dev, test, preview)
-  </Card>
-
-  <Card title="Version Control" icon="code-branch">
-    Keep seed scripts in version control alongside migrations
-  </Card>
-
-  <Card title="Data Cleanup" icon="broom">
-    Provide cleanup scripts to reset database state between tests
+    - Full workflow customization
+    - E2E testing automation
+    - Custom creation/deletion logic
+    - Integration with GitHub Actions, GitLab CI, etc.
+    - Best for advanced testing scenarios
   </Card>
 </CardGroup>
 
-### Example: Complete Seeding Setup
-
-Here's a production-ready example combining multiple approaches:
-
-```javascript
-// db/seed.js
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-// Idempotent seed function
-async function seedDatabase() {
-  const client = await pool.connect();
-
-  try {
-    await client.query('BEGIN');
-
-    // Check if already seeded
-    const { rows } = await client.query('SELECT COUNT(*) FROM users');
-    if (parseInt(rows[0].count) > 0) {
-      console.log('Database already seeded, skipping...');
-      await client.query('ROLLBACK');
-      return;
-    }
-
-    // Determine seed strategy based on environment
-    const env = process.env.APP_ENV || 'development';
-
-    switch (env) {
-      case 'preview':
-        await seedMinimalData(client);
-        break;
-      case 'test':
-        await seedRepresentativeData(client);
-        break;
-      case 'development':
-        await seedDevelopmentData(client);
-        break;
-      default:
-        console.log('No seeding needed for production');
-        await client.query('ROLLBACK');
-        return;
-    }
-
-    await client.query('COMMIT');
-    console.log(`Database seeded successfully for ${env} environment`);
-
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('Seed failed:', error);
-    throw error;
-  } finally {
-    client.release();
-  }
-}
-
-async function seedMinimalData(client) {
-  // Insert minimal test data
-  await client.query(`
-    INSERT INTO users (email, name, role) VALUES
-    ('admin@example.com', 'Admin User', 'admin'),
-    ('user@example.com', 'Test User', 'user')
-  `);
-
-  await client.query(`
-    INSERT INTO products (name, description, price) VALUES
-    ('Test Product 1', 'Description 1', 10.00),
-    ('Test Product 2', 'Description 2', 20.00)
-  `);
-}
-
-async function seedRepresentativeData(client) {
-  // More comprehensive data for testing
-  // ... implementation
-}
-
-async function seedDevelopmentData(client) {
-  // Development-specific data
-  // ... implementation
-}
-
-// Run if called directly
-if (require.main === module) {
-  seedDatabase()
-    .then(() => {
-      console.log('Seeding completed');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('Seeding failed:', error);
-      process.exit(1);
-    });
-}
-
-module.exports = { seedDatabase };
-```
-
-### Automatic DNS
-
-Qovery automatically generates unique domain names for each preview environment:
-
-```
-Pattern: {env-name}.{base-domain}
-
-Examples:
-- pr-123.preview.myapp.com
-- feature-xyz.preview.myapp.com
-- dev-john.dev.myapp.com
-```
-
-**Custom Domain Pattern**:
-```yaml
-domains:
-  - name: ${QOVERY_ENVIRONMENT_NAME}.preview.myapp.com
-    generate_certificate: true
-```
-
 ---
 
-## Approach 2: Advanced CI/CD Integration with E2E Testing
+## Advanced CI/CD Integration with E2E Testing
 
 For teams requiring more control, custom workflows, and automated E2E testing, you can integrate ephemeral environments directly into your CI/CD pipeline. This approach is demonstrated in the comprehensive tutorial below.
 
@@ -779,6 +152,10 @@ graph TB
     style J fill:#642DFF,color:#fff
 ```
 
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/workflow-architecture.png" alt="E2E testing workflow with GitHub Actions and Qovery" />
+</Frame>
+
 #### Prerequisites
 
 <Steps>
@@ -809,6 +186,10 @@ graph TB
     - Ensure it's working properly
 
     This blueprint will be the template for all ephemeral environments.
+
+    <Frame>
+      <img src="/images/e2e-with-github-actions-and-qovery/blueprint-environment.png" alt="Blueprint environment in Qovery" />
+    </Frame>
   </Step>
 </Steps>
 
@@ -974,6 +355,10 @@ jobs:
                     `E2E tests are now running...`
             })
 
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/ephemeral-environment-pr-status.png" alt="Ephemeral environment status in Pull Request" />
+</Frame>
+
   run-e2e-tests:
     needs: create-ephemeral-environment
     runs-on: ubuntu-latest
@@ -1032,6 +417,10 @@ jobs:
               repo: context.repo.repo,
               body: body
             })
+
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/e2e-test-results.png" alt="E2E test results report in Pull Request" />
+</Frame>
 
       - name: Upload Test Results
         if: always()
@@ -1783,113 +1172,6 @@ While this tutorial uses GitHub Actions, the same approach works with other CI/C
     ```
   </Tab>
 </Tabs>
-
----
-
-## Cost Optimization Strategies
-
-<CardGroup cols={2}>
-  <Card title="Smaller Instances" icon="compress">
-    Use reduced resources for ephemeral environments:
-    - 500m CPU instead of 2 CPU
-    - 1Gi memory instead of 4Gi
-    - Single replica instead of multiple
-  </Card>
-
-  <Card title="Container Databases" icon="box">
-    Use containerized databases instead of managed services:
-    - PostgreSQL container vs RDS
-    - MySQL container vs Cloud SQL
-    - 70-90% cost savings
-  </Card>
-
-  <Card title="Auto-Cleanup" icon="clock">
-    Aggressive cleanup policies:
-    - Delete on PR close (immediate)
-    - TTL of 24-48 hours max
-    - Delete on inactivity (2-4 hours)
-  </Card>
-
-  <Card title="Spot Instances" icon="dollar-sign">
-    Use spot/preemptible instances:
-    - 60-80% cost reduction
-    - Acceptable for ephemeral workloads
-    - Configure cluster with spot nodes
-  </Card>
-
-  <Card title="Shared Resources" icon="share-nodes">
-    Share resources when possible:
-    - Single database with schemas
-    - Shared cache instances
-    - Shared monitoring stack
-  </Card>
-
-  <Card title="Limit Concurrency" icon="layer-group">
-    Control concurrent environments:
-    - Max 10 concurrent ephemeral envs
-    - Queue additional requests
-    - Priority based on labels
-  </Card>
-</CardGroup>
-
-### Cost Tracking Example
-
-```yaml
-# Track costs with tags
-tags:
-  environment_type: ephemeral
-  pr_number: ${{ github.event.number }}
-  created_by: ${{ github.actor }}
-  auto_cleanup: true
-  cost_center: engineering
-  ttl: 24h
-
-# Monitor costs
-budget:
-  monthly_limit: 500  # USD
-  alert_at: 400       # Alert at $400
-  stop_at: 490        # Stop at $490
-```
-
----
-
-## Best Practices Summary
-
-<Steps>
-  <Step title="Start Simple">
-    Begin with Qovery's automatic preview environments. Only move to advanced CI/CD integration when you need custom testing workflows.
-  </Step>
-
-  <Step title="Use Blueprint Environments">
-    Create well-tested blueprint environments that serve as templates. This ensures consistency across all ephemeral environments.
-  </Step>
-
-  <Step title="Implement Strong Cleanup">
-    Always have multiple cleanup mechanisms: automatic on PR close, TTL-based, and manual cleanup scripts.
-  </Step>
-
-  <Step title="Control Costs">
-    Use smaller resources, container databases, spot instances, and limit concurrent environments to keep costs low.
-  </Step>
-
-  <Step title="Monitor and Alert">
-    Track environment creation, test results, and costs. Set up alerts for failures and budget overruns.
-  </Step>
-
-  <Step title="Optimize Test Suites">
-    Keep E2E tests focused and fast. Run comprehensive tests only when necessary (use labels to control).
-  </Step>
-
-  <Step title="Document for Your Team">
-    Create clear documentation on how team members should use ephemeral environments and interpret test results.
-  </Step>
-
-  <Step title="Iterate and Improve">
-    Continuously refine your workflows based on team feedback, test results, and cost data.
-  </Step>
-</Steps>
-
----
 
 ## Next Steps
 

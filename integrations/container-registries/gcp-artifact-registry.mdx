@@ -1,27 +1,81 @@
 ---
-title: "Google Artifact Registry Integration"
-description: "Connect GCP Artifact Registry with Qovery"
+title: "GCP Artifact Registry"
+description: "Connect Google Cloud Artifact Registry with Qovery"
 ---
 
-<Info>
-**Detailed integration guide coming soon**
-</Info>
+## Overview
 
-## Quick Setup
+Google Cloud Artifact Registry is a fully managed container registry for storing, managing, and securing your Docker container images.
 
-### Registry URL Format
+## Automatic Registry
 
-```
-https://<region>-docker.pkg.dev
-```
+When you create a cluster on GCP, Qovery automatically creates a container registry (named `registry-{UUID}`) that is used to manage the deployment of your applications by mirroring Docker images.
 
-### Service Account Permissions
+The credentials configured on this automatic registry are the ones used to create the cluster, but you can update them if you prefer to manage them separately.
 
-Required roles:
-- `roles/artifactregistry.reader`
-- `roles/artifactregistry.writer` (if pushing)
+## Adding Your Own Artifact Registry
 
-## Resources
+To connect your own GCP Artifact Registry to Qovery:
 
-- [GCP Artifact Registry Docs](https://cloud.google.com/artifact-registry/docs)
-- [Container Registry Overview](/integrations/container-registries/overview)
+### Required Information
+
+<Steps>
+  <Step title="Registry URL">
+    Format: `https://<region>-docker.pkg.dev`
+
+    Example: `https://us-central1-docker.pkg.dev`
+  </Step>
+
+  <Step title="Project and Repository">
+    - GCP Project ID
+    - Repository name
+  </Step>
+
+  <Step title="Service Account Credentials">
+    Create a service account with appropriate permissions and generate a JSON key
+  </Step>
+</Steps>
+
+### Configuration in Qovery
+
+<Steps>
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries**
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
+  </Step>
+
+  <Step title="Select GCP Artifact Registry">
+    Choose **GCP Artifact Registry** from the registry type dropdown
+  </Step>
+
+  <Step title="Enter Details">
+    Provide the registry URL and service account credentials
+  </Step>
+
+  <Step title="Save">
+    Qovery will verify the credentials and save the configuration
+  </Step>
+</Steps>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="GCP GKE Setup" icon="google" href="/integrations/kubernetes/gke/overview">
+    Set up GCP GKE cluster with Qovery
+  </Card>
+
+  <Card title="GCP Credentials" icon="key" href="/configuration/organization/cloud-credentials">
+    Manage GCP credentials
+  </Card>
+</CardGroup>

@@ -3,498 +3,123 @@ title: "Members & RBAC"
 description: "Manage organization members and role-based access control"
 ---
 
-## Overview
+## Organization Members
 
-The Members & RBAC (Role-Based Access Control) feature allows you to manage who has access to your Qovery organization and what they can do. With fine-grained permissions, you can ensure that team members have exactly the access they need.
+You can invite someone to join your organization by email. Once they accept the invitation, they will have access to the organization and all its projects based on their assigned role.
 
-Qovery's RBAC system provides predefined roles with specific permissions, making it easy to manage team access while maintaining security and compliance.
-
-![Members Management](/images/configuration/organization/members.png)
-
-## Accessing Members & RBAC Settings
+### Accessing Members Settings
 
 <Steps>
   <Step title="Open Organization Settings">
-    Click the "Wheel" button (⚙️) on the left navigation bar
+    Click the **Wheel** button (⚙️) on the left navigation bar
 
-    ![How to access your organization settings](/images/configuration/organization/access_settings.png)
+    <Frame>
+      <img src="/images/configuration/organization/access_settings.png" alt="How to access your organization settings" />
+    </Frame>
   </Step>
 
   <Step title="Navigate to Members Section">
-    Open the `Members` section within the organization settings
+    Open the **Members** section within the organization settings
 
-    ![Members list](/images/configuration/organization/members.png)
+    <Frame>
+      <img src="/images/configuration/organization/members.png" alt="Qovery - List all members within an organization" />
+    </Frame>
   </Step>
 </Steps>
 
-## Inviting Members
+### Inviting Members
 
-<Steps>
-  <Step title="Click Invite Member Button">
-    Press the `Invite Member` button to add a new team member
-  </Step>
+1. Click the **Invite Member** button
+2. Enter the member's email address
+3. Select a role (see Default Roles below)
+4. Click **Send Invitation**
 
-  <Step title="Enter Member Details">
-    Provide the following information:
-    - **Email**: Team member's email address
-    - **Role**: Select one of the default roles (see roles section below)
-  </Step>
-
-  <Step title="Send Invitation">
-    Click **Send Invitation** to email the invitation
-  </Step>
-
-  <Step title="Member Accepts Invitation">
-    The invited member will receive an email with instructions to join the organization
-  </Step>
-</Steps>
+The invited member will receive an email with instructions to join the organization.
 
 <Info>
-Invitations expire after 7 days. You can resend invitations if needed.
+Changing the role of a member requires the user to logout/login to make the changes effective or wait a few minutes (max 1 hour).
 </Info>
 
 ## Default Roles
 
 Qovery provides 5 default roles with predefined permissions:
 
-### 1. Owner
+### Owner
 
-The highest level of access with full control over the organization.
+The user has full access to the organization. Only one user can be the owner of the organization.
 
-**Key Permissions:**
-- All Admin permissions
-- Delete organization
-- Transfer organization ownership
-- Manage billing and subscription
-- Full access to all resources and settings
+### Admin
 
-**Use Case:** Organization founder or C-level executives
+Same as the owner, the user has full access to the organization but cannot delete it.
 
-<Warning>
-There must always be at least one Owner in an organization. Ownership can be transferred but not removed if there's only one Owner.
-</Warning>
+### DevOps
 
-### 2. Admin
+The user can manage the organization infrastructure (clusters/registry/webhook setup) and manage the deployments of any environment within the organization.
 
-Full administrative access except for organization-level destructive actions.
+### Billing Manager
 
-**Key Permissions:**
-- Create, edit, and delete clusters
-- Manage organization settings
-- Invite and remove members
-- Manage all projects and environments
-- Configure integrations
-- View and manage API tokens
-- Access audit logs
-- Manage cloud credentials and container registries
+The user can only manage the billing of the organization.
 
-**Use Case:** Platform engineers, DevOps leads, Engineering managers
+### Viewer
 
-### 3. DevOps
-
-Broad operational access for managing infrastructure and deployments.
-
-**Key Permissions:**
-- Create and manage environments
-- Deploy applications and services
-- Manage environment variables and secrets
-- View logs and metrics
-- Execute commands in containers
-- Manage cronjobs and lifecycle jobs
-- Configure applications and databases
-- Cannot modify cluster settings
-- Cannot manage organization members
-- Cannot access billing
-
-**Use Case:** DevOps engineers, Site reliability engineers, Platform team members
-
-### 4. Billing Manager
-
-Specialized role focused on financial management.
-
-**Key Permissions:**
-- View and manage billing information
-- Update payment methods
-- View invoices and usage reports
-- Manage subscription plans
-- View organization settings (read-only)
-- Cannot manage members
-- Cannot deploy applications
-- Cannot modify infrastructure
-
-**Use Case:** Finance team, Billing administrators, CFO office
-
-### 5. Viewer
-
-Read-only access across the organization.
-
-**Key Permissions:**
-- View all projects and environments
-- View applications and services
-- View logs and metrics
-- View environment variables (values hidden)
-- View configurations
-- Cannot create, edit, or delete resources
-- Cannot deploy applications
-- Cannot manage members
-- Cannot access billing information
-
-**Use Case:** Auditors, Stakeholders, Read-only team members, Security team
+The user has read-only access to any section of the organization.
 
 ## Permissions Matrix
 
-| Permission | Owner | Admin | DevOps | Billing Manager | Viewer |
-|------------|-------|-------|--------|-----------------|--------|
-| **Organization** |
-| Delete organization | ✓ | ✗ | ✗ | ✗ | ✗ |
-| Transfer ownership | ✓ | ✗ | ✗ | ✗ | ✗ |
-| View settings | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Edit settings | ✓ | ✓ | ✗ | ✗ | ✗ |
-| **Members** |
-| Invite members | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Remove members | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Change member roles | ✓ | ✓ | ✗ | ✗ | ✗ |
-| View members | ✓ | ✓ | ✓ | ✓ | ✓ |
-| **Billing** |
-| View billing | ✓ | ✓ | ✗ | ✓ | ✗ |
-| Manage billing | ✓ | ✗ | ✗ | ✓ | ✗ |
-| View invoices | ✓ | ✓ | ✗ | ✓ | ✗ |
-| Update payment | ✓ | ✗ | ✗ | ✓ | ✗ |
-| **Clusters** |
-| Create cluster | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Edit cluster | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Delete cluster | ✓ | ✓ | ✗ | ✗ | ✗ |
-| View cluster | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Cloud Credentials** |
-| Add credentials | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Edit credentials | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Delete credentials | ✓ | ✓ | ✗ | ✗ | ✗ |
-| View credentials | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Container Registry** |
-| Add registry | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Edit registry | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Delete registry | ✓ | ✓ | ✗ | ✗ | ✗ |
-| View registry | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Projects** |
-| Create project | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Edit project | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Delete project | ✓ | ✓ | ✓ | ✗ | ✗ |
-| View project | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Environments** |
-| Create environment | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Edit environment | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Delete environment | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Deploy environment | ✓ | ✓ | ✓ | ✗ | ✗ |
-| View environment | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Applications** |
-| Create application | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Edit application | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Delete application | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Deploy application | ✓ | ✓ | ✓ | ✗ | ✗ |
-| View application | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Databases** |
-| Create database | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Edit database | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Delete database | ✓ | ✓ | ✓ | ✗ | ✗ |
-| View database | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Secrets & Variables** |
-| Create secret | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Edit secret | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Delete secret | ✓ | ✓ | ✓ | ✗ | ✗ |
-| View secret value | ✓ | ✓ | ✓ | ✗ | ✗ |
-| View secret key | ✓ | ✓ | ✓ | ✗ | ✓ |
-| **Logs & Metrics** |
-| View logs | ✓ | ✓ | ✓ | ✗ | ✓ |
-| View metrics | ✓ | ✓ | ✓ | ✗ | ✓ |
-| Download logs | ✓ | ✓ | ✓ | ✗ | ✗ |
-| **Shell Access** |
-| Execute shell | ✓ | ✓ | ✓ | ✗ | ✗ |
-| View shell logs | ✓ | ✓ | ✓ | ✗ | ✗ |
-| **API Tokens** |
-| Create token | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Delete token | ✓ | ✓ | ✗ | ✗ | ✗ |
-| View tokens | ✓ | ✓ | ✗ | ✗ | ✗ |
-| **Audit Logs** |
-| View audit logs | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Export audit logs | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Action | Owner | Admin | DevOps | Billing Manager | Viewer |
+|--------|-------|-------|--------|-----------------|--------|
+| Read organization | yes | yes | yes | yes | yes |
+| Edit organization | yes | yes | no | no | no |
+| Delete organization | yes | no | no | no | no |
+| Manage billing | yes | yes | no | yes | no |
+| Manage members & roles | yes | yes | no | no | no |
+| Manage cluster & container registry | yes | yes | yes | no | no |
+| Manage organization setup | yes | yes | yes | no | no |
+| Read ANY project | yes | yes | yes | no | yes |
+| Edit/Delete ANY project | yes | yes | no | no | no |
+| Create project | yes | yes | no | no | no |
+| Read ANY environment | yes | yes | yes | no | yes |
+| Edit/Delete ANY environment or service | yes | yes | no | no | no |
+| Create environment or service | yes | yes | no | no | no |
+| Add/Edit/Delete environment variables and secrets | yes | yes | yes | no | no |
+| Deploy/Stop ANY environment or service | yes | yes | yes | no | no |
+| Connect via shell to ANY application | yes | yes | yes | no | no |
 
-## Managing Members
+## Custom Roles
 
-### Changing Member Roles
+You can create custom roles to fine-tune access control for your organization members. Custom roles allow you to define permissions at two levels: cluster level and project level.
 
-<Steps>
-  <Step title="Locate Member">
-    Find the member in the Members list
-  </Step>
+<Frame>
+  <img src="/images/configuration/organization/custom-role-creation.png" alt="Qovery - custom role creation" />
+</Frame>
 
-  <Step title="Click Edit Button">
-    Click the **Edit** button next to the member
-  </Step>
+### Cluster Level Permissions
 
-  <Step title="Select New Role">
-    Choose the new role from the dropdown
-  </Step>
+You can define the following permissions at the cluster level:
 
-  <Step title="Save Changes">
-    Click **Save** to apply the role change
-  </Step>
-</Steps>
+- **Read-Only**: The user can access the cluster information (name, region etc..). Minimum permission level.
+- **Create Environment**: The user can create environments on this cluster...Further environment level permissions...are managed via the 'Project Permissions'
+- **Full Access**: The user can create environments on this cluster and as well manage the cluster's settings (start/stop, change number and type of nodes etc..)
 
-<Info>
-Role changes take effect immediately. The member will have new permissions right away.
-</Info>
+### Project Level Permissions
 
-### Removing Members
+You can define permissions for each environment type (development, staging, production, preview) within a project:
 
-<Steps>
-  <Step title="Locate Member">
-    Find the member in the Members list
-  </Step>
+- **No Access**: The user has no access to this environment type
+- **Read-Only**: Access in read-only to this environment type. Useful to restrict access on sensitive environments
+- **Deploy**: Manage the deployments of this environment type, access the logs, connect via SSH
+- **Manage**: Manage the deployments and the settings of this environment type
+- **Full Access**: The user is admin of the project and can do everything he wants on it
 
-  <Step title="Click Remove Button">
-    Click the **Remove** button (trash icon) next to the member
-  </Step>
+## Transfer Ownership
 
-  <Step title="Confirm Removal">
-    Confirm that you want to remove the member from the organization
-  </Step>
-</Steps>
+You can transfer ownership of the organization to another member. To do so:
+
+1. Navigate to the **Members** section in organization settings
+2. Click on the member you want to transfer ownership to
+3. Select **Transfer Ownership** from the menu
+4. Confirm the transfer
 
 <Warning>
-Removed members immediately lose access to the organization and all its resources. This action cannot be undone - you'll need to send a new invitation if you want to re-add them.
+Once ownership is transferred, you will no longer be the owner of the organization.
 </Warning>
-
-### Resending Invitations
-
-For pending invitations:
-
-1. Locate the pending invitation in the Members list
-2. Click the **Resend** button
-3. A new invitation email will be sent
-
-### Revoking Invitations
-
-For pending invitations:
-
-1. Locate the pending invitation in the Members list
-2. Click the **Revoke** button
-3. Confirm the revocation
-
-## API Tokens and RBAC
-
-API tokens can be assigned roles just like human users. When creating an API token:
-
-1. Navigate to **Organization Settings** > **API Tokens**
-2. Create a new token and assign a role
-3. The token will have the same permissions as a user with that role
-
-<Note>
-For security, use the minimal role required for your API token. For example, use DevOps role for CI/CD deployments, not Owner or Admin.
-</Note>
-
-[Learn more about API Tokens →](/configuration/organization/api-token)
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Follow Principle of Least Privilege">
-    Grant users the minimum access they need:
-    - Start with Viewer role by default
-    - Elevate to DevOps for operational access
-    - Reserve Admin for platform team leads
-    - Limit Owner role to 2-3 people maximum
-  </Accordion>
-
-  <Accordion title="Regular Access Reviews">
-    Periodically review member access:
-    - Quarterly access audits
-    - Remove inactive members
-    - Verify role assignments are still appropriate
-    - Check for over-privileged accounts
-    - Review API token permissions
-  </Accordion>
-
-  <Accordion title="Use Multiple Owners">
-    Always have at least 2-3 Owners:
-    - Prevents lockout if an Owner leaves
-    - Ensures business continuity
-    - Allows for vacation/leave coverage
-    - Choose Owners from different teams
-  </Accordion>
-
-  <Accordion title="Separate Billing Access">
-    Use Billing Manager role for finance team:
-    - No access to infrastructure
-    - Can manage billing independently
-    - Reduces security surface area
-    - Enables financial oversight
-  </Accordion>
-
-  <Accordion title="Audit with Viewer Role">
-    Use Viewer role for:
-    - Security team access
-    - Compliance auditors
-    - External consultants (read-only)
-    - Management oversight
-    - New team member onboarding
-  </Accordion>
-
-  <Accordion title="Document Role Assignments">
-    Maintain documentation of:
-    - Who has which roles and why
-    - Role change approval process
-    - Escalation procedures
-    - Offboarding checklist
-  </Accordion>
-
-  <Accordion title="Use SSO When Available">
-    If using enterprise SSO:
-    - Centralize identity management
-    - Automatically provision/deprovision users
-    - Enforce multi-factor authentication
-    - Sync with HR systems
-  </Accordion>
-</AccordionGroup>
-
-## Common Role Assignment Scenarios
-
-### Small Startup Team (5-10 people)
-
-```
-- Founder/CTO: Owner
-- Co-founder: Owner
-- Lead Engineer: Admin
-- Engineers (3-4): DevOps
-- Finance Manager: Billing Manager
-```
-
-### Medium Company (20-50 engineers)
-
-```
-- CTO: Owner
-- VP Engineering: Owner
-- Platform Team Lead: Admin
-- Platform Engineers (3-5): Admin
-- DevOps Engineers (5-10): DevOps
-- Software Engineers (15-30): DevOps
-- Finance Team: Billing Manager
-- Security Team: Viewer
-```
-
-### Large Enterprise (100+ engineers)
-
-```
-- CTO: Owner
-- VP Infrastructure: Owner
-- Director of Platform: Owner
-- Platform Architects: Admin
-- SRE Team Leads: Admin
-- SRE Team Members: DevOps
-- Development Team Leads: DevOps
-- Developers: DevOps (project-specific)
-- Finance Team: Billing Manager
-- Security/Compliance: Viewer
-- Management: Viewer
-```
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Cannot Invite Member">
-    **Problem**: Invitation fails or button is disabled
-
-    **Solutions**:
-    - Verify you have Admin or Owner role
-    - Check if member is already invited
-    - Verify email address is valid
-    - Check organization member limit
-    - Contact support if issue persists
-  </Accordion>
-
-  <Accordion title="Member Cannot Accept Invitation">
-    **Problem**: Invited member cannot access the organization
-
-    **Solutions**:
-    - Check spam folder for invitation email
-    - Resend invitation from Members page
-    - Verify email address is correct
-    - Ensure invitation hasn't expired (7 days)
-    - Member should use the exact email invited
-  </Accordion>
-
-  <Accordion title="Permission Denied Errors">
-    **Problem**: User sees permission denied for certain actions
-
-    **Solutions**:
-    - Verify user's current role in Members page
-    - Check permissions matrix above
-    - Request role upgrade from Admin/Owner
-    - Use API token with appropriate role if automating
-  </Accordion>
-
-  <Accordion title="Cannot Remove Last Owner">
-    **Problem**: Cannot remove the last Owner from organization
-
-    **Solution**: Qovery requires at least one Owner. Promote another member to Owner before removing the current one.
-  </Accordion>
-
-  <Accordion title="Role Change Not Taking Effect">
-    **Problem**: Permission changes not working after role update
-
-    **Solutions**:
-    - Ask user to log out and log back in
-    - Clear browser cache
-    - Wait 1-2 minutes for propagation
-    - Verify role was saved correctly
-  </Accordion>
-</AccordionGroup>
-
-## Security Considerations
-
-<AccordionGroup>
-  <Accordion title="Multi-Factor Authentication">
-    Enable MFA for all organization members:
-    - Required for Owner and Admin roles
-    - Strongly recommended for DevOps role
-    - Reduces risk of account compromise
-    - Configure in user account settings
-  </Accordion>
-
-  <Accordion title="Offboarding Checklist">
-    When a team member leaves:
-    1. Remove member from organization immediately
-    2. Revoke any API tokens they created
-    3. Rotate shared credentials they had access to
-    4. Review audit logs for their activities
-    5. Update documentation they maintained
-  </Accordion>
-
-  <Accordion title="Regular Audit Log Reviews">
-    Monitor audit logs for:
-    - Unusual access patterns
-    - Failed authentication attempts
-    - Privilege escalations
-    - Resource deletions
-    - Configuration changes
-  </Accordion>
-</AccordionGroup>
-
-## Related Resources
-
-<CardGroup cols={2}>
-  <Card title="API Token" href="/configuration/organization/api-token">
-    Manage API tokens with RBAC
-  </Card>
-
-  <Card title="Cloud Credentials" href="/configuration/organization/cloud-credentials">
-    Manage cloud provider credentials
-  </Card>
-
-  <Card title="Audit Logs" href="/configuration/organization/audit-logs">
-    View organization activity logs
-  </Card>
-
-  <Card title="SSO Configuration" href="/configuration/organization/sso">
-    Configure single sign-on
-  </Card>
-</CardGroup>

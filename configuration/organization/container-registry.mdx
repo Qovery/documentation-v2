@@ -5,9 +5,20 @@ description: "Manage container registries for your organization"
 
 ## Overview
 
-Container registries allow you to store and manage Docker container images that your applications use. Qovery supports multiple registry providers including AWS ECR, Google GCR, Docker Hub, and private registries.
+This section allows you to define the container registries available within your organization. Once configured, only images stored in these registered container registries will be allowed to be deployed on your clusters.
 
 By connecting container registries to your organization, you can deploy applications using images from these registries across all your projects and environments.
+
+<Info>
+Container registries configured here apply to the entire organization and are available for all projects.
+</Info>
+
+## Accessing Container Registry Settings
+
+To manage container registries:
+
+1. Navigate to **Organization Settings** → **Container Registries**
+2. You'll see a list of all configured registries
 
 ![Container Registry Management](/images/configuration/organization/container_1.png)
 
@@ -15,85 +26,41 @@ By connecting container registries to your organization, you can deploy applicat
 
 Qovery supports the following container registry providers:
 
-- **AWS ECR** (Elastic Container Registry)
-- **GCP GCR/Artifact Registry** (Google Container Registry)
+- **ECR** (AWS Elastic Container Registry)
+- **GCP Artifact Registry** (Google Cloud Artifact Registry)
+- **Scaleway Container Registry**
 - **Docker Hub**
 - **GitHub Container Registry (GHCR)**
+- **GitHub Enterprise Container Registry**
 - **GitLab Container Registry**
-- **Scaleway Container Registry**
-- **Private/Self-Hosted Registries** (any Docker-compatible registry)
+- **Public ECR** (AWS Public Elastic Container Registry)
+- **Generic Container Registry** (any Docker-compatible registry accessible via `docker login`)
 
-## Accessing Container Registry Settings
-
-<Steps>
-  <Step title="Open Organization Settings">
-    Click the "Wheel" button (⚙️) on the left navigation bar
-
-    ![How to access your organization settings](/images/configuration/organization/access_settings.png)
-  </Step>
-
-  <Step title="Navigate to Container Registry Section">
-    Open the `Container Registry` section within the organization settings
-
-    ![Container Registry list](/images/configuration/organization/container_1.png)
-  </Step>
-</Steps>
-
-## Create a New Container Registry
+## Create a Container Registry
 
 <Steps>
-  <Step title="Click Add Button">
-    Press the `Add` button to create a new container registry connection
+  <Step title="Click Add Registry">
+    Press the **Add Registry** button to create a new container registry connection
+
+    ![Container Registry Creation](/images/configuration/organization/container_creation.png)
   </Step>
 
   <Step title="Select Registry Type">
-    Choose your registry provider from the dropdown:
-    - ECR (AWS)
-    - GCR/Artifact Registry (GCP)
-    - Docker Hub
-    - GitHub Container Registry
-    - GitLab Container Registry
-    - Scaleway
-    - Generic (for any Docker-compatible registry)
-
-    ![Container Registry Creation Form](/images/configuration/organization/container_creation.png)
+    Choose your registry provider from the dropdown menu
   </Step>
 
-  <Step title="Configure Registry">
-    Provide the required information based on your registry type:
+  <Step title="Provide Required Information">
+    Enter the necessary authentication details based on your registry type.
 
-    **For AWS ECR:**
-    - Name: Descriptive name for this registry
-    - Region: AWS region where your ECR is located
-    - Access Key ID: AWS access key with ECR permissions
-    - Secret Access Key: AWS secret access key
+    **Example for AWS ECR:**
+    - **Registry URL**: `https://<aws_account_id>.dkr.ecr.<region>.amazonaws.com`
+    - **Region**: AWS region where your ECR is located (e.g., `us-east-1`, `eu-west-1`)
+    - **Access Key ID**: AWS IAM access key with ECR permissions
+    - **Secret Access Key**: AWS IAM secret access key
 
-    **For GCP GCR/Artifact Registry:**
-    - Name: Descriptive name for this registry
-    - Region: GCP region
-    - Service Account JSON: JSON key file content
-
-    **For Docker Hub:**
-    - Name: Descriptive name for this registry
-    - Username: Docker Hub username
-    - Password/Token: Docker Hub password or access token
-
-    **For GitHub Container Registry:**
-    - Name: Descriptive name for this registry
-    - Username: GitHub username
-    - Personal Access Token: GitHub PAT with `read:packages` scope
-
-    **For GitLab Container Registry:**
-    - Name: Descriptive name for this registry
-    - URL: GitLab registry URL (e.g., registry.gitlab.com)
-    - Username: GitLab username
-    - Token: GitLab personal access token with `read_registry` scope
-
-    **For Generic/Private Registry:**
-    - Name: Descriptive name for this registry
-    - URL: Registry URL (e.g., registry.example.com)
-    - Username: Registry username
-    - Password: Registry password
+    <Info>
+    Each registry type requires different configuration fields. The form will adapt based on your selection.
+    </Info>
   </Step>
 
   <Step title="Test Connection">
@@ -109,30 +76,16 @@ Qovery supports the following container registry providers:
 Once added, the container registry will be available for all projects and environments in your organization.
 </Info>
 
-## Edit a Container Registry
+## Modify an Existing Registry
 
-<Steps>
-  <Step title="Locate Registry">
-    Find the registry you want to modify in the Container Registry list
-  </Step>
+To edit a container registry:
 
-  <Step title="Click Edit Button">
-    Click the **Edit** button next to the registry
+1. Locate the registry in the Container Registry list
+2. Click the **wheel button** (edit icon) next to the registry
+3. Update the registry configuration as needed
+4. Click **Save** to apply changes
 
-    ![Edit Container Registry](/images/configuration/organization/container_edit.png)
-  </Step>
-
-  <Step title="Update Configuration">
-    Modify the registry details such as:
-    - Name
-    - Credentials (access keys, tokens, passwords)
-    - Region or URL
-  </Step>
-
-  <Step title="Save Changes">
-    Click **Save** to apply your changes
-  </Step>
-</Steps>
+![Edit Container Registry](/images/configuration/organization/container_edit.png)
 
 <Warning>
 Updating registry credentials will affect all applications using images from this registry. Ensure new credentials are valid before saving.
@@ -143,63 +96,18 @@ Updating registry credentials will affect all applications using images from thi
 To remove a container registry:
 
 1. Locate the registry in the Container Registry list
-2. Click the **Delete** button (trash icon) next to the registry
+2. Click the **trash button** (delete icon) next to the registry
 3. Confirm the deletion
 
 <Warning>
-If any applications are currently using images from this registry, you should update them to use a different registry before deletion. Deleting a registry may prevent deployments from succeeding.
+Before deleting a registry, make sure that there are no applications within your organization using images stored in this registry. Deleting a registry may prevent deployments from succeeding.
 </Warning>
-
-## Using Container Registries
-
-Once a registry is configured, you can reference images from it in your application settings:
-
-### For Applications
-
-When deploying an application, specify the image URL:
-
-```
-# AWS ECR
-123456789012.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
-
-# GCP GCR
-gcr.io/my-project/my-app:latest
-
-# Docker Hub
-myorganization/my-app:latest
-
-# GitHub Container Registry
-ghcr.io/myorg/my-app:latest
-
-# Private Registry
-registry.example.com/my-app:latest
-```
-
-### Image Pull Secrets
-
-Qovery automatically creates and manages Kubernetes image pull secrets for authenticated registries. You don't need to manually create secrets.
 
 ## Best Practices
 
 <AccordionGroup>
-  <Accordion title="Use Registry-Specific IAM Roles">
-    For cloud provider registries (ECR, GCR), use IAM roles or service accounts with minimal permissions:
-    - **AWS ECR**: Only grant `ecr:GetAuthorizationToken`, `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer`
-    - **GCP**: Only grant `Storage Object Viewer` role for GCR
-  </Accordion>
-
-  <Accordion title="Use Access Tokens Instead of Passwords">
-    For Docker Hub, GitHub, and GitLab, use access tokens with limited scopes instead of account passwords:
-    - Tokens can be revoked without changing your password
-    - Tokens can have restricted permissions
-    - Better audit trail for token usage
-  </Accordion>
-
   <Accordion title="Organize by Environment">
-    Consider creating separate registry connections for different environments:
-    - Development registries for dev/staging
-    - Production registries with stricter access controls
-    - Helps with security and access management
+    Consider creating separate registry connections for different environments (development, staging, production) for better security and access management.
   </Accordion>
 
   <Accordion title="Use Descriptive Names">
@@ -210,110 +118,11 @@ Qovery automatically creates and manages Kubernetes image pull secrets for authe
   </Accordion>
 
   <Accordion title="Regular Credential Rotation">
-    Periodically rotate registry credentials:
+    Periodically rotate registry credentials for security:
     1. Create new credentials in your registry provider
     2. Update the registry configuration in Qovery
     3. Test with a deployment
     4. Remove old credentials from the provider
-  </Accordion>
-
-  <Accordion title="Image Tagging Strategy">
-    Use clear image tagging strategies:
-    - Use semantic versioning (v1.2.3)
-    - Include build numbers or commit SHAs
-    - Avoid using only `latest` tag in production
-    - Example: `my-app:v1.2.3-abc1234`
-  </Accordion>
-</AccordionGroup>
-
-## Registry-Specific Guides
-
-### AWS ECR Setup
-
-1. Create an ECR repository in AWS Console
-2. Create an IAM user with ECR permissions
-3. Generate access keys for the IAM user
-4. Add the registry in Qovery with access credentials
-
-Required IAM permissions:
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchGetImage",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:DescribeRepositories",
-        "ecr:ListImages"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-```
-
-### GCP GCR/Artifact Registry Setup
-
-1. Enable Container Registry or Artifact Registry API
-2. Create a service account
-3. Grant `Storage Object Viewer` role
-4. Download JSON key file
-5. Add the registry in Qovery with the JSON key content
-
-### Docker Hub Setup
-
-1. Create a Docker Hub account
-2. Create an access token in Account Settings > Security
-3. Grant `Read-only` or `Read & Write` permissions
-4. Add the registry in Qovery with username and token
-
-### GitHub Container Registry Setup
-
-1. Create a Personal Access Token in GitHub Settings
-2. Grant `read:packages` scope (and `write:packages` if pushing)
-3. Add the registry in Qovery with username and token
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Authentication Failed">
-    **Problem**: Cannot authenticate with the registry
-
-    **Solutions**:
-    - Verify credentials are correct and not expired
-    - For AWS ECR: Check IAM user permissions
-    - For GCP: Verify service account has proper roles
-    - For tokens: Ensure tokens haven't expired
-    - Check if the registry URL is correct
-  </Accordion>
-
-  <Accordion title="Image Pull Errors">
-    **Problem**: Applications fail to pull images
-
-    **Solutions**:
-    - Verify the image name and tag exist in the registry
-    - Check that the registry credentials are still valid
-    - Ensure the registry is accessible from your cluster's network
-    - Review Kubernetes pod events for specific error messages
-  </Accordion>
-
-  <Accordion title="Cannot Delete Registry">
-    **Problem**: Registry deletion fails
-
-    **Solution**: Check if any applications are still referencing images from this registry. Update those applications first before deleting the registry.
-  </Accordion>
-
-  <Accordion title="Rate Limiting (Docker Hub)">
-    **Problem**: Docker Hub rate limit errors
-
-    **Solutions**:
-    - Use authenticated pulls (configure Docker Hub credentials)
-    - Upgrade to Docker Hub Pro for higher limits
-    - Consider using a pull-through cache
-    - Mirror frequently used images to your own registry
   </Accordion>
 </AccordionGroup>
 
@@ -324,15 +133,15 @@ Required IAM permissions:
     Manage cloud provider credentials
   </Card>
 
-  <Card title="Applications" href="/configuration/applications">
+  <Card title="Applications" href="/configuration/application">
     Deploy applications using container images
   </Card>
 
-  <Card title="CI/CD Integration" href="/integrations/cicd">
-    Integrate with your CI/CD pipeline
+  <Card title="Git Repository Access" href="/configuration/organization/git-repository-access">
+    Configure Git repository access
   </Card>
 
-  <Card title="Lifecycle Jobs" href="/configuration/lifecycle-jobs">
-    Run container-based jobs
+  <Card title="Helm Repository" href="/configuration/organization/helm-repository">
+    Manage Helm chart repositories
   </Card>
 </CardGroup>

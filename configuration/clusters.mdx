@@ -1,991 +1,364 @@
 ---
 title: "Clusters"
-description: "Configure and manage Kubernetes clusters across multiple cloud providers"
+description: "Manage your Kubernetes clusters with Qovery"
 ---
 
-## Overview
-
-A cluster is a Kubernetes cluster managed by Qovery where your applications, databases, and services run. Qovery simplifies cluster management by handling provisioning, scaling, upgrades, and security across multiple cloud providers.
-
 <Info>
-Qovery supports both **managed clusters** (provisioned and managed by Qovery) and **BYOK** (Bring Your Own Kubernetes) clusters that you manage yourself.
+For detailed cluster installation instructions, see [Kubernetes Installation Guide](/installation/kubernetes). For troubleshooting, check the [Troubleshooting Section](#troubleshooting).
 </Info>
 
-**Supported Cloud Providers**:
-- [Amazon Web Services (AWS EKS)](/integrations/kubernetes/eks/overview)
-- [Google Cloud Platform (GCP GKE)](/integrations/kubernetes/gke/overview)
-- [Microsoft Azure (AKS)](/integrations/kubernetes/aks/overview)
-- [Scaleway (Kapsule)](/integrations/kubernetes/scaleway/overview)
-- [Bring Your Own Kubernetes (BYOK)](/integrations/kubernetes/byok)
+## Managing your Clusters with Qovery
 
-## Creating a Cluster
+### Creating a Cluster
 
-<Info>
-For detailed cluster creation instructions specific to your cloud provider, please refer to the integration guides:
-- [AWS EKS Setup](/integrations/kubernetes/eks/managed)
-- [GCP GKE Setup](/integrations/kubernetes/gke/managed)
-- [Azure AKS Setup](/integrations/kubernetes/aks/managed)
-- [Scaleway Kapsule Setup](/integrations/kubernetes/scaleway/managed)
-- [Bring Your Own Kubernetes](/integrations/kubernetes/byok)
-</Info>
+To create a new cluster:
 
-<Steps>
-  <Step title="Navigate to Clusters">
-    In the Qovery Console, go to your **Organization** → **Clusters**
+1. Open the [Qovery Console](https://console.qovery.com)
+2. Navigate to the **Cluster** page in the left menu
+3. Click **Add Cluster**
+4. Follow the provider-specific guide for your cloud platform:
 
-    <Frame>
-      <img src="/images/configuration/clusters/cluster_section_access.png" alt="Access Clusters Section" />
-    </Frame>
-  </Step>
+<CardGroup cols={2}>
+  <Card title="AWS EKS with Karpenter" icon="aws" href="/integrations/kubernetes/eks/managed">
+    Create managed EKS cluster with Karpenter autoscaling
+  </Card>
+  <Card title="AWS EKS" icon="aws" href="/integrations/kubernetes/eks/managed">
+    Create managed EKS cluster
+  </Card>
+  <Card title="Azure AKS" icon="microsoft" href="/integrations/kubernetes/aks/managed">
+    Create managed AKS cluster
+  </Card>
+  <Card title="GCP GKE" icon="google" href="/integrations/kubernetes/gke/managed">
+    Create managed GKE cluster
+  </Card>
+  <Card title="Scaleway Kapsule" icon="/images/logos/cloud-providers/scaleway-icon-light.svg" href="/integrations/kubernetes/scaleway/managed">
+    Create managed Kapsule cluster
+  </Card>
+</CardGroup>
 
-  <Step title="Add New Cluster">
-    Click **Create Cluster** and select your cloud provider
-  </Step>
+### Overview
 
-  <Step title="Follow Provider-Specific Guide">
-    Each cloud provider has unique requirements and configuration options. Follow the appropriate guide:
+Once your cluster is created, the cluster card displays comprehensive information about your cluster's configuration and health:
 
-    <CardGroup cols={2}>
-      <Card title="AWS EKS" icon="aws" href="/integrations/kubernetes/eks/managed">
-        Create managed EKS cluster
-      </Card>
-      <Card title="GCP GKE" icon="google" href="/integrations/kubernetes/gke/managed">
-        Create managed GKE cluster
-      </Card>
-      <Card title="Azure AKS" icon="microsoft" href="/integrations/kubernetes/aks/managed">
-        Create managed AKS cluster
-      </Card>
-      <Card title="Scaleway" icon="/images/logos/cloud-providers/scaleway-icon-light.svg" href="/integrations/kubernetes/scaleway/managed">
-        Create managed Kapsule cluster
-      </Card>
-    </CardGroup>
-  </Step>
-</Steps>
-
-## Cluster Overview
-
-Once your cluster is created, the overview page provides comprehensive information about cluster health, resources, and status.
+**Cluster Details:**
+- Deployed nodes and their current statuses
+- Instance type configuration (min/max instances)
+- Reserved resources: CPU, memory, and disk capacity
+- Current Kubernetes version with upgrade warnings if applicable
+- Last deployment timestamp and status
+- Karpenter nodepool grouping (if using Karpenter)
+- Per-node resource allocation
 
 <Frame>
   <img src="/images/configuration/clusters/cluster-overview.png" alt="Cluster Overview" />
 </Frame>
 
-### General Information
+### Statuses
 
-**Cluster Details**:
-- **Name**: Unique cluster identifier
-- **Cloud Provider**: AWS, GCP, Azure, or Scaleway
-- **Region**: Geographic location
-- **Kubernetes Version**: Current K8s version
-- **Status**: Current cluster state
-- **Created**: Cluster creation date
+Qovery tracks cluster health using two status categories:
 
-### Status Indicators
+#### Cluster Statuses
 
-<Frame>
-  <img src="/images/configuration/clusters/cluster_statuses.png" alt="Cluster Status Indicators" />
-</Frame>
+| Status | Description |
+|--------|-------------|
+| <Icon icon="circle-check" iconType="solid" color="green" /> **Running** | Cluster is healthy and operational |
+| <Icon icon="triangle-exclamation" iconType="solid" color="yellow" /> **Warning** | Minor issues detected, requires attention |
+| <Icon icon="circle-xmark" iconType="solid" color="red" /> **Error** | Critical issues, intervention required |
+| <Icon icon="circle" iconType="regular" color="gray" /> **Status unavailable** | Cluster unreachable or offline |
 
-**Cluster States**:
-- <Icon icon="circle-check" iconType="solid" color="green" /> **Running**: Cluster is healthy and operational
-- <Icon icon="triangle-exclamation" iconType="solid" color="yellow" /> **Warning**: Minor issues detected, requires attention
-- <Icon icon="circle-xmark" iconType="solid" color="red" /> **Error**: Critical issues, intervention required
-- <Icon icon="circle" iconType="regular" color="gray" /> **Unavailable**: Cluster unreachable or offline
+#### Deployment Statuses
 
-### Resource Information
+| Status | Description |
+|--------|-------------|
+| **Deployment Queued** | Deployment is waiting in the queue |
+| **Deploying** | Deployment is currently in progress |
+| **Last Deployment Failed** | The most recent deployment encountered errors |
+| **Last Deployment Succeeded** | The most recent deployment completed successfully |
 
-View cluster capacity and utilization:
+### Performing Actions on Clusters
 
-**Metrics Displayed**:
-- **Nodes**: Total number of nodes and status
-- **CPU**: Total vCPU capacity and current usage
-- **Memory**: Total RAM capacity and current usage
-- **Pods**: Running pods vs maximum capacity
-- **Services**: Number of deployed services
+Available cluster operations and their cloud provider compatibility:
 
-**Example**:
-```
-Cluster: production-us-east-1
-Nodes: 5/10 (auto-scaling enabled)
-CPU: 24/40 vCPU (60% utilized)
-Memory: 96/160 GB (60% utilized)
-Pods: 47/110
-Services: 15 applications, 3 databases
-```
+| Action | AWS | Azure | GCP | Scaleway | Description |
+|--------|-----|-------|-----|----------|-------------|
+| **Update** | ✅ | ✅ | ✅ | ✅ | Redeploy cluster after configuration changes |
+| **Stop** | ✅ | ✅ | ✅ | ✅ | Temporarily pause cluster (provider charges may still apply) |
+| **Restart** | ✅ | ✅ | ✅ | ✅ | Resume a stopped cluster |
+| **Delete** | ✅ | ✅ | ✅ | ✅ | Permanently remove cluster |
 
-<Tip>
-Monitor resource utilization regularly to optimize costs and ensure adequate capacity. Qovery provides recommendations when resources are over or under-utilized.
-</Tip>
+To perform an action:
+1. Navigate to your cluster page
+2. Click the action dropdown menu
+3. Select the desired action
+4. Track progress through cluster logs
 
-### Deployment Status
+#### Updating a Cluster
 
-Track ongoing cluster operations and deployment history:
+Redeploys your cluster after making configuration changes through the Qovery Console or API.
 
-**Deployment States**:
-- **Queued**: Operation waiting to execute
-- **In Progress**: Changes being applied
-- **Success**: Operation completed successfully
-- **Failed**: Operation encountered errors
+#### Stopping a Cluster
 
-View detailed logs for each deployment to troubleshoot issues or verify successful operations.
-
-## Cluster Settings
-
-Configure cluster-wide settings and preferences.
-
-### General Settings
-
-**Editable Settings**:
-- **Cluster Name**: Update cluster identifier
-- **Description**: Add cluster purpose and details
-- **Tags**: Organize clusters with custom tags
-
-### Network Configuration
-
-**Network Settings**:
-- **VPC/Network**: View VPC/network information
-- **CIDR Block**: IP address range for cluster
-- **Subnets**: Public and private subnet configuration
-- **Load Balancer**: Ingress load balancer settings
-
-<Info>
-For advanced networking configurations like VPC peering, see our [AWS VPC Peering Guide](/integrations/aws/vpc-peering).
-</Info>
-
-### Features
-
-**Available Features**:
-- **Custom Domain**: Configure wildcard domains for services
-- **Static IP**: Reserve static IP addresses
-- **Private Registry**: Configure private container registries
-- **Observability**: Enable monitoring and logging integrations
-
-### Advanced Settings
-
-Cluster Advanced Settings provide fine-grained control over cluster infrastructure, networking, logging, and cloud provider-specific configurations. These settings allow you to optimize performance, security, and cost without requiring direct cloud provider console access.
-
-<Info>
-Advanced settings are configured via the **Qovery API**. Console UI support is coming soon.
-</Info>
+Temporarily pauses your cluster to reduce costs.
 
 <Warning>
-Some advanced settings may impact cluster stability or cost. Review documentation carefully before making changes. Settings marked with ⚠️ warnings can cause cluster instability if misconfigured.
+Some cloud provider charges may continue even when the cluster is stopped (e.g., storage, reserved IPs, load balancers).
 </Warning>
 
-## Quick Reference
+#### Restarting a Cluster
 
-### Settings by Category
+Resumes a stopped cluster and redeploys all services.
 
-<AccordionGroup>
-  <Accordion title="Logs Settings (6 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `aws.cloudwatch.eks_logs_retention_days` | 90 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | CloudWatch EKS logs retention (days) |
-    | `aws.vpc.enable_s3_flow_logs` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable VPC flow logs in S3 |
-    | `aws.vpc.flow_logs_retention_days` | 365 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | VPC flow logs retention (days) |
-    | `loki.log_retention_in_week` | 12 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Pod logs retention (weeks) |
-    | `gcp.vpc.enable_flow_logs` | false | <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> | Enable VPC flow logs |
-    | `gcp.vpc.flow_logs_sampling` | 0.0 | <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> | VPC flow logs sampling rate |
-  </Accordion>
+#### Deleting a Cluster
 
-  <Accordion title="DNS Settings (1 setting)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `dns.coredns.extra_config` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Custom CoreDNS configuration |
-  </Accordion>
+Permanently removes your cluster. You have three deletion options:
 
-  <Accordion title="Image Registry (3 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `registry.image_retention_time` | 31536000 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ECR image retention (seconds) |
-    | `registry.mirroring_mode` | Service | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Image mirroring mode |
-    | `cloud_provider.container_registry.tags` | - | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Registry custom tags |
-  </Accordion>
+1. **Default (Recommended)**: Complete cleanup
+   - Deletes all Qovery-managed resources
+   - Removes cloud provider infrastructure
+   - No residual costs
 
-  <Accordion title="Load Balancer (6 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `load_balancer.size` | lb-s | <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Load balancer size |
-    | `aws.eks.enable_alb_controller` | true | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable ALB controller |
-    | `aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu` | 250 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA min CPU |
-    | `aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu` | 250 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA max CPU |
-    | `aws.eks.alb_controller.vpa.memory.min_in_mib` | 128 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA min memory |
-    | `aws.eks.alb_controller.vpa.memory.max_in_mib` | 128 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | ALB controller VPA max memory |
-  </Accordion>
+2. **Delete on cloud provider and Qovery configuration**: Manual database handling
+   - Deletes cluster from cloud provider
+   - Removes Qovery configuration
+   - Requires manual database cleanup
 
-  <Accordion title="Nginx Controller Resources (4 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `nginx.vcpu.request_in_milli_cpu` | 200 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Nginx CPU request |
-    | `nginx.vcpu.limit_in_milli_cpu` | 700 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Nginx CPU limit |
-    | `nginx.memory.request_in_mib` | 768 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Nginx memory request |
-    | `nginx.memory.limit_in_mib` | 768 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Nginx memory limit |
-  </Accordion>
-
-  <Accordion title="Nginx HPA (3 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `nginx.hpa.cpu_utilization_percentage_threshold` | 50 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | HPA CPU threshold (%) |
-    | `nginx.hpa.min_number_instances` | 2 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Min Nginx instances |
-    | `nginx.hpa.max_number_instances` | 25 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Max Nginx instances |
-  </Accordion>
-
-  <Accordion title="Nginx Configuration (10 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `nginx.controller.enable_client_ip` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Pass client IP to services |
-    | `nginx.controller.enable_compression` | true | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Enable Brotli compression |
-    | `nginx.controller.use_forwarded_headers` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Use X-Forwarded-For header |
-    | `nginx.controller.compute_full_forwarded_for` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Append to X-Forwarded-For |
-    | `nginx.controller.log_format_upstream` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Custom log format |
-    | `nginx.controller.log_format_escaping` | Default | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Log format escaping |
-    | `nginx.controller.http_snippet` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Custom HTTP config |
-    | `nginx.controller.server_snippet` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Custom server config |
-    | `nginx.controller.limit_request_status_code` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Rate limit status code |
-    | `nginx.controller.custom_http_errors` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Custom error codes |
-  </Accordion>
-
-  <Accordion title="Nginx Default Backend (3 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `nginx.default_backend.enabled` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Enable default backend |
-    | `nginx.default_backend.image_repository` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Backend image repository |
-    | `nginx.default_backend.image_tag` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Backend image tag |
-  </Accordion>
-
-  <Accordion title="Service Resources (2 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `allow_service_cpu_overcommit` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | ⚠️ Allow CPU overcommit |
-    | `allow_service_ram_overcommit` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | ⚠️ Allow memory overcommit |
-  </Accordion>
-
-  <Accordion title="Database Access Control (8 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `database.postgresql.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Deny all PostgreSQL access |
-    | `database.postgresql.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | PostgreSQL allowed CIDRs |
-    | `database.mysql.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Deny all MySQL access |
-    | `database.mysql.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | MySQL allowed CIDRs |
-    | `database.mongodb.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Deny all MongoDB access |
-    | `database.mongodb.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | MongoDB allowed CIDRs |
-    | `database.redis.deny_any_access` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Deny all Redis access |
-    | `database.redis.allowed_cidrs` | ["0.0.0.0/0"] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Redis allowed CIDRs |
-  </Accordion>
-
-  <Accordion title="IAM Settings (4 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `aws.iam.enable_admin_group_sync` | true | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable IAM admin group sync |
-    | `aws.iam.admin_group` | Admins | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | IAM admin group name |
-    | `aws.iam.enable_sso` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | Enable SSO sync |
-    | `aws.iam.sso_role_arn` | "" | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | SSO role ARN |
-  </Accordion>
-
-  <Accordion title="Object Storage (1 setting)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `object_storage.enable_logging` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> | Enable bucket logging |
-  </Accordion>
-
-  <Accordion title="Miscellaneous (6 settings)">
-    | Setting | Default | Providers | Description |
-    |---------|---------|-----------|-------------|
-    | `storageclass.fast_ssd` | varies | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> | Storage class for SSD |
-    | `aws.eks.ec2.metadata_imds` | required | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | EC2 IMDS version |
-    | `aws.eks.ec2.ami` | AmazonLinux2023 | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | EKS node AMI |
-    | `aws.eks.encrypt_secrets_kms_key_arn` | null | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> | KMS key for secret encryption |
-    | `qovery.static_ip_mode` | false | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> | Static IP for control plane |
-    | `k8s.api.allowed_public_access_cidrs` | [] | <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" class="badge-icon" /> | K8s API whitelist CIDRs |
-  </Accordion>
-</AccordionGroup>
-
-<Tip>
-Use the **Settings by Category** tables above to quickly find settings. The **Providers** column shows which cloud providers support each setting using icons.
-</Tip>
-
----
-
-## Configuring Advanced Settings via API
-
-Advanced settings are configured using the Qovery API:
-
-```bash
-curl -X PATCH "https://api.qovery.com/cluster/{cluster_id}/advancedSettings" \
-  -H "Authorization: Token YOUR_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "loki.log_retention_in_week": 24,
-    "nginx.hpa.min_number_instances": 3,
-    "database.postgresql.allowed_cidrs": ["10.0.0.0/8"]
-  }'
-```
-
-<Info>
-For complete API documentation, see the [Qovery API Reference](/api-reference/introduction).
-</Info>
-
-## Advanced Settings Best Practices
-
-<AccordionGroup>
-  <Accordion title="Document Changes">
-    Keep track of all advanced settings changes with rationale. Cluster settings can significantly impact performance and cost.
-  </Accordion>
-
-  <Accordion title="Test in Non-Production">
-    Always test advanced settings in development or staging clusters before applying to production.
-  </Accordion>
-
-  <Accordion title="Avoid Overcommit in Production">
-    Never enable `allow_service_cpu_overcommit` or `allow_service_ram_overcommit` in production clusters. This can cause unpredictable behavior and pod evictions.
-  </Accordion>
-
-  <Accordion title="Monitor After Changes">
-    After changing advanced settings, monitor cluster health, resource utilization, and service performance closely for 24-48 hours.
-  </Accordion>
-
-  <Accordion title="Use Database Access Control">
-    Restrict database access with `allowed_cidrs` instead of allowing `0.0.0.0/0`. This significantly improves security posture.
-  </Accordion>
-
-  <Accordion title="Optimize Nginx Resources">
-    Tune Nginx controller resources based on traffic patterns. Monitor HPA scaling behavior and adjust thresholds accordingly.
-  </Accordion>
-
-  <Accordion title="Enable Flow Logs for Security">
-    Enable VPC flow logs for production clusters to aid in security audits and troubleshooting network issues.
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Cluster Actions
-
-<Frame>
-  <img src="/images/configuration/clusters/cluster_actions.png" alt="Cluster Actions" />
-</Frame>
-
-### Update Cluster
-
-Modify cluster configuration without recreating it:
-
-**Updatable Components**:
-- Node instance types
-- Number of nodes (min/max for auto-scaling)
-- Kubernetes add-ons
-- Network policies
-- Security settings
-
-<Steps>
-  <Step title="Access Settings">
-    Navigate to **Cluster** → **Settings**
-  </Step>
-
-  <Step title="Modify Configuration">
-    Update desired settings (instance types, scaling, etc.)
-  </Step>
-
-  <Step title="Review Changes">
-    Review the proposed changes and estimated impact
-  </Step>
-
-  <Step title="Apply Update">
-    Click **Update** to apply changes with rolling updates
-  </Step>
-</Steps>
-
-<Info>
-Most updates are performed with zero downtime using rolling node replacements. Your services remain available during the update.
-</Info>
-
-### Stop Cluster
-
-Temporarily stop a cluster to reduce costs:
-
-<Steps>
-  <Step title="Stop Cluster">
-    Click **Actions** → **Stop Cluster**
-  </Step>
-
-  <Step title="Confirm">
-    Confirm the action. All services will be stopped.
-  </Step>
-</Steps>
-
-**What Happens**:
-- All running services are stopped gracefully
-- Nodes are terminated
-- Persistent data remains intact
-- Cloud costs reduced to storage only
-
-**To Restart**: Use **Actions** → **Start Cluster** to restore the cluster and redeploy services.
-
-<Tip>
-Stop development and staging clusters during off-hours to significantly reduce infrastructure costs.
-</Tip>
-
-### Delete Cluster
-
-Permanently remove a cluster and its resources:
+3. **Delete Qovery configuration only**: Keep cloud resources
+   - Removes Qovery management only
+   - Cloud infrastructure continues running
+   - Continue managing manually in cloud console
 
 <Warning>
-Cluster deletion is **permanent and irreversible**. All services, data, and configurations will be lost unless backed up separately.
+Cluster deletion is **permanent and irreversible**. Ensure you have backups before proceeding.
 </Warning>
 
-<Steps>
-  <Step title="Prepare for Deletion">
-    - Backup important data and configurations
-    - Export Terraform state if using IaC
-    - Document any custom configurations
-    - Stop all services (recommended)
-  </Step>
+#### Additional Actions
 
-  <Step title="Initiate Deletion">
-    Click **Actions** → **Delete Cluster**
-  </Step>
+**Audit Logs:**
+- Access complete cluster activity history
+- Track configuration changes and deployments
+- Available for compliance and troubleshooting
 
-  <Step title="Choose Deletion Mode">
-    Select one of the following:
+**Cluster ID:**
+- Retrieve unique cluster identifier
+- Required for API operations and support tickets
 
-    **Option 1: Delete Everything** (Recommended)
-    - Removes all Qovery-managed resources
-    - Deletes cloud provider infrastructure
-    - Complete cleanup with no residual costs
+**Kubeconfig:**
+- Download Kubernetes configuration file
+- Enable direct kubectl access
+- Use for advanced debugging and management
 
-    **Option 2: Keep Cloud Resources**
-    - Removes Qovery management only
-    - Keeps cloud infrastructure running
-    - Continue managing manually in cloud console
-  </Step>
+<Warning>
+**Security Best Practice**: Kubeconfig provides cluster-admin access. Store securely and never commit to version control.
+</Warning>
 
-  <Step title="Confirm Deletion">
-    Type the cluster name to confirm deletion
-  </Step>
-</Steps>
+## Logs
 
-**Deletion Process**:
-1. Stop all running services
-2. Delete Kubernetes workloads
-3. Terminate cluster nodes
-4. Remove load balancers and networking
-5. Delete persistent volumes (if selected)
-6. Clean up cloud provider resources
+Access cluster logs for troubleshooting and monitoring:
 
-<Tip>
-Before deletion, export your configuration using Qovery Terraform Provider or CLI for potential future recreation.
-</Tip>
-
-### View Logs
-
-Access cluster infrastructure logs for troubleshooting:
+1. Navigate to your cluster page
+2. Click **Logs** or **View Logs**
+3. Use the tab system to view:
+   - **Cluster Info**: General cluster information
+   - **Error Details**: Specific error messages and stack traces
 
 <Frame>
   <img src="/images/configuration/clusters/cluster_logs_access.png" alt="Access Cluster Logs" />
 </Frame>
 
-<Steps>
-  <Step title="Access Logs">
-    Click **Actions** → **View Logs**
-  </Step>
-
-  <Step title="Select Log Type">
-    Choose log category:
-    - **Infrastructure**: Cluster provisioning and management
-    - **Kubernetes**: K8s control plane events
-    - **Network**: Load balancer and ingress logs
-  </Step>
-
-  <Step title="Filter and Search">
-    - Filter by time range
-    - Search by keyword
-    - Filter by severity level
-  </Step>
-</Steps>
-
-**Successful Operations**:
+**Successful Operations:**
 
 <Frame>
   <img src="/images/configuration/clusters/ok-infra-logs.jpg" alt="Successful Cluster Logs" />
 </Frame>
 
-**Error Logs**:
+**Error Logs:**
 
 <Frame>
   <img src="/images/configuration/clusters/error-infra-logs.jpg" alt="Cluster Error Logs" />
 </Frame>
 
-### Access Kubeconfig
+## Custom Domain and Wildcard TLS (Beta)
 
-Download Kubernetes configuration for direct cluster access:
+By default, Qovery assigns a subdomain under `qovery.io` to your cluster services. However, Let's Encrypt rate limits may affect certificate issuance.
+
+To use your own custom domain with wildcard TLS certificates, Qovery supports **Cloudflare** integration.
+
+### Requirements
+
+- A domain managed by Cloudflare
+- Cloudflare API token with specific permissions
+
+### Setup Steps
 
 <Steps>
-  <Step title="Download Kubeconfig">
-    Click **Actions** → **Download Kubeconfig**
+  <Step title="Create Cloudflare API Token">
+    1. Log into your Cloudflare account
+    2. Go to **My Profile** → **API Tokens**
+    3. Click **Create Token**
+    4. Use the **Edit zone DNS** template or create a custom token
+    5. Grant these permissions:
+       - Zone → DNS → Edit
+       - Zone → Zone → Read
+    6. Set Zone Resources to include your domain
+    7. Create and copy the token
   </Step>
 
-  <Step title="Save Configuration">
-    Save the kubeconfig file:
-    ```bash
-    # Default location
-    mv ~/Downloads/kubeconfig ~/.kube/config
-
-    # Or specify custom location
-    export KUBECONFIG=~/path/to/kubeconfig
-    ```
+  <Step title="Configure in Qovery">
+    1. Navigate to your cluster settings
+    2. Find the **Custom Domain** section
+    3. Enter your domain (e.g., `example.com`)
+    4. Paste your Cloudflare API token
+    5. Save configuration
   </Step>
 
-  <Step title="Verify Access">
-    Test cluster access:
-    ```bash
-    kubectl cluster-info
-    kubectl get nodes
-    kubectl get pods --all-namespaces
-    ```
+  <Step title="Update DNS">
+    Qovery will provide DNS records to add to your Cloudflare account
   </Step>
 </Steps>
 
-<Warning>
-**Security Best Practices**:
-- Kubeconfig provides cluster-admin access
-- Never commit kubeconfig to version control
-- Store securely (use secret management tools)
-- Rotate credentials regularly
-- Use RBAC for team member access instead
-</Warning>
-
 <Info>
-Direct kubectl access should be used sparingly. Qovery Console provides safer interfaces for most operations. Use kubectl primarily for debugging or advanced scenarios not covered by the Console.
+This feature is currently in **Beta**. Additional DNS providers will be supported in future releases.
 </Info>
 
-## Kubernetes Version Management
+## AWS Account Cleanup
 
-### Current Version
+If cluster deletion fails or leaves resources behind, you can manually clean up using AWS Console tags.
 
-View your cluster's Kubernetes version in the cluster overview:
-
-**Version Information**:
-- **Current Version**: Currently running K8s version
-- **Latest Available**: Newest supported version
-- **End of Support**: When current version reaches EOL
-
-### Upgrade Process
-
-Qovery manages Kubernetes upgrades to ensure security and stability:
-
-**Managed Upgrade Benefits**:
-- Automated pre-upgrade health checks
-- Rolling node upgrades with zero downtime
-- Service health monitoring during upgrade
-- Automatic rollback on failure
-- Post-upgrade verification
+### Manual Cleanup Steps
 
 <Steps>
-  <Step title="Notification">
-    Qovery notifies you when new versions are available
+  <Step title="Open AWS Console">
+    Navigate to the [AWS Resource Groups & Tag Editor](https://console.aws.amazon.com/resource-groups/tag-editor)
   </Step>
 
-  <Step title="Review Release Notes">
-    Check Kubernetes changelog and breaking changes
+  <Step title="Search for Qovery Resources">
+    1. Select **All supported resource types**
+    2. Add tag filter: `ClusterId` or `QoveryCluster`
+    3. Search for resources
   </Step>
 
-  <Step title="Test in Staging">
-    Upgrade staging/development clusters first
-  </Step>
-
-  <Step title="Schedule Production Upgrade">
-    Choose low-traffic window for production upgrades
-  </Step>
-
-  <Step title="Monitor Upgrade">
-    Watch upgrade progress and service health
+  <Step title="Review and Delete">
+    1. Review the list of tagged resources
+    2. Manually delete each resource through AWS Console
+    3. Common resources to check:
+       - EC2 instances
+       - EKS clusters
+       - VPCs and networking components
+       - Load balancers
+       - EBS volumes
+       - Security groups
   </Step>
 </Steps>
-
-<Warning>
-**Never upgrade Kubernetes manually** through your cloud provider console. This can cause incompatibilities with Qovery components and service disruptions. Always use Qovery-managed upgrades.
-</Warning>
-
-### Version Support Policy
-
-**Qovery Support**:
-- Latest 3 Kubernetes minor versions fully supported
-- Security patches applied automatically
-- 3-month notice before version deprecation
-- Forced upgrades only after extended grace period
-
-**Example Timeline**:
-```
-Version 1.28 Released → Fully Supported (12 months)
-Version 1.29 Released → 1.28 still supported (9 months remaining)
-Version 1.30 Released → 1.28 supported (6 months remaining)
-Version 1.31 Released → 1.28 deprecated (upgrade recommended)
-Version 1.32 Released → 1.28 end-of-support (forced upgrade)
-```
-
-## Security and Compliance
-
-### Vulnerability Management
-
-Qovery provides comprehensive security monitoring:
-
-**Automated Security**:
-- Continuous vulnerability scanning
-- CVE database integration
-- Real-time security alerts
-- Severity classification (Critical, High, Medium, Low)
-
-**What's Monitored**:
-- Kubernetes control plane components
-- Node operating system packages
-- Container runtime
-- Cluster add-ons and plugins
-
-### Security Patching
-
-When vulnerabilities are detected:
-
-1. **Assessment**: Qovery evaluates impact and severity
-2. **Patch Preparation**: Security patches are tested
-3. **Notification**: Customers receive detailed advisories
-4. **Guided Remediation**: Step-by-step instructions provided
-5. **Automated Patching**: Critical issues auto-patched (optional)
-
-### Compliance Features
-
-**Security Capabilities**:
-- Network policies and isolation
-- RBAC and access controls
-- Audit logging
-- Secrets management
-- Image scanning
-- SOC 2 compliance
-
-<Info>
-Learn more about Qovery's security and compliance certifications in our [Security Overview](/security-and-compliance/overview).
-</Info>
-
-## Monitoring and Observability
-
-### Built-in Metrics
-
-Qovery provides cluster-level monitoring:
-
-**Infrastructure Metrics**:
-- Node CPU and memory utilization
-- Disk I/O and network throughput
-- Pod resource consumption
-- Control plane health
-
-**Accessing Metrics**:
-- Navigate to **Cluster** → **Monitoring**
-- Select time range (1h, 6h, 24h, 7d, 30d)
-- Analyze trends and identify bottlenecks
-
-### Alerting
-
-Configure alerts for cluster issues:
-
-**Alert Types**:
-- High CPU usage (>80%)
-- High memory usage (>85%)
-- Node unavailable
-- Disk space critical (less than 20%)
-- Control plane issues
-
-**Notification Channels**:
-- Email
-- Slack
-- Webhooks
-- PagerDuty
-- Custom integrations
-
-### External Observability
-
-Integrate with external monitoring solutions:
-
-<CardGroup cols={2}>
-  <Card title="Datadog" icon="chart-line" href="/integrations/observability/datadog">
-    Full-stack monitoring and APM
-  </Card>
-  <Card title="New Relic" icon="chart-area" href="/integrations/observability/new-relic">
-    Application performance monitoring
-  </Card>
-  <Card title="Qovery Observe" icon="magnifying-glass-chart" href="/guides/qovery-101/observe">
-    Qovery's native observability platform
-  </Card>
-  <Card title="Other Solutions" icon="plug" href="/integrations/observability/overview">
-    Prometheus, Grafana, and more
-  </Card>
-</CardGroup>
-
-## Multi-Cluster Management
-
-Manage multiple clusters across regions and cloud providers:
-
-### Common Patterns
-
-**Geographic Distribution**:
-```
-Cluster 1: AWS us-east-1 (Production - North America)
-Cluster 2: AWS eu-west-1 (Production - Europe)
-Cluster 3: AWS ap-southeast-1 (Production - Asia Pacific)
-```
-
-**Environment Separation**:
-```
-Cluster 1: Production (isolated, high availability)
-Cluster 2: Staging + QA
-Cluster 3: Development + Preview Environments
-```
-
-**Multi-Cloud Strategy**:
-```
-Cluster 1: AWS EKS (Primary)
-Cluster 2: GCP GKE (Disaster recovery)
-Cluster 3: Azure AKS (Region-specific compliance)
-```
-
-### Best Practices
-
-<AccordionGroup>
-  <Accordion title="Naming Conventions">
-    Use consistent, descriptive cluster names:
-    ```
-    Format: {environment}-{provider}-{region}
-    Examples:
-    - production-aws-us-east-1
-    - staging-gcp-europe-west1
-    - dev-scaleway-par1
-    ```
-  </Accordion>
-
-  <Accordion title="Cluster Tagging">
-    Tag clusters for organization and cost tracking:
-    - **Environment**: production, staging, development
-    - **Team**: backend, frontend, data
-    - **Cost Center**: engineering, operations
-    - **Purpose**: web-apps, ml-workloads, data-processing
-  </Accordion>
-
-  <Accordion title="Access Management">
-    Control cluster access with RBAC:
-    - Limit cluster-admin access
-    - Use team-based permissions
-    - Implement least-privilege access
-    - Audit access regularly
-  </Accordion>
-
-  <Accordion title="Cross-Cluster Networking">
-    For services spanning multiple clusters:
-    - Use VPC/VNet peering
-    - Implement service mesh (Istio, Linkerd)
-    - Configure cross-cluster DNS
-    - Set up global load balancing
-  </Accordion>
-</AccordionGroup>
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Right-Size Your Cluster" icon="gauge-high">
-    - Start with smaller instances
-    - Enable auto-scaling for flexibility
-    - Monitor utilization regularly
-    - Leave 30% capacity buffer for traffic spikes
-  </Card>
-
-  <Card title="Kubernetes Versions" icon="code-branch">
-    - Never manually upgrade from cloud console
-    - Stay within supported version range
-    - Upgrade non-production first
-    - Review release notes before upgrading
-  </Card>
-
-  <Card title="High Availability" icon="shield-check">
-    - Use minimum 3 nodes for production
-    - Enable multi-AZ/zone deployment
-    - Implement pod disruption budgets
-    - Test failover scenarios regularly
-  </Card>
-
-  <Card title="Cost Optimization" icon="piggy-bank">
-    - Right-size node instance types
-    - Use spot/preemptible instances where safe
-    - Stop dev/test clusters after hours
-    - Review and optimize resource requests
-  </Card>
-
-  <Card title="Security" icon="lock" href="/security-and-compliance/overview">
-    - Rotate kubeconfig credentials regularly
-    - Limit cluster-admin access
-    - Enable audit logging
-    - Review security advisories promptly
-  </Card>
-
-  <Card title="Monitoring" icon="chart-mixed" href="/configuration/monitoring">
-    - Set up critical alerts
-    - Review cluster health weekly
-    - Monitor costs and trends
-    - Document baseline performance
-  </Card>
-</CardGroup>
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Cluster Shows Warning Status">
-    **Symptoms**: Yellow warning indicator on cluster
-
-    **Common Causes**:
-    - One or more nodes unhealthy
-    - High resource utilization (>80%)
-    - Network connectivity issues
-    - Recent failed deployments
-
-    **Resolution Steps**:
-    1. Check cluster overview for specific warnings
-    2. Review node status: `kubectl get nodes`
-    3. Check resource utilization in monitoring
-    4. Review recent deployment logs
-    5. Restart unhealthy nodes if needed
-    6. Scale cluster if resources are constrained
-  </Accordion>
-
-  <Accordion title="Cluster Creation Failed">
-    **Common Issues**:
-    - Insufficient cloud provider quotas
-    - Invalid or expired credentials
-    - Region capacity limitations
-    - Network configuration errors
-    - Exceeded account limits
-
-    **Resolution**:
-    1. Check deployment logs for specific error message
-    2. Verify cloud credentials are valid and have permissions
-    3. Check quota limits in cloud provider console
-    4. Try alternative region or instance type
-    5. Contact Qovery support with cluster ID
-  </Accordion>
-
-  <Accordion title="Services Won't Deploy">
-    **Check**:
-    - Cluster status is Running (green)
-    - Sufficient CPU/memory available
-    - Image pull secrets configured
-    - No network policy conflicts
-    - Container registry accessible
-
-    **Debug Steps**:
-    ```bash
-    # Check cluster nodes
-    kubectl get nodes
-
-    # Check pod events
-    kubectl describe pod POD_NAME -n NAMESPACE
-
-    # Check resource availability
-    kubectl top nodes
-
-    # Check container logs
-    kubectl logs POD_NAME -n NAMESPACE
-    ```
-  </Accordion>
-
-  <Accordion title="Cannot Access with kubectl">
-    **Troubleshooting**:
-
-    1. **Verify kubeconfig**:
-       ```bash
-       kubectl cluster-info
-       ```
-
-    2. **Check kubectl version**:
-       ```bash
-       kubectl version --client
-       ```
-
-    3. **Test connectivity**:
-       ```bash
-       kubectl get nodes
-       ```
-
-    4. **Common errors**:
-       - `Unable to connect`: Check network/VPN connection
-       - `Unauthorized`: Download fresh kubeconfig from Qovery
-       - `Certificate expired`: Kubeconfig may need rotation
-
-    5. **Download fresh kubeconfig** from Qovery Console
-  </Accordion>
-
-  <Accordion title="Cluster Status Unavailable">
-    <Frame>
-      <img src="/images/configuration/clusters/cluster_status_unavailable.png" alt="Cluster Unavailable Status" />
-    </Frame>
-
-    **Symptoms**: Gray/unavailable status indicator
-
-    **Possible Causes**:
-    - Cloud provider outage
-    - Network connectivity lost
-    - Control plane issues
-    - Cluster manually modified outside Qovery
-
-    **Resolution**:
-    1. Check cloud provider status page
-    2. Verify cloud credentials haven't expired
-    3. Check Qovery status page
-    4. Review cluster logs in Qovery Console
-    5. Contact Qovery support if issue persists
-  </Accordion>
-
-  <Accordion title="High Cloud Costs">
-    **Cost Optimization Checklist**:
-
-    ✅ **Node Optimization**:
-    - Review instance types (downsize if possible)
-    - Enable auto-scaling to scale down during low usage
-    - Use spot/preemptible instances for non-critical workloads
-
-    ✅ **Resource Optimization**:
-    - Review application resource requests/limits
-    - Identify idle or underutilized services
-    - Delete unused persistent volumes
-
-    ✅ **Scheduling**:
-    - Stop dev/test clusters outside business hours
-    - Schedule non-critical batch jobs during off-peak
-
-    ✅ **Monitoring**:
-    - Enable cost allocation tags
-    - Review cloud provider cost explorer
-    - Set up budget alerts
-  </Accordion>
-</AccordionGroup>
-
-## Cloud Provider Cleanup
-
-If cluster deletion fails or leaves resources behind:
 
 <Frame>
-  <img src="/images/configuration/clusters/aws-console-cluster-cleanup.jpg" alt="Manual Cluster Cleanup in AWS Console" />
+  <img src="/images/configuration/clusters/aws-console-cluster-cleanup.jpg" alt="AWS Console Cleanup" />
 </Frame>
 
 <Warning>
-Manual cleanup should only be done if Qovery deletion fails. This can lead to orphaned resources or unexpected costs if not done carefully.
+Manual cleanup should only be performed if automatic Qovery deletion fails. Always verify resources before deletion to avoid data loss.
 </Warning>
 
-**Manual Cleanup Steps** (AWS Example):
-1. Delete EKS cluster in AWS Console
-2. Delete associated node groups
-3. Delete VPC and subnets (if dedicated)
-4. Delete load balancers
-5. Delete security groups
-6. Delete EBS volumes
-7. Verify all resources deleted to avoid lingering costs
+## FAQ
 
-<Info>
-For other cloud providers (GCP, Azure, Scaleway), refer to their respective console documentation for resource cleanup.
-</Info>
+<AccordionGroup>
+  <Accordion title="What is a cluster?">
+    A cluster is a group of computing resources (nodes) that work together to run your applications. Learn more in our [Basic Concepts](/basic-concepts) guide.
+  </Accordion>
+
+  <Accordion title="Why do I need a cluster?">
+    Clusters provide several key benefits:
+
+    - **Kubernetes orchestration**: Automatic container management, scaling, and healing
+    - **Disaster recovery**: Built-in redundancy and failover capabilities
+    - **Auto-scaling**: Automatically adjust resources based on demand
+    - **Environment isolation**: Separate development, staging, and production workloads
+    - **Multi-region deployment**: Deploy applications closer to your users
+  </Accordion>
+
+  <Accordion title="What instance types are available?">
+    Instance availability varies by cloud provider:
+
+    **AWS**: 400+ instance types available
+    - General purpose, compute optimized, memory optimized, storage optimized, GPU instances
+    - Supports both x86_64 and ARM architectures (Graviton)
+
+    **Scaleway**: Multiple instance ranges
+    - From cost-effective shared instances to dedicated high-performance options
+    - x86_64 architecture
+
+    **GCP**: GKE auto-pilot
+    - Fully managed node provisioning
+    - Automatic optimization based on workload requirements
+    - x86_64 architecture
+
+    **Azure**: Various VM series
+    - Multiple performance tiers and specialized workloads
+    - x86_64 architecture
+
+    <Info>
+    Architecture compatibility: Ensure your container images support your chosen architecture (x86_64 or ARM).
+    </Info>
+  </Accordion>
+
+  <Accordion title="How does Qovery handle Kubernetes upgrades?">
+    Qovery follows a careful upgrade process:
+
+    1. **Testing period**: Each new Kubernetes version undergoes 1 month of internal testing
+    2. **Rollout**: After testing, updates roll out to customers over 3 weeks
+    3. **Manual upgrades**: Option available for customers who want to upgrade immediately
+
+    <Warning>
+    **Never upgrade Kubernetes manually** through your cloud provider console. This can cause incompatibilities with Qovery components. Always use Qovery-managed upgrades.
+    </Warning>
+
+    You'll receive notifications when new versions are available for your clusters.
+  </Accordion>
+
+  <Accordion title="What happens when vulnerabilities are discovered?">
+    Security is our main concern. When vulnerabilities surface:
+
+    1. **Rapid identification**: Continuous monitoring of security databases
+    2. **Impact assessment**: Evaluate severity and affected systems
+    3. **Mitigation solutions**: Develop and test patches
+    4. **Customer communication**: Transparent notifications with recommended actions
+    5. **Deployment assistance**: Guided remediation process
+
+    Critical security patches may be applied automatically after customer notification.
+  </Accordion>
+
+  <Accordion title="What is a mirroring registry?">
+    A mirroring registry is a private container registry that caches images from public registries, providing:
+
+    - Faster image pulls (cached locally)
+    - Protection against rate limits
+    - Improved reliability and availability
+    - Better control over image versions
+
+    Learn more in our [Image Mirroring documentation](/configuration/deployment/image-mirroring).
+  </Accordion>
+
+  <Accordion title="Why does my cluster show 'unavailable' status?">
+    An unavailable status can occur due to:
+
+    **Common Causes:**
+    - Cluster manually stopped through cloud provider
+    - Cloud provider outage or service disruption
+    - Network connectivity issues
+    - Accidental deletion of critical resources
+    - Control plane issues
+
+    **Troubleshooting Steps:**
+    1. Check cloud provider status page for outages
+    2. Verify cluster hasn't been manually stopped in cloud console
+    3. Review Qovery cluster logs for error messages
+    4. Check cloud credentials are still valid
+    5. Contact Qovery support if issue persists
+
+    <Warning>
+    Always manage clusters through Qovery Console to avoid status inconsistencies. Manual changes in cloud provider consoles can cause unexpected behavior.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
 
 ## Next Steps
 
@@ -996,10 +369,10 @@ For other cloud providers (GCP, Azure, Scaleway), refer to their respective cons
   <Card title="Deploy Application" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
     Deploy your first application
   </Card>
-  <Card title="AWS EKS Integration" icon="aws" href="/integrations/kubernetes/eks/overview">
-    Learn more about AWS EKS clusters
+  <Card title="Configure Monitoring" icon="chart-line" href="/integrations/observability/qovery-observe">
+    Set up observability and monitoring
   </Card>
-  <Card title="Multi-Cluster Management" icon="server" href="/guides/use-cases/multi-kubernetes-clusters-management">
-    Advanced multi-cluster strategies
+  <Card title="Secure Your Cluster" icon="shield-check" href="/guides/qovery-101/secure">
+    Implement security best practices
   </Card>
 </CardGroup>

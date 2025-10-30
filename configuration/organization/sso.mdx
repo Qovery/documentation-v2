@@ -1,9 +1,9 @@
 ---
 title: "SSO (SAML/OIDC)"
-description: "Configure Single Sign-On authentication with your Identity Provider"
+description: "Configure Single Sign-On with your Identity Provider"
 ---
 
-Qovery allows you to configure a SAML or OIDC connection with your Identity Provider (IDP) for secure Single Sign-On authentication.
+Qovery allows you to configure a SAML or OIDC connection with your Identity Provider (IDP).
 
 ## How to Enable SSO
 
@@ -272,7 +272,7 @@ Qovery Role | Your IDP Groups
 
 This is the Qovery role that will be associated to your IDP users when they log in to Qovery.
 
-You can indicate either a [Qovery provided role](/configuration/organization/members-rbac#roles-based-access-control-rbac) or a [custom role](/configuration/organization/members-rbac#custom-roles):
+You can indicate either a [Qovery provided role](/configuration/organization/members-rbac) or a [custom role](/configuration/organization/members-rbac#custom-roles):
 
 <CodeGroup>
 
@@ -375,7 +375,7 @@ During the transition from classic SSO to SAML/OIDC authentication flow, you may
 
 ## Transfer Organization Ownership
 
-Don't forget to transfer your organization [ownership](/configuration/organization/members-rbac#transferring-organization-ownership) to the new user that will be using SAML/OIDC authentication flow.
+Don't forget to transfer your organization ownership to the new user that will be using SAML/OIDC authentication flow.
 
 <Steps>
   <Step title="Identify the New Owner">
@@ -390,23 +390,3 @@ Don't forget to transfer your organization [ownership](/configuration/organizati
     Progressively remove old users who were using classic SSO authentication.
   </Step>
 </Steps>
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Test Before Production" icon="flask">
-    Validate the authentication flow in a test environment before enabling it for all users.
-  </Card>
-
-  <Card title="Plan the Migration" icon="calendar">
-    Create a migration plan with your team to transition from classic SSO to SAML/OIDC.
-  </Card>
-
-  <Card title="Configure Group Sync" icon="users">
-    Use group synchronization to automate role assignment based on your IDP groups.
-  </Card>
-
-  <Card title="Monitor Access" icon="shield-check">
-    Regularly review user access and group mappings to ensure proper security controls.
-  </Card>
-</CardGroup>

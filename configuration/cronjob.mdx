@@ -1,504 +1,153 @@
 ---
 title: "Cron Jobs"
-description: "Schedule and manage periodic workloads on Qovery using Kubernetes CronJobs"
+description: "Schedule and manage periodic workloads on Qovery"
 ---
-
-Cron Jobs in Qovery are Kubernetes workloads that run on a regular schedule. They are perfect for executing periodic tasks such as data synchronization, batch processing, database maintenance, report generation, and automated backups.
 
 ## Overview
 
-A Cron Job is a time-based job scheduler that runs tasks at specified intervals. Unlike applications that run continuously, Cron Jobs execute, complete their work, and terminate until the next scheduled run.
+Cron Jobs in Qovery are Kubernetes workloads that run on a regular schedule. They are perfect for recurring tasks such as pulling data from external services periodically or processing accumulated data.
 
 **Common Use Cases**:
-- Pull data from external APIs periodically
+- Pull data from external APIs at regular intervals
 - Process and transform database data
-- Generate and send scheduled reports
-- Clean up old records and logs
+- Generate scheduled reports
+- Clean up old records
 - Perform database backups
 - Run maintenance scripts
-- Execute batch processing tasks
-- Sync data between systems
+
+## Deployment Sources
+
+Qovery supports two deployment sources for Cron Jobs:
+
+### Git Repository
+
+Qovery pulls your code from a Git repository, builds the application, and deploys it to your Kubernetes cluster.
+
+**Supported Providers**: GitHub, GitLab, Bitbucket
+
+### Container Registry
+
+Qovery pulls a pre-built container image from your configured registry and deploys it to your Kubernetes cluster.
+
+<Warning>
+The tag `latest` is not supported. Please use a specific tag for container images.
+</Warning>
 
 ## Creating a Cron Job
 
 <Steps>
-  <Step title="Navigate to Your Environment">
-    Go to your project and select the environment where you want to deploy the Cron Job
+  <Step title="Select Source">
+    Choose **Git Repository** or **Container Registry** as your deployment source
   </Step>
 
-  <Step title="Add Cron Job">
-    Click **Create** and select **Cron Job** from the service types
+  <Step title="Configure Source">
+    **For Git Repository**:
+    - Select Git provider
+    - Choose repository
+    - Select branch
+    - Specify root path (if not at repository root)
+    - Configure Dockerfile path
 
-    <Frame>
-      <img src="/images/configuration/cronjob/service_creation.png" alt="Create Cron Job Service" />
-    </Frame>
+    **For Container Registry**:
+    - Select configured registry
+    - Enter image name
+    - Specify image tag (not `latest`)
   </Step>
 
-  <Step title="Configure General Settings">
-    - **Name**: Unique identifier for your Cron Job
-    - **Source**: Choose Git Repository or Container Registry
+  <Step title="Configure Job Settings">
+    - **CRON Schedule**: Define when the job should run
+    - **Timezone**: Set timezone for schedule
+    - **Entrypoint**: Override container entrypoint (optional)
+    - **CMD Arguments**: Provide command arguments (optional)
+    - **Restart Policy**: Configure failure handling
+    - **Max Duration**: Set execution timeout
+    - **Port**: Configure if job exposes a port (optional)
   </Step>
 
-  <Step title="Set Schedule">
-    Configure the CRON schedule and timezone for your job execution
+  <Step title="Configure Resources">
+    - **vCPU**: Default 500m (0.5 cores)
+    - **RAM**: Default 512MB
   </Step>
 
-  <Step title="Deploy">
-    Review your configuration and click **Create** to deploy the Cron Job
+  <Step title="Environment Variables">
+    Configure environment variables for your job
+  </Step>
 
-    <Frame>
-      <img src="/images/configuration/cronjob/cronjob_recap.png" alt="Cron Job Configuration Recap" />
-    </Frame>
+  <Step title="Review and Deploy">
+    Review configuration and click **Create** to deploy
   </Step>
 </Steps>
 
-## General Configuration
+## Configuration
 
-### Name and Description
+### General Settings
 
 **Name**: Unique identifier for your Cron Job within the environment
-- Must be unique within the environment
-- Use descriptive names (e.g., `daily-report-generator`, `hourly-data-sync`)
-- Cannot be changed after creation
 
-**Description** (Optional): Document the purpose of your Cron Job
-- What task does it perform?
-- What data does it process?
-- Any special considerations?
+**Source Configuration**:
+- Git: Provider, repository, branch, root path, Dockerfile
+- Registry: Image name and specific tag
 
-## Source Configuration
+### Job Configuration
 
-<Tabs>
-  <Tab title="Git Repository">
-    ### Deploy from Git Repository
-
-    Deploy your Cron Job from source code in a Git repository:
-
-    **Git Settings**:
-    - **Git Provider**: Select your provider (GitHub, GitLab, Bitbucket)
-    - **Repository**: Choose the repository containing your job code
-    - **Branch**: Select the branch to deploy from (e.g., `main`, `production`)
-    - **Root Path**: Path to the application root (leave empty if at repository root)
-
-    **Build Configuration**:
-    - **Dockerfile Path**: Path to Dockerfile (default: `Dockerfile` at root)
-    - **Build Arguments**: Pass build-time variables to Docker build
-    - **Target**: For multi-stage Dockerfiles, specify target stage
-
-    **Example Dockerfile**:
-    ```dockerfile
-    FROM python:3.11-slim
-
-    WORKDIR /app
-
-    # Install dependencies
-    COPY requirements.txt .
-    RUN pip install --no-cache-dir -r requirements.txt
-
-    # Copy application code
-    COPY . .
-
-    # Run the job script
-    CMD ["python", "job.py"]
-    ```
-
-    <Info>
-    Your repository should contain all necessary code and a Dockerfile that defines how to build and run your job.
-    </Info>
-  </Tab>
-
-  <Tab title="Container Registry">
-    ### Deploy from Container Registry
-
-    Deploy a pre-built container image as your Cron Job:
-
-    **Registry Settings**:
-    - **Container Registry**: Select configured registry
-    - **Image Name**: Full image path (e.g., `myorg/data-processor`)
-    - **Image Tag**: Specific version to deploy (e.g., `v1.2.3`, `latest`)
-
-    **Supported Registries**:
-    - Docker Hub
-    - AWS ECR
-    - Google Container Registry (GCR)
-    - Azure Container Registry (ACR)
-    - GitHub Container Registry
-    - GitLab Container Registry
-    - Private registries
-
-    <Tip>
-    Always use specific image tags instead of `latest` for production Cron Jobs to ensure predictable behavior and easier troubleshooting.
-    </Tip>
-  </Tab>
-</Tabs>
-
-## Job Configuration
-
-### CRON Schedule
-
+**CRON Schedule**:
 Define when your job should run using CRON syntax:
 
-**CRON Format**:
 ```
 * * * * *
 │ │ │ │ │
-│ │ │ │ └── Day of week (0-7, 0 and 7 are Sunday)
+│ │ │ │ └── Day of week (0-7)
 │ │ │ └──── Month (1-12)
 │ │ └────── Day of month (1-31)
 │ └──────── Hour (0-23)
 └────────── Minute (0-59)
 ```
 
-**Common Schedule Examples**:
+**Common Examples**:
+- `*/5 * * * *` - Every 5 minutes
+- `0 * * * *` - Every hour
+- `0 0 * * *` - Daily at midnight
+- `0 2 * * 0` - Weekly on Sunday at 2 AM
 
-| Schedule | CRON Expression | Description |
-|----------|----------------|-------------|
-| Every minute | `* * * * *` | Runs every minute (testing only) |
-| Every 5 minutes | `*/5 * * * *` | Runs every 5 minutes |
-| Every 15 minutes | `*/15 * * * *` | Runs every 15 minutes |
-| Every hour | `0 * * * *` | Runs at minute 0 of every hour |
-| Every 6 hours | `0 */6 * * *` | Runs at 00:00, 06:00, 12:00, 18:00 |
-| Daily at midnight | `0 0 * * *` | Runs every day at 00:00 |
-| Daily at 3 AM | `0 3 * * *` | Runs every day at 03:00 |
-| Weekly (Monday 2 AM) | `0 2 * * 1` | Runs every Monday at 02:00 |
-| Monthly (1st at midnight) | `0 0 1 * *` | Runs on the 1st of each month |
-| Weekdays at 9 AM | `0 9 * * 1-5` | Runs Mon-Fri at 09:00 |
-| Weekend mornings | `0 8 * * 0,6` | Runs Sat-Sun at 08:00 |
+**Timezone**:
+Set the timezone for your CRON schedule (default: UTC)
 
-**Advanced Examples**:
-```bash
-# Every 30 minutes during business hours (9 AM - 5 PM)
-*/30 9-17 * * 1-5
+**Entrypoint**:
+Override the default container entrypoint if needed
 
-# First and 15th of every month at midnight
-0 0 1,15 * *
+**CMD Arguments**:
+Provide command-line arguments to pass to the container
 
-# Every quarter hour from 8 AM to 6 PM on weekdays
-*/15 8-18 * * 1-5
+**Restart Policy**:
+- **Never**: Job runs once per schedule (recommended for Cron Jobs)
+- **OnFailure**: Automatically restart if job fails
 
-# Every 2 hours on weekdays
-0 */2 * * 1-5
-```
+**Max Duration**:
+Maximum execution time before the job is terminated (in seconds)
 
-<Warning>
-Be careful with frequent schedules. Running jobs every minute can consume significant resources and may not be necessary for most use cases.
-</Warning>
+**Port**:
+Configure if your job exposes a port for health checks
 
-### Timezone Configuration
+### Resources
 
-Set the timezone for your CRON schedule:
+- **vCPU**: CPU allocation in millicores (default: 500m)
+- **Memory**: RAM allocation (default: 512MB)
 
-**Default**: UTC
+### Health Checks
 
-**Popular Timezones**:
-- `UTC` - Coordinated Universal Time
-- `America/New_York` - Eastern Time (US)
-- `America/Los_Angeles` - Pacific Time (US)
-- `America/Chicago` - Central Time (US)
-- `Europe/London` - British Time
-- `Europe/Paris` - Central European Time
-- `Asia/Tokyo` - Japan Time
-- `Asia/Singapore` - Singapore Time
-- `Australia/Sydney` - Australian Eastern Time
+Configure optional health checks:
+- **Liveness Probe**: Determines if container should be restarted
+- **Readiness Probe**: Determines if container is ready to execute
 
-**Example Configuration**:
-```yaml
-Schedule: 0 9 * * *
-Timezone: America/New_York
-# Job runs every day at 9:00 AM Eastern Time
-```
+### Deployment Restrictions
 
-<Info>
-Choose the timezone that matches your business requirements. UTC is recommended for globally distributed teams.
-</Info>
-
-### Image Entrypoint
-
-Override the default container entrypoint:
-
-**Default Behavior**: Uses entrypoint defined in Dockerfile
-
-**Custom Entrypoint Examples**:
-```bash
-# Python script
-/usr/local/bin/python
-
-# Shell script
-/bin/bash
-
-# Custom binary
-/app/bin/processor
-
-# Node.js application
-/usr/local/bin/node
-```
-
-**When to Override**:
-- Run a specific binary in the container
-- Use a different interpreter
-- Execute a shell wrapper script
-- Run multiple commands with a script
-
-### CMD Arguments
-
-Provide command arguments to your container:
-
-**Default Behavior**: Uses CMD defined in Dockerfile
-
-**Argument Examples**:
-
-<CodeGroup>
-```bash Python Script
-/app/scripts/process_data.py --mode batch --verbose
-```
-
-```bash Shell Script
-/app/scripts/backup.sh --database production --compress
-```
-
-```bash Node.js
-/app/index.js --env production --task cleanup
-```
-
-```bash Custom Binary
---config /etc/config.yaml --log-level info
-```
-</CodeGroup>
-
-**Combining Entrypoint and CMD**:
-```yaml
-Entrypoint: /bin/bash
-CMD: -c "python /app/job.py && echo Job completed"
-```
-
-### Restart Policy
-
-Configure what happens if the job fails:
-
-**Never** (Recommended for Cron Jobs):
-- Job runs once per schedule
-- Failed jobs are not automatically restarted
-- Manual intervention required for failures
-- Best for idempotent jobs
-
-**OnFailure**:
-- Automatically restart if job exits with non-zero code
-- Useful for jobs that may have transient failures
-- Set max retries to avoid infinite loops
-- Use for jobs that should complete successfully
-
-<Warning>
-Using `OnFailure` restart policy with Cron Jobs can lead to overlapping executions if the job takes longer than the schedule interval. Use with caution.
-</Warning>
-
-### Max Duration
-
-Set maximum execution time for your job:
-
-**Default**: No limit (not recommended)
-
-**Configuration**:
-```yaml
-Max Duration: 3600  # 1 hour in seconds
-```
-
-**Recommended Durations by Job Type**:
-- Quick tasks (API calls, simple queries): 300s (5 minutes)
-- Data processing: 1800s (30 minutes)
-- Batch operations: 3600s (1 hour)
-- Large ETL jobs: 7200s (2 hours)
-- Database maintenance: 3600-7200s (1-2 hours)
-
-**What Happens on Timeout**:
-- Job is forcefully terminated
-- Status marked as failed
-- Logs indicate timeout occurred
-- No partial state cleanup (implement in job code)
-
-<Tip>
-Always set a max duration to prevent runaway jobs from consuming resources indefinitely. Choose a duration 2x your expected runtime.
-</Tip>
-
-## Resource Configuration
-
-Configure compute resources allocated to your Cron Job:
-
-### vCPU Allocation
-
-**Default**: 500m (0.5 CPU cores)
-
-**CPU Units**:
-- Measured in millicores (m)
-- 1000m = 1 full CPU core
-- 500m = 0.5 CPU core
-- 2000m = 2 CPU cores
-
-**Recommended by Job Type**:
-
-| Job Type | CPU | Use Case |
-|----------|-----|----------|
-| Light (API calls) | 100-250m | Simple HTTP requests, status checks |
-| Standard (data processing) | 500m-1000m | CSV processing, data transformation |
-| CPU-intensive | 1000m-4000m | Image processing, encryption, compression |
-| Heavy batch | 2000m+ | Large-scale data processing, ML inference |
-
-### Memory Allocation
-
-**Default**: 512MB
-
-**Memory Units**: MB (Megabytes)
-
-**Recommended by Job Type**:
-
-| Job Type | Memory | Use Case |
-|----------|--------|----------|
-| Light | 256MB | Simple scripts, API calls |
-| Standard | 512MB-1GB | Data processing, report generation |
-| Memory-intensive | 1-4GB | Large dataset processing, caching |
-| Heavy | 4GB+ | ML models, big data processing |
-
-**Memory Management Tips**:
-- Monitor actual usage and adjust accordingly
-- Add 20-30% buffer for unexpected spikes
-- Process large datasets in chunks
-- Use streaming instead of loading everything into memory
-
-<Warning>
-If your job exceeds memory limits, it will be terminated with an OOM (Out of Memory) error. Monitor memory usage and increase limits if needed.
-</Warning>
-
-### Example Resource Configurations
-
-<AccordionGroup>
-  <Accordion title="Light Job - API Data Sync">
-    ```yaml
-    vCPU: 250m
-    Memory: 256MB
-    Max Duration: 300s
-    Schedule: */15 * * * *  # Every 15 minutes
-    ```
-    Pulls data from external API and writes to database.
-  </Accordion>
-
-  <Accordion title="Standard Job - Daily Report">
-    ```yaml
-    vCPU: 500m
-    Memory: 512MB
-    Max Duration: 1800s
-    Schedule: 0 6 * * *  # Daily at 6 AM
-    ```
-    Queries database, generates report, sends via email.
-  </Accordion>
-
-  <Accordion title="Heavy Job - Data Processing">
-    ```yaml
-    vCPU: 2000m
-    Memory: 4096MB
-    Max Duration: 3600s
-    Schedule: 0 2 * * *  # Daily at 2 AM
-    ```
-    Processes large CSV files, transforms data, loads to warehouse.
-  </Accordion>
-
-  <Accordion title="Weekly Maintenance">
-    ```yaml
-    vCPU: 1000m
-    Memory: 2048MB
-    Max Duration: 7200s
-    Schedule: 0 3 * * 0  # Sunday at 3 AM
-    ```
-    Database cleanup, index optimization, backup verification.
-  </Accordion>
-</AccordionGroup>
-
-## Environment Variables
-
-Configure environment variables for your Cron Job:
-
-### Built-in Variables
-
-Qovery automatically injects useful variables:
-
-```bash
-# Job information
-QOVERY_JOB_ID=<job-uuid>
-QOVERY_JOB_NAME=daily-sync
-QOVERY_ENVIRONMENT_ID=<env-uuid>
-QOVERY_PROJECT_ID=<project-uuid>
-
-# Service connections (if database "main-db" exists)
-QOVERY_DATABASE_MAIN_DB_HOST=postgres.internal
-QOVERY_DATABASE_MAIN_DB_PORT=5432
-QOVERY_DATABASE_MAIN_DB_USERNAME=user
-QOVERY_DATABASE_MAIN_DB_PASSWORD=<secret>
-QOVERY_DATABASE_MAIN_DB_DATABASE=mydb
-QOVERY_DATABASE_MAIN_DB_CONNECTION_URI=postgresql://user:pass@host:5432/mydb
-```
-
-### Custom Variables
-
-Add custom environment variables:
-
-<Steps>
-  <Step title="Navigate to Variables">
-    Click on your Cron Job → **Environment Variables** section
-  </Step>
-
-  <Step title="Add Variable">
-    - **Key**: Variable name (e.g., `API_KEY`, `BATCH_SIZE`)
-    - **Value**: Variable value
-    - **Type**: Variable or Secret
-    - **Scope**: Service, Environment, or Project
-
-    <Frame>
-      <img src="/images/configuration/cronjob/variables.png" alt="Cron Job Environment Variables" />
-    </Frame>
-  </Step>
-
-  <Step title="Use in Job">
-    Access variables in your job code:
-
-    <CodeGroup>
-    ```python Python
-    import os
-
-    api_key = os.environ.get('API_KEY')
-    batch_size = int(os.environ.get('BATCH_SIZE', '100'))
-    db_url = os.environ['QOVERY_DATABASE_MAIN_DB_CONNECTION_URI']
-    ```
-
-    ```javascript Node.js
-    const apiKey = process.env.API_KEY;
-    const batchSize = parseInt(process.env.BATCH_SIZE || '100');
-    const dbUrl = process.env.QOVERY_DATABASE_MAIN_DB_CONNECTION_URI;
-    ```
-
-    ```bash Bash
-    API_KEY="${API_KEY}"
-    BATCH_SIZE="${BATCH_SIZE:-100}"
-    DB_URL="${QOVERY_DATABASE_MAIN_DB_CONNECTION_URI}"
-    ```
-    </CodeGroup>
-  </Step>
-</Steps>
-
-<Tip>
-Use **Secrets** for sensitive data like API keys, passwords, and tokens. Secrets are encrypted and never displayed in logs.
-</Tip>
+Control when deployments should be triggered:
+- **File path filters**: Deploy only when specific files change
+- **Branch filters**: Deploy only from specific branches
 
 ## Force Run
 
-Manually trigger a Cron Job outside its schedule:
-
-### When to Use Force Run
-
-- Test job configuration before scheduling
-- Run job on-demand for urgent tasks
-- Debug job issues
-- Backfill data after fixing a bug
-- Execute maintenance outside normal schedule
-
-### How to Force Run
+Manually trigger a Cron Job execution outside its schedule:
 
 <Steps>
   <Step title="Navigate to Job">
@@ -509,14 +158,8 @@ Manually trigger a Cron Job outside its schedule:
     Click the **Play** button or **Force Run** action
   </Step>
 
-  <Step title="Confirm Execution">
-    Confirm you want to run the job immediately
-  </Step>
-
   <Step title="Monitor Execution">
-    - View real-time logs as job executes
-    - Check job status and duration
-    - Verify successful completion
+    View real-time logs and verify successful completion
   </Step>
 </Steps>
 
@@ -524,203 +167,9 @@ Manually trigger a Cron Job outside its schedule:
 Force Run executions do not affect the regular schedule. The job will still run at its next scheduled time.
 </Info>
 
-## Configuration Sections
+## Clone Service
 
-<Frame>
-  <img src="/images/configuration/cronjob/settings.png" alt="Cron Job Settings" />
-</Frame>
-
-### General Section
-
-- **Name**: Job identifier
-- **Description**: Documentation
-- **Source Type**: Git or Container Registry
-- **Source Configuration**: Repository/Image details
-
-### Job Configuration Section
-
-- **CRON Schedule**: Execution timing
-- **Timezone**: Schedule timezone
-- **Entrypoint**: Container entrypoint override
-- **CMD Arguments**: Command arguments
-- **Restart Policy**: Failure handling
-- **Max Duration**: Execution timeout
-
-### Resources Section
-
-- **vCPU**: CPU allocation in millicores
-- **Memory**: RAM allocation in MB
-- **Storage**: Persistent volumes (if needed)
-
-### Health Checks Section
-
-Configure health checks for long-running jobs:
-
-**Liveness Probe**:
-- Ensures job container is responsive
-- Restarts container if check fails
-- Optional for short-lived jobs
-
-**Readiness Probe**:
-- Determines if job is ready to execute
-- Useful for jobs with initialization phase
-
-<Note>
-Health checks are optional for Cron Jobs. They're more relevant for continuously running applications.
-</Note>
-
-### Environment Variables Section
-
-- Built-in Qovery variables
-- Custom variables
-- Secrets management
-- Variable scoping (service, environment, project)
-
-## Advanced Settings
-
-<AccordionGroup>
-  <Accordion title="Concurrency Policy">
-    Control what happens if a new job starts while previous one is still running:
-
-    **Allow**:
-    - Multiple instances can run simultaneously
-    - Use for independent, stateless jobs
-    - Risk of resource contention
-
-    **Forbid**:
-    - Skip new run if previous job still running
-    - Prevents overlapping executions
-    - Recommended for most use cases
-
-    **Replace**:
-    - Stop previous run and start new one
-    - Use for jobs that should always run latest schedule
-    - May leave partial state
-
-    **Example**:
-    ```yaml
-    # Job takes 45 minutes, runs every 30 minutes
-    Schedule: */30 * * * *
-    Concurrency: Forbid  # Skip if still running
-    ```
-  </Accordion>
-
-  <Accordion title="Success/Failure History">
-    Configure how many completed jobs to keep:
-
-    ```yaml
-    Successful Jobs History: 3
-    Failed Jobs History: 5
-    ```
-
-    **Benefits**:
-    - Debug failed jobs
-    - Audit job execution
-    - Review logs from past runs
-
-    **Cleanup**:
-    - Old job history is automatically deleted
-    - Reduces cluster storage usage
-  </Accordion>
-
-  <Accordion title="Suspend Job">
-    Temporarily disable job execution:
-
-    - Job remains configured but won't run on schedule
-    - Force Run still works
-    - Useful for maintenance or debugging
-    - Enable again when ready to resume
-
-    **Use Cases**:
-    - Temporarily disable problematic job
-    - Maintenance window for target system
-    - Testing environment changes
-  </Accordion>
-</AccordionGroup>
-
-## Deployment Restrictions
-
-Control when and how your Cron Job can be deployed:
-
-**File Paths**:
-- Only deploy if specific files changed
-- Example: Deploy only if `jobs/` directory changed
-- Useful for monorepos with multiple jobs
-
-**Example**:
-```
-jobs/daily-sync/**
-config/job-config.yaml
-```
-
-**Branches**:
-- Restrict deployment to specific branches
-- Example: Only deploy from `main` or `production`
-
-<Tip>
-Use deployment restrictions to avoid unnecessary deployments and save build time in monorepo setups.
-</Tip>
-
-## Monitoring and Logging
-
-### Viewing Job Logs
-
-<Steps>
-  <Step title="Navigate to Logs">
-    Click on your Cron Job → **Logs** tab
-  </Step>
-
-  <Step title="Select Execution">
-    - View logs from latest run
-    - Select specific historical execution
-    - Filter by success/failure
-  </Step>
-
-  <Step title="Analyze Logs">
-    - Real-time log streaming during execution
-    - Search and filter log content
-    - Download logs for offline analysis
-    - Share logs with team members
-  </Step>
-</Steps>
-
-### Job Execution History
-
-Track all job executions:
-
-**Available Information**:
-- Execution start and end time
-- Duration
-- Status (Success, Failed, Timeout)
-- Resource usage
-- Logs and error messages
-
-**Filtering**:
-- By date range
-- By status
-- By duration
-- By triggered by (scheduled vs manual)
-
-### Alerts and Notifications
-
-Set up alerts for job failures:
-
-- Webhook notifications
-- Email alerts
-- Slack/Discord integration
-- PagerDuty integration
-
-<Info>
-Configure alerts in your organization settings or use Qovery webhooks to send notifications to your preferred system.
-</Info>
-
-## Cloning Cron Jobs
-
-Duplicate a Cron Job with its configuration:
-
-<Frame>
-  <img src="/images/configuration/cronjob/app-1.png" alt="Cron Job Actions" />
-</Frame>
+Duplicate a Cron Job configuration to the same or different environment:
 
 <Steps>
   <Step title="Select Job">
@@ -729,324 +178,43 @@ Duplicate a Cron Job with its configuration:
 
   <Step title="Clone Job">
     Click **Actions** → **Clone**
-
-    <Frame>
-      <img src="/images/configuration/cronjob/clone_service.png" alt="Clone Cron Job" />
-    </Frame>
   </Step>
 
   <Step title="Configure Clone">
-    - **New Name**: Unique name for cloned job
-    - **Target Environment**: Same or different environment
-    - **Copy Settings**: Schedule, resources, variables
-  </Step>
-
-  <Step title="Adjust Configuration">
-    Modify schedule, resources, or variables as needed for the new job
+    - New name for cloned job
+    - Target environment
+    - Settings to copy
   </Step>
 </Steps>
 
-**Use Cases**:
-- Create similar jobs for different environments
-- Test configuration changes safely
-- Run same job with different schedules
-- Deploy to multiple regions
+## Delete Cron Job
 
-## Best Practices
+To delete a Cron Job:
 
-<CardGroup cols={2}>
-  <Card title="Scheduling" icon="clock">
-    - Use specific schedules, avoid frequent executions
-    - Consider timezone for business hours
-    - Stagger multiple jobs to avoid resource contention
-    - Set realistic max duration with buffer
-  </Card>
+1. Navigate to the Cron Job settings
+2. Click the three-dot menu → **Delete**
+3. Confirm deletion
 
-  <Card title="Resource Management" icon="gauge">
-    - Monitor actual resource usage
-    - Set appropriate CPU and memory limits
-    - Use specific image tags, not `latest`
-    - Implement graceful shutdown logic
-  </Card>
+<Warning>
+Deleting a Cron Job is permanent and cannot be undone.
+</Warning>
 
-  <Card title="Error Handling" icon="triangle-exclamation">
-    - Implement retry logic in your code
-    - Use appropriate restart policies
-    - Log all errors with context
-    - Set up failure alerts
-  </Card>
-
-  <Card title="Idempotency" icon="arrows-rotate">
-    - Design jobs to be safely re-runnable
-    - Handle partial completion gracefully
-    - Use transactions for database operations
-    - Track processing state externally
-  </Card>
-
-  <Card title="Data Management" icon="database">
-    - Process data in chunks for large datasets
-    - Clean up temporary files after execution
-    - Use streaming for large file processing
-    - Implement checkpointing for long jobs
-  </Card>
-
-  <Card title="Security" icon="lock">
-    - Store sensitive data in secrets
-    - Use least-privilege access
-    - Validate input data
-    - Audit job execution history
-  </Card>
-</CardGroup>
-
-## Common Patterns
-
-### Data Synchronization Job
-
-```python
-# sync_data.py
-import os
-import requests
-from sqlalchemy import create_engine
-
-def sync_data():
-    # Get configuration from environment
-    api_key = os.environ['API_KEY']
-    db_url = os.environ['QOVERY_DATABASE_MAIN_DB_CONNECTION_URI']
-
-    # Connect to database
-    engine = create_engine(db_url)
-
-    # Fetch data from API
-    response = requests.get(
-        'https://api.example.com/data',
-        headers={'Authorization': f'Bearer {api_key}'}
-    )
-    data = response.json()
-
-    # Process and store data
-    with engine.begin() as conn:
-        for record in data:
-            conn.execute(
-                "INSERT INTO records (id, value) VALUES (%s, %s) "
-                "ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value",
-                (record['id'], record['value'])
-            )
-
-    print(f"Synced {len(data)} records successfully")
-
-if __name__ == '__main__':
-    sync_data()
-```
-
-**Configuration**:
-```yaml
-Schedule: */15 * * * *  # Every 15 minutes
-vCPU: 250m
-Memory: 512MB
-Max Duration: 300s
-```
-
-### Daily Report Generation
-
-```javascript
-// generate_report.js
-const { Client } = require('pg');
-const nodemailer = require('nodemailer');
-
-async function generateReport() {
-  // Connect to database
-  const client = new Client({
-    connectionString: process.env.QOVERY_DATABASE_MAIN_DB_CONNECTION_URI
-  });
-  await client.connect();
-
-  // Query data
-  const result = await client.query(`
-    SELECT date, sum(revenue) as total
-    FROM sales
-    WHERE date >= CURRENT_DATE - INTERVAL '7 days'
-    GROUP BY date
-    ORDER BY date
-  `);
-
-  // Generate report
-  const report = generateReportHTML(result.rows);
-
-  // Send email
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD
-    }
-  });
-
-  await transporter.sendMail({
-    from: 'reports@company.com',
-    to: process.env.REPORT_RECIPIENTS,
-    subject: 'Daily Sales Report',
-    html: report
-  });
-
-  await client.end();
-  console.log('Report sent successfully');
-}
-
-generateReport().catch(console.error);
-```
-
-**Configuration**:
-```yaml
-Schedule: 0 8 * * *  # Daily at 8 AM
-Timezone: America/New_York
-vCPU: 500m
-Memory: 1024MB
-Max Duration: 600s
-```
-
-### Database Cleanup Job
-
-```bash
-#!/bin/bash
-# cleanup.sh
-
-set -e  # Exit on error
-
-echo "Starting database cleanup..."
-
-# Connect to database
-export PGPASSWORD="${QOVERY_DATABASE_MAIN_DB_PASSWORD}"
-PSQL="psql -h ${QOVERY_DATABASE_MAIN_DB_HOST} \
-          -p ${QOVERY_DATABASE_MAIN_DB_PORT} \
-          -U ${QOVERY_DATABASE_MAIN_DB_USERNAME} \
-          -d ${QOVERY_DATABASE_MAIN_DB_DATABASE}"
-
-# Delete old records
-DELETED=$($PSQL -t -c "
-  DELETE FROM logs
-  WHERE created_at < NOW() - INTERVAL '30 days';
-  SELECT count(*);
-")
-
-echo "Deleted $DELETED old log records"
-
-# Vacuum database
-$PSQL -c "VACUUM ANALYZE logs;"
-
-echo "Cleanup completed successfully"
-```
-
-**Configuration**:
-```yaml
-Schedule: 0 2 * * 0  # Sunday at 2 AM
-vCPU: 500m
-Memory: 512MB
-Max Duration: 3600s
-```
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Job Never Executes">
-    **Check**:
-    - CRON schedule syntax is correct
-    - Job is not suspended
-    - Timezone is configured correctly
-    - Job has been deployed successfully
-
-    **Verify Schedule**:
-    Use online CRON expression testers to verify your schedule:
-    - https://crontab.guru
-    - Check next scheduled run time in Qovery console
-  </Accordion>
-
-  <Accordion title="Job Times Out">
-    **Solutions**:
-    - Increase max duration
-    - Optimize job code for better performance
-    - Process data in smaller chunks
-    - Use more resources (CPU/memory)
-    - Consider splitting into multiple jobs
-
-    **Debug**:
-    - Check logs for slow operations
-    - Profile code to find bottlenecks
-    - Monitor resource usage during execution
-  </Accordion>
-
-  <Accordion title="Job Fails Repeatedly">
-    **Investigate**:
-    - Check job logs for error messages
-    - Verify environment variables are set correctly
-    - Test database/API connectivity
-    - Ensure sufficient resources allocated
-    - Check for external service outages
-
-    **Test Locally**:
-    ```bash
-    # Run job container locally
-    docker run --env-file .env myimage:tag
-
-    # Check exit code
-    echo $?  # 0 = success, non-zero = failure
-    ```
-  </Accordion>
-
-  <Accordion title="Job Runs Overlap">
-    **Solutions**:
-    - Set concurrency policy to "Forbid"
-    - Increase max duration if jobs are legitimately slow
-    - Reduce schedule frequency
-    - Optimize job performance
-    - Implement distributed locking in job code
-
-    **Concurrency Control**:
-    ```python
-    # Example: Use database lock
-    with engine.begin() as conn:
-        conn.execute("SELECT pg_advisory_lock(12345)")
-        try:
-            # Do job work
-            process_data()
-        finally:
-            conn.execute("SELECT pg_advisory_unlock(12345)")
-    ```
-  </Accordion>
-
-  <Accordion title="Out of Memory Errors">
-    **Solutions**:
-    - Increase memory allocation
-    - Process data in chunks instead of loading all at once
-    - Use streaming for large files
-    - Implement pagination for API calls
-    - Profile memory usage to find leaks
-
-    **Chunk Processing Example**:
-    ```python
-    # Instead of this (loads all in memory):
-    data = fetch_all_data()
-    process(data)
-
-    # Do this (processes in chunks):
-    for chunk in fetch_data_in_chunks(size=1000):
-        process(chunk)
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## Next Steps
+## Related Resources
 
 <CardGroup cols={2}>
   <Card title="Lifecycle Jobs" icon="rotate" href="/configuration/lifecycle-job">
     Run jobs triggered by environment lifecycle events
   </Card>
+
   <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
     Manage configuration and secrets for your jobs
   </Card>
-  <Card title="Deployment Logs" icon="file-lines" href="/deployment/logs">
-    Monitor and troubleshoot job executions
-  </Card>
-  <Card title="Container Registry" icon="box" href="/integration/container-registry">
+
+  <Card title="Container Registry" icon="box" href="/configuration/organization/container-registry">
     Configure registries for container-based jobs
+  </Card>
+
+  <Card title="Advanced Settings" icon="sliders" href="/configuration/service-advanced-settings">
+    Configure advanced job options
   </Card>
 </CardGroup>

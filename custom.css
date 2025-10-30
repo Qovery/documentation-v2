@@ -41,18 +41,18 @@ html[data-page-mode="custom"] article > div {
 /* Fix card icon sizes for product logos */
 .card-icon img,
 .card img[src*="/logos/"] {
-  max-width: 36px !important;
-  max-height: 36px !important;
-  width: 36px !important;
-  height: 36px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
   background: transparent !important;
 }
 
 /* Ensure icons maintain aspect ratio */
 [class*="CardIcon"] img,
 [class*="card-icon"] img {
-  max-width: 36px !important;
-  max-height: 36px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
   object-fit: contain !important;
   background: transparent !important;
 }
@@ -60,10 +60,10 @@ html[data-page-mode="custom"] article > div {
 /* Ensure Scaleway icon matches other cloud provider icon sizes */
 img[src*="/scaleway-icon"],
 [class*="Card"] img[src*="/scaleway-icon"] {
-  max-width: 36px !important;
-  max-height: 36px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
   width: auto !important;
-  height: 36px !important;
+  height: 20px !important;
   object-fit: contain !important;
 }
 
@@ -113,8 +113,7 @@ html:not([class*="dark"]):not([data-theme="dark"]) .dark-mode-only {
   height: 20px;
   max-height: 20px;
   width: auto;
-  margin-right: 8px;
-  margin-bottom: 4px;
+  margin-left: 8px;
   vertical-align: middle;
   object-fit: contain;
 }
@@ -343,8 +342,7 @@ html[data-theme="dark"] .raci-legend {
   display: inline-block;
   height: 20px;
   width: auto;
-  margin-right: 8px;
-  margin-bottom: 4px;
+  margin-left: 8px;
   vertical-align: middle;
 }
 
@@ -352,8 +350,7 @@ html[data-theme="dark"] .raci-legend {
   display: none;
   height: 20px;
   width: auto;
-  margin-right: 8px;
-  margin-bottom: 4px;
+  margin-left: 8px;
   vertical-align: middle;
 }
 
@@ -373,9 +370,9 @@ html[data-theme="dark"] .badge-icon-aws-dark {
   display: inline-block;
   height: 20px;
   max-height: 20px;
-  width: auto;
-  margin-right: 8px;
-  margin-bottom: 4px;
+  width: 20px;
+  max-width: 20px;
+  margin-left: 8px;
   vertical-align: middle;
   object-fit: contain;
 }
@@ -384,9 +381,9 @@ html[data-theme="dark"] .badge-icon-aws-dark {
   display: none;
   height: 20px;
   max-height: 20px;
-  width: auto;
-  margin-right: 8px;
-  margin-bottom: 4px;
+  width: 20px;
+  max-width: 20px;
+  margin-left: 8px;
   vertical-align: middle;
   object-fit: contain;
 }

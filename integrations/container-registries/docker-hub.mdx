@@ -1,57 +1,109 @@
 ---
-title: "Docker Hub Integration"
+title: "Docker Hub"
 description: "Connect Docker Hub with Qovery"
 ---
 
-<Info>
-**Detailed integration guide coming soon**
+## Overview
 
-This page will include:
-- Docker Hub authentication
-- Rate limit considerations
-- Public vs private repository access
-- Access token management
-- Best practices
-</Info>
+Docker Hub is the world's largest container image registry, hosting millions of container images. You can connect Docker Hub to Qovery to deploy both public and private images.
 
-## Quick Setup
-
-### Registry URL
+## Registry URL
 
 ```
 https://index.docker.io/v1/
 ```
 
-### Authentication
+## Authentication
 
-Use Docker Hub username and access token (recommended) or password.
+Docker Hub supports two authentication methods:
+- **Access Token** (recommended for security)
+- **Password** (not recommended)
 
-## Configuration Steps
+<Warning>
+Use Docker Hub access tokens instead of passwords for better security and easier management.
+</Warning>
+
+## Configuration in Qovery
 
 <Steps>
   <Step title="Create Access Token">
-    In Docker Hub, go to Account Settings → Security → New Access Token
+    1. Log into [Docker Hub](https://hub.docker.com)
+    2. Go to **Account Settings** → **Security**
+    3. Click **New Access Token**
+    4. Give it a description and set permissions
+    5. Click **Generate** and copy the token
+
+    <Note>
+    Docker Hub shows the token only once. Save it securely.
+    </Note>
   </Step>
 
-  <Step title="Add Registry in Qovery">
-    Organization Settings → Container Registries → Add Registry
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries** in Qovery
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
   </Step>
 
   <Step title="Select Docker Hub">
-    Choose "Docker Hub" from the list
+    Choose **Docker Hub** from the registry type dropdown
   </Step>
 
   <Step title="Enter Credentials">
-    - Username: Your Docker Hub username
-    - Password: Access token (not your password)
+    Provide:
+    - **Username**: Your Docker Hub username
+    - **Password**: Access token (not your Docker Hub password)
   </Step>
 
   <Step title="Save">
-    Registry is now connected
+    Qovery will verify the credentials and save the configuration
   </Step>
 </Steps>
 
-## Resources
+## Rate Limits
 
-- [Docker Hub Documentation](https://docs.docker.com/docker-hub/)
-- [Container Registry Overview](/integrations/container-registries/overview)
+Docker Hub has rate limits for image pulls:
+- **Anonymous users**: 100 pulls per 6 hours
+- **Authenticated users**: 200 pulls per 6 hours
+- **Paid accounts**: Higher limits based on plan
+
+<Info>
+Authenticating with Docker Hub increases your rate limit and is recommended even for public images.
+</Info>
+
+## Image Format
+
+**Public images**:
+```
+<username>/<image-name>:<tag>
+```
+
+**Official images**:
+```
+<image-name>:<tag>
+```
+
+Examples:
+- `nginx:latest`
+- `mycompany/myapp:v1.0.0`
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="GitHub Container Registry" icon="github" href="/integrations/container-registries/github-cr">
+    Alternative container registry option
+  </Card>
+
+  <Card title="Generic Registry" icon="server" href="/integrations/container-registries/generic">
+    Connect any Docker-compatible registry
+  </Card>
+</CardGroup>

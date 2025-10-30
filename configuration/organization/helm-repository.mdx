@@ -1,13 +1,11 @@
 ---
 title: "Helm Repository"
-description: "Manage Helm repositories for your organization"
+description: "Manage Helm chart repositories for your organization"
 ---
 
 ## Overview
 
-<img src="/images/logos/helm-icon.svg" alt="Helm" class="helm-icon" /> Helm repositories allow you to store and manage Helm charts that can be deployed in your Qovery environments. By connecting Helm repositories to your organization, you can deploy applications using charts from public or private Helm repositories.
-
-Qovery supports both traditional HTTP-based Helm repositories and modern OCI-based registries, giving you flexibility in how you manage and distribute your Helm charts.
+Helm repositories allow you to store and manage Helm charts that can be deployed across your organization. Configure repositories once at the organization level to make charts available for all projects and environments.
 
 ![Helm Repository Management](/images/configuration/organization/helm_repository_1.png)
 
@@ -15,74 +13,47 @@ Qovery supports both traditional HTTP-based Helm repositories and modern OCI-bas
 
 Qovery supports the following Helm repository types:
 
-### HTTP-Based Repositories
-- **ChartMuseum** (self-hosted)
-- **Artifactory** (JFrog)
-- **Nexus** (Sonatype)
-- **Harbor**
-- **Public Helm repositories** (like Bitnami, Grafana, etc.)
+- **HTTP** (standard Helm repositories)
+- **OCI_ECR** (AWS Elastic Container Registry - Private)
+- **OCI_SCALEWAY** (Scaleway Container Registry)
+- **OCI_DOCKER_HUB** (Docker Hub)
+- **OCI_PUBLIC_ECR** (AWS Elastic Container Registry - Public)
+- **OCI_GENERIC_CR** (Generic OCI registry)
+- **OCI_GITHUB_CR** (GitHub Container Registry)
+- **OCI_GITLAB_CR** (GitLab Container Registry)
 
-### OCI-Based Registries
-- **AWS ECR** (Elastic Container Registry)
-- **Google Artifact Registry**
-- **Azure Container Registry**
-- **GitHub Container Registry (GHCR)**
-- **Harbor** (with OCI support)
-- **GitLab Container Registry**
-- **Docker Hub** (with OCI support)
-
-## Accessing Helm Repository Settings
+## Create a Helm Repository
 
 <Steps>
-  <Step title="Open Organization Settings">
-    Click the "Wheel" button (⚙️) on the left navigation bar
-
-    ![How to access your organization settings](/images/configuration/organization/access_settings.png)
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Helm Repositories**
   </Step>
 
-  <Step title="Navigate to Helm Repository Section">
-    Open the `Helm Repository` section within the organization settings
+  <Step title="Add Repository">
+    Click the **Add** button to create a new Helm repository connection
 
-    ![Helm Repository list](/images/configuration/organization/helm_repository_1.png)
-  </Step>
-</Steps>
-
-## Create a New Helm Repository
-
-<Steps>
-  <Step title="Click Add Button">
-    Press the `Add` button to create a new Helm repository connection
-  </Step>
-
-  <Step title="Select Repository Type">
-    Choose your repository type:
-    - **HTTP/HTTPS**: Traditional Helm repository
-    - **OCI**: OCI-based container registry
-
-    ![Helm Repository Creation Form](/images/configuration/organization/helm_repository_creation.png)
+    ![Helm Repository Creation](/images/configuration/organization/helm_repository_creation.png)
   </Step>
 
   <Step title="Configure Repository">
-    Provide the required information based on your repository type:
+    Provide the required information:
+    - **Name**: Descriptive name for the repository
+    - **Description**: (Optional) Brief description
+    - **Kind**: Select repository type (HTTP or OCI variant)
+    - **URL**: Repository URL
+    - **Credentials**: (Optional) Username and password if required
 
-    **For HTTP/HTTPS Repositories:**
-    - **Name**: Descriptive name for this repository (e.g., "Bitnami Charts", "Company Internal")
-    - **URL**: Repository URL (e.g., `https://charts.bitnami.com/bitnami`)
-    - **Skip TLS Verification**: Enable if using self-signed certificates
-    - **Authentication** (if required):
-      - Username: Repository username
-      - Password: Repository password or token
-
-    **For OCI Repositories:**
-    - **Name**: Descriptive name for this repository
-    - **Registry URL**: OCI registry URL (e.g., `oci://registry-1.docker.io`, `oci://public.ecr.aws`)
-    - **Authentication** (if required):
-      - Username: Registry username
-      - Password: Registry password or token
+    <Info>
+    If a Helm repository is public, you don't need to fill in credentials.
+    </Info>
   </Step>
 
-  <Step title="Test Connection">
-    Qovery will automatically test the connection to verify accessibility
+  <Step title="Optional Settings">
+    **Skip TLS Verification**: Enable this option if you're using self-signed certificates
+
+    <Note>
+    This is equivalent to the `--insecure-skip-tls-verify` Helm argument.
+    </Note>
   </Step>
 
   <Step title="Save Repository">
@@ -94,353 +65,37 @@ Qovery supports the following Helm repository types:
 Once added, the Helm repository will be available for all projects and environments in your organization.
 </Info>
 
-## Edit a Helm Repository
+## Modify an Existing Repository
 
-<Steps>
-  <Step title="Locate Repository">
-    Find the repository you want to modify in the Helm Repository list
-  </Step>
+To edit a Helm repository:
 
-  <Step title="Click Edit Button">
-    Click the **Edit** button next to the repository
+1. Locate the repository in the Helm Repositories list
+2. Click the **Edit** button (wheel icon)
+3. Update repository details as needed
+4. Save changes
 
-    ![Edit Helm Repository](/images/configuration/organization/helm_repository_edit.png)
-  </Step>
-
-  <Step title="Update Configuration">
-    Modify the repository details such as:
-    - Name
-    - URL or registry address
-    - Credentials (username, password, or token)
-    - TLS verification settings
-  </Step>
-
-  <Step title="Save Changes">
-    Click **Save** to apply your changes
-  </Step>
-</Steps>
+![Edit Helm Repository](/images/configuration/organization/helm_repository_edit.png)
 
 <Warning>
-Updating repository credentials will affect all Helm charts being deployed from this repository. Ensure new credentials are valid before saving.
+Updating repository credentials will affect all Helm services deployed from this repository. Verify credentials before saving.
 </Warning>
 
 ## Delete a Helm Repository
 
 To remove a Helm repository:
 
-1. Locate the repository in the Helm Repository list
-2. Click the **Delete** button (trash icon) next to the repository
-3. Confirm the deletion
+1. Locate the repository in the list
+2. Click the **Delete** button (trash icon)
+3. Confirm deletion
 
 <Warning>
-If any Helm services are currently deployed from this repository, deletion may prevent updates or redeployments. Update those services to use a different repository before deletion.
+Before deleting a repository, make sure there are no Helm services within your organization using charts stored in this repository. Deletion may prevent updates or redeployments of affected services.
 </Warning>
-
-## Using Helm Repositories
-
-Once a repository is configured, you can deploy Helm charts from it:
-
-### Deploying a Helm Chart
-
-When creating a Helm service in Qovery:
-
-1. Select "Helm" as the service type
-2. Choose the Helm repository from the configured list
-3. Select the chart name
-4. Specify the chart version
-5. Provide custom values (values.yaml overrides)
-
-### Chart Versioning
-
-Qovery supports:
-- **Specific versions**: Deploy exact chart version (e.g., `1.2.3`)
-- **Version ranges**: Use semantic versioning ranges (e.g., `~1.2.0`, `^1.0.0`)
-- **Latest**: Always deploy the latest available version
-
-<Note>
-For production environments, it's recommended to pin specific chart versions rather than using version ranges or "latest".
-</Note>
-
-## Repository-Specific Configurations
-
-### Public Helm Repositories
-
-Popular public Helm repositories:
-
-```
-# Bitnami
-https://charts.bitnami.com/bitnami
-
-# Grafana
-https://grafana.github.io/helm-charts
-
-# Prometheus Community
-https://prometheus-community.github.io/helm-charts
-
-# Ingress NGINX
-https://kubernetes.github.io/ingress-nginx
-
-# Cert Manager
-https://charts.jetstack.io
-
-# ArgoCD
-https://argoproj.github.io/argo-helm
-```
-
-These repositories typically don't require authentication.
-
-### AWS ECR (OCI)
-
-For storing Helm charts in AWS ECR:
-
-1. Enable OCI support in your ECR repository
-2. Push charts using `helm push`:
-   ```bash
-   helm push my-chart-1.0.0.tgz oci://123456789012.dkr.ecr.us-east-1.amazonaws.com/helm-charts
-   ```
-3. In Qovery, configure as OCI repository:
-   - **Registry URL**: `oci://123456789012.dkr.ecr.us-east-1.amazonaws.com`
-   - **Username**: AWS access key ID
-   - **Password**: AWS secret access key
-
-### Google Artifact Registry (OCI)
-
-For storing Helm charts in Google Artifact Registry:
-
-1. Create an Artifact Registry repository with format "Docker"
-2. Push charts using `helm push`:
-   ```bash
-   helm push my-chart-1.0.0.tgz oci://us-central1-docker.pkg.dev/my-project/helm-charts
-   ```
-3. In Qovery, configure as OCI repository:
-   - **Registry URL**: `oci://us-central1-docker.pkg.dev/my-project/helm-charts`
-   - **Username**: `_json_key`
-   - **Password**: Service account JSON key content
-
-### Azure Container Registry (OCI)
-
-For storing Helm charts in Azure Container Registry:
-
-1. Push charts using `helm push`:
-   ```bash
-   helm push my-chart-1.0.0.tgz oci://myregistry.azurecr.io/helm-charts
-   ```
-2. In Qovery, configure as OCI repository:
-   - **Registry URL**: `oci://myregistry.azurecr.io`
-   - **Username**: Service principal ID or registry username
-   - **Password**: Service principal password or registry password
-
-### GitHub Container Registry (OCI)
-
-For storing Helm charts in GHCR:
-
-1. Push charts using `helm push`:
-   ```bash
-   helm push my-chart-1.0.0.tgz oci://ghcr.io/myorg/helm-charts
-   ```
-2. In Qovery, configure as OCI repository:
-   - **Registry URL**: `oci://ghcr.io/myorg`
-   - **Username**: GitHub username
-   - **Password**: GitHub personal access token with `read:packages` scope
-
-### Harbor
-
-Harbor supports both HTTP and OCI protocols:
-
-**HTTP Mode:**
-- **URL**: `https://harbor.example.com/chartrepo/library`
-- Authentication: Harbor username and password
-
-**OCI Mode:**
-- **Registry URL**: `oci://harbor.example.com/library`
-- Authentication: Harbor username and password
-
-### ChartMuseum (Self-Hosted)
-
-For self-hosted ChartMuseum:
-
-- **URL**: `https://charts.company.com`
-- **Authentication**: Basic auth if configured
-- **Skip TLS**: Enable if using self-signed certificates
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Use Private Repositories for Internal Charts">
-    Store your organization's custom charts in private Helm repositories:
-    - Better security and access control
-    - Version control for your charts
-    - Easier collaboration within your team
-  </Accordion>
-
-  <Accordion title="Pin Chart Versions in Production">
-    Always use specific chart versions in production:
-    - Predictable deployments
-    - Easier rollback if issues occur
-    - Avoid unexpected breaking changes
-    - Test version updates in staging first
-  </Accordion>
-
-  <Accordion title="Use OCI for Modern Helm Workflows">
-    Consider using OCI-based registries:
-    - Single registry for both container images and Helm charts
-    - Better integration with existing container registries
-    - Improved security and authentication
-    - Better support in modern tooling
-  </Accordion>
-
-  <Accordion title="Organize Repositories by Purpose">
-    Create separate repository connections for:
-    - Public charts (Bitnami, Grafana, etc.)
-    - Internal production charts
-    - Development/testing charts
-    - Third-party vendor charts
-  </Accordion>
-
-  <Accordion title="Use Descriptive Names">
-    Name repositories clearly to indicate their purpose:
-    - `bitnami-public-charts`
-    - `company-internal-production`
-    - `harbor-dev-charts`
-    - `aws-ecr-microservices`
-  </Accordion>
-
-  <Accordion title="Document Custom Values">
-    For internal charts, maintain documentation:
-    - Required values and their purposes
-    - Optional values and defaults
-    - Example values.yaml files
-    - Integration requirements
-  </Accordion>
-
-  <Accordion title="Regular Repository Audits">
-    Periodically review your Helm repositories:
-    - Remove unused repositories
-    - Update credentials before expiration
-    - Check for deprecated charts
-    - Verify chart sources are still maintained
-  </Accordion>
-</AccordionGroup>
-
-## Chart Management
-
-### Viewing Available Charts
-
-After adding a repository, you can:
-1. Browse available charts when creating a Helm service
-2. View chart versions and their release notes
-3. See chart metadata and descriptions
-
-### Updating Charts
-
-When a new chart version is available:
-1. Edit your Helm service in Qovery
-2. Update the chart version
-3. Review and update values if needed
-4. Deploy the update
-
-### Values Override
-
-Customize chart deployments with values overrides:
-```yaml
-# Override default values
-replicaCount: 3
-
-image:
-  repository: myregistry.com/myapp
-  tag: "1.2.3"
-
-resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
-  requests:
-    cpu: 250m
-    memory: 256Mi
-
-ingress:
-  enabled: true
-  hosts:
-    - host: myapp.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-```
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Cannot Connect to Repository">
-    **Problem**: Repository connection test fails
-
-    **Solutions**:
-    - Verify the URL is correct and accessible
-    - For OCI: Ensure URL starts with `oci://`
-    - For HTTP: Verify the URL includes the full path
-    - Check credentials are correct
-    - For self-hosted: Verify firewall rules and network access
-    - Try accessing the repository URL from your browser (for HTTP)
-  </Accordion>
-
-  <Accordion title="Authentication Failed">
-    **Problem**: Cannot authenticate with the repository
-
-    **Solutions**:
-    - Verify username and password/token are correct
-    - Check if credentials have expired
-    - For OCI registries: Ensure token has proper scopes
-    - For cloud providers: Verify IAM permissions
-    - Try authenticating with Helm CLI to test credentials
-  </Accordion>
-
-  <Accordion title="Chart Not Found">
-    **Problem**: Cannot find specific chart in repository
-
-    **Solutions**:
-    - Verify the chart name is correct
-    - Check if the chart exists in the repository using Helm CLI
-    - For OCI: Ensure the full path includes the chart name
-    - Refresh the repository index
-    - Check if the repository has been updated recently
-  </Accordion>
-
-  <Accordion title="TLS Certificate Errors">
-    **Problem**: TLS verification fails for self-hosted repositories
-
-    **Solutions**:
-    - Enable "Skip TLS Verification" option temporarily
-    - Install proper TLS certificates on your Helm repository
-    - Ensure certificate chain is complete
-    - Check if certificate has expired
-    - Use Let's Encrypt for production repositories
-  </Accordion>
-
-  <Accordion title="Chart Version Not Available">
-    **Problem**: Specific chart version cannot be found
-
-    **Solutions**:
-    - Verify the version exists in the repository
-    - Check if the repository index is up to date
-    - Try listing available versions with Helm CLI
-    - Ensure version format is correct (e.g., 1.2.3, not v1.2.3)
-  </Accordion>
-
-  <Accordion title="OCI Registry Path Issues">
-    **Problem**: Cannot pull charts from OCI registry
-
-    **Solutions**:
-    - Verify OCI URL format: `oci://registry.com/path`
-    - Don't include chart name in the registry URL
-    - For ECR: Include full registry path
-    - For Artifact Registry: Include project and repository
-    - Test with Helm CLI: `helm pull oci://registry.com/path/chart --version 1.0.0`
-  </Accordion>
-</AccordionGroup>
 
 ## Related Resources
 
 <CardGroup cols={2}>
-  <Card title="Helm Services" icon="/images/logos/helm-icon-light.svg" href="/configuration/helm">
+  <Card title="Helm Services" href="/configuration/helm">
     Deploy applications using Helm charts
   </Card>
 
@@ -452,7 +107,7 @@ ingress:
     Manage cloud provider credentials
   </Card>
 
-  <Card title="Applications" href="/configuration/applications">
-    Deploy containerized applications
+  <Card title="Git Repository Access" href="/configuration/organization/git-repository-access">
+    Configure Git repository access
   </Card>
 </CardGroup>

@@ -1,673 +1,209 @@
 ---
 title: "Production Environment Management"
-description: "Manage production environments with high availability, monitoring, and disaster recovery"
+description: "Manage production environments with Qovery"
 ---
 
 ## Overview
 
-Managing production environments requires robust infrastructure, high availability, security, and comprehensive monitoring. Qovery provides enterprise-grade features to ensure your production workloads run reliably and securely.
-
-<Info>
-**Production-Ready**: Qovery is designed for production workloads with features like zero-downtime deployments, auto-scaling, disaster recovery, and 24/7 monitoring.
-</Info>
+Managing production environments requires robust infrastructure, high availability, security, and comprehensive monitoring. Qovery provides the tools and features to ensure your production workloads run reliably and securely.
 
 ## Prerequisites
 
 <Warning>
-**Cluster Required**: Before following this guide, you need a Kubernetes cluster. This is the foundation for your production environment.
+**Production Cluster Required**: Before following this guide, you need a Kubernetes cluster flagged as **Production** in Qovery.
 </Warning>
 
 **Don't have a cluster yet?**
 
-Choose your deployment option:
-
 <CardGroup cols={2}>
   <Card title="Managed Cluster (Recommended)" icon="cloud" href="/quickstart/cloud">
-    Let Qovery provision and manage your Kubernetes cluster on AWS, GCP, Azure, or Scaleway
-
-    **Time:** ~30 minutes | **Maintenance:** Qovery handles it
+    Let Qovery provision and manage your production-grade Kubernetes cluster on AWS, GCP, Azure, or Scaleway
   </Card>
 
   <Card title="Bring Your Own Cluster (BYOK)" icon="server" href="/integrations/kubernetes/byok">
-    Connect your existing Kubernetes cluster or create your own
-
-    **Time:** ~20 minutes | **Maintenance:** You handle it
+    Connect your existing Kubernetes cluster
   </Card>
 </CardGroup>
 
-**Already have a cluster connected to Qovery?** Continue with this guide below.
+<Info>
+When creating your cluster:
+- Flag it as **Production** environment type
+- Use production-grade instance types (minimum 2 vCPU, 8GB RAM)
+- Enable multi-AZ deployment for high availability
+</Info>
 
 ## Key Production Features
 
 <CardGroup cols={2}>
-  <Card title="High Availability" icon="server">
+  <Card title="High Availability" icon="server" href="/configuration/clusters">
     Multi-AZ deployment with automatic failover
   </Card>
 
-  <Card title="Zero-Downtime Deployments" icon="rotate">
-    Rolling updates with health checks
+  <Card title="Auto-Scaling" icon="chart-line" href="/configuration/application#auto-scaling">
+    Horizontal pod autoscaling based on CPU/memory
   </Card>
 
-  <Card title="Auto-Scaling" icon="chart-line">
-    Horizontal and vertical scaling based on metrics
+  <Card title="Monitoring & Logs" icon="chart-mixed" href="/guides/qovery-101/observe">
+    Built-in observability with Prometheus, Thanos, and Loki
   </Card>
 
-  <Card title="Disaster Recovery" icon="life-ring">
-    Automated backups and point-in-time recovery
-  </Card>
-
-  <Card title="Security & Compliance" icon="shield">
-    SOC 2, GDPR, HIPAA, DORA compliant
-  </Card>
-
-  <Card title="Monitoring & Alerts" icon="bell">
-    Real-time monitoring with alerting
+  <Card title="Security & Compliance" icon="shield" href="/security-and-compliance/overview">
+    SOC 2, GDPR compliant infrastructure
   </Card>
 </CardGroup>
 
 ## Production Setup
 
-### 1. Infrastructure Configuration
+### 1. Application Configuration
 
-<Steps>
-  <Step title="Choose Production-Grade Cluster">
-    Select appropriate instance types and enable multi-AZ deployment
+Deploy your application and configure it for production.
 
-    **Recommended Configuration**:
-    - **AWS EKS**: t3.large or larger (minimum 2 vCPU, 8GB RAM)
-    - **GCP GKE**: n2-standard-2 or larger
-    - **Azure AKS**: Standard_D2s_v3 or larger
-    - **Multi-AZ**: Enable for high availability
-  </Step>
+<Card title="Deploy Your First Application" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+  Follow the guide to deploy your application to production
+</Card>
 
-  <Step title="Configure Network Security">
-    Set up VPC, security groups, and network policies
+**Production application settings**:
+- Enable **Auto-Scaling** to handle traffic spikes
+- Set appropriate **resource limits** (CPU and memory)
+- Configure **health checks** (liveness and readiness probes)
+- Set up **custom domains** with SSL/TLS
 
-    ```yaml
-    # Example network policy
-    apiVersion: networking.k8s.io/v1
-    kind: NetworkPolicy
-    metadata:
-      name: production-network-policy
-    spec:
-      podSelector:
-        matchLabels:
-          env: production
-      policyTypes:
-      - Ingress
-      - Egress
-      ingress:
-      - from:
-        - podSelector:
-            matchLabels:
-              env: production
-    ```
-  </Step>
+### 2. Database Configuration
 
-  <Step title="Enable SSL/TLS">
-    Configure automatic SSL certificates for all public endpoints
+Configure your production database with backups and high availability.
 
-    - Automatic Let's Encrypt certificates
-    - Custom SSL certificate support
-    - TLS 1.2+ enforcement
-    - HSTS enabled
-  </Step>
+<Card title="Connect Database" icon="database" href="/guides/getting-started/connect-database">
+  Follow the guide to set up and connect your database
+</Card>
 
-  <Step title="Set Up Monitoring">
-    Configure observability tools and alerting
+**Production database recommendations**:
+- Use **Managed** mode for automatic backups and maintenance
+- Enable **Multi-AZ** for high availability (cloud provider feature)
+- Configure backup retention via your cloud provider
+- Use strong passwords and restrict access
 
-    - Application metrics
-    - Infrastructure metrics
-    - Log aggregation
-    - Alert notifications (Slack, PagerDuty, email)
-  </Step>
-</Steps>
+### 3. Environment Variables & Secrets
 
-### 2. Application Configuration
+Securely manage your production configuration.
 
-<Tabs>
-  <Tab title="High Availability">
-    **Replicas and Distribution**:
-    ```yaml
-    # Configure in Qovery Console or via API
-    instances:
-      min: 3
-      max: 10
+<Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+  Configure variables and secrets for your applications
+</Card>
 
-    # Pod Anti-Affinity for zone distribution
-    affinity:
-      podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchLabels:
-              app: my-app
-          topologyKey: topology.kubernetes.io/zone
-    ```
+**Best practices**:
+- Use **Secrets** type for sensitive data (passwords, API keys)
+- Never commit secrets to Git
+- Use environment-specific variables
+- Consider [Doppler integration](/integrations/secret-managers/doppler) for advanced secret management
 
-    **Health Checks**:
-    - Liveness probe: Check if container is running
-    - Readiness probe: Check if container can serve traffic
-    - Startup probe: Check if application has started
-  </Tab>
+### 4. Access Control
 
-  <Tab title="Resource Management">
-    **Resource Limits**:
-    ```yaml
-    resources:
-      requests:
-        cpu: 1000m
-        memory: 2Gi
-      limits:
-        cpu: 2000m
-        memory: 4Gi
-    ```
+Configure role-based access control for your team.
 
-    **Auto-Scaling**:
-    - CPU-based scaling (target 70% CPU)
-    - Memory-based scaling
-    - Custom metrics scaling
-    - Scheduled scaling for known traffic patterns
-  </Tab>
+<Card title="RBAC Configuration" icon="user-lock" href="/configuration/organization/members-rbac">
+  Set up roles and permissions for your organization
+</Card>
 
-  <Tab title="Deployment Strategy">
-    **Rolling Update Configuration**:
-    ```yaml
-    strategy:
-      type: RollingUpdate
-      rollingUpdate:
-        maxSurge: 1
-        maxUnavailable: 0
-    ```
-
-    **Deployment Options**:
-    - **Blue/Green**: Deploy to new environment, switch traffic
-    - **Canary**: Gradual rollout to subset of users
-    - **Rolling**: Replace pods gradually (default)
-
-    **Rollback Strategy**:
-    - Automatic rollback on health check failure
-    - Manual rollback to previous version
-    - Version history retained (last 10 deployments)
-  </Tab>
-</Tabs>
-
-### 3. Database Configuration
-
-<AccordionGroup>
-  <Accordion title="Production Database Setup" icon="database">
-    **Managed Database Requirements**:
-    - Enable automated backups (daily minimum)
-    - Multi-AZ for high availability
-    - Point-in-time recovery enabled
-    - Encryption at rest and in transit
-    - Strong password policies
-    - Connection pooling
-
-    **Recommended Settings**:
-    ```yaml
-    # PostgreSQL example
-    database:
-      type: postgresql
-      version: "15"
-      instance_type: db.t3.medium
-      storage: 100GB
-      multi_az: true
-      backup:
-        retention: 30 days
-        schedule: "0 2 * * *"
-      encryption:
-        enabled: true
-    ```
-  </Accordion>
-
-  <Accordion title="Backup and Recovery" icon="clock-rotate-left">
-    **Backup Strategy**:
-    - **Daily backups**: Automated at 2 AM UTC
-    - **Retention**: 30 days (configurable up to 35 days)
-    - **Point-in-time recovery**: Up to 5 minutes granularity
-    - **Backup verification**: Regular restore testing
-
-    **Recovery Procedures**:
-    1. Identify backup or point in time
-    2. Create new database from backup
-    3. Verify data integrity
-    4. Update application configuration
-    5. Switch traffic to restored database
-
-    **RTO/RPO**:
-    - **RTO** (Recovery Time Objective): 15-30 minutes
-    - **RPO** (Recovery Point Objective): < 5 minutes with PITR
-  </Accordion>
-
-  <Accordion title="Performance Optimization" icon="gauge-high">
-    **Database Optimization**:
-    - Connection pooling (PgBouncer, ProxySQL)
-    - Read replicas for read-heavy workloads
-    - Query optimization and indexing
-    - Caching layer (Redis, Memcached)
-    - Monitoring slow queries
-
-    **Scaling Options**:
-    - **Vertical scaling**: Increase instance size
-    - **Read replicas**: Distribute read traffic
-    - **Sharding**: Horizontal data partitioning
-    - **Caching**: Reduce database load
-  </Accordion>
-</AccordionGroup>
-
-### 4. Security Configuration
-
-<Tabs>
-  <Tab title="Access Control">
-    **IAM and RBAC**:
-    - Role-based access control
-    - Least privilege principle
-    - MFA enforcement for all users
-    - Service account management
-    - Regular access reviews
-
-    **Network Security**:
-    - Private VPC for workloads
-    - Security groups and firewall rules
-    - WAF (Web Application Firewall)
-    - DDoS protection
-    - IP allowlisting for sensitive endpoints
-  </Tab>
-
-  <Tab title="Secret Management">
-    **Secrets Best Practices**:
-    - Never commit secrets to Git
-    - Use Qovery secret management or external providers
-    - Rotate secrets regularly
-    - Audit secret access
-    - Encrypt secrets at rest
-
-    **Supported Secret Stores**:
-    - Qovery built-in secrets
-    - AWS Secrets Manager
-    - HashiCorp Vault
-    - Doppler
-    - External Secrets Operator
-  </Tab>
-
-  <Tab title="Compliance">
-    **Compliance Features**:
-    - SOC 2 Type II certified
-    - GDPR compliant
-    - HIPAA eligible (with BAA)
-    - DORA ready for financial services
-    - HDS ready for French healthcare
-
-    **Audit Requirements**:
-    - Complete audit trail
-    - Immutable logs
-    - Long-term retention (1+ years)
-    - Export to SIEM systems
-    - Compliance reports available
-  </Tab>
-</Tabs>
+**Production access**:
+- Limit production access to essential team members
+- Use custom roles with specific permissions
+- Enable MFA for all production users
+- Regular access reviews
 
 ## Monitoring and Observability
 
 ### Application Monitoring
 
-<CardGroup cols={2}>
-  <Card title="Qovery Observe" icon="chart-mixed" href="/integrations/observability/qovery-observe">
-    Built-in monitoring with logs, metrics, and traces
-  </Card>
+Qovery provides built-in observability for your production applications.
 
-  <Card title="Datadog" icon="chart-line" href="/integrations/observability/datadog">
-    Full-stack monitoring and APM
-  </Card>
+<Card title="Qovery Observe" icon="chart-mixed" href="/guides/qovery-101/observe">
+  Access logs, metrics, and monitoring for your services
+</Card>
 
-  <Card title="New Relic" icon="chart-area" href="/integrations/observability/new-relic">
-    Application performance monitoring
-  </Card>
+**Available features**:
+- **Logs**: 12-week retention with Loki
+- **Metrics**: Prometheus and Thanos for monitoring
+- **Service Metrics**: CPU, memory, network, and application metrics
+- **Events**: Track deployments and service events
 
-  <Card title="Custom Solutions" icon="plug" href="/integrations/observability/other-solutions">
-    Prometheus, Grafana, and other tools
-  </Card>
-</CardGroup>
+## Deployment Strategy
 
-### Key Metrics to Monitor
-
-<AccordionGroup>
-  <Accordion title="Application Metrics" icon="gauge">
-    - **Response time**: API latency and response times
-    - **Error rate**: 4xx and 5xx error rates
-    - **Request rate**: Requests per second
-    - **Availability**: Uptime percentage
-    - **Apdex score**: User satisfaction metric
-  </Accordion>
-
-  <Accordion title="Infrastructure Metrics" icon="server">
-    - **CPU usage**: Per pod and cluster-wide
-    - **Memory usage**: RAM utilization
-    - **Disk I/O**: Read/write operations
-    - **Network traffic**: Ingress/egress bandwidth
-    - **Pod status**: Running, pending, failed
-  </Accordion>
-
-  <Accordion title="Database Metrics" icon="database">
-    - **Connection count**: Active connections
-    - **Query performance**: Slow query log
-    - **Replication lag**: For read replicas
-    - **Disk usage**: Storage utilization
-    - **Cache hit ratio**: Query cache effectiveness
-  </Accordion>
-
-  <Accordion title="Business Metrics" icon="chart-pie">
-    - **Active users**: Concurrent users
-    - **Transaction volume**: Business transactions
-    - **Conversion rate**: Key business metrics
-    - **Custom events**: Application-specific KPIs
-  </Accordion>
-</AccordionGroup>
-
-### Alerting Strategy
-
-<Steps>
-  <Step title="Define Alert Thresholds">
-    Set appropriate thresholds based on baseline metrics
-
-    **Example Alert Rules**:
-    - CPU > 80% for 5 minutes
-    - Error rate > 1% for 5 minutes
-    - Response time > 500ms for 5 minutes
-    - Disk usage > 85%
-  </Step>
-
-  <Step title="Configure Alert Channels">
-    Set up notification channels for different severity levels
-
-    - **Critical**: PagerDuty + Slack
-    - **Warning**: Slack + Email
-    - **Info**: Email only
-  </Step>
-
-  <Step title="Implement On-Call Rotation">
-    Establish on-call procedures and escalation policies
-
-    - Primary on-call engineer
-    - Secondary escalation
-    - Manager escalation
-    - Runbooks for common issues
-  </Step>
-</Steps>
-
-## Disaster Recovery
-
-### Backup Strategy
-
-<Tabs>
-  <Tab title="Application Backups">
-    **Git-Based Recovery**:
-    - All configurations in Git (GitOps)
-    - Environment definitions versioned
-    - Infrastructure as Code (Terraform)
-    - Quick redeployment from Git
-
-    **Container Images**:
-    - All images stored in container registry
-    - Multi-region registry replication
-    - Image retention policy (90 days minimum)
-  </Tab>
-
-  <Tab title="Database Backups">
-    **Automated Backups**:
-    - Daily backups at off-peak hours
-    - 30-day retention (configurable)
-    - Cross-region backup replication
-    - Encrypted backups
-
-    **Backup Testing**:
-    - Monthly restore tests
-    - Validation of backup integrity
-    - RTO/RPO testing
-    - Documented procedures
-  </Tab>
-
-  <Tab title="State Backups">
-    **Configuration State**:
-    - Cluster configurations backed up
-    - Kubernetes manifests in Git
-    - Helm values files versioned
-    - Terraform state in remote backend
-  </Tab>
-</Tabs>
-
-### Disaster Recovery Procedures
-
-<Steps>
-  <Step title="Document DR Plan">
-    Create comprehensive disaster recovery documentation
-
-    - Recovery procedures for each scenario
-    - Contact information for key personnel
-    - Access credentials and procedures
-    - Communication plan for stakeholders
-  </Step>
-
-  <Step title="Regular DR Drills">
-    Test disaster recovery procedures quarterly
-
-    - Simulate different failure scenarios
-    - Measure actual RTO/RPO
-    - Document issues and improvements
-    - Update runbooks based on learnings
-  </Step>
-
-  <Step title="Multi-Region Setup">
-    For critical applications, deploy across multiple regions
-
-    - Active-active or active-passive setup
-    - Global load balancing
-    - Data replication between regions
-    - Automatic failover capabilities
-  </Step>
-</Steps>
-
-## Performance Optimization
-
-### Application Performance
-
-<AccordionGroup>
-  <Accordion title="Caching Strategy" icon="layer-group">
-    **Caching Layers**:
-    - **CDN**: Static assets and API responses
-    - **Application cache**: Redis, Memcached
-    - **Database cache**: Query result caching
-    - **HTTP caching**: Cache-Control headers
-
-    **Cache Invalidation**:
-    - Time-based expiration
-    - Event-based invalidation
-    - Manual purge capabilities
-    - Cache warming strategies
-  </Accordion>
-
-  <Accordion title="Database Optimization" icon="database">
-    **Query Optimization**:
-    - Index slow queries
-    - Use EXPLAIN to analyze queries
-    - Avoid N+1 queries
-    - Connection pooling
-    - Prepared statements
-
-    **Read Replicas**:
-    - Distribute read traffic
-    - Reduce primary database load
-    - Geographic distribution
-    - Automatic failover to primary
-  </Accordion>
-
-  <Accordion title="Code Optimization" icon="code">
-    **Performance Best Practices**:
-    - Async processing for long tasks
-    - Background job queues
-    - Efficient algorithms and data structures
-    - Minimize external API calls
-    - Optimize bundle size (frontend)
-
-    **Profiling Tools**:
-    - APM tools (Datadog, New Relic)
-    - Language-specific profilers
-    - Load testing (k6, JMeter)
-    - Performance monitoring
-  </Accordion>
-</AccordionGroup>
-
-### Infrastructure Performance
-
-<Tabs>
-  <Tab title="Auto-Scaling">
-    **Horizontal Pod Autoscaler (HPA)**:
-    ```yaml
-    autoscaling:
-      enabled: true
-      minReplicas: 3
-      maxReplicas: 10
-      targetCPUUtilizationPercentage: 70
-      targetMemoryUtilizationPercentage: 80
-    ```
-
-    **Cluster Autoscaling**:
-    - Automatic node provisioning
-    - Scale down idle nodes
-    - Multiple node pools for different workloads
-  </Tab>
-
-  <Tab title="Resource Optimization">
-    **Right-Sizing**:
-    - Monitor actual resource usage
-    - Adjust requests and limits
-    - Use spot/preemptible instances where appropriate
-    - Optimize for cost and performance
-
-    **Resource Quotas**:
-    ```yaml
-    resources:
-      limits:
-        cpu: "2"
-        memory: "4Gi"
-      requests:
-        cpu: "1"
-        memory: "2Gi"
-    ```
-  </Tab>
-
-  <Tab title="Network Performance">
-    **Optimization Strategies**:
-    - Use CDN for static content
-    - Enable HTTP/2 and HTTP/3
-    - Compress responses (gzip, brotli)
-    - Minimize network hops
-    - Use private networking for internal services
-
-    **Load Balancing**:
-    - Distribute traffic across zones
-    - Health check-based routing
-    - Connection draining
-    - Session affinity when needed
-  </Tab>
-</Tabs>
-
-## Cost Optimization
-
-### Infrastructure Cost Management
+Configure your deployment pipeline for production.
 
 <CardGroup cols={2}>
-  <Card title="Right-Sizing" icon="gauge">
-    Monitor usage and adjust instance sizes appropriately
+  <Card title="Auto-Deploy" icon="rotate" href="/configuration/deployment/auto-deploy">
+    Automatic deployments on Git push
   </Card>
 
-  <Card title="Spot Instances" icon="dollar-sign">
-    Use spot/preemptible instances for non-critical workloads
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
+    Configure multi-stage deployments
   </Card>
 
-  <Card title="Auto-Scaling" icon="chart-line">
-    Scale down during off-peak hours to reduce costs
+  <Card title="Deployment History" icon="clock-rotate-left" href="/configuration/deployment/history">
+    View and rollback deployments
   </Card>
 
-  <Card title="Reserved Capacity" icon="calendar">
-    Commit to reserved instances for predictable workloads
+  <Card title="CI/CD Integration" icon="code-branch" href="/configuration/deployment/ci-cd">
+    Integrate with GitHub Actions, GitLab CI, etc.
   </Card>
 </CardGroup>
-
-### Cost Monitoring
-
-- **Budget alerts**: Set spending thresholds and alerts
-- **Cost allocation**: Tag resources by team/project
-- **Usage reports**: Regular cost analysis and optimization
-- **Waste identification**: Find and remove unused resources
 
 ## Production Checklist
 
-<Steps>
-  <Step title="Infrastructure">
+<AccordionGroup>
+  <Accordion title="Infrastructure" icon="server">
+    - [ ] Production cluster created and flagged as Production
     - [ ] Multi-AZ deployment enabled
+    - [ ] Production-grade instance types configured
+    - [ ] Network and security configured
+  </Accordion>
+
+  <Accordion title="Applications" icon="code">
     - [ ] Auto-scaling configured
-    - [ ] Network security configured
-    - [ ] SSL/TLS certificates in place
-    - [ ] DDoS protection enabled
-  </Step>
-
-  <Step title="Applications">
-    - [ ] Health checks configured
     - [ ] Resource limits set
+    - [ ] Health checks enabled
+    - [ ] Custom domains configured with SSL
     - [ ] Multiple replicas running
-    - [ ] Rolling update strategy configured
-    - [ ] Environment variables secured
-  </Step>
+  </Accordion>
 
-  <Step title="Database">
-    - [ ] Automated backups enabled
-    - [ ] Multi-AZ for high availability
-    - [ ] Encryption at rest and in transit
-    - [ ] Connection pooling configured
-    - [ ] Performance monitoring enabled
-  </Step>
+  <Accordion title="Database" icon="database">
+    - [ ] Managed database configured
+    - [ ] Backups enabled via cloud provider
+    - [ ] Multi-AZ enabled for high availability
+    - [ ] Strong passwords configured
+  </Accordion>
 
-  <Step title="Security">
-    - [ ] MFA enabled for all users
-    - [ ] RBAC configured
-    - [ ] Secret management implemented
-    - [ ] Security scanning enabled
-    - [ ] Compliance requirements met
-  </Step>
+  <Accordion title="Security" icon="shield">
+    - [ ] RBAC configured with appropriate roles
+    - [ ] Secrets used for sensitive data
+    - [ ] Access limited to essential team members
+    - [ ] Network security configured
+  </Accordion>
 
-  <Step title="Monitoring">
-    - [ ] Application metrics tracked
-    - [ ] Infrastructure metrics tracked
-    - [ ] Log aggregation configured
-    - [ ] Alerting rules defined
-    - [ ] On-call rotation established
-  </Step>
-
-  <Step title="Disaster Recovery">
-    - [ ] Backup strategy implemented
-    - [ ] DR procedures documented
-    - [ ] Regular DR testing scheduled
-    - [ ] RTO/RPO defined and tested
-  </Step>
-</Steps>
+  <Accordion title="Monitoring" icon="chart-line">
+    - [ ] Qovery Observe configured
+    - [ ] Logs retention configured
+    - [ ] External monitoring integrated (optional)
+    - [ ] Key metrics monitored
+  </Accordion>
+</AccordionGroup>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Security Overview" icon="shield" href="/security-and-compliance/overview">
-    Review security architecture and compliance features
+  <Card title="Observe Your Apps" icon="chart-mixed" href="/guides/qovery-101/observe">
+    Set up monitoring and logging
   </Card>
 
-  <Card title="Monitoring Setup" icon="chart-line" href="/integrations/observability/overview">
-    Set up comprehensive monitoring and alerting
+  <Card title="Secure Your Infrastructure" icon="shield" href="/guides/qovery-101/secure">
+    Configure RBAC, secrets, and audit logs
   </Card>
 
-  <Card title="CI/CD Integration" icon="rotate" href="/guides/advanced/ci-cd-integration">
-    Automate your deployment pipeline
+  <Card title="Ephemeral Environments" icon="code-branch" href="/guides/use-cases/ephemeral-environment">
+    Set up preview environments for testing
   </Card>
 
-  <Card title="Multi-Environment" icon="layer-group" href="/guides/advanced/multi-environment-setup">
-    Set up staging and production environments
+  <Card title="Cloud Migration" icon="cloud" href="/guides/use-cases/cloud-migration-and-scaling">
+    Migrate your application from Heroku to AWS
   </Card>
 </CardGroup>

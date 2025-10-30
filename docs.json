@@ -27,10 +27,6 @@
   },
   "topbarLinks": [
     {
-      "name": "Console",
-      "url": "https://console.qovery.com"
-    },
-    {
       "name": "Support",
       "url": "https://www.qovery.com/support"
     },
@@ -40,8 +36,8 @@
     }
   ],
   "topbarCtaButton": {
-    "name": "Sign up",
-    "url": "https://console.qovery.com/signup"
+    "name": "Qovery Console",
+    "url": "https://console.qovery.com"
   },
   "navigation": {
     "tabs": [
@@ -78,7 +74,8 @@
             "group": "Tutorials",
             "pages": [
               "guides/getting-started/deploy-your-first-application",
-              "guides/getting-started/connect-database"
+              "guides/getting-started/connect-database",
+              "guides/others/database-seeding-lifecycle-job"
             ]
           },
           {
@@ -108,14 +105,11 @@
             ]
           },
           {
-            "group": "Use Cases",
+            "group": "How-to Guides",
             "pages": [
               "guides/use-cases/production-environment-management",
               "guides/use-cases/cloud-migration-and-scaling",
-              "guides/use-cases/ephemeral-environment",
-              "guides/use-cases/multi-kubernetes-clusters-management",
-              "guides/use-cases/disaster-recovery",
-              "guides/others/database-seeding-lifecycle-job"
+              "guides/use-cases/ephemeral-environment"
             ]
           },
           {
@@ -272,7 +266,7 @@
             ]
           },
           {
-            "group": "Deployment",
+            "group": "Deployment & CI/CD",
             "pages": [
               "configuration/deployment/overview",
               "configuration/deployment/pipeline",
@@ -292,29 +286,14 @@
                   "configuration/deployment/logs",
                   "configuration/deployment/history"
                 ]
-              }
-            ]
-          },
-          {
-            "group": "CI/CD",
-            "pages": [
+              },
               "configuration/deployment/ci-cd",
               {
-                "group": "Qovery",
+                "group": "CI/CD Integrations",
                 "pages": [
-                  "integrations/ci-cd/qovery-deploy"
-                ]
-              },
-              {
-                "group": "GitHub",
-                "pages": [
+                  "integrations/ci-cd/qovery-deploy",
                   "integrations/ci-cd/github-actions",
-                  "integrations/ci-cd/github-actions-enterprise"
-                ]
-              },
-              {
-                "group": "Other Platforms",
-                "pages": [
+                  "integrations/ci-cd/github-actions-enterprise",
                   "integrations/ci-cd/gitlab-ci",
                   "integrations/ci-cd/circleci",
                   "integrations/ci-cd/jenkins"

@@ -1,109 +1,74 @@
 ---
 title: "Project"
-description: "Configure and manage projects"
+description: "Configure and manage projects to group environments"
 ---
 
 ## Overview
 
-A project is a logical grouping of environments that run the same application across different stages (development, staging, production, etc.). Projects help organize your infrastructure and manage access control for your team.
-
-When you create a new organization, Qovery automatically creates a default project for you. You can customize project access using Qovery's RBAC (Role-Based Access Control) system.
+A project allows you to group together a set of environments with the objective to run the same application. Projects are automatically created when you create a new organization and support role-based access control through [Qovery's RBAC system](/configuration/organization/members-rbac).
 
 ## Prerequisites
 
 - An existing organization in Qovery
 
-## Creating a New Project
+## Create a New Project
 
 <Steps>
   <Step title="Access Organization Settings">
-    Navigate to your organization settings by clicking the "Wheel" button (⚙️) on the left navigation bar
+    Navigate to your organization settings
   </Step>
 
   <Step title="Create Project">
-    Click the "NEW" button in the projects section
+    Click the **NEW** button in the projects section
 
     ![Project Creation](/images/configuration/project/project_creation.png)
   </Step>
 
   <Step title="Configure Project">
-    Provide the following information:
-    - **Project Name**: A descriptive name for your project
+    Enter the following information:
+    - **Name**: A descriptive name for your project
     - **Description**: (Optional) Brief description of the project's purpose
   </Step>
 
   <Step title="Save">
-    Click "Create" to finalize the project creation
+    Click **Create** to finalize the project creation
   </Step>
 </Steps>
 
-## Project Structure
-
-A typical project contains multiple environments for the same application:
-
-```
-Project: My Application
-├── Development Environment
-├── Staging Environment
-└── Production Environment
-```
-
-Each environment can contain:
-- Applications
-- Databases
-- Cronjobs
-- Lifecycle jobs
-- Helm charts
-
-## Managing Projects
-
-### Editing Project Information
+## Edit Project General Information
 
 To update project details:
 
-1. Open the project settings page
-2. Select the project you want to edit
-3. Navigate to the "GENERAL" section
-4. Update the name or description
-5. Click "Save Changes"
+<Steps>
+  <Step title="Access Settings">
+    Open the project settings page
+  </Step>
 
-![Project Update](/images/configuration/project/project_update.png)
+  <Step title="Select Project">
+    Choose the project you want to edit
+  </Step>
 
-### Project Settings
+  <Step title="Open General Section">
+    Navigate to the **GENERAL** section
+  </Step>
 
-<CardGroup cols={2}>
-  <Card title="General" icon="gear">
-    Configure basic project information like name and description
-  </Card>
+  <Step title="Update and Save">
+    Modify the name or description and save your changes
 
-  <Card title="Access Control" icon="shield">
-    Manage team member access and permissions using RBAC
-  </Card>
+    ![Project Update](/images/configuration/project/project_update.png)
+  </Step>
+</Steps>
 
-  <Card title="Environment Variables" icon="code">
-    Set project-level environment variables inherited by all environments
-  </Card>
-
-  <Card title="Deployment Rules" icon="rules">
-    Configure deployment policies and restrictions
-  </Card>
-</CardGroup>
-
-## Deleting a Project
+## Delete a Project
 
 <Warning>
-Deleting a project is a **non-recoverable operation**. All associated data will be permanently deleted, including:
+Deleting a project is a **non-recoverable operation**. This will permanently delete:
 - All environments within the project
-- All applications and services
+- All running applications and their data
 - All databases and their data
 - All configuration and secrets
 - All deployment history
 </Warning>
-
-It is strongly recommended to:
-1. **Backup important data** before deletion
-2. **Stop all running services** to avoid unexpected charges
-3. **Review all environments** to ensure nothing critical will be lost
 
 To delete a project:
 
@@ -117,43 +82,19 @@ To delete a project:
   </Step>
 
   <Step title="Navigate to Danger Zone">
-    Go to the "DANGER" section at the bottom of the settings
+    Go to the **DANGER** section
   </Step>
 
   <Step title="Delete Project">
-    Click the "Delete Project" button
+    Click the **Delete Project** button
 
     ![Project Delete](/images/configuration/project/project_delete.png)
   </Step>
 
   <Step title="Confirm Deletion">
-    Type the project name to confirm the deletion
+    Type the project name to confirm and complete the deletion
   </Step>
 </Steps>
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Organize by Application">
-    Create one project per application or service. This makes it easier to manage permissions and track costs.
-  </Accordion>
-
-  <Accordion title="Use Clear Naming">
-    Use descriptive names that indicate the application or service the project contains (e.g., "Frontend App", "API Service", "Data Pipeline").
-  </Accordion>
-
-  <Accordion title="Standardize Environments">
-    Maintain consistent environment naming across projects (e.g., dev, staging, production) for easier management.
-  </Accordion>
-
-  <Accordion title="Leverage RBAC">
-    Use project-level access control to restrict who can deploy to production environments.
-  </Accordion>
-
-  <Accordion title="Set Project-Level Variables">
-    Define common configuration at the project level to avoid duplication across environments.
-  </Accordion>
-</AccordionGroup>
 
 ## Related Topics
 

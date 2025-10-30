@@ -1,780 +1,245 @@
 ---
-title: "Cloud Migration and Scaling"
-description: "Migrate applications to the cloud and scale infrastructure efficiently"
+title: "Migrate Your Application from Heroku to AWS"
+description: "Learn how to migrate your applications from Heroku to AWS using Qovery"
 ---
 
-## Overview
-
-Cloud migration is a critical step for modernizing infrastructure and achieving scalability. Qovery simplifies cloud migration by providing a unified platform that works across AWS, GCP, Azure, and Scaleway, allowing you to migrate applications without vendor lock-in.
+This tutorial will guide you through all required steps you need to take to deploy your application on AWS and transfer your data from Heroku Postgres to the database managed by AWS via Qovery.
 
 <Info>
-**Multi-Cloud Platform**: Qovery supports AWS EKS, Google GKE, Azure AKS, and Scaleway Kapsule, giving you flexibility in cloud provider choice.
+This guide also works for migrating your application from Heroku to GCP, Azure, Scaleway.
 </Info>
 
-## Migration Strategies
+## What you will do
 
-<CardGroup cols={2}>
-  <Card title="Lift and Shift" icon="arrow-up-right-from-square">
-    Move applications to cloud with minimal changes
-  </Card>
+1. Create your Dockerfile(s)
+2. Create resources on Qovery (applications and databases)
+3. Configure your Environment Variables and Secrets
+4. Copy your data from Heroku databases to AWS
+5. Deploy your apps
 
-  <Card title="Replatform" icon="layer-group">
-    Optimize applications for cloud-native features
-  </Card>
+## 1. Create Your Dockerfile
 
-  <Card title="Refactor" icon="code">
-    Redesign applications to fully leverage cloud capabilities
-  </Card>
+### Find a Dockerfile template
 
-  <Card title="Hybrid Approach" icon="diagram-project">
-    Gradual migration with mixed on-premises and cloud setup
-  </Card>
-</CardGroup>
+We provide Dockerfile templates for Rails, NodeJS, React, VueJS, NextJS, Golang, Flask, Django, Laravel, Symfony, Spring, Rust, and many more.
 
-## Migration Phases
+### Example: Rails application
 
-### Phase 1: Assessment and Planning
+```dockerfile
+# syntax=docker/dockerfile:1
 
-<Steps>
-  <Step title="Inventory Current Infrastructure">
-    Document all applications, databases, and dependencies
+FROM ruby:2.7
 
-    **Assessment Checklist**:
-    - Application architecture diagrams
-    - Database schemas and sizes
-    - Network topology and dependencies
-    - Current resource utilization
-    - Security and compliance requirements
-    - Integration points with external systems
-  </Step>
+RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
 
-  <Step title="Choose Cloud Provider">
-    Select the appropriate cloud provider based on requirements
+WORKDIR /myapp
 
-    <Tabs>
-      <Tab title="AWS">
-        **Best For**:
-        - Largest service catalog
-        - Global reach (33 regions)
-        - Enterprise customers
-        - HIPAA, SOC 2, GDPR compliant
+COPY Gemfile Gemfile
 
-        **Qovery Support**:
-        - Managed EKS clusters
-        - BYOK (Bring Your Own Kubernetes)
-        - Full AWS service integration
-      </Tab>
+COPY Gemfile.lock Gemfile.lock
 
-      <Tab title="Google Cloud">
-        **Best For**:
-        - Data analytics and ML workloads
-        - Kubernetes-native (GKE is market leader)
-        - Competitive pricing
-        - Strong global network
+RUN bundle install
 
-        **Qovery Support**:
-        - Managed GKE clusters
-        - BYOK support
-        - GCP service integration
-      </Tab>
+COPY . .
 
-      <Tab title="Azure">
-        **Best For**:
-        - Microsoft ecosystem integration
-        - Hybrid cloud scenarios
-        - Enterprise Windows workloads
-        - Strong compliance certifications
+EXPOSE 3000
 
-        **Qovery Support**:
-        - Managed AKS clusters
-        - BYOK support
-        - Azure service integration
-      </Tab>
+CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3000"]
+```
 
-      <Tab title="Scaleway">
-        **Best For**:
-        - European data residency
-        - Cost-effective infrastructure
-        - GDPR compliance by design
-        - French healthcare (HDS ready)
+### Example: Rails Sidekiq worker
 
-        **Qovery Support**:
-        - Managed Kapsule clusters
-        - BYOK support
-        - 100% European infrastructure
-      </Tab>
-    </Tabs>
-  </Step>
+```dockerfile
+# syntax=docker/dockerfile:1
 
-  <Step title="Define Migration Scope">
-    Prioritize applications and create migration roadmap
+FROM ruby:2.7
 
-    **Prioritization Criteria**:
-    - Business criticality
-    - Technical complexity
-    - Dependencies
-    - Risk assessment
-    - Resource requirements
+RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
 
-    **Migration Waves**:
-    1. **Wave 1**: Low-risk, simple applications (pilot)
-    2. **Wave 2**: Medium complexity applications
-    3. **Wave 3**: Business-critical applications
-    4. **Wave 4**: Legacy or high-complexity applications
-  </Step>
+WORKDIR /myapp
 
-  <Step title="Cost Analysis">
-    Estimate cloud costs and compare with current infrastructure
+COPY Gemfile Gemfile
 
-    **Cost Considerations**:
-    - Compute costs (instances, containers)
-    - Storage costs (block, object, database)
-    - Network costs (egress, load balancers)
-    - Managed services fees
-    - Support and operations costs
+COPY Gemfile.lock Gemfile.lock
 
-    **Cost Optimization**:
-    - Right-sizing recommendations
-    - Reserved capacity discounts
-    - Spot/preemptible instances
-    - Auto-scaling to match demand
-  </Step>
-</Steps>
+RUN bundle install
 
-### Phase 2: Preparation
+COPY . .
+
+CMD ["bundle", "exec", "sidekiq"]
+```
+
+### Test your Dockerfile
+
+Build your Dockerfile:
+
+```bash
+docker build -f Dockerfile.qovery .
+```
+
+Then run your image:
+
+```bash
+docker run a0f90a6ec8bc4036a7b268479a0c0773ca324ba2de11fdef31309650743f4055
+```
+
+<Info>
+Once you successfully build your application with Docker, your app will run anywhere (not only on AWS with Qovery).
+</Info>
+
+### Environment variables at build time
+
+If your application needs environment variables at build time, you can use the `ARG` instruction in your Dockerfile:
+
+```dockerfile
+...
+ARG CONTENT_API_KEY
+ENV CONTENT_API_KEY $CONTENT_API_KEY
+...
+```
+
+### Add your Dockerfile to your Git repository
+
+```bash
+git add Dockerfile.qovery
+git commit -m "Add Qovery Dockerfile"
+git push origin
+```
+
+## 2. Create Resources on Qovery
+
+### Create your application
+
+1. Connect to the [Qovery Console](https://console.qovery.com)
+2. Create your Organization and Project
+3. Create your production Environment
+4. Create your application with the name of your repository
+5. Select your GitHub/GitLab/Bitbucket repository
+6. Select the branch you want to deploy
+7. Specify the port your application is listening on
+8. Click on create
+
+<Info>
+Your application is created but not deployed yet! You can configure the vCPU, Memory, Environment Variables... before deploying.
+</Info>
+
+### Create your database
+
+1. Go to your production Environment
+2. Click on "Add" and then "Database"
+3. Select your database type and version (PostgreSQL, MySQL, MongoDB, Redis)
+4. Select Managed or Container mode
+5. Select Public accessibility (or Private if you don't need to restore data from Heroku)
+
+## 3. Configure Environment Variables and Secrets
+
+### Export your environment variables from Heroku
+
+Use the Heroku CLI to export your environment variables:
+
+```bash
+heroku config
+```
+
+Example output:
+
+```
+GREETINGS: hello world
+STRIPE_API_KEY: xxx-yyy-zzz
+IS_PRODUCTION: true
+```
+
+### Import your environment variables with Qovery CLI
+
+```bash
+qovery auth
+qovery context set
+heroku config --app <your_heroku_app_name> --json | \
+  qovery env parse --heroku-json > heroku.env && \
+  qovery env import heroku.env && \
+  rm heroku.env
+```
+
+<Warning>
+Import sensitive data (e.g., API keys, credentials...) as `Secret` and not `Environment Variable`.
+</Warning>
+
+### Connect your frontend to your backend
+
+Create environment variable aliases to connect your applications.
+
+### Connect your backend to your database
+
+Create environment variable alias on `_DATABASE_URL_INTERNAL` (not `_DATABASE_URL`).
+
+## 4. Copy Data from Heroku Databases to AWS
+
+Data migration support through Replibyte is coming soon.
+
+## 5. Deploy Your Apps
+
+After completing the configuration, you're ready to deploy through the Qovery console.
+
+## FAQ by Heroku Users
 
 <AccordionGroup>
-  <Accordion title="Containerize Applications" icon="box">
-    Convert applications to containers for cloud deployment
-
-    **Containerization Steps**:
-    1. **Create Dockerfile**:
-       ```dockerfile
-       FROM node:18-alpine
-       WORKDIR /app
-       COPY package*.json ./
-       RUN npm ci --only=production
-       COPY . .
-       EXPOSE 3000
-       CMD ["npm", "start"]
-       ```
-
-    2. **Build and test locally**:
-       ```bash
-       docker build -t my-app:latest .
-       docker run -p 3000:3000 my-app:latest
-       ```
-
-    3. **Push to container registry**:
-       ```bash
-       docker tag my-app:latest registry.example.com/my-app:latest
-       docker push registry.example.com/my-app:latest
-       ```
-
-    **Containerization Best Practices**:
-    - Use multi-stage builds to reduce image size
-    - Run as non-root user for security
-    - Use specific base image tags (not `latest`)
-    - Minimize layers and leverage caching
-    - Scan images for vulnerabilities
+  <Accordion title="How to create a custom domain?">
+    Check the [custom domain configuration documentation](/configuration/application#domains) for setup instructions.
   </Accordion>
 
-  <Accordion title="Database Migration Strategy" icon="database">
-    Plan database migration to cloud-managed services
-
-    **Migration Approaches**:
-
-    <Tabs>
-      <Tab title="Dump and Restore">
-        **Best for**: Small databases (< 100GB), one-time migration
-
-        ```bash
-        # Export from source
-        pg_dump -h source-host -U user -d database > dump.sql
-
-        # Import to target
-        psql -h target-host -U user -d database < dump.sql
-        ```
-
-        **Considerations**:
-        - Downtime required during migration
-        - Simple and reliable
-        - Works across different versions
-      </Tab>
-
-      <Tab title="Replication">
-        **Best for**: Large databases, minimal downtime
-
-        **Process**:
-        1. Set up replication from source to target
-        2. Monitor replication lag
-        3. Cutover when lag is minimal
-        4. Update application connection strings
-
-        **Tools**:
-        - PostgreSQL: pg_basebackup, logical replication
-        - MySQL: mysqldump with replication
-        - MongoDB: mongodump/mongorestore
-        - AWS DMS (Database Migration Service)
-      </Tab>
-
-      <Tab title="Dual-Write">
-        **Best for**: Zero-downtime migration, gradual rollout
-
-        **Process**:
-        1. Write to both old and new databases
-        2. Verify data consistency
-        3. Gradually shift reads to new database
-        4. Stop writing to old database
-        5. Decommission old database
-
-        **Considerations**:
-        - Application changes required
-        - Complex but allows rollback
-        - Good for phased migration
-      </Tab>
-    </Tabs>
+  <Accordion title="How to monitor my apps?">
+    Qovery recommends using Datadog or comparable monitoring tools. See our [monitoring guide](/guides/qovery-101/observe).
   </Accordion>
 
-  <Accordion title="Network Planning" icon="network-wired">
-    Design cloud network architecture
-
-    **Network Components**:
-    - **VPC**: Dedicated virtual network
-    - **Subnets**: Public and private subnets across AZs
-    - **NAT Gateway**: Outbound internet access for private subnets
-    - **Load Balancer**: Distribute traffic across instances
-    - **VPN/Direct Connect**: Hybrid connectivity
-
-    **Security Configuration**:
-    - Security groups/firewall rules
-    - Network ACLs
-    - Private endpoints for services
-    - DDoS protection
-    - WAF (Web Application Firewall)
+  <Accordion title="Do you have Heroku 'Review App' equivalent?">
+    Yes, Qovery provides [Preview Environment](/configuration/environment#preview-environments) functionality.
   </Accordion>
 
-  <Accordion title="CI/CD Pipeline Setup" icon="rotate">
-    Automate deployment to cloud infrastructure
-
-    **Pipeline Components**:
-    1. **Source**: Git repository (GitHub, GitLab, Bitbucket)
-    2. **Build**: Container image build and push
-    3. **Test**: Automated testing (unit, integration)
-    4. **Security**: Vulnerability scanning
-    5. **Deploy**: Deploy to Kubernetes via Qovery
-    6. **Monitor**: Track deployment health
-
-    **Qovery CI/CD Integration**:
-    - Automatic deployments on Git push
-    - Preview environments for pull requests
-    - Rollback capabilities
-    - Deployment approvals (enterprise)
-    - Integration with existing CI/CD tools
-  </Accordion>
-</AccordionGroup>
-
-### Phase 3: Migration Execution
-
-<Steps>
-  <Step title="Set Up Cloud Infrastructure">
-    Create and configure Kubernetes cluster with Qovery
-
-    **Quick Start**:
-    ```bash
-    # Install Qovery CLI
-    curl -s https://get.qovery.com | bash
-
-    # Login to Qovery
-    qovery auth
-
-    # Create organization and project
-    qovery organization create
-    qovery project create
-
-    # Create cluster (managed or BYOK)
-    qovery cluster create
-    ```
-
-    **Configuration Options**:
-    - Cluster size and instance types
-    - Multi-AZ deployment
-    - Auto-scaling settings
-    - Network configuration
-    - Monitoring and logging
-  </Step>
-
-  <Step title="Migrate Supporting Services">
-    Set up managed services (databases, caching, storage)
-
-    **Managed Services**:
-    - **Databases**: PostgreSQL, MySQL, MongoDB, Redis
-    - **Object Storage**: S3, GCS, Azure Blob
-    - **Message Queues**: SQS, Pub/Sub, Service Bus
-    - **Caching**: Redis, Memcached
-
-    **Qovery Database Setup**:
-    ```bash
-    # Create managed database
-    qovery database create \
-      --name production-db \
-      --type postgresql \
-      --version 15 \
-      --size db.t3.medium \
-      --storage 100GB
-    ```
-  </Step>
-
-  <Step title="Deploy Applications">
-    Deploy containerized applications to Kubernetes
-
-    **Deployment via Qovery Console**:
-    1. Connect Git repository
-    2. Configure build settings
-    3. Set environment variables and secrets
-    4. Configure resources (CPU, memory)
-    5. Set up custom domains and SSL
-    6. Deploy and monitor
-
-    **Deployment via CLI**:
-    ```bash
-    # Create application
-    qovery application create \
-      --name my-app \
-      --git-repo https://github.com/org/repo \
-      --branch main
-
-    # Deploy application
-    qovery application deploy
-    ```
-  </Step>
-
-  <Step title="Data Migration">
-    Migrate data to cloud databases
-
-    **Migration Steps**:
-    1. Create database backup
-    2. Restore to cloud database
-    3. Verify data integrity
-    4. Set up replication (if applicable)
-    5. Monitor replication lag
-    6. Update application configuration
-    7. Test application connectivity
-
-    **Validation**:
-    - Row counts match source
-    - Checksums validate data integrity
-    - Application can read/write successfully
-    - Performance meets expectations
-  </Step>
-
-  <Step title="DNS and Traffic Cutover">
-    Switch traffic from old to new infrastructure
-
-    **Cutover Strategies**:
-
-    **Option 1: Immediate Cutover**:
-    - Update DNS records
-    - Wait for TTL expiration
-    - Monitor for issues
-    - Rollback if problems occur
-
-    **Option 2: Gradual Cutover**:
-    - Use load balancer with weighted routing
-    - Route 10% → 25% → 50% → 100% gradually
-    - Monitor metrics at each stage
-    - Rollback if issues detected
-
-    **Option 3: Blue/Green Deployment**:
-    - Run both environments simultaneously
-    - Switch all traffic at once
-    - Keep old environment for quick rollback
-    - Decommission after stability confirmed
-  </Step>
-</Steps>
-
-### Phase 4: Post-Migration
-
-<AccordionGroup>
-  <Accordion title="Validation and Testing" icon="check">
-    Verify migration success and application functionality
-
-    **Test Checklist**:
-    - [ ] All applications accessible
-    - [ ] Database connectivity verified
-    - [ ] API endpoints responding correctly
-    - [ ] Authentication and authorization working
-    - [ ] Performance meets or exceeds expectations
-    - [ ] Monitoring and alerting operational
-    - [ ] Backup and recovery tested
-    - [ ] Security scanning passed
-
-    **Performance Testing**:
-    - Load testing with realistic traffic
-    - Stress testing to find limits
-    - Latency and response time validation
-    - Database query performance
-    - Network throughput testing
+  <Accordion title="How to rollback?">
+    App rollback is available through the [deployment actions](/configuration/deployment/overview#rollback).
   </Accordion>
 
-  <Accordion title="Optimization" icon="gauge">
-    Optimize cloud resources for cost and performance
-
-    **Cost Optimization**:
-    - Right-size instances based on actual usage
-    - Enable auto-scaling to match demand
-    - Use spot/preemptible instances where appropriate
-    - Review and eliminate unused resources
-    - Set up budget alerts
-
-    **Performance Optimization**:
-    - Enable caching (CDN, application, database)
-    - Optimize database queries and indexes
-    - Use read replicas for read-heavy workloads
-    - Implement connection pooling
-    - Optimize container images and startup time
+  <Accordion title="How does auto-scaling work?">
+    Auto-scaling is configured in the [application settings](/configuration/application#auto-scaling).
   </Accordion>
 
-  <Accordion title="Documentation" icon="book">
-    Document new cloud infrastructure and procedures
-
-    **Documentation Topics**:
-    - Architecture diagrams
-    - Deployment procedures
-    - Rollback procedures
-    - Monitoring and alerting
-    - Incident response runbooks
-    - Access and permissions
-    - Cost allocation and budgets
-    - DR and backup procedures
+  <Accordion title="How to manage database migration?">
+    Database migrations can be managed using [Lifecycle Jobs](/configuration/lifecycle-job).
   </Accordion>
 
-  <Accordion title="Training" icon="graduation-cap">
-    Train team on cloud operations and Qovery platform
-
-    **Training Topics**:
-    - Qovery platform basics
-    - Deployment workflows
-    - Monitoring and troubleshooting
-    - Security best practices
-    - Cost management
-    - Incident response
-
-    **Resources**:
-    - Qovery documentation
-    - Video tutorials and webinars
-    - Hands-on labs
-    - Support and community forums
-  </Accordion>
-</AccordionGroup>
-
-## Scaling Strategies
-
-### Horizontal Scaling
-
-<Tabs>
-  <Tab title="Application Scaling">
-    **Horizontal Pod Autoscaler (HPA)**:
-    ```yaml
-    autoscaling:
-      enabled: true
-      minReplicas: 2
-      maxReplicas: 20
-      metrics:
-      - type: Resource
-        resource:
-          name: cpu
-          target:
-            type: Utilization
-            averageUtilization: 70
-      - type: Resource
-        resource:
-          name: memory
-          target:
-            type: Utilization
-            averageUtilization: 80
-    ```
-
-    **Custom Metrics Scaling**:
-    - Request rate (RPS)
-    - Queue length
-    - Custom application metrics
-    - External metrics (from monitoring systems)
-
-    **Qovery Auto-Scaling**:
-    - Configure in console or via API
-    - Automatic scaling based on CPU/memory
-    - Custom metrics support (enterprise)
-    - Scheduled scaling for known patterns
-  </Tab>
-
-  <Tab title="Database Scaling">
-    **Read Replicas**:
-    - Distribute read traffic across replicas
-    - Reduce load on primary database
-    - Geographic distribution for low latency
-    - Automatic failover to primary
-
-    **Sharding**:
-    - Horizontal partitioning of data
-    - Distribute data across multiple databases
-    - Improved performance for large datasets
-    - Increased complexity in application logic
-
-    **Managed Service Scaling**:
-    - Vertical scaling (instance size)
-    - Read replicas for read scalability
-    - Multi-region replication
-    - Automatic storage scaling
-  </Tab>
-
-  <Tab title="Infrastructure Scaling">
-    **Cluster Autoscaler**:
-    - Automatically add nodes when needed
-    - Remove idle nodes to save costs
-    - Support for multiple node pools
-    - Different instance types per pool
-
-    **Multi-Region Deployment**:
-    - Deploy across multiple geographic regions
-    - Reduce latency for global users
-    - Improved availability and resilience
-    - Cross-region load balancing
-
-    **CDN and Edge Computing**:
-    - Cache static content at edge locations
-    - Reduce origin server load
-    - Lower latency for end users
-    - DDoS protection
-  </Tab>
-</Tabs>
-
-### Vertical Scaling
-
-<AccordionGroup>
-  <Accordion title="Application Vertical Scaling" icon="arrow-up">
-    **Resource Adjustments**:
-    ```yaml
-    resources:
-      requests:
-        cpu: 2000m      # Increased from 1000m
-        memory: 4Gi     # Increased from 2Gi
-      limits:
-        cpu: 4000m      # Increased from 2000m
-        memory: 8Gi     # Increased from 4Gi
-    ```
-
-    **When to Scale Vertically**:
-    - Single-threaded applications
-    - Memory-intensive workloads
-    - Licensing restrictions on instances
-    - Simplified architecture
-
-    **Limitations**:
-    - Maximum instance size constraints
-    - No built-in redundancy
-    - Downtime during scaling (usually)
-    - Higher cost per unit of capacity
+  <Accordion title="Is it possible to get a shell / connect to my app?">
+    Yes, via Qovery cloud shell button in the console interface, selecting pod and container. Also available through CLI with `qovery shell` command.
   </Accordion>
 
-  <Accordion title="Database Vertical Scaling" icon="database">
-    **Instance Type Changes**:
-    - Upgrade to larger instance class
-    - More CPU and memory
-    - Better I/O performance
-    - Minimal application changes
-
-    **Considerations**:
-    - Downtime during resize (typically 5-15 minutes)
-    - Multi-AZ reduces downtime
-    - Test in non-production first
-    - Plan for maintenance window
-
-    **Alternative: Read Replicas**:
-    - Add read replicas instead of scaling primary
-    - Distribute read load
-    - No downtime required
-    - Better for read-heavy workloads
-  </Accordion>
-</AccordionGroup>
-
-## Multi-Cloud Strategy
-
-### Benefits of Multi-Cloud
-
-<CardGroup cols={2}>
-  <Card title="Avoid Vendor Lock-In" icon="unlock">
-    Freedom to choose best provider for each workload
-  </Card>
-
-  <Card title="Cost Optimization" icon="dollar-sign">
-    Leverage competitive pricing and spot markets
-  </Card>
-
-  <Card title="Geographic Coverage" icon="globe">
-    Use providers with presence in target regions
-  </Card>
-
-  <Card title="Compliance" icon="scale-balanced">
-    Meet data residency and regulatory requirements
-  </Card>
-</CardGroup>
-
-### Qovery Multi-Cloud Approach
-
-<Tabs>
-  <Tab title="Unified Platform">
-    **Single Interface**:
-    - Manage all clouds from Qovery console
-    - Consistent deployment process
-    - Unified monitoring and logging
-    - Same CLI and API across providers
-
-    **No Vendor Lock-In**:
-    - Deploy same application to different clouds
-    - Easy migration between providers
-    - Standard Kubernetes underneath
-    - Portable container images
-  </Tab>
-
-  <Tab title="Cloud-Specific Features">
-    **Leverage Provider Strengths**:
-    - AWS: Largest service catalog
-    - GCP: ML/AI and data analytics
-    - Azure: Microsoft integration
-    - Scaleway: European data residency
-
-    **Integration Support**:
-    - Native cloud services (RDS, Cloud SQL, etc.)
-    - IAM and security integration
-    - Managed Kubernetes services
-    - Cloud-specific networking
-  </Tab>
-
-  <Tab title="Hybrid Deployment">
-    **Deployment Patterns**:
-    - Primary region on one cloud
-    - DR region on different cloud
-    - Different clouds for different environments
-    - Multi-cloud active-active setup
-
-    **Traffic Management**:
-    - Global load balancing
-    - DNS-based routing
-    - Health check-based failover
-    - Geographic routing
-  </Tab>
-</Tabs>
-
-## Migration Best Practices
-
-<Steps>
-  <Step title="Start with Non-Critical Applications">
-    Begin migration with low-risk applications to gain experience
-  </Step>
-
-  <Step title="Automate Everything">
-    Use Infrastructure as Code and CI/CD for repeatability
-  </Step>
-
-  <Step title="Test Thoroughly">
-    Validate functionality, performance, and security in staging
-  </Step>
-
-  <Step title="Plan for Rollback">
-    Always have a rollback plan and keep old infrastructure running initially
-  </Step>
-
-  <Step title="Monitor Continuously">
-    Set up comprehensive monitoring before migration
-  </Step>
-
-  <Step title="Communicate with Stakeholders">
-    Keep business and technical stakeholders informed throughout
-  </Step>
-
-  <Step title="Optimize Post-Migration">
-    Don't just lift and shift - optimize for cloud after migration
-  </Step>
-</Steps>
-
-## Common Migration Challenges
-
-<AccordionGroup>
-  <Accordion title="Data Transfer" icon="cloud-arrow-up">
-    **Challenge**: Large datasets take time to transfer
-
-    **Solutions**:
-    - Use cloud provider transfer services
-    - Physical data transfer (AWS Snowball, etc.)
-    - Incremental migration with replication
-    - Compress data before transfer
-    - Parallel transfers to speed up process
+  <Accordion title="Can I use Terraform and Infrastructure as Code?">
+    Yes, Qovery has a [Terraform provider](/terraform/overview) available for infrastructure-as-code deployment.
   </Accordion>
 
-  <Accordion title="Downtime Requirements" icon="clock">
-    **Challenge**: Business requires zero downtime
-
-    **Solutions**:
-    - Blue/green deployment
-    - Database replication with cutover
-    - Gradual traffic shift
-    - Dual-write during transition
-    - Feature flags for gradual rollout
+  <Accordion title="How can I connect my app to MongoDB Atlas?">
+    Use [VPC peering](/integrations/networking/vpc-peering) for secure connection to MongoDB Atlas.
   </Accordion>
 
-  <Accordion title="Application Dependencies" icon="diagram-project">
-    **Challenge**: Complex dependencies between applications
-
-    **Solutions**:
-    - Map all dependencies before migration
-    - Migrate in dependency order
-    - Use service mesh for service discovery
-    - Implement circuit breakers
-    - Test inter-service communication
-  </Accordion>
-
-  <Accordion title="Performance Issues" icon="gauge-high">
-    **Challenge**: Application slower in cloud
-
-    **Solutions**:
-    - Right-size instances
-    - Enable caching at all levels
-    - Use managed services (databases, etc.)
-    - Optimize database queries
-    - Use CDN for static content
-    - Review application architecture
-  </Accordion>
-
-  <Accordion title="Cost Overruns" icon="dollar-sign">
-    **Challenge**: Cloud costs exceed estimates
-
-    **Solutions**:
-    - Right-size resources continuously
-    - Enable auto-scaling
-    - Use spot/preemptible instances
-    - Set up cost alerts and budgets
-    - Review and eliminate waste
-    - Use reserved capacity for predictable workloads
+  <Accordion title="How can I connect my app to an AWS service not managed by Qovery?">
+    Use [VPC peering](/integrations/networking/vpc-peering) to connect to external AWS services.
   </Accordion>
 </AccordionGroup>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Choose Cloud Provider" icon="cloud" href="/quickstart">
-    Select and set up your Kubernetes cluster
+  <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+    Complete the deployment process
   </Card>
 
   <Card title="Production Setup" icon="server" href="/guides/use-cases/production-environment-management">
-    Configure production-grade infrastructure
+    Set up a production-ready environment
   </Card>
 
-  <Card title="Multi-Cluster Management" icon="layer-group" href="/guides/use-cases/multi-kubernetes-clusters-management">
-    Manage multiple clusters efficiently
+  <Card title="Qovery CLI" icon="terminal" href="/cli/overview">
+    Learn about the Qovery CLI
   </Card>
 
-  <Card title="CI/CD Integration" icon="rotate" href="/guides/advanced/ci-cd-integration">
-    Automate your deployment pipeline
+  <Card title="Community Forum" icon="comments" href="https://discuss.qovery.com">
+    Get help from the community
   </Card>
 </CardGroup>

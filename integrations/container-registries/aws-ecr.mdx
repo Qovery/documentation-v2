@@ -1,76 +1,85 @@
 ---
-title: "Amazon ECR Integration"
-description: "Connect AWS Elastic Container Registry with Qovery"
+title: "AWS ECR"
+description: "Connect Amazon Elastic Container Registry with Qovery"
 ---
 
-<Info>
-**Detailed integration guide coming soon**
+## Overview
 
-This page will include:
-- ECR authentication setup (Access Keys and IAM Roles)
-- Public vs Private ECR configuration
-- IAM policy examples
-- Cross-account ECR access
-- Best practices for ECR with Qovery
-</Info>
+Amazon Elastic Container Registry (ECR) is a fully managed container registry that makes it easy to store, manage, share, and deploy your container images.
 
-## Quick Setup
+## Automatic Registry
 
-### Registry URL Format
+When you create a cluster on AWS, Qovery automatically creates a container registry (named `registry-{UUID}`) that is used to manage the deployment of your applications by mirroring Docker images.
 
-```
-https://<aws_account_id>.dkr.ecr.<region>.amazonaws.com
-```
+The credentials configured on this automatic registry are the ones used to create the cluster, but you can update them if you prefer to manage them separately.
 
-### Required IAM Permissions
+## Adding Your Own ECR Registry
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-```
+To connect your own AWS ECR repository to Qovery:
 
-## Configuration Steps
+### Required Information
 
 <Steps>
-  <Step title="Get AWS Credentials">
-    Create IAM user with ECR permissions or use IAM role
+  <Step title="Registry URL">
+    Format: `https://<aws_account_id>.dkr.ecr.<region>.amazonaws.com`
+
+    Example: `https://123456789012.dkr.ecr.us-east-1.amazonaws.com`
   </Step>
 
-  <Step title="Add Registry in Qovery">
-    Go to Organization Settings → Container Registries → Add Registry
+  <Step title="Region">
+    Your ECR repository region (e.g., `us-east-1`, `eu-west-1`)
   </Step>
 
-  <Step title="Select AWS ECR">
-    Choose "Amazon ECR" from registry types
-  </Step>
-
-  <Step title="Enter Details">
-    - Registry URL
+  <Step title="Access Credentials">
     - AWS Access Key ID
     - AWS Secret Access Key
-    - Region
-  </Step>
-
-  <Step title="Test & Save">
-    Qovery will verify credentials and save the configuration
   </Step>
 </Steps>
 
-## Resources
+### Configuration in Qovery
 
-- [AWS ECR Documentation](https://docs.aws.amazon.com/ecr/)
-- [Container Registry Overview](/integrations/container-registries/overview)
-- [Deploy from Registry](/configuration/application)
+<Steps>
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries**
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
+  </Step>
+
+  <Step title="Select ECR">
+    Choose **ECR** from the registry type dropdown
+  </Step>
+
+  <Step title="Enter Details">
+    Provide:
+    - Registry URL
+    - Region
+    - Access Key ID
+    - Secret Access Key
+  </Step>
+
+  <Step title="Save">
+    Qovery will verify the credentials and save the configuration
+  </Step>
+</Steps>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="AWS EKS Setup" icon="aws" href="/integrations/kubernetes/eks/overview">
+    Set up AWS EKS cluster with Qovery
+  </Card>
+
+  <Card title="AWS Credentials" icon="key" href="/configuration/organization/cloud-credentials">
+    Manage AWS credentials
+  </Card>
+</CardGroup>

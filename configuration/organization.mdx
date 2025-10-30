@@ -1,38 +1,41 @@
 ---
 title: "Organization"
-description: "Configure and manage your organization"
+description: "Configure and manage your Qovery organization"
 ---
 
-## Overview
+An organization is a shared account where developers can collaborate across many projects. Organization owners and admins can manage all aspects of the organization, from clusters to member access.
 
-An organization is a shared account that allows developers to collaborate across multiple projects. Organization owners and administrators can manage all aspects of the organization, from clusters to member access.
+## Prerequisites
+
+To follow this section, you must have [created an account](https://console.qovery.com/signup).
 
 ## Creating an Organization
 
 ### When Signing Up
 
-When you first sign up for Qovery:
+When you sign up for Qovery, you will be asked to create your first organization and project. You will need to:
 
 1. Sign in through your Git provider (GitHub, GitLab, or Bitbucket)
 2. Create your first organization and project
-3. Choose from three available plans:
-   - **Free**: For individuals and small teams
-   - **Team**: For growing teams with advanced features
-   - **Enterprise**: For large organizations with custom requirements
+3. Select a plan: Free, Team, or Enterprise
+
+For more information on available plans, visit the [pricing page](https://www.qovery.com/pricing).
 
 ### After Signing Up
 
-To create a new organization after your initial setup:
+You can create multiple organizations to separate concerns. To create a new organization:
 
 <Steps>
   <Step title="Access Organization Menu">
-    Click on your profile icon in the top right corner
+    Click on your profile icon button on the left navbar
   </Step>
 
   <Step title="Create New Organization">
     Click the `+` button in the top right corner of the dropdown menu
 
-    ![Qovery - create organization after signing up](/images/configuration/organization/create_organization_after_signing_up.png)
+    <Frame>
+      <img src="/images/configuration/organization/create_organization_after_signing_up.png" alt="Create organization after signing up" />
+    </Frame>
   </Step>
 
   <Step title="Configure Organization">
@@ -40,68 +43,30 @@ To create a new organization after your initial setup:
   </Step>
 </Steps>
 
-## Switching Between Organizations
+## Change an Organization
 
-If you have access to multiple organizations:
+If you have access to multiple organizations, you can switch between them:
 
-1. Locate the organization dropdown in the bottom left of the navigation bar
+1. Locate the organization dropdown in the bottom left of the navbar
 2. Click on the dropdown to see all available organizations
 3. Select the organization you want to switch to
 
-![Qovery - change organization](/images/configuration/organization/change_organization.png)
+<Frame>
+  <img src="/images/configuration/organization/change_organization.png" alt="Change organization" />
+</Frame>
 
-## Organization Settings
+## Delete an Organization
 
-### Accessing Settings
+<Warning>
+Deleting an organization is **irreversible**. All data associated with the organization will be permanently deleted.
+</Warning>
 
-Click the "Wheel" button (⚙️) on the left navigation bar to access organization settings.
+To delete an organization:
 
-![How to access your organization settings](/images/configuration/organization/access_settings.png)
-
-### General Information
-
-Configure basic organization details:
-
-- **Company Name**: Your organization's official name
-- **Description**: Brief description of your organization
-- **Website**: Your company website URL
-- **Admin Contact Emails**: Email addresses for administrative notifications
-
-### Configuration Options
-
-<CardGroup cols={2}>
-  <Card title="API Token" icon="key">
-    Generate and manage API tokens for programmatic access
-  </Card>
-
-  <Card title="Cloud Credentials" icon="cloud">
-    Connect your cloud provider accounts (AWS, GCP, Azure, Scaleway)
-  </Card>
-
-  <Card title="Container Registry" icon="box">
-    Configure access to your container registries
-  </Card>
-
-  <Card title="Git Repository Access" icon="git">
-    Manage Git provider integrations and repository access
-  </Card>
-
-  <Card title="Helm Repository" icon="/images/logos/helm-icon-light.svg">
-    Add and configure Helm chart repositories
-  </Card>
-
-  <Card title="Labels & Annotations" icon="tag">
-    Define custom labels and annotations for your resources
-  </Card>
-
-  <Card title="Members & RBAC" icon="users">
-    Manage team members and role-based access control
-  </Card>
-
-  <Card title="Billing" icon="credit-card">
-    View invoices and manage payment methods
-  </Card>
-</CardGroup>
+1. Navigate to Organization Settings
+2. Scroll to the "Danger Zone" section
+3. Click "Delete Organization"
+4. Confirm the deletion by typing the organization name
 
 ## Billing
 
@@ -112,43 +77,61 @@ Manage your organization's billing and subscription:
 - **Subscription**: Upgrade or downgrade your plan
 - **Usage**: Monitor resource usage and costs
 
+For pricing details, visit the [pricing page](https://www.qovery.com/pricing).
+
+## Organization Admin Settings
+
+### Accessing Settings
+
+Click the **Wheel** button (⚙️) on the left navigation bar to access organization settings.
+
+<Frame>
+  <img src="/images/configuration/organization/access_settings.png" alt="Access organization settings" />
+</Frame>
+
+### General Information
+
+Configure basic organization details:
+
+- **Company name**: Your organization's official name
+- **Description**: Brief description of your organization
+- **Website**: Your company website URL
+- **Admin contact emails**: Enter one or multiple email addresses separated by commas
+
 <Info>
-For detailed pricing information, visit [Qovery's pricing page](https://www.qovery.com/pricing).
+Admin contact emails are used for communications about infrastructure outages, maintenance updates, and weekly and monthly usage reports.
 </Info>
 
-## Deleting an Organization
+Click **Update** to save your changes.
 
-<Warning>
-Deleting an organization is a **non-recoverable operation**. All associated data, including projects, environments, applications, and configurations will be permanently deleted.
-</Warning>
-
-To delete an organization:
-
-1. Navigate to Organization Settings
-2. Scroll to the "Danger Zone" section
-3. Click "Delete Organization"
-4. Confirm the deletion by typing the organization name
-
-## Related Topics
+### Other Settings
 
 <CardGroup cols={2}>
-  <Card title="Projects" href="/configuration/project">
-    Learn about project configuration
+  <Card title="API Token" icon="key" href="/configuration/organization/api-token">
+    Generate and manage API tokens for programmatic access
   </Card>
 
-  <Card title="Environment" href="/configuration/environment">
-    Configure and manage environments
+  <Card title="Cloud Credentials" icon="cloud" href="/configuration/organization/cloud-credentials">
+    Connect your cloud provider accounts (AWS, GCP, Azure, Scaleway)
   </Card>
 
-  <Card title="Clusters" href="/configuration/clusters">
-    Configure and manage Kubernetes clusters
+  <Card title="Container Registry" icon="box" href="/configuration/organization/container-registry">
+    Configure access to your container registries
   </Card>
 
-  <Card title="Members & RBAC" href="/configuration/organization/members-rbac">
-    Manage team access and permissions
+  <Card title="Git Repository Access" icon="code-branch" href="/configuration/organization/git-repository-access">
+    Manage Git provider integrations and repository access
   </Card>
 
-  <Card title="API Tokens" href="/cli/commands/token">
-    Generate API tokens for CLI and automation
+  <Card title="Helm Repository" icon="/images/logos/helm-icon-light.svg" href="/configuration/organization/helm-repository">
+    Add and configure Helm chart repositories
+  </Card>
+
+  <Card title="Labels & Annotations" icon="tag" href="/configuration/organization/labels-annotations">
+    Define custom labels and annotations for your resources
+  </Card>
+
+  <Card title="Members & RBAC" icon="users" href="/configuration/organization/members-rbac">
+    Manage team members and role-based access control
   </Card>
 </CardGroup>

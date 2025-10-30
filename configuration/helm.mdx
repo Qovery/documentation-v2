@@ -1,160 +1,101 @@
 ---
 title: "Helm Charts"
-description: "Deploy and manage Helm charts on Qovery with flexible configuration options"
+description: "Deploy and manage Helm charts on Qovery"
 ---
-
-<img src="/images/logos/helm-icon.svg" alt="Helm" class="helm-icon" /> Helm is a package manager for Kubernetes that allows you to deploy pre-configured applications and services. Qovery provides native support for deploying Helm charts within your environment, making it easy to deploy complex applications with customizable configurations.
 
 ## Overview
 
-Helm charts on Qovery are treated as a service type within your environment. You can deploy charts from:
-- **Git Repository**: Store your Helm chart in a Git repository with full version control
-- **Helm Repository**: Use public or private Helm repositories to deploy charts
+Helm charts on Qovery allow you to deploy pre-packaged Kubernetes applications within your environment. Qovery treats Helm deployments as services that can be managed alongside your applications and databases.
 
-This flexibility allows you to leverage the extensive Helm ecosystem while benefiting from Qovery's deployment management, monitoring, and logging capabilities.
+## Deployment Sources
+
+Qovery supports two sources for deploying Helm charts:
+
+### Git Repository
+
+Qovery pulls the Helm chart from your Git repository and installs it on your Kubernetes cluster.
+
+**Supported Providers**: GitHub, GitLab, Bitbucket
+
+### Helm Repository
+
+Qovery pulls a chart from a configured Helm repository and installs it on your Kubernetes cluster.
+
+<Note>
+Helm repositories must be configured at the organization level by administrators. See [Helm Repository Management](/configuration/organization/helm-repository).
+</Note>
 
 ## Creating a Helm Service
 
 <Steps>
-  <Step title="Navigate to Your Environment">
-    Go to your project and select the environment where you want to deploy the Helm chart
+  <Step title="Select Source">
+    Choose **Git Repository** or **Helm Repository** as your deployment source
   </Step>
 
-  <Step title="Add Helm Service">
-    Click **Create** and select **Helm** from the service types
+  <Step title="Configure Source">
+    **For Git Repository**:
+    - Select Git provider
+    - Choose repository
+    - Select branch
+    - Specify root Helm path (path to chart directory)
+
+    **For Helm Repository**:
+    - Select configured repository
+    - Enter chart name
+    - Specify chart version
+    - Configure timeout (default: 300 seconds)
+    - Add arguments (optional)
   </Step>
 
-  <Step title="Choose Source Type">
-    Select your deployment source:
-    - **Git Repository**: Deploy from a Git repository containing your Helm chart
-    - **Helm Repository**: Deploy from a Helm chart repository
+  <Step title="Configure Values Override">
+    Override chart values using:
+    - Values file (upload or specify path)
+    - Raw YAML override
+    - Arguments (`--set`, `--set-string`, `--set-json`)
   </Step>
 
-  <Step title="Configure and Deploy">
-    Complete the configuration based on your selected source type (detailed below) and click **Create**
+  <Step title="Review and Deploy">
+    Review configuration and click **Create** to deploy
   </Step>
 </Steps>
 
-<img src="/images/configuration/helm/helm_creation_recap.png" alt="Helm Service Creation Recap" />
+## Configuration
 
-## Configuration Options
+### General Settings
 
-<Tabs>
-  <Tab title="Git Repository">
-    ### Deploy from Git Repository
+**Git Repository Configuration**:
+- Git provider and repository
+- Branch selection
+- Root Helm path (path to chart directory containing `Chart.yaml`)
 
-    When deploying a Helm chart from a Git repository, configure the following:
+**Helm Repository Configuration**:
+- Repository selection
+- Chart name
+- Chart version
+- Timeout configuration
+- Additional arguments
 
-    **Source Settings**:
-    - **Git Provider**: Select your Git provider (GitHub, GitLab, Bitbucket, etc.)
-    - **Repository**: Choose the repository containing your Helm chart
-    - **Branch**: Select the branch to deploy from (e.g., `main`, `develop`)
-    - **Root Helm Path**: Specify the path to the Helm chart directory within your repository
+### Values Override
 
-    **Example Repository Structure**:
-    ```
-    my-repo/
-    ├── charts/
-    │   └── my-app/
-    │       ├── Chart.yaml
-    │       ├── values.yaml
-    │       └── templates/
-    │           └── deployment.yaml
-    └── README.md
-    ```
+Helm charts use a `values.yaml` file for configuration. Qovery provides three ways to override default values:
 
-    If your chart is in `charts/my-app`, set **Root Helm Path** to `charts/my-app`.
+**1. Values File Override**:
+Upload or specify a custom `values.yaml` file to override default chart values. Ideal for complex configurations with many overrides.
 
-    <Info>
-    Your repository must contain a valid Helm chart structure with `Chart.yaml` and a `templates/` directory.
-    </Info>
-  </Tab>
+**2. Raw YAML Override**:
+Provide raw YAML directly in the Qovery console for quick overrides. Perfect for environment-specific configurations.
 
-  <Tab title="Helm Repository">
-    ### Deploy from Helm Repository
+**3. Arguments Override**:
+Use Helm command-line arguments for individual value overrides:
+```bash
+--set replicaCount=3
+--set service.type=LoadBalancer
+--set image.tag=1.21
+```
 
-    When deploying from a Helm repository, configure:
+### Environment Variables in Values
 
-    **Repository Settings**:
-    - **Helm Repository**: Select from configured repositories or add a new one
-    - **Chart Name**: The name of the chart (e.g., `nginx`, `postgresql`)
-    - **Chart Version**: Specific version to deploy (e.g., `1.2.3`)
-    - **Timeout**: Maximum time for deployment (default: 300 seconds)
-    - **Arguments**: Additional Helm arguments (optional)
-
-    **Popular Helm Repositories**:
-    - Bitnami: `https://charts.bitnami.com/bitnami`
-    - Stable: `https://charts.helm.sh/stable`
-    - Prometheus: `https://prometheus-community.github.io/helm-charts`
-    - Nginx: `https://kubernetes.github.io/ingress-nginx`
-
-    <Tip>
-    Using specific chart versions instead of "latest" ensures predictable deployments and easier rollbacks.
-    </Tip>
-  </Tab>
-</Tabs>
-
-## Overriding Values
-
-Helm charts use a `values.yaml` file for configuration. Qovery provides three ways to override these values:
-
-<AccordionGroup>
-  <Accordion title="Values File Override">
-    Upload or specify a custom `values.yaml` file to override default chart values.
-
-    **Example values.yaml**:
-    ```yaml
-    replicaCount: 3
-
-    image:
-      repository: nginx
-      tag: "1.21"
-      pullPolicy: IfNotPresent
-
-    service:
-      type: LoadBalancer
-      port: 80
-
-    resources:
-      limits:
-        cpu: 500m
-        memory: 512Mi
-      requests:
-        cpu: 250m
-        memory: 256Mi
-    ```
-
-    This method is ideal for complex configurations with many overrides.
-  </Accordion>
-
-  <Accordion title="Raw YAML Override">
-    Provide raw YAML directly in the Qovery console for quick overrides:
-
-    ```yaml
-    replicaCount: 2
-    service:
-      type: ClusterIP
-    ```
-
-    This method is perfect for environment-specific configurations.
-  </Accordion>
-
-  <Accordion title="Arguments Override">
-    Use Helm command-line arguments for individual value overrides:
-
-    ```bash
-    --set replicaCount=3
-    --set service.type=LoadBalancer
-    --set image.tag=1.21
-    ```
-
-    This method works well for simple, single-value overrides.
-  </Accordion>
-</AccordionGroup>
-
-### Using Environment Variables in Values
-
-Qovery provides a special macro syntax to inject environment variables into your Helm values:
+Use the `qovery.env.<ENV_VAR_NAME>` macro to inject environment variables into your Helm values:
 
 ```yaml
 database:
@@ -162,110 +103,54 @@ database:
   port: qovery.env.DATABASE_PORT
   username: qovery.env.DATABASE_USER
   password: qovery.env.DATABASE_PASSWORD
-
-api:
-  key: qovery.env.API_KEY
-  url: qovery.env.API_URL
 ```
-
-**Syntax**: `qovery.env.<ENV_VAR_NAME>`
-
-This allows you to:
-- Use Qovery-managed secrets
-- Reference other services in your environment
-- Keep sensitive data out of your chart configuration
 
 <Warning>
 Environment variables referenced with `qovery.env.*` must exist in your Helm service configuration, otherwise deployment will fail.
 </Warning>
 
-## Network Configuration
+### Network Configuration
 
-Configure how your Helm chart exposes services and handles network traffic:
-
-### Kubernetes Service Configuration
-
-Your Helm chart should define Kubernetes services. Qovery automatically handles:
+**Kubernetes Service Configuration**:
+Qovery automatically handles:
 - Service discovery within the environment
 - Internal DNS resolution
 - Network policies
 
-### Port Exposure
+**Port Exposure**:
+- Service port
+- Protocol (HTTP, HTTPS, TCP, gRPC)
+- Public access toggle
 
-Configure which ports to expose:
+<Note>
+Connections on public ports are automatically closed after 60 seconds.
+</Note>
 
-**Port Configuration**:
-- **Service Port**: The port your Kubernetes service exposes
-- **Protocol**: HTTP, HTTPS, TCP, or gRPC
-- **Public Access**: Toggle to expose via internet
+### Domains
 
-**Example Configuration**:
-```yaml
-Web Application:
-  Service Port: 80
-  Protocol: HTTPS
-  Public Access: Enabled
+**Qovery-Assigned Domains**:
+When you enable public access, Qovery automatically generates a domain:
 
-API Service:
-  Service Port: 8080
-  Protocol: gRPC
-  Public Access: Enabled
-
-Internal Service:
-  Service Port: 9000
-  Protocol: HTTP
-  Public Access: Disabled
-```
-
-<img src="/images/configuration/application/app-16.png" alt="Application Domains Configuration" />
-
-## Custom Domains
-
-### Automatic Domain Generation
-
-When you enable public access, Qovery automatically generates a domain for your Helm service:
-
-**Domain Pattern**:
 ```
 p<PORT>-<RANDOM_ID>-<SERVICE_ID>-gtw.<CLUSTER_ID>.bool.sh
 ```
 
-**Example**:
-```
-p80-zdf72de72-z709e1a88-gtw.za8ad0657.bool.sh
-```
+Example: `p80-zdf72de72-z709e1a88-gtw.za8ad0657.bool.sh`
 
-Breaking down the pattern:
-- `p80`: Port 80 is exposed
-- `zdf72de72`: Random identifier
-- `z709e1a88`: Service ID
-- `gtw`: Gateway indicator
-- `za8ad0657`: Cluster ID
-- `bool.sh`: Qovery domain suffix
-
-This domain is automatically:
-- SSL/TLS secured with Let's Encrypt
-- Load balanced
-- Health checked
-
-### Using Custom Domains
-
+**Custom Domains**:
 Add your own domain to your Helm service:
-
-<img src="/images/configuration/application/custom-domain.png" alt="Custom Domain Configuration" />
 
 <Steps>
   <Step title="Add Custom Domain">
-    Navigate to your Helm service → **Settings** → **Domains** → **Add Domain**
+    Navigate to Helm service → Settings → Domains → Add Domain
   </Step>
 
   <Step title="Enter Domain Name">
-    Enter your domain (e.g., `app.example.com` or `api.mycompany.io`)
+    Enter your domain (e.g., `app.example.com`)
   </Step>
 
   <Step title="Configure DNS">
-    Add a CNAME record in your DNS provider pointing to the Qovery-generated domain:
-
+    Add a CNAME record pointing to the Qovery-generated domain:
     ```
     Type: CNAME
     Name: app
@@ -275,90 +160,21 @@ Add your own domain to your Helm service:
   </Step>
 
   <Step title="Verify and Deploy">
-    - Qovery automatically verifies DNS configuration
+    - Qovery verifies DNS configuration
     - SSL/TLS certificate is provisioned via Let's Encrypt
-    - Redeploy your Helm service to activate the custom domain
+    - Redeploy to activate custom domain
   </Step>
 </Steps>
 
-<img src="/images/configuration/application/domain_check.png" alt="Domain Validation Success" />
+## Auto-Deploy
 
-<Info>
-Certificate provisioning typically takes 2-5 minutes. You can monitor the status in the Qovery console.
-</Info>
+Enable auto-deploy for Helm charts sourced from Git repositories. When enabled, Qovery automatically deploys changes when:
+- Code is pushed to the configured branch
+- Deployment restrictions are met (if configured)
 
-### Domain Validation Errors
-
-If your domain validation fails, check the following:
-
-<img src="/images/configuration/application/domain_check_error.png" alt="Domain Validation Error" />
-
-### Multiple Custom Domains
-
-You can add multiple custom domains to a single Helm service:
-
-```
-Primary: app.example.com
-Aliases:
-  - www.example.com
-  - app.mycompany.io
-  - api.example.com
-```
-
-All domains will be:
-- Automatically SSL/TLS secured
-- Load balanced to the same service
-- Health checked independently
-
-### CDN Configuration
-
-You can configure a CDN proxy for your custom domains:
-
-<img src="/images/configuration/application/cdn-proxy.png" alt="CDN Proxy Configuration" />
-
-## Deployment Management
-
-### Deployment Actions
-
-Manage your Helm service deployments:
-
-**Available Actions**:
-- **Deploy**: Deploy new changes or updates
-- **Redeploy**: Redeploy current version
-- **Stop**: Stop the Helm release (pods removed)
-- **Restart**: Restart all pods in the release
-
-### Viewing Logs
-
-Access logs for your Helm service:
-
-<Steps>
-  <Step title="Navigate to Logs">
-    Click on your Helm service → **Logs** tab
-  </Step>
-
-  <Step title="View Logs">
-    - **Real-time logs**: Live tail of application logs
-    - **Historical logs**: Search past logs by time range
-    - **Pod selection**: View logs from specific pods
-    - **Log filtering**: Filter by log level or search terms
-  </Step>
-</Steps>
-
-### Deployment History
-
-Track all deployments and changes:
-
-- View deployment timeline
-- See who triggered each deployment
-- Access deployment logs and status
-- Rollback to previous versions
-
-## Cloning Helm Services
+## Clone Service
 
 Duplicate a Helm service with its configuration:
-
-<img src="/images/configuration/helm/clone_service.png" alt="Clone Helm Service" />
 
 <Steps>
   <Step title="Select Service">
@@ -366,235 +182,85 @@ Duplicate a Helm service with its configuration:
   </Step>
 
   <Step title="Clone Service">
-    Click the **3 dots menu** → **Clone**
+    Click the three-dot menu → **Clone**
   </Step>
 
   <Step title="Configure Clone">
-    - **New Name**: Unique name for the cloned service
-    - **Target Environment**: Select destination environment
-    - **Copy Settings**: Choose which settings to copy (values, domains, variables)
-  </Step>
-
-  <Step title="Deploy Clone">
-    Review the configuration and click **Create** to deploy the cloned service
+    - New name for the cloned service
+    - Target environment (same or different)
+    - Settings to copy (values, domains, variables)
   </Step>
 </Steps>
 
-<Tip>
-Cloning is useful for creating similar services across environments (dev, staging, production) or testing different configurations.
-</Tip>
+<Note>
+Cloning excludes custom domains and certain environment variables to prevent conflicts.
+</Note>
 
 ## Advanced Settings
 
-Configure advanced Helm deployment options:
+**Timeout Configuration**:
+- Install timeout
+- Upgrade timeout
+- Rollback timeout
+- Delete timeout
 
-<AccordionGroup>
-  <Accordion title="Timeout Configuration">
-    Set maximum time for Helm operations:
+**Helm Arguments**:
+Pass additional arguments to Helm commands:
+- `--atomic` - Rollback on failure
+- `--wait` - Wait for resources to be ready
+- `--wait-for-jobs` - Wait for jobs to complete
+- `--create-namespace` - Create namespace if missing
+- `--skip-crds` - Skip CRD installation
 
-    ```yaml
-    Install Timeout: 300s
-    Upgrade Timeout: 600s
-    Rollback Timeout: 300s
-    Delete Timeout: 300s
-    ```
+**CRD and ClusterRole Deployment**:
+Some Helm charts require cluster-wide permissions to deploy Custom Resource Definitions (CRDs) or ClusterRoles. Ensure your service account has appropriate permissions.
 
-    Increase timeouts for charts with:
-    - Long initialization times
-    - Large number of resources
-    - External dependency checks
-  </Accordion>
+## Logs and Monitoring
 
-  <Accordion title="Helm Arguments">
-    Pass additional arguments to Helm commands:
+Access logs for your Helm service:
+- Real-time log streaming
+- Historical logs by time range
+- Pod-specific logs
+- Log filtering and search
 
-    **Common Arguments**:
-    ```bash
-    --atomic                    # Rollback on failure
-    --wait                      # Wait for resources to be ready
-    --wait-for-jobs            # Wait for jobs to complete
-    --create-namespace         # Create namespace if missing
-    --dependency-update        # Update dependencies before install
-    --skip-crds               # Skip CRD installation
-    ```
+## Delete Service
 
-    **Example**:
-    ```bash
-    --atomic --wait --wait-for-jobs
-    ```
-  </Accordion>
-
-  <Accordion title="Hook Management">
-    Control Helm hook behavior:
-
-    - **Before Install**: Run jobs before chart installation
-    - **After Install**: Run jobs after chart installation
-    - **Before Upgrade**: Run jobs before chart upgrade
-    - **After Upgrade**: Run jobs after chart upgrade
-    - **Before Delete**: Run jobs before chart deletion
-    - **After Delete**: Run jobs after chart deletion
-
-    Hooks are defined in your Helm chart templates.
-  </Accordion>
-
-  <Accordion title="Resource Tracking">
-    Monitor resources created by your Helm chart:
-
-    - Deployments and StatefulSets
-    - Services and Ingresses
-    - ConfigMaps and Secrets
-    - Persistent Volume Claims
-    - Jobs and CronJobs
-
-    View all resources in the Qovery console under **Resources** tab.
-  </Accordion>
-</AccordionGroup>
-
-## Deleting a Helm Service
-
-Remove a Helm service from your environment:
+To delete a Helm service:
 
 <Steps>
   <Step title="Stop Service">
-    First, stop the service to ensure graceful shutdown:
-    - Click the **3 dots menu** → **Stop**
-    - Wait for all pods to terminate
+    Click the three-dot menu → **Stop**
   </Step>
 
   <Step title="Delete Service">
-    Click the **3 dots menu** → **Remove helm**
+    Click the three-dot menu → **Remove helm**
   </Step>
 
   <Step title="Confirm Deletion">
-    - Review what will be deleted
-    - Confirm by typing the service name
-    - Click **Delete** to remove the service
+    Review what will be deleted and confirm
   </Step>
 </Steps>
 
 <Warning>
-Deleting a Helm service will:
-- Remove all Kubernetes resources created by the chart
-- Delete all associated logs and metrics
-- Remove custom domains and DNS configurations
-- This action cannot be undone
-
-Ensure you have backups of any important data before deletion.
+Deleting a Helm service removes all Kubernetes resources created by the chart. This action cannot be undone.
 </Warning>
 
-## Best Practices
+## Related Resources
 
 <CardGroup cols={2}>
-  <Card title="Version Management" icon="code-branch">
-    - Pin chart versions instead of using "latest"
-    - Test upgrades in staging before production
-    - Keep track of chart and application versions
-    - Document version upgrade procedures
+  <Card title="Helm Repository" icon="box" href="/configuration/organization/helm-repository">
+    Configure Helm repositories for your organization
   </Card>
 
-  <Card title="Values Configuration" icon="file-code">
-    - Store values files in Git for version control
-    - Use environment variables for secrets
-    - Document all value overrides
-    - Validate values before deployment
-  </Card>
-
-  <Card title="Security" icon="shield">
-    - Never store secrets in values files
-    - Use Qovery environment variables for sensitive data
-    - Review chart security recommendations
-    - Keep charts updated for security patches
-  </Card>
-
-  <Card title="Monitoring" icon="chart-line">
-    - Set up health checks in your charts
-    - Monitor resource usage regularly
-    - Configure appropriate timeouts
-    - Enable logging for troubleshooting
-  </Card>
-</CardGroup>
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Deployment Fails">
-    **Common Causes**:
-    - Invalid values configuration
-    - Missing dependencies
-    - Insufficient resources
-    - Timeout too short
-
-    **Solutions**:
-    - Check deployment logs for errors
-    - Validate values.yaml syntax
-    - Ensure all environment variables exist
-    - Increase timeout if needed
-    - Verify Helm chart compatibility
-  </Accordion>
-
-  <Accordion title="Service Not Accessible">
-    **Check**:
-    - Port configuration matches chart service
-    - Public access is enabled (if needed)
-    - Custom domain DNS is configured correctly
-    - SSL certificate has been provisioned
-    - Pod health checks are passing
-
-    **Debug Steps**:
-    1. Check pod status and logs
-    2. Verify service is running: `kubectl get svc`
-    3. Test internal connectivity first
-    4. Verify external DNS and SSL
-  </Accordion>
-
-  <Accordion title="Value Overrides Not Applied">
-    **Verify**:
-    - Values file syntax is correct (valid YAML)
-    - Override precedence: Arguments > Raw YAML > Values File
-    - Chart supports the values you're overriding
-    - Values are in the correct nested structure
-
-    **Test Locally**:
-    ```bash
-    helm template my-release ./chart -f values.yaml
-    ```
-    This shows the final rendered templates.
-  </Accordion>
-
-  <Accordion title="Environment Variables Not Resolved">
-    **Check**:
-    - Environment variables exist in Helm service config
-    - Syntax is correct: `qovery.env.VAR_NAME`
-    - Variables are set before deployment
-    - No typos in variable names
-
-    **Example**:
-    ```yaml
-    # Correct
-    database:
-      host: qovery.env.DB_HOST
-
-    # Incorrect
-    database:
-      host: $DB_HOST              # Wrong syntax
-      host: qovery.env.db_host    # Case sensitive
-    ```
-  </Accordion>
-</AccordionGroup>
-
-## Next Steps
-
-<CardGroup cols={2}>
   <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
-    Configure environment variables and secrets for your Helm services
+    Manage environment variables for Helm services
   </Card>
+
   <Card title="Custom Domains" icon="globe" href="/guides/applications/configure-custom-domain">
-    Set up custom domains with SSL/TLS certificates
+    Set up custom domains with SSL/TLS
   </Card>
-  <Card title="Deployment Management" icon="rocket" href="/deployment/overview">
-    Learn about deployment strategies and CI/CD integration
-  </Card>
-  <Card title="Helm Integration" href="/integrations/helm/overview">
-    Explore Helm repository integrations and chart catalogs
+
+  <Card title="Advanced Settings" icon="sliders" href="/configuration/service-advanced-settings">
+    Configure advanced Helm deployment options
   </Card>
 </CardGroup>

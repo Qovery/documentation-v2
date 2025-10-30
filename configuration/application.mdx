@@ -3,723 +3,288 @@ title: "Application"
 description: "Configure and deploy applications on Qovery"
 ---
 
-Applications are the core services that run your containerized code on Qovery. This guide covers everything you need to know about configuring and deploying applications.
-
 ## Prerequisites
 
-Before you begin:
+Before creating an application:
 
-<Check>You have created a [Project](/configuration/project)</Check>
-<Check>You have created an [Environment](/configuration/environment)</Check>
-<Check>You have a Git repository or [container image](/configuration/organization/container-registry) to deploy</Check>
+- You have created an [Environment](/configuration/environment)
+
+## Overview
+
+An application is a container unit that is part of a Project within an Environment. You can deploy multiple applications within the same environment, and they can communicate with each other and connect to databases.
+
+## Deployment Sources
+
+Qovery supports two deployment sources for applications:
+
+### Git Repository
+
+Qovery pulls your code from a Git repository, builds the application, and deploys it to your Kubernetes cluster.
+
+**Supported Providers**: GitHub, GitLab, Bitbucket
+
+### Container Registry
+
+Qovery pulls a pre-built container image from your configured registry and deploys it to your Kubernetes cluster.
+
+<Note>
+Container registries must be configured at the organization level by administrators. See [Container Registry Management](/configuration/organization/container-registry).
+</Note>
 
 ## Creating an Application
 
-### From Git Repository
-
-Deploy directly from your source code:
-
 <Steps>
-  <Step title="Navigate to Environment">
-    Go to your project and select the environment where you want to deploy
-  </Step>
-
-  <Step title="Add Application">
-    Click **Create** → **Application**
-  </Step>
-
   <Step title="Select Source">
-    Choose **Git Repository** as the source
+    Choose **Git Repository** or **Container Registry** as your deployment source
   </Step>
 
-  <Step title="Configure Repository">
-    - **Git Provider**: Select GitHub, GitLab, or Bitbucket
-    - **Repository**: Choose your repository
-    - **Branch**: Select the branch to deploy (e.g., `main`, `develop`)
-    - **Root Application Path**: Leave empty if app is in repository root, otherwise specify subdirectory
+  <Step title="Configure Source">
+    **For Git Repository**:
+    - Select Git provider
+    - Choose repository
+    - Select branch
+    - Specify root application path (if not at repository root)
+    - Configure Dockerfile path
+
+    **For Container Registry**:
+    - Select configured registry
+    - Enter image name
+    - Specify image tag
   </Step>
 
-  <Step title="Configure Build">
-    Qovery auto-detects your Dockerfile:
+  <Step title="Configure Resources">
+    - **vCPU**: Default 500m (0.5 cores)
+    - **RAM**: Default 512MB
+    - **GPU**: Optional GPU allocation (requires GPU-enabled cluster)
+    - **Auto-scaling**: Configure min/max instances (optional)
+  </Step>
 
-    - Dockerfile path (default: `Dockerfile` at root)
-    - Build arguments (optional)
-    - Target stage (for multi-stage builds)
+  <Step title="Configure Ports">
+    - **Internal Port**: Port your application listens on
+    - **Protocol**: HTTPS, gRPC, TCP, or UDP
+    - **Publicly Accessible**: Enable to expose via load balancer
+  </Step>
+
+  <Step title="Health Checks (Optional)">
+    - **Liveness Probe**: Determines if container should be restarted
+    - **Readiness Probe**: Determines if container should receive traffic
+  </Step>
+
+  <Step title="Environment Variables">
+    Configure environment variables for your application
+  </Step>
+
+  <Step title="Review and Deploy">
+    Review configuration and choose:
+    - **Create**: Save configuration without deploying
+    - **Create and Deploy**: Save and immediately deploy
   </Step>
 </Steps>
 
-### From Container Registry
+## Configuration
 
-Deploy a pre-built container image:
+### General Settings
 
-<Steps>
-  <Step title="Add Application">
-    Click **Create** → **Application**
-  </Step>
+**Git Repository Configuration**:
+- Git provider and repository
+- Branch selection
+- Root application path
+- Dockerfile path
+- Build arguments
+- Multi-stage build target selection
 
-  <Step title="Select Container Registry">
-    Choose **Container Registry** as the source
-  </Step>
+**Container Registry Configuration**:
+- Registry selection
+- Image name
+- Image tag
+- Entrypoint override
+- CMD arguments override
 
-  <Step title="Configure Registry">
-    - **Registry**: Select your configured registry
-    - **Image Name**: Full image name (e.g., `my-org/my-app`)
-    - **Tag**: Image tag to deploy (e.g., `latest`, `v1.2.3`)
-  </Step>
-</Steps>
+### Resources
 
-<Note>
-Container registry credentials must be configured at the organization level. See [Container Registry Integration](/configuration/organization/container-registry).
-</Note>
+**CPU and Memory**:
+- vCPU allocation (millicores)
+- RAM allocation (MB/GB)
+- Configure based on application needs
 
-## General Configuration
+**GPU** (requires AWS with Karpenter):
+- Number of GPUs per instance
+- Available for AI/ML workloads
 
-### Application Name & Description
-
-- **Name**: Unique identifier within the environment
-- **Description**: Optional description for documentation
-
-### Git Repository Settings
-
-When deploying from Git:
-
-<AccordionGroup>
-  <Accordion title="Branch Configuration">
-    - **Branch**: The Git branch to deploy from
-    - **Auto-deploy**: Enable to deploy automatically on push
-    - **Deployment Restrictions**: Filter which files trigger deployments
-  </Accordion>
-
-  <Accordion title="Build Configuration">
-    **Dockerfile Settings**:
-    - **Dockerfile Path**: Path to Dockerfile (default: `Dockerfile`)
-    - **Dockerfile Target**: For multi-stage builds
-    - **Build Context**: Directory containing build context (default: repository root)
-
-    **Build Arguments**:
-    ```dockerfile
-    ARG NODE_ENV
-    ARG API_URL
-    ```
-    Configure as key-value pairs in Qovery console
-  </Accordion>
-</AccordionGroup>
-
-## Resource Configuration
-
-### CPU and Memory
-
-Configure resources for your application:
-
-**Default Resources**:
-- **CPU**: 500m (0.5 cores)
-- **Memory**: 512 MB
-
-**Recommended Settings by Application Type**:
-
-| Application Type | CPU | Memory | Use Case |
-|-----------------|-----|--------|----------|
-| API (Light) | 250m | 256 MB | Simple REST API |
-| API (Standard) | 500m - 1000m | 512 MB - 1 GB | Production API |
-| API (Heavy) | 1000m - 2000m | 1 - 2 GB | High-traffic API |
-| Frontend (Static) | 100m | 128 MB | Static site (Nginx) |
-| Frontend (SSR) | 500m - 1000m | 512 MB - 1 GB | Next.js, Nuxt |
-| Worker/Background | 250m - 500m | 256 MB - 512 MB | Queue processing |
-| Data Processing | 1000m+ | 2 GB+ | ETL, analytics |
-
-<Tip>
-Start with lower resources and scale up based on actual usage. Monitor CPU and memory metrics in the Qovery console to right-size your resources.
-</Tip>
-
-### GPU Configuration
-
-Configure GPU resources for AI/ML workloads, scientific computing, or graphics-intensive applications.
-
-**Requirements**:
-- GPU-enabled cluster (AWS with Karpenter)
-- GPU instance types configured on your cluster
-
-**Configuration**:
-- **GPU**: Number of GPUs assigned to each instance (default: 0)
+**Auto-scaling**:
+- Minimum instances (default: 1)
+- Maximum instances (default: 3)
+- CPU threshold for scaling (default: 60%)
+- Scale up: Triggered after 15 seconds above threshold
+- Scale down: Triggered after 5 minutes below threshold
 
 <Info>
-The GPU feature must be enabled on your cluster to use GPU instances. See [AWS with Karpenter setup](/integrations/kubernetes/eks/managed) for details on configuring GPU instance types.
+Auto-scaling uses Kubernetes [metrics-server](https://github.com/kubernetes-sigs/metrics-server) to monitor resource usage.
 </Info>
 
-**Example Use Cases**:
-- **Machine Learning Training**: TensorFlow, PyTorch workloads
-- **Inference Workloads**: Real-time ML predictions
-- **Video Processing**: Transcoding, rendering
-- **Scientific Computing**: CUDA applications
+### Storage
 
-**Example Configuration**:
-```yaml
-resources:
-  cpu: 4000m
-  memory: 16 GB
-  gpu: 1  # Allocate 1 GPU
-```
+**Ephemeral Storage** (default):
+- Container filesystem
+- Data lost on restart
+- Use for temporary files and caches
+
+**Persistent Storage**:
+- Block storage volumes
+- Data persists across restarts
+- Configure mount path and size
+- SSD storage type (fast_ssd)
+- Typical range: 5GB-10GB
 
 <Warning>
-GPU resources are expensive. Ensure your application actually utilizes the GPU to justify the cost. Monitor GPU utilization in your application metrics.
+Persistent storage cannot be shared between replicas. For shared storage, use external services like S3 or blob storage.
 </Warning>
 
-<Tip>
-Start with `gpu: 0` and only add GPU resources when you've confirmed your application needs them. Many ML inference workloads perform well on CPU-only instances.
-</Tip>
+### Ports
 
-### Auto-Scaling
+Configure network exposure for your application:
 
-Enable horizontal auto-scaling based on resource usage:
+**Port Configuration**:
+- **Internal Port**: Port your application listens on
+- **External Port**: HTTPS defaults to 443, HTTP to 80
+- **Protocol**: HTTP/HTTPS, gRPC, TCP, UDP
+- **Publicly Accessible**: Toggle to expose via load balancer
+- **URL Rewriting**: Configure path rewriting (optional)
 
-**Configuration**:
-- **Min Instances**: Minimum number of replicas (default: 1)
-- **Max Instances**: Maximum number of replicas (default: 3)
-- **CPU Threshold**: Trigger scaling at CPU percentage (default: 60%)
-- **Memory Threshold**: Trigger scaling at memory percentage (optional)
-
-**How It Works**:
-- Auto-scaling triggers when CPU consumption exceeds 60% for 15 seconds
-- Additional instances are added automatically
-- Downscaling occurs if CPU stays below 60% for at least 5 minutes
-- Kubernetes [metrics-server](https://github.com/kubernetes-sigs/metrics-server) monitors resource usage
-
-**Example Configuration**:
-```yaml
-min_instances: 2
-max_instances: 10
-cpu_threshold: 70%
-```
+<Note>
+For HTTP and gRPC protocols, the external port is set to 443 by default with automatic TLS.
+</Note>
 
 <Warning>
-Auto-scaling requires your application to be stateless. Use external storage (databases, Redis) for shared state.
+**Connection Timeouts**: Connections on public ports are automatically closed after 60 seconds by default. Configure custom timeouts in advanced settings for long-lived connections.
 </Warning>
 
 <Info>
-GPU-enabled instances do not auto-scale. Each GPU instance runs with the configured GPU allocation.
+**TCP/UDP Ports**: Exposing TCP/UDP ports publicly requires provisioning a dedicated load balancer, which takes approximately 15 minutes and incurs additional cloud provider costs.
 </Info>
 
-## Port Configuration
+### Health Checks
 
-Configure how your application exposes services:
+**Liveness Probe**:
+- Determines if container should be restarted
+- Configure endpoint, port, initial delay, and intervals
 
-### Adding Ports
+**Readiness Probe**:
+- Determines if container should receive traffic
+- Configure endpoint, port, initial delay, and intervals
 
-<Steps>
-  <Step title="Define Internal Port">
-    The port your application listens on (e.g., 3000, 8080, 5000)
-  </Step>
+### Deployment Restrictions
 
-  <Step title="Configure Protocol">
-    - **HTTP/HTTPS**: For web applications
-    - **gRPC**: For gRPC services
-    - **TCP**: For custom protocols
-  </Step>
+Configure when deployments should be triggered:
 
-  <Step title="Set External Port">
-    - **443** (HTTPS) - Recommended for production
-    - **80** (HTTP) - Redirects to HTTPS automatically
-    - **Custom**: For non-HTTP services
-  </Step>
+- **File path filters**: Deploy only when specific files change
+- **Branch filters**: Deploy only from specific branches
 
-  <Step title="Enable Public Access">
-    Toggle **Publicly Accessible** to expose via load balancer
-  </Step>
-</Steps>
+## Internet Connectivity
 
-### Port Examples
+### Qovery-Assigned Domains
 
-<Note>
-**Important**: Your application should listen on `0.0.0.0:$PORT` rather than `127.0.0.1` or `localhost`. While most things work with localhost, some frameworks (like Node.js) may have issues.
-</Note>
+Every publicly accessible application receives an automatic domain with TLS certificate:
 
-<Tabs>
-  <Tab title="Web Application">
-    ```yaml
-    Internal Port: 3000
-    Protocol: HTTP
-    External Port: 443
-    Publicly Accessible: Yes
-    ```
-    Application accessible via: `https://your-app.qovery.io`
-  </Tab>
-
-  <Tab title="API Service">
-    ```yaml
-    Internal Port: 8080
-    Protocol: HTTP
-    External Port: 443
-    Publicly Accessible: Yes
-    ```
-  </Tab>
-
-  <Tab title="gRPC Service">
-    ```yaml
-    Internal Port: 50051
-    Protocol: gRPC
-    External Port: 443
-    Publicly Accessible: Yes
-    ```
-  </Tab>
-
-  <Tab title="Internal Service">
-    ```yaml
-    Internal Port: 8080
-    Protocol: HTTP
-    Publicly Accessible: No
-    ```
-    Only accessible within the environment
-  </Tab>
-</Tabs>
-
-### Multiple Ports
-
-Applications can expose multiple ports:
-
-```yaml
-Port 1 (web):
-  Internal: 3000
-  External: 443
-  Public: Yes
-
-Port 2 (metrics):
-  Internal: 9090
-  External: 9090
-  Public: No (internal only)
+```
+<app-name>-<random-id>.<cluster-id>.qovery.io
 ```
 
-## Health Checks
+### Custom Domains
 
-Configure health checks to ensure application reliability:
-
-### Liveness Probe
-
-Determines if application should be restarted:
-
-```yaml
-Type: HTTP
-Path: /health
-Port: 3000
-Initial Delay: 30s
-Period: 10s
-Timeout: 5s
-Success Threshold: 1
-Failure Threshold: 3
-```
-
-### Readiness Probe
-
-Determines if application should receive traffic:
-
-```yaml
-Type: HTTP
-Path: /ready
-Port: 3000
-Initial Delay: 10s
-Period: 5s
-```
-
-### Health Check Endpoints
-
-Implement health check endpoints in your application:
-
-<CodeGroup>
-```javascript Node.js/Express
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy' });
-});
-
-app.get('/ready', async (req, res) => {
-  // Check database connection
-  const dbHealthy = await checkDatabase();
-  if (dbHealthy) {
-    res.status(200).json({ status: 'ready' });
-  } else {
-    res.status(503).json({ status: 'not ready' });
-  }
-});
-```
-
-```python Python/Flask
-@app.route('/health')
-def health():
-    return {'status': 'healthy'}, 200
-
-@app.route('/ready')
-def ready():
-    # Check dependencies
-    if check_database():
-        return {'status': 'ready'}, 200
-    return {'status': 'not ready'}, 503
-```
-
-```go Go
-http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
-})
-
-http.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
-    if checkDatabase() {
-        w.WriteHeader(http.StatusOK)
-        json.NewEncoder(w).Encode(map[string]string{"status": "ready"})
-    } else {
-        w.WriteHeader(http.StatusServiceUnavailable)
-        json.NewEncoder(w).Encode(map[string]string{"status": "not ready"})
-    }
-})
-```
-</CodeGroup>
-
-## Environment Variables
-
-Configure application settings and secrets:
-
-### Built-in Variables
-
-Qovery automatically injects variables for service interconnection:
-
-```bash
-# Application info
-QOVERY_APPLICATION_ID
-QOVERY_APPLICATION_NAME
-QOVERY_ENVIRONMENT_ID
-QOVERY_PROJECT_ID
-
-# Service connections (example for database named "my-db")
-QOVERY_DATABASE_MY_DB_CONNECTION_URI
-QOVERY_DATABASE_MY_DB_HOST
-QOVERY_DATABASE_MY_DB_PORT
-QOVERY_DATABASE_MY_DB_USERNAME
-QOVERY_DATABASE_MY_DB_PASSWORD
-QOVERY_DATABASE_MY_DB_DATABASE
-```
-
-### Custom Variables
-
-Add custom environment variables:
-
-<Steps>
-  <Step title="Navigate to Variables">
-    Click on your application → **Variables** tab
-  </Step>
-
-  <Step title="Add Variable">
-    - **Key**: Variable name (e.g., `API_KEY`)
-    - **Value**: Variable value
-    - **Scope**: Application, Environment, or Project
-    - **Type**: Variable or Secret
-  </Step>
-
-  <Step title="Use in Code">
-    ```javascript
-    const apiKey = process.env.API_KEY;
-    const dbUrl = process.env.QOVERY_DATABASE_MY_DB_CONNECTION_URI;
-    ```
-  </Step>
-</Steps>
-
-<Tip>
-Use **Secrets** for sensitive data like API keys, passwords, and tokens. Secrets are encrypted and not displayed in logs.
-</Tip>
-
-Learn more about [Environment Variables](/configuration/environment-variables).
-
-## Custom Domains
-
-Add your own domain to your application:
-
-### Configure Domain
+Add your own custom domain to your application:
 
 <Steps>
   <Step title="Add Domain">
-    Go to application settings → **Domains** → **Add Domain**
-  </Step>
-
-  <Step title="Enter Domain">
-    Enter your domain name (e.g., `app.example.com`)
+    Navigate to application settings → Domains → Add Domain
   </Step>
 
   <Step title="Configure DNS">
-    Add a CNAME record in your DNS provider:
+    Create a CNAME record in your DNS provider:
     ```
-    CNAME: app.example.com → xxxx.qovery.io
+    CNAME: your-domain.com → <app-name>.<cluster-id>.qovery.io
     ```
   </Step>
 
-  <Step title="Verify & Deploy">
-    - Qovery verifies DNS configuration
-    - SSL/TLS certificate is automatically provisioned
-    - Redeploy application to activate domain
+  <Step title="Verify">
+    Qovery automatically validates DNS configuration and provisions SSL/TLS certificate
   </Step>
 </Steps>
 
-### Wildcard Domains
+### CDN Proxy Mode
 
-For multiple subdomains, configure wildcard:
+Enable CDN proxy mode for custom domains to route traffic through your CDN provider.
 
+## Additional Features
+
+### Service Connections
+
+Applications can connect to:
+- Databases within the same environment
+- Other applications within the same environment
+- External services via environment variables
+
+Connection details are automatically injected as environment variables. See [Environment Variables](/configuration/environment-variables).
+
+### SSH Access
+
+Access running containers via SSH using the [Qovery CLI](/cli/commands/shell):
+
+```bash
+qovery shell
 ```
-CNAME: *.example.com → xxxx.qovery.io
-```
 
-Then add domains like:
-- `api.example.com`
-- `admin.example.com`
-- `app.example.com`
+### Clone Service
+
+Duplicate an application configuration to the same or different environment. Cloning copies:
+- General configuration
+- Resource settings
+- Port configuration
+- Storage configuration
+- Build settings
 
 <Note>
-SSL/TLS certificates are automatically managed by Qovery using Let's Encrypt. Certificates auto-renew before expiration.
+Cloning excludes custom domains and some built-in environment variables to prevent conflicts.
 </Note>
 
-## Storage
+### Advanced Settings
 
-### Ephemeral Storage
+Configure advanced options including:
+- Build timeout and resources
+- Deployment strategy
+- Network settings
+- Node affinity
+- Annotations and labels
 
-By default, all storage is ephemeral (lost on restart):
+See [Service Advanced Settings](/configuration/service-advanced-settings) for details.
 
-```yaml
-Type: Ephemeral
-Size: Container file system
-Use: Temporary files, caches
-```
+### Delete Application
 
-### Persistent Storage
+To delete an application:
 
-Add persistent volumes for data that survives restarts:
-
-<Steps>
-  <Step title="Add Storage">
-    Go to application settings → **Storage** → **Add Storage**
-  </Step>
-
-  <Step title="Configure Volume">
-    - **Mount Path**: Where to mount in container (e.g., `/data`)
-    - **Size**: Volume size (e.g., 10 GB)
-    - **Type**: SSD or HDD (depending on cloud provider)
-  </Step>
-
-  <Step title="Use in Application">
-    ```javascript
-    // Files written to /data persist across restarts
-    fs.writeFileSync('/data/file.txt', 'content');
-    ```
-  </Step>
-</Steps>
+1. Navigate to application settings
+2. Click **Delete Application**
+3. Confirm deletion
 
 <Warning>
-**Limitations**:
-- Persistent storage cannot be shared between replicas (use S3/blob storage for shared files)
-- Auto-scaling requires stateless applications (use external storage)
+Deleting an application is permanent and cannot be undone. All associated data and configurations will be removed.
 </Warning>
 
-## Advanced Settings
-
-### Build Settings
-
-<AccordionGroup>
-  <Accordion title="Build Timeout">
-    Maximum time for build to complete (default: 30 minutes)
-
-    Increase for large applications:
-    ```yaml
-    build_timeout: 45m
-    ```
-  </Accordion>
-
-  <Accordion title="Build Resources">
-    CPU and memory allocated for building:
-    ```yaml
-    build_cpu: 1000m
-    build_memory: 2048 MB
-    ```
-  </Accordion>
-
-  <Accordion title="Build Cache">
-    Enable to speed up subsequent builds:
-    - Docker layer caching
-    - Dependency caching
-    - 50% faster builds on average
-  </Accordion>
-</AccordionGroup>
-
-### Deployment Settings
-
-<AccordionGroup>
-  <Accordion title="Deployment Strategy">
-    **Rolling Update** (default):
-    - Zero downtime
-    - Gradual rollout
-    ```yaml
-    strategy: rolling_update
-    max_unavailable: 0
-    max_surge: 1
-    ```
-
-    **Recreate**:
-    - Stop all pods, then start new
-    - Brief downtime
-    - Use for stateful apps
-  </Accordion>
-
-  <Accordion title="Graceful Shutdown">
-    Time to wait before forcing pod termination:
-    ```yaml
-    termination_grace_period: 30s
-    ```
-
-    Implement graceful shutdown in code:
-    ```javascript
-    process.on('SIGTERM', async () => {
-      await server.close();
-      await db.disconnect();
-      process.exit(0);
-    });
-    ```
-  </Accordion>
-
-  <Accordion title="Node Affinity">
-    Control which nodes run your application:
-    - Same zone only
-    - Specific instance types
-    - GPU nodes
-  </Accordion>
-</AccordionGroup>
-
-### Networking Settings
-
-Advanced network configuration:
-
-- **CORS**: Configure cross-origin requests
-- **Timeouts**: Request/connection timeouts (default: 60 seconds for public connections)
-- **Rate Limiting**: Requests per second limits
-- **IP Whitelist**: Restrict access by IP
-- **Basic Auth**: Add authentication layer
-
-<Warning>
-**Connection Timeouts**: Public port connections are automatically closed after 60 seconds by default. For long-lived connections (like WebSockets), configure custom ingress timeouts in [Advanced Settings](/configuration/service-advanced-settings#network-settings).
-</Warning>
-
-<Info>
-**TCP/UDP Ports**: Exposing TCP/UDP ports publicly requires a dedicated load balancer, which takes approximately 15 minutes to provision and incurs additional cloud provider costs.
-</Info>
-
-## Lifecycle Hooks
-
-Execute commands during application lifecycle:
-
-### Post-Start Hook
-
-Run after container starts:
-
-```bash
-# Example: Warm up cache
-curl http://localhost:3000/warmup
-```
-
-### Pre-Stop Hook
-
-Run before container stops:
-
-```bash
-# Example: Drain connections
-/app/scripts/drain.sh
-```
-
-## Cloning Applications
-
-Clone an application to duplicate configuration:
-
-<Steps>
-  <Step title="Select Application">
-    Go to the application you want to clone
-  </Step>
-
-  <Step title="Clone">
-    Click **Actions** → **Clone**
-  </Step>
-
-  <Step title="Configure Clone">
-    - **New Name**: Unique name for cloned app
-    - **Target Environment**: Same or different environment
-    - **Copy Variables**: Option to copy environment variables
-  </Step>
-</Steps>
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Resource Management" icon="gauge">
-    - Start with minimal resources
-    - Monitor and adjust based on metrics
-    - Use auto-scaling for variable traffic
-    - Set memory limits to prevent OOM
-  </Card>
-
-  <Card title="Health Checks" icon="heartbeat">
-    - Always implement health endpoints
-    - Use readiness for dependency checks
-    - Set appropriate timeouts
-    - Test health checks locally
-  </Card>
-
-  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
-    - Use secrets for sensitive data
-    - Never commit secrets to Git
-    - Use built-in variables for service connections
-    - Document required variables
-  </Card>
-
-  <Card title="Deployment" icon="rocket" href="/configuration/deployment/overview">
-    - Use auto-deploy for dev/staging
-    - Manual deploys for production
-    - Test in staging before production
-    - Keep deployment history for rollbacks
-  </Card>
-</CardGroup>
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Application Won't Start">
-    **Check**:
-    - Application logs for errors
-    - Port configuration matches app
-    - Required environment variables set
-    - Health check endpoint responding
-    - Sufficient resources allocated
-  </Accordion>
-
-  <Accordion title="High Memory Usage">
-    **Solutions**:
-    - Increase memory limits
-    - Check for memory leaks
-    - Optimize application code
-    - Enable memory profiling
-    - Consider horizontal scaling
-  </Accordion>
-
-  <Accordion title="Connection Issues">
-    **Check**:
-    - Service is publicly accessible (if needed)
-    - Domain DNS configured correctly
-    - SSL certificate status
-    - Firewall/security group rules
-    - Load balancer health checks
-  </Accordion>
-</AccordionGroup>
-
-## Next Steps
+## Related Resources
 
 <CardGroup cols={2}>
   <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
     Step-by-step deployment guide
   </Card>
+
   <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
     Manage configuration and secrets
   </Card>
-  <Card title="Custom Domains" icon="globe" href="/guides/applications/configure-custom-domain">
-    Add your own domain
+
+  <Card title="Databases" icon="database" href="/configuration/database">
+    Connect databases to your application
   </Card>
+
   <Card title="Auto-Deploy" icon="arrows-rotate" href="/configuration/deployment/auto-deploy">
     Set up automatic deployments
   </Card>

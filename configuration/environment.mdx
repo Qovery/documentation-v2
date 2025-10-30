@@ -1,107 +1,105 @@
 ---
 title: "Environment"
-description: "Configure and manage environments"
+description: "Configure and manage environments for your applications"
 ---
 
 ## Overview
 
-An environment is a group of applications, databases, and services running within the same Kubernetes namespace. Each environment is isolated from others, allowing you to deploy and test your applications independently.
+An environment is a group of applications, databases, and services running within the same Kubernetes namespace. Each environment provides isolation and organization for your services across different stages of your development lifecycle.
 
-Environments are the core unit of deployment in Qovery, providing isolation and organization for your services across different stages of your development lifecycle.
-
-## Environment Types
+## Types of Environment
 
 Qovery supports four environment modes, each designed for specific use cases:
 
-<CardGroup cols={2}>
-  <Card title="Production" icon="rocket" color="#ff0000">
-    **Critical environment** for live applications serving real users. Production environments should not be stopped or deleted without careful consideration.
-  </Card>
+### Production
 
-  <Card title="Staging" icon="vial" color="#ff9900">
-    **Production-like environment** for final testing before deployment. Often critical for companies to validate changes before production release.
-  </Card>
+**Critical environment** for live applications serving real users.
 
-  <Card title="Development" icon="code" color="#00aa00">
-    **Working environment** for developing and testing features. Used by developers for day-to-day work and experimentation.
-  </Card>
+<Warning>
+Production environments should not be stopped or deleted by anyone without careful consideration and proper approval.
+</Warning>
 
-  <Card title="Preview" icon="eye" color="#0099ff">
-    **Ephemeral environment** automatically created for pull requests. Temporary environments that can be auto-deleted when no longer needed.
-  </Card>
-</CardGroup>
+### Staging
 
-## Creating an Environment
+**Production-like environment** for final testing before deployment. Often reflects production conditions and is critical for companies to validate changes before release.
+
+### Development
+
+**Working environment** for developing and testing features. Used by developers for day-to-day work, testing, and experimentation.
+
+### Preview
+
+**Ephemeral environment** automatically created for pull requests. Temporary environments that can be auto-deleted when no longer needed.
+
+## Create an Environment
 
 <Steps>
   <Step title="Access Project">
     Navigate to the project where you want to create the environment
 
-    ![Create Environment Step 1](/images/configuration/environment/create_environment_1.png)
+    ![Create Environment](/images/configuration/environment/create_environment_1.png)
   </Step>
 
   <Step title="Create Environment">
-    Click the "Create Environment" button
+    Click the **Create Environment** button
   </Step>
 
   <Step title="Configure Environment">
-    Specify the following:
+    Specify the following parameters:
     - **Name**: A descriptive name for your environment
-    - **Mode**: Select the environment type (Production, Staging, Development, or Preview)
+    - **Mode**: Select environment type (Production, Staging, Development, or Preview)
     - **Cluster**: Choose the Kubernetes cluster where the environment will run
 
     ![Create Environment Modal](/images/configuration/environment/create_environment_2.png)
+
+    <Info>
+    Once an environment is provisioned, the cluster assignment cannot be changed.
+    </Info>
   </Step>
 
   <Step title="Create">
-    Click "Create" to finalize the environment setup
+    Click **Create** to finalize the environment setup
   </Step>
 </Steps>
 
-### Adding Services to Your Environment
+### Adding Services
 
-Once your environment is created, you can add services such as applications, databases, and more.
+After creation, you can add services including:
+- Applications
+- Cronjobs
+- Lifecycle jobs
+- Databases
 
 ![Create Service](/images/configuration/environment/create_service.png)
 
-<Info>
-For a step-by-step tutorial, see [Create Your First Environment](/guides/getting-started/create-environment).
-</Info>
-
 ## Environment Settings
 
-Access environment settings to configure various aspects of your environment.
+Access environment settings to configure various aspects of your environment:
 
 ![Environment Settings](/images/configuration/environment/environment_settings.png)
 
-### General Settings
+### General Tab
 
 Configure basic environment properties:
 
 - **Environment Name**: Update the environment name
 - **Environment Mode**: Change between Production, Staging, Development, or Preview
-- **Cluster Assignment**: Move environment to a different cluster
 
-### Deployment Pipeline
-
-Control how services are deployed within the environment:
-
-- **Sequential Deployment**: Services deploy one after another
-- **Parallel Deployment**: Services deploy simultaneously
-- **Custom Order**: Define specific deployment sequences
-
-![Deployment Pipeline](/images/configuration/environment/deployment_pipeline.png)
+<Info>
+The cluster assignment is immutable after the environment is provisioned.
+</Info>
 
 ### Deployment Rules
 
-Set policies and restrictions for deployments:
+Set policies to reduce costs and control deployments. Learn more about [deployment rules](/configuration/deployment/overview) for cost optimization.
 
-- **Auto-deploy on Push**: Automatically deploy when code is pushed
-- **Manual Approval**: Require approval before deployment
-- **Time-based Restrictions**: Limit deployments to specific time windows
-- **Branch Restrictions**: Control which branches can be deployed
+### Deployment Pipeline
 
-## Preview Environments
+Configure the deployment pipeline to be executed when a deployment on the environment is triggered. Control how services are deployed within the environment.
+
+Learn more about [deployment pipelines](/configuration/deployment/pipeline).
+
+## Preview Environment
 
 Preview environments are automatically created for pull requests, enabling you to test changes in isolation before merging.
 
@@ -109,56 +107,44 @@ Preview environments are automatically created for pull requests, enabling you t
 
 ### Creating Preview Environments
 
-<Tabs>
-  <Tab title="Automatic">
-    **Automatic creation** - Qovery creates a preview environment for every pull request:
+Qovery supports two workflows for preview environments:
 
-    1. Go to Environment Settings
-    2. Enable "Auto-Preview"
-    3. Configure which services to include
-    4. Set auto-delete rules
-  </Tab>
+#### On Demand (Manual)
 
-  <Tab title="On-Demand">
-    **On-demand creation** - Developers create preview environments manually:
+Developers manually create preview environments when needed by commenting on pull requests.
 
-    1. Open a pull request
-    2. Click "Create Preview Environment"
-    3. Select services to deploy
-    4. Deploy the preview
+**Setup**:
+1. Enable preview environments in environment settings
+2. Configure which services to include
+3. Developers comment on PRs to trigger creation
 
-    ![Preview Environment Flow](/images/configuration/environment/preview_env_flow_ondemand.png)
-  </Tab>
-</Tabs>
+![Preview Environment Flow](/images/configuration/environment/preview_env_flow_ondemand.png)
 
-### Preview Environment Features
+#### On Every PR (Automatic)
 
-- **Isolated Testing**: Each PR gets its own environment
-- **Automatic Deletion**: Clean up when PR is merged or closed
-- **Service Selection**: Choose which services to include
-- **Cost Control**: Only run what you need for testing
+Qovery automatically creates a preview environment for every pull request.
 
-### GitHub Bot Integration
+**Setup**:
+1. Enable auto-preview in environment settings
+2. Select services to deploy automatically
+3. Configure auto-delete rules
 
-When preview environments are enabled, Qovery's GitHub bot will automatically comment on pull requests with deployment status and environment URLs.
+### Per-Service Activation
 
-![GitHub Bot Message](/images/configuration/environment/Preview_Environment_Github_Bot_Message.png)
+You can control which services are included in preview environments at the service level, giving you fine-grained control over what gets deployed.
 
-### Configuring Auto-Delete
+### Auto-Delete Functionality
 
-Set rules to automatically clean up preview environments:
-
-```yaml
-Auto-delete options:
+Configure automatic cleanup of preview environments:
 - When PR is merged
 - When PR is closed
-- After X days of inactivity
-- Never (manual deletion only)
-```
+- After specified period of inactivity
 
-## Cloning Environments
+This helps control costs and keeps your project organized.
 
-Clone an existing environment to quickly create a copy:
+## Clone Environment
+
+Duplicate an existing environment to quickly create a copy across projects or clusters:
 
 ![Clone Environment](/images/configuration/environment/clone_environment.png)
 
@@ -168,71 +154,33 @@ Clone an existing environment to quickly create a copy:
   </Step>
 
   <Step title="Clone">
-    Click the "Clone" button in environment settings
+    Click the **Clone** button in environment settings
   </Step>
 
   <Step title="Configure Clone">
     Specify:
     - New environment name
-    - Target cluster
+    - Target project (can be different)
+    - Target cluster (can be different)
     - Which services to include
 
     ![Clone Environment Modal](/images/configuration/environment/clone_environment_modal.png)
   </Step>
 
   <Step title="Create Clone">
-    Click "Clone Environment" to create the copy
+    Click **Clone Environment** to create the copy
   </Step>
 </Steps>
 
-<Tip>
-Cloning is useful for creating staging environments from production or testing new configurations without affecting existing environments.
-</Tip>
+<Info>
+Cloning excludes:
+- Custom domains
+- Certain built-in environment variables
+</Info>
 
-## Managing Environments
+## Terraform Exporter
 
-### Deploy Environment
-
-Deploy all services in an environment:
-
-```bash
-# Via CLI
-qovery environment deploy --environment "my-environment"
-
-# Via Web Console
-Click "Deploy" button in environment view
-```
-
-### Stop Environment
-
-Stop all running services to save costs:
-
-```bash
-# Via CLI
-qovery environment stop --environment "my-environment"
-
-# Via Web Console
-Click "Stop" button in environment view
-```
-
-<Warning>
-Stopping a production environment will make your application unavailable to users.
-</Warning>
-
-### Delete Environment
-
-<Warning>
-Deleting an environment is a **non-recoverable operation**. All services, databases, and data will be permanently deleted.
-</Warning>
-
-Before deleting:
-1. Backup important data
-2. Stop all services
-3. Verify you're deleting the correct environment
-
-## Terraform Export
-
-Export your environment configuration as Terraform code:
+Export your environment configuration as Terraform manifests for infrastructure as code management:
 
 <Steps>
   <Step title="Access Environment">
@@ -240,7 +188,7 @@ Export your environment configuration as Terraform code:
   </Step>
 
   <Step title="Export">
-    Click "Export as Terraform" in environment settings
+    Click **Export as Terraform** in environment settings
   </Step>
 
   <Step title="Download">
@@ -248,58 +196,32 @@ Export your environment configuration as Terraform code:
   </Step>
 
   <Step title="Use Terraform">
-    Use the exported configuration with Terraform to manage infrastructure as code
+    Use the exported configuration with the [Qovery Terraform Provider](/terraform/overview)
   </Step>
 </Steps>
 
-<Info>
-Learn more about the [Qovery Terraform Provider](/terraform/overview).
-</Info>
+## Deployment & Deletion
 
-## Best Practices
+### Deploying an Environment
 
-<AccordionGroup>
-  <Accordion title="Use Environment Types Correctly">
-    - **Production**: Only for live applications
-    - **Staging**: For final testing and validation
-    - **Development**: For active development work
-    - **Preview**: For PR testing (ephemeral)
-  </Accordion>
+Deploy all services in an environment through the Qovery Console or CLI. See [deployment management](/configuration/deployment/overview) for details.
 
-  <Accordion title="Implement Preview Environments">
-    Enable preview environments for all feature development to catch issues before merging.
-  </Accordion>
+### Deleting an Environment
 
-  <Accordion title="Set Auto-Delete Rules">
-    Configure automatic cleanup of preview environments to control costs and keep your project organized.
-  </Accordion>
+<Warning>
+Deleting an environment is a **permanent operation**. All services, databases, and data will be irreversibly deleted.
+</Warning>
 
-  <Accordion title="Use Environment Cloning">
-    Clone production to staging periodically to ensure staging reflects production configuration.
-  </Accordion>
-
-  <Accordion title="Control Deployment Pipelines">
-    Use sequential deployments for services with dependencies, parallel for independent services.
-  </Accordion>
-
-  <Accordion title="Stop Dev Environments When Not in Use">
-    Stop development environments outside working hours to reduce costs.
-  </Accordion>
-</AccordionGroup>
+Before deleting:
+1. Backup important data
+2. Stop all services
+3. Verify you're deleting the correct environment
 
 ## Related Topics
 
 <CardGroup cols={2}>
-  <Card title="Organization" href="/configuration/organization">
-    Configure your organization settings
-  </Card>
-
   <Card title="Project" href="/configuration/project">
     Learn about project configuration
-  </Card>
-
-  <Card title="Create Environment Guide" href="/guides/getting-started/create-environment">
-    Step-by-step guide to creating your first environment
   </Card>
 
   <Card title="Applications" href="/configuration/application">
@@ -310,12 +232,12 @@ Learn more about the [Qovery Terraform Provider](/terraform/overview).
     Add databases to your environments
   </Card>
 
-  <Card title="CLI: Environment Commands" href="/cli/commands/environment">
-    Manage environments using the Qovery CLI
+  <Card title="Ephemeral Environments" href="/guides/use-cases/ephemeral-environment">
+    Learn about preview environments and CI/CD integration
   </Card>
 
-  <Card title="Preview Environments Guide" href="/guides/use-cases/ephemeral-environment">
-    Learn about ephemeral preview environments
+  <Card title="Deployment Pipeline" href="/configuration/deployment/pipeline">
+    Configure deployment order and strategies
   </Card>
 
   <Card title="Terraform Provider" href="/terraform/overview">
