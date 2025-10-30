@@ -36,10 +36,18 @@ Qovery Provision automates the setup and configuration of your cloud infrastruct
   <Card title="Install on Azure" icon="microsoft" href="/installation/azure">
     Complete guide to create AKS cluster with auto-scaling
   </Card>
-  <Card title="Install on Scaleway" icon="/images/logos/cloud-providers/scaleway-icon-light.svg" href="/installation/scaleway">
+  <Card
+    title="Install on Scaleway"
+    icon="/images/logos/cloud-providers/scaleway-icon-light.svg"
+    href="/installation/scaleway"
+  >
     Complete guide to create Kapsule cluster with auto-scaling
   </Card>
-  <Card title="Bring Your Own Cluster" icon="server" href="/integrations/kubernetes/byok">
+  <Card
+    title="Bring Your Own Cluster"
+    icon="server"
+    href="/integrations/kubernetes/byok"
+  >
     Connect your existing Kubernetes cluster to Qovery
   </Card>
 </CardGroup>
@@ -71,6 +79,7 @@ graph TB
 ```
 
 **Components Provisioned**:
+
 1. **VPC/Virtual Network**: Isolated network infrastructure
 2. **Kubernetes Control Plane**: Managed Kubernetes API server
 3. **Node Groups**: Worker nodes with auto-scaling
@@ -86,6 +95,7 @@ graph TB
 Qovery provisions and manages the entire cluster lifecycle.
 
 **Pros**:
+
 - Fully automated setup and maintenance
 - Automatic updates and security patches
 - Integrated monitoring and logging
@@ -98,11 +108,13 @@ Qovery provisions and manages the entire cluster lifecycle.
 Connect your existing Kubernetes cluster to Qovery - perfect for organizations with existing infrastructure or specific compliance requirements.
 
 **What Qovery Manages**:
+
 - ✅ Application deployments and orchestration
 - ✅ Developer experience and workflows
 - ✅ Application monitoring and logs
 
 **What You Manage**:
+
 - ❌ Kubernetes cluster lifecycle
 - ❌ Infrastructure components (ingress, DNS, storage)
 - ❌ Cluster upgrades and maintenance
@@ -117,16 +129,20 @@ Connect your existing Kubernetes cluster to Qovery - perfect for organizations w
 
 <CardGroup cols={2}>
   <Card title="Multi-Cloud Strategy" icon="globe">
-    Deploy across AWS, GCP, Azure, and Scaleway for geographic distribution, disaster recovery, or cost optimization
+    Deploy across AWS, GCP, Azure, and Scaleway for geographic distribution,
+    disaster recovery, or cost optimization
   </Card>
   <Card title="High Availability" icon="shield">
-    Multi-AZ deployments with automatic failover and load balancing across availability zones
+    Multi-AZ deployments with automatic failover and load balancing across
+    availability zones
   </Card>
   <Card title="Cost Optimization" icon="piggy-bank">
-    Karpenter auto-scaling (AWS), spot instances, and cluster sleep mode to reduce infrastructure costs by up to 60%
+    Karpenter auto-scaling (AWS), spot instances, and cluster sleep mode to
+    reduce infrastructure costs by up to 60%
   </Card>
   <Card title="Infrastructure as Code" icon="code">
-    Manage clusters via Terraform provider or API for reproducible, version-controlled infrastructure
+    Manage clusters via Terraform provider or API for reproducible,
+    version-controlled infrastructure
   </Card>
 </CardGroup>
 
@@ -139,13 +155,25 @@ Connect your existing Kubernetes cluster to Qovery - perfect for organizations w
     Learn how to deploy applications on your provisioned cluster
   </Card>
 
-  <Card title="Cluster Advanced Settings" icon="sliders" href="/configuration/clusters">
-    Fine-tune cluster configuration for your needs
-  </Card>
+{" "}
 
-  <Card title="Multi-Cluster Management" icon="/images/logos/cloud-providers/scaleway-icon-light.svg" href="/guides/use-cases/multi-kubernetes-clusters-management">
-    Manage multiple clusters across regions
-  </Card>
+<Card
+  title="Cluster Advanced Settings"
+  icon="sliders"
+  href="/configuration/clusters"
+>
+  Fine-tune cluster configuration for your needs
+</Card>
+
+{" "}
+
+<Card
+  title="Multi-Cluster Management"
+  icon="/images/logos/cloud-providers/scaleway-icon-light.svg"
+  href="/guides/use-cases/multi-kubernetes-clusters-management"
+>
+  Manage multiple clusters across regions
+</Card>
 
   <Card title="Kubernetes Integrations" icon="dharmachakra" href="/integrations/kubernetes/overview">
     Explore cloud-specific Kubernetes features

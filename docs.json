@@ -117,6 +117,13 @@
               "guides/use-cases/disaster-recovery",
               "guides/others/database-seeding-lifecycle-job"
             ]
+          },
+          {
+            "group": "Useful Resources",
+            "pages": [
+              "useful-resources/faq",
+              "useful-resources/help-and-support"
+            ]
           }
         ]
       },

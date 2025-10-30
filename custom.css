@@ -128,6 +128,216 @@ img[alt="Scaleway"].badge-icon {
   object-fit: contain !important;
 }
 
+/* RACI Matrix Styling */
+.raci-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background-color: rgba(100, 45, 255, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #642DFF;
+}
+
+.raci-legend div {
+  font-size: 0.9rem;
+}
+
+.role-r-text {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.role-a-text {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.role-c-text {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.role-i-text {
+  color: #9333ea;
+  font-weight: 600;
+}
+
+.raci-table-container {
+  overflow-x: auto;
+  margin: 2rem 0;
+  width: 100%;
+}
+
+table.raci-matrix {
+  width: 100%;
+  min-width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table.raci-matrix .col-component {
+  width: 50%;
+}
+
+table.raci-matrix .col-provider,
+table.raci-matrix .col-qovery,
+table.raci-matrix .col-customer {
+  width: 16.66%;
+}
+
+table.raci-matrix th {
+  background-color: #642DFF;
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  text-align: center;
+  border-bottom: 2px solid #5527cc;
+}
+
+table.raci-matrix th:first-child {
+  text-align: left;
+}
+
+table.raci-matrix tbody tr:hover {
+  background-color: rgba(100, 45, 255, 0.05);
+}
+
+table.raci-matrix tr.layer-header td {
+  background-color: #f3f4f6;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  color: #1f2937;
+  border-top: 2px solid #d1d5db;
+  border-bottom: 1px solid #d1d5db;
+}
+
+table.raci-matrix td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+table.raci-matrix td:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+
+/* RACI role colors */
+table.raci-matrix .role-ra {
+  background-color: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
+}
+
+table.raci-matrix .role-r {
+  background-color: #fef2f2;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+table.raci-matrix .role-a {
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+table.raci-matrix .role-c {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-weight: 600;
+}
+
+table.raci-matrix .role-i {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+table.raci-matrix .role-ci {
+  background-color: #d1fae5;
+  color: #065f46;
+  font-weight: 600;
+}
+
+/* VPC Peering tooltip */
+.vpc-tooltip-container {
+  position: relative;
+}
+
+.info-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #642DFF;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 6px;
+  cursor: help;
+}
+
+.vpc-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background-color: #1f2937;
+  color: white;
+  padding: 12px;
+  border-radius: 6px;
+  width: 300px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.vpc-tooltip-container:hover .vpc-tooltip {
+  display: block;
+}
+
+.vpc-tooltip p {
+  margin: 0 0 8px 0;
+}
+
+.vpc-tooltip p:last-child {
+  margin-bottom: 0;
+}
+
+/* Dark mode adjustments */
+html[data-theme="dark"] table.raci-matrix {
+  border-color: #374151;
+}
+
+html[data-theme="dark"] table.raci-matrix th {
+  background-color: #642DFF;
+  border-bottom-color: #5527cc;
+}
+
+html[data-theme="dark"] table.raci-matrix td {
+  border-bottom-color: #374151;
+}
+
+html[data-theme="dark"] table.raci-matrix tr.layer-header td {
+  background-color: #1f2937;
+  color: #f9fafb;
+  border-top-color: #4b5563;
+  border-bottom-color: #4b5563;
+}
+
+html[data-theme="dark"] .raci-legend {
+  background-color: rgba(100, 45, 255, 0.1);
+}
+
 /* AWS logo - light mode (default) */
 .badge-icon-aws-light {
   display: inline-block;
