@@ -1,89 +1,84 @@
 ---
-title: "Webhook Integration"
+title: "Webhooks"
 description: "Get notified about deployment events via webhooks"
 ---
 
 ## Overview
 
-Configure webhooks to receive real-time notifications about deployments and other Qovery events.
+Qovery enables organization-level webhooks to notify external applications when environment events occur. This feature facilitates integration with third-party tools and communication platforms like Slack.
 
-## Webhook Types
+![Webhook Access](/images/integration/webhook/webhook_access.png)
 
-<CardGroup cols={2}>
-  <Card title="Standard Webhooks" icon="webhook">
-    Qovery proprietary payload format
-  </Card>
+## Primary Use Cases
 
-  <Card title="Slack Webhooks" icon="slack">
-    Pre-formatted for Slack messaging
-  </Card>
-</CardGroup>
+- Inform external systems about deployment status changes
+- Share deployment notifications in Slack channels
 
 ## Supported Events
 
-- **Deployment Started**: When deployment begins
-- **Deployment Successful**: Deployment completed successfully
-- **Deployment Failed**: Deployment encountered errors
-- **Deployment Cancelled**: Deployment was cancelled
+Webhooks trigger on the following deployment events:
 
-## Configuration
+- Deployment initiation
+- Successful deployment completion
+- Deployment cancellation
+- Deployment failure
 
-<Steps>
-  <Step title="Navigate to Settings">
-    Organization or Project Settings → Webhooks
-  </Step>
+## Webhook Types
 
-  <Step title="Create Webhook">
-    Click "Add Webhook"
-  </Step>
+**Standard**: Transmits payload in Qovery's proprietary format to a specified URL.
 
-  <Step title="Configure">
-    - Webhook URL
-    - Webhook type (Standard or Slack)
-    - Events to trigger on
-    - Environment filter (optional)
-    - Secret (optional, for verification)
-  </Step>
+**Slack**: Delivers pre-formatted messages using Slack's messaging protocol.
 
-  <Step title="Test">
-    Send test webhook to verify configuration
-  </Step>
-</Steps>
+## Creation Process
 
-## Webhook Payload
+Access Organization settings → Webhook section → Select "Add New"
 
-### Standard Webhook
+### Required Parameters
+
+| Parameter | Purpose |
+|-----------|---------|
+| `URL` | External application's webhook endpoint |
+| `kind` | Webhook classification: `STANDARD` or `SLACK` |
+| `events` | Deployment events triggering the webhook |
+| `secret` | (Optional) Authentication credential for webhook calls |
+| `description` | (Optional) Functional explanation |
+| `environment_types_filter` | (Optional) Filter by `PRODUCTION`, `DEVELOPMENT`, `STAGING`, `PREVIEW` |
+| `project_names_filter` | (Optional) Filter by project names; case-insensitive; supports wildcards |
+
+## Management Operations
+
+**Edit**: Click the wheel icon and toggle "Enable" to temporarily disable.
+
+**Delete**: Click the bin icon; confirmation modal appears.
+
+## Standard Webhook Payload Structure
+
+The POST request includes:
 
 ```json
 {
-  "event_type": "deployment.started",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "organization_id": "org_xxx",
-  "project_id": "proj_xxx",
-  "environment_id": "env_xxx",
-  "application_id": "app_xxx",
-  "application_name": "my-app",
-  "commit_id": "abc123",
-  "status": "running"
+  "created_at": "ISO-8601-timestamp",
+  "event_type": "DEPLOYMENT_STARTED|DEPLOYMENT_CANCELLED|DEPLOYMENT_SUCCESSFUL|DEPLOYMENT_FAILURE",
+  "payload_type": "DEPLOYMENT",
+  "payload_id": "unique-identifier",
+  "payload": {
+    "id": "deployment-id",
+    "current_status": "state-enum",
+    "desired_status": "state-enum",
+    "organization": {},
+    "project": {},
+    "environment": {},
+    "applications": [],
+    "databases": [],
+    "containers": [],
+    "jobs": [],
+    "logs": []
+  }
 }
 ```
 
-### Slack Webhook
+## Key Features
 
-Pre-formatted message sent directly to Slack channel.
-
-## Use Cases
-
-- **ChatOps**: Notify team in Slack/Discord
-- **Incident Management**: Trigger PagerDuty/OpsGenie
-- **CI/CD**: Trigger downstream pipelines
-- **Analytics**: Track deployment metrics
-- **Audit**: Log all deployment events
-
-## Security
-
-- **Secret Verification**: Verify webhook authenticity
-- **HTTPS Only**: Webhooks sent only to HTTPS endpoints
-- **Retry Logic**: Automatic retries on failure
-
-[Integration Overview](/integrations/overview)
+- Combine filters: `environment_types_filter` and `project_names_filter` work together
+- Wildcard support in project name filtering
+- Selective event triggering based on deployment lifecycle stage

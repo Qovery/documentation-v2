@@ -1,84 +1,69 @@
 ---
-title: "Deployment Overview"
-description: "Learn how Qovery deploys your applications on Kubernetes with automated workflows"
+title: "Deployment"
+description: "Understand how Qovery deploys your applications"
 ---
 
-Qovery is a DevOps Automation Platform helping 200+ organizations to ship faster and eliminate DevOps hiring needs. This guide explains how the deployment process works on Qovery.
+## Overview
 
-## How Deployment Works
+The deployment is the process of creating all the necessary resources to run your applications on your cloud account based on the configuration done on the Qovery console.
 
-When you push code to your [Git repository](/configuration/organization/git-repository-access), Qovery can automatically deploy your applications through several trigger mechanisms:
+![Deployment Overview](/images/deployment/deployment_overview_qovery.png)
 
-![Qovery Deployment Overview](/images/deployment/deployment_overview_qovery.png)
+## How It Works
 
-### Deployment Triggers
-
-Qovery supports three main ways to trigger deployments:
-
-<CardGroup cols={3}>
-  <Card title="Auto-Deploy" icon="rotate">
-    Automatically deploy when commits are pushed to your Git repository
-  </Card>
-  <Card title="CI/CD Integration" icon="code-branch">
-    Integrate with your existing CI/CD pipeline for custom workflows
-  </Card>
-  <Card title="Manual Deployment" icon="hand">
-    Deploy manually from the Qovery console when you're ready
-  </Card>
-</CardGroup>
-
-## Deployment Pipeline Steps
-
-When a deployment is triggered, Qovery executes the following steps:
+Here's the complete deployment flow:
 
 <Steps>
-  <Step title="Configuration Processing">
-    The Qovery engine processes your application configuration and environment settings
+  <Step title="Code Push">
+    A developer commits code to the Git repository
   </Step>
+
+  <Step title="Trigger">
+    The deployment can be triggered in three ways:
+
+    - **Auto-deploy activated**: A webhook automatically triggers the deployment when a commit is pushed
+    - **Auto-deploy inactive**: Your CI/CD manages the deployment
+    - **Manual trigger**: Deploy manually from the Qovery console
+  </Step>
+
+  <Step title="Pipeline Processing">
+    The Qovery engine processes your deployment pipeline configuration
+  </Step>
+
   <Step title="Code Retrieval">
-    Qovery pulls the latest code from your [Git repository](/configuration/organization/git-repository-access)
+    The engine pulls the code from your Git repository
   </Step>
+
   <Step title="Build & Registry">
-    Your code is built into a container image and pushed to a [container registry](/configuration/organization/container-registry)
+    The engine builds your code and pushes the container image to your cloud registry
   </Step>
-  <Step title="Network Configuration">
-    Load balancers and network configuration are created for your services
+
+  <Step title="Infrastructure Setup">
+    The engine creates the load balancers and configures networking
   </Step>
+
   <Step title="Kubernetes Deployment">
-    Your application is deployed to a dedicated Kubernetes namespace
+    The engine creates a Kubernetes namespace and deploys your application
   </Step>
-  <Step title="Domain & TLS Setup">
-    Custom domains and TLS certificates are automatically configured
+
+  <Step title="Domain Configuration">
+    The engine sets up your custom domain and configures TLS certificates
   </Step>
 </Steps>
 
-## Kubernetes Orchestration
+<Note>
+For applications deployed from a container registry, the deployment workflow is modified - the build step is skipped and Qovery directly deploys the pre-built container image.
+</Note>
 
-All deployments run on Kubernetes, which serves as the universal orchestrator for your applications:
+## Monitoring Deployments
 
-- **Multi-Cloud Support**: Deploy to [AWS](/installation/aws), [GCP](/installation/gcp), [Azure](/installation/azure), or [Scaleway](/installation/scaleway)
-- **Namespace Isolation**: Each [environment](/configuration/environment) gets its own Kubernetes namespace
-- **Automated Scaling**: Horizontal and vertical scaling capabilities
-- **High Availability**: Built-in redundancy and failover mechanisms
+As a developer, you can track the deployment through:
 
-## Monitoring Your Deployments
+- **Deployment Status**: Monitor the deployment and running status of your services
+- **Real-time Logs**: Access logs during deployment and while your application is running
+- **Deployment History**: Review details of past deployments
 
-Qovery provides comprehensive tools to monitor and manage your deployments:
-
-<CardGroup cols={2}>
-  <Card title="Deployment Status" icon="circle-check" href="/configuration/deployment/statuses">
-    Monitor real-time deployment and running statuses for all services
-  </Card>
-  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
-    Access detailed logs for troubleshooting and monitoring
-  </Card>
-  <Card title="Deployment History" icon="clock-rotate-left" href="/configuration/deployment/history">
-    Review past deployments and their outcomes
-  </Card>
-  <Card title="Deployment Actions" icon="gears" href="/configuration/deployment/actions">
-    Control your deployments with stop, restart, and redeploy actions
-  </Card>
-</CardGroup>
+Qovery provides you with a complete set of [Deployment Actions](/configuration/deployment/actions) allowing you to manage the deployment lifecycle, including stop and restart functions.
 
 ## Next Steps
 

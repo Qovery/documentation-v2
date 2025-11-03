@@ -1,0 +1,46 @@
+---
+title: "Terraform"
+description: "Deploy Terraform manifests with Qovery"
+---
+
+## Overview
+
+Qovery enables deployment of Terraform manifests and templates to manage cloud resources lifecycle. This functionality leverages Qovery's Lifecycle Jobs feature, allowing users to package and execute Terraform configurations directly on Kubernetes clusters.
+
+## Key Implementation Steps
+
+**1. Service Addition**
+
+Access your environment and select "Add Service" to initiate the deployment process.
+
+**2. Template Selection**
+
+Choose the "Terraform" option from the available service creation options and follow the guided setup.
+
+**3. Manifest Configuration**
+
+Specify the git repository path containing your Terraform files.
+
+**4. Customization Components**
+
+The platform provides pre-configured elements:
+- **Dockerfile**: Packages the manifest and executes appropriate Terraform commands based on triggered events
+- **Triggers**: Default configurations align with the Dockerfile (e.g., "start" executes `terraform apply`)
+- **Resource Allocation**: Default CPU/Memory values optimized for Terraform CLI execution on Kubernetes
+- **Environment Variables**: Support for terraform.tfvars as environment files and additional variables (AWS credentials, etc.)
+
+**5. Deployment Execution**
+
+Create and deploy the job to trigger manifest execution.
+
+**6. Output Integration**
+
+Terraform outputs are automatically captured and injected as environment variables to other services within the same environment, enabling downstream resource consumption.
+
+![Job Output](/images/configuration/job/job_output.png)
+
+## Related Resources
+
+- [Lifecycle Job Documentation](/configuration/lifecycle-job)
+- [Lifecycle Job Examples Repository](https://github.com/Qovery/lifecycle-job-examples)
+- [Deployment Guide for Custom Resources](/integrations/iac/lifecycle-job-tutorial)

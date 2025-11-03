@@ -1,0 +1,622 @@
+---
+title: "Advanced Patterns"
+description: "Advanced Terraform techniques with Qovery"
+---
+
+## Overview
+
+This guide covers advanced Terraform patterns for managing Qovery infrastructure at scale, including modules, workspaces, and state management.
+
+## Reusable Modules
+
+Organize your Terraform code with reusable modules for consistent deployments.
+
+### Module Structure
+
+```
+terraform-qovery/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+└── modules/
+    ├── environment/
+    │   ├── main.tf
+    │   ├── variables.tf
+    │   └── outputs.tf
+    ├── application/
+    │   ├── main.tf
+    │   ├── variables.tf
+    │   └── outputs.tf
+    └── database/
+        ├── main.tf
+        ├── variables.tf
+        └── outputs.tf
+```
+
+### Application Module
+
+**modules/application/main.tf**
+
+```hcl
+variable "environment_id" {
+  description = "Environment ID"
+  type        = string
+}
+
+variable "name" {
+  description = "Application name"
+  type        = string
+}
+
+variable "git_url" {
+  description = "Git repository URL"
+  type        = string
+}
+
+variable "git_branch" {
+  description = "Git branch"
+  type        = string
+  default     = "main"
+}
+
+variable "cpu" {
+  description = "CPU allocation in millicores"
+  type        = number
+  default     = 500
+}
+
+variable "memory" {
+  description = "Memory allocation in MB"
+  type        = number
+  default     = 512
+}
+
+variable "port" {
+  description = "Internal application port"
+  type        = number
+  default     = 8080
+}
+
+variable "publicly_accessible" {
+  description = "Make application publicly accessible"
+  type        = bool
+  default     = true
+}
+
+resource "qovery_application" "app" {
+  environment_id = var.environment_id
+  name           = var.name
+
+  git_repository = {
+    url    = var.git_url
+    branch = var.git_branch
+  }
+
+  build_mode      = "DOCKER"
+  dockerfile_path = "Dockerfile"
+
+  cpu    = var.cpu
+  memory = var.memory
+
+  ports = [{
+    internal_port       = var.port
+    external_port       = 443
+    protocol            = "HTTP"
+    publicly_accessible = var.publicly_accessible
+  }]
+
+  auto_deploy = var.git_branch != "main"
+}
+
+output "id" {
+  value       = qovery_application.app.id
+  description = "Application ID"
+}
+
+output "external_host" {
+  value       = qovery_application.app.external_host
+  description = "Application external hostname"
+}
+
+output "internal_host" {
+  value       = qovery_application.app.internal_host
+  description = "Application internal hostname"
+}
+```
+
+### Using the Module
+
+**main.tf**
+
+```hcl
+terraform {
+  required_providers {
+    qovery = {
+      source  = "qovery/qovery"
+      version = "~> 0.48.2"
+    }
+  }
+}
+
+provider "qovery" {
+  token = var.qovery_api_token
+}
+
+data "qovery_organization" "my_org" {
+  name = "My Organization"
+}
+
+data "qovery_project" "my_project" {
+  organization_id = data.qovery_organization.my_org.id
+  name            = "My Project"
+}
+
+data "qovery_cluster" "my_cluster" {
+  organization_id = data.qovery_organization.my_org.id
+  name            = "production"
+}
+
+resource "qovery_environment" "prod" {
+  project_id = data.qovery_project.my_project.id
+  cluster_id = data.qovery_cluster.my_cluster.id
+  name       = "production"
+  mode       = "PRODUCTION"
+}
+
+# Deploy API using module
+module "api" {
+  source = "./modules/application"
+
+  environment_id = qovery_environment.prod.id
+  name           = "api"
+  git_url        = "https://github.com/my-org/api"
+  git_branch     = "main"
+  cpu            = 1000
+  memory         = 1024
+  port           = 3000
+}
+
+# Deploy frontend using module
+module "frontend" {
+  source = "./modules/application"
+
+  environment_id = qovery_environment.prod.id
+  name           = "frontend"
+  git_url        = "https://github.com/my-org/frontend"
+  git_branch     = "main"
+  cpu            = 500
+  memory         = 512
+  port           = 8080
+}
+
+# Deploy admin using module
+module "admin" {
+  source = "./modules/application"
+
+  environment_id      = qovery_environment.prod.id
+  name                = "admin"
+  git_url             = "https://github.com/my-org/admin"
+  git_branch          = "main"
+  cpu                 = 250
+  memory              = 256
+  port                = 8080
+  publicly_accessible = false  # Internal only
+}
+```
+
+## Terraform Workspaces
+
+Use workspaces to manage multiple environments with a single configuration.
+
+### Workspace Configuration
+
+```hcl
+locals {
+  # Get current workspace name
+  environment = terraform.workspace
+
+  # Environment-specific configuration
+  config = {
+    dev = {
+      mode             = "DEVELOPMENT"
+      cpu              = 250
+      memory           = 256
+      replicas         = 1
+      database_storage = 10
+    }
+    staging = {
+      mode             = "STAGING"
+      cpu              = 500
+      memory           = 512
+      replicas         = 2
+      database_storage = 20
+    }
+    production = {
+      mode             = "PRODUCTION"
+      cpu              = 1000
+      memory           = 1024
+      replicas         = 3
+      database_storage = 50
+    }
+  }
+
+  # Get current environment config
+  current_config = local.config[local.environment]
+}
+
+resource "qovery_environment" "env" {
+  project_id = data.qovery_project.my_project.id
+  cluster_id = data.qovery_cluster.my_cluster.id
+  name       = local.environment
+  mode       = local.current_config.mode
+}
+
+resource "qovery_application" "app" {
+  environment_id = qovery_environment.env.id
+  name           = "my-app"
+
+  git_repository = {
+    url    = "https://github.com/my-org/app"
+    branch = local.environment == "production" ? "main" : local.environment
+  }
+
+  build_mode = "DOCKER"
+
+  cpu    = local.current_config.cpu
+  memory = local.current_config.memory
+
+  min_running_instances = local.current_config.replicas
+  max_running_instances = local.current_config.replicas
+
+  ports = [{
+    internal_port       = 8080
+    external_port       = 443
+    protocol            = "HTTP"
+    publicly_accessible = true
+  }]
+}
+
+resource "qovery_database" "db" {
+  environment_id = qovery_environment.env.id
+  name           = "database"
+  type           = "POSTGRESQL"
+  version        = "15"
+  mode           = "MANAGED"
+  storage        = local.current_config.database_storage
+  accessibility  = "PRIVATE"
+}
+```
+
+### Using Workspaces
+
+```bash
+# Create workspaces
+terraform workspace new dev
+terraform workspace new staging
+terraform workspace new production
+
+# List workspaces
+terraform workspace list
+
+# Deploy to development
+terraform workspace select dev
+terraform apply
+
+# Deploy to staging
+terraform workspace select staging
+terraform apply
+
+# Deploy to production
+terraform workspace select production
+terraform apply
+
+# Show current workspace
+terraform workspace show
+```
+
+## Remote State Management
+
+Store Terraform state remotely for team collaboration.
+
+### S3 Backend
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state"
+    key            = "qovery/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-locks"
+  }
+
+  required_providers {
+    qovery = {
+      source  = "qovery/qovery"
+      version = "~> 0.48.2"
+    }
+  }
+}
+```
+
+### Terraform Cloud
+
+```hcl
+terraform {
+  cloud {
+    organization = "my-org"
+
+    workspaces {
+      name = "qovery-production"
+    }
+  }
+
+  required_providers {
+    qovery = {
+      source  = "qovery/qovery"
+      version = "~> 0.48.2"
+    }
+  }
+}
+```
+
+### Initialize Backend
+
+```bash
+# Initialize backend
+terraform init
+
+# Migrate existing state
+terraform init -migrate-state
+```
+
+## Variable Files
+
+Organize variables per environment using `.tfvars` files.
+
+### Directory Structure
+
+```
+terraform/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+└── environments/
+    ├── dev.tfvars
+    ├── staging.tfvars
+    └── production.tfvars
+```
+
+### variables.tf
+
+```hcl
+variable "qovery_api_token" {
+  description = "Qovery API token"
+  type        = string
+  sensitive   = true
+}
+
+variable "environment_name" {
+  description = "Environment name"
+  type        = string
+}
+
+variable "environment_mode" {
+  description = "Environment mode"
+  type        = string
+}
+
+variable "cpu" {
+  description = "CPU allocation"
+  type        = number
+}
+
+variable "memory" {
+  description = "Memory allocation"
+  type        = number
+}
+
+variable "replicas" {
+  description = "Number of replicas"
+  type        = number
+}
+```
+
+### environments/production.tfvars
+
+```hcl
+environment_name = "production"
+environment_mode = "PRODUCTION"
+cpu              = 1000
+memory           = 1024
+replicas         = 3
+```
+
+### environments/dev.tfvars
+
+```hcl
+environment_name = "dev"
+environment_mode = "DEVELOPMENT"
+cpu              = 250
+memory           = 256
+replicas         = 1
+```
+
+### Deploy with Variable Files
+
+```bash
+# Deploy to development
+terraform apply -var-file="environments/dev.tfvars"
+
+# Deploy to production
+terraform apply -var-file="environments/production.tfvars"
+```
+
+## Dynamic Blocks
+
+Use dynamic blocks for flexible configurations.
+
+```hcl
+variable "ports" {
+  description = "Application ports"
+  type = list(object({
+    internal_port       = number
+    external_port       = number
+    protocol            = string
+    publicly_accessible = bool
+  }))
+  default = [
+    {
+      internal_port       = 8080
+      external_port       = 443
+      protocol            = "HTTP"
+      publicly_accessible = true
+    }
+  ]
+}
+
+resource "qovery_application" "app" {
+  environment_id = qovery_environment.prod.id
+  name           = "my-app"
+
+  git_repository = {
+    url    = "https://github.com/my-org/app"
+    branch = "main"
+  }
+
+  build_mode = "DOCKER"
+
+  # Dynamic ports
+  dynamic "ports" {
+    for_each = var.ports
+    content {
+      internal_port       = ports.value.internal_port
+      external_port       = ports.value.external_port
+      protocol            = ports.value.protocol
+      publicly_accessible = ports.value.publicly_accessible
+    }
+  }
+}
+```
+
+## Conditional Resources
+
+Create resources conditionally based on variables.
+
+```hcl
+variable "enable_database" {
+  description = "Enable database deployment"
+  type        = bool
+  default     = true
+}
+
+variable "enable_redis" {
+  description = "Enable Redis deployment"
+  type        = bool
+  default     = false
+}
+
+resource "qovery_database" "postgres" {
+  count = var.enable_database ? 1 : 0
+
+  environment_id = qovery_environment.prod.id
+  name           = "postgres"
+  type           = "POSTGRESQL"
+  version        = "15"
+  mode           = "MANAGED"
+  storage        = 20
+}
+
+resource "qovery_database" "redis" {
+  count = var.enable_redis ? 1 : 0
+
+  environment_id = qovery_environment.prod.id
+  name           = "redis"
+  type           = "REDIS"
+  version        = "7"
+  mode           = "MANAGED"
+  storage        = 10
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Version Constraints" icon="lock">
+    Pin provider versions to avoid breaking changes:
+    ```hcl
+    terraform {
+      required_providers {
+        qovery = {
+          source  = "qovery/qovery"
+          version = "~> 0.48.0"  # Allow patch updates only
+        }
+      }
+      required_version = ">= 1.5.0"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Separate State Per Environment" icon="layer-group">
+    Use different state files for each environment to prevent accidental changes:
+    - Different S3 keys: `env/dev/terraform.tfstate`, `env/prod/terraform.tfstate`
+    - Different Terraform Cloud workspaces
+    - Different backend configurations
+  </Accordion>
+
+  <Accordion title="Use Data Sources" icon="database">
+    Look up existing resources instead of hardcoding IDs:
+    ```hcl
+    data "qovery_project" "existing" {
+      organization_id = var.org_id
+      name            = "My Project"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Protect Production" icon="shield">
+    Add lifecycle rules to prevent accidental deletion:
+    ```hcl
+    resource "qovery_database" "prod" {
+      # ... configuration ...
+
+      lifecycle {
+        prevent_destroy = true
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Use Locals for DRY" icon="code">
+    Reduce repetition with local values:
+    ```hcl
+    locals {
+      common_tags = {
+        project     = "my-project"
+        managed_by  = "terraform"
+        environment = var.environment
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Basic Application" icon="rocket" href="/terraform/basic-application">
+    Start with a simple application
+  </Card>
+
+  <Card title="Multi-Environment" icon="layer-group" href="/terraform/multi-environment">
+    Deploy to multiple environments
+  </Card>
+
+  <Card title="Provider Documentation" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Complete provider reference
+  </Card>
+
+  <Card title="Terraform Documentation" icon="book" href="https://www.terraform.io/docs">
+    Official Terraform documentation
+  </Card>
+</CardGroup>

@@ -69,33 +69,13 @@ Configure organization-wide settings, access control, and integrations.
   </Card>
 </CardGroup>
 
-## Clusters & Cloud
+## Clusters
 
 Manage Kubernetes clusters and cloud infrastructure.
 
 <CardGroup cols={2}>
-  <Card title="Clusters" icon="server" href="/configuration/clusters">
+  <Card title="Clusters Configuration" icon="server" href="/configuration/clusters">
     Configure and manage Kubernetes clusters
-  </Card>
-
-  <Card title="AWS EKS" icon="aws" href="/integrations/kubernetes/eks/overview">
-    Amazon Elastic Kubernetes Service setup
-  </Card>
-
-  <Card title="Google GKE" icon="google" href="/integrations/kubernetes/gke/overview">
-    Google Kubernetes Engine setup
-  </Card>
-
-  <Card title="Azure AKS" icon="microsoft" href="/integrations/kubernetes/aks/overview">
-    Azure Kubernetes Service setup
-  </Card>
-
-  <Card title="Scaleway Kapsule" icon="/images/logos/cloud-providers/scaleway-icon-light.svg" href="/integrations/kubernetes/scaleway/overview">
-    Scaleway Kubernetes Kapsule setup
-  </Card>
-
-  <Card title="Bring Your Own Kubernetes" icon="cube" href="/integrations/kubernetes/byok">
-    Connect your existing Kubernetes cluster
   </Card>
 </CardGroup>
 
@@ -196,6 +176,184 @@ Control how and when your services are deployed.
     Speed up deployments with caching
   </Card>
 </CardGroup>
+
+## Integrations
+
+Connect Qovery with your existing tools and cloud services.
+
+### Kubernetes Providers
+
+<CardGroup cols={3}>
+  <Card title="AWS EKS" icon="aws" href="/integrations/kubernetes/eks/overview">
+    Amazon Elastic Kubernetes Service
+  </Card>
+
+  <Card title="Google GKE" icon="google" href="/integrations/kubernetes/gke/overview">
+    Google Kubernetes Engine
+  </Card>
+
+  <Card title="Azure AKS" icon="microsoft" href="/integrations/kubernetes/aks/overview">
+    Azure Kubernetes Service
+  </Card>
+
+  <Card title="Scaleway Kapsule" icon="server" href="/integrations/kubernetes/scaleway/overview">
+    Scaleway Kubernetes Kapsule
+  </Card>
+
+  <Card title="Bring Your Own Kubernetes" icon="dharmachakra" href="/integrations/kubernetes/byok">
+    Any Kubernetes cluster
+  </Card>
+
+  <Card title="Kubernetes Overview" icon="dharmachakra" href="/integrations/kubernetes/overview">
+    Complete Kubernetes documentation
+  </Card>
+</CardGroup>
+
+### Git Providers
+
+<CardGroup cols={3}>
+  <Card title="GitHub" icon="github" href="/integrations/git-providers/overview">
+    GitHub and GitHub Enterprise
+  </Card>
+
+  <Card title="GitLab" icon="gitlab" href="/integrations/git-providers/gitlab">
+    GitLab cloud and self-hosted
+  </Card>
+
+  <Card title="Bitbucket" icon="bitbucket" href="/integrations/git-providers/bitbucket">
+    Bitbucket Cloud and Data Center
+  </Card>
+</CardGroup>
+
+### Container Registries
+
+<CardGroup cols={3}>
+  <Card title="Docker Hub" icon="docker" href="/integrations/container-registries/docker-hub">
+    Docker Hub registry
+  </Card>
+
+  <Card title="AWS ECR" icon="aws" href="/integrations/container-registries/aws-ecr">
+    Amazon Elastic Container Registry
+  </Card>
+
+  <Card title="GCP Artifact Registry" icon="google" href="/integrations/container-registries/gcp-artifact-registry">
+    Google Cloud Artifact Registry
+  </Card>
+
+  <Card title="Azure ACR" icon="microsoft" href="/integrations/container-registries/azure-acr">
+    Azure Container Registry
+  </Card>
+
+  <Card title="GitHub Container Registry" icon="github" href="/integrations/container-registries/github-cr">
+    GitHub Container Registry
+  </Card>
+
+  <Card title="GitLab Container Registry" icon="gitlab" href="/integrations/container-registries/gitlab-cr">
+    GitLab Container Registry
+  </Card>
+
+  <Card title="Scaleway Container Registry" icon="server" href="/integrations/container-registries/scaleway-cr">
+    Scaleway Container Registry
+  </Card>
+
+  <Card title="Generic Registry" icon="box" href="/integrations/container-registries/generic">
+    Any OCI-compliant registry
+  </Card>
+
+  <Card title="Container Registries Overview" icon="box" href="/integrations/container-registries/overview">
+    Complete registry documentation
+  </Card>
+</CardGroup>
+
+### CI/CD Platforms
+
+<CardGroup cols={3}>
+  <Card title="Qovery Deploy" icon="rocket" href="/integrations/ci-cd/qovery-deploy">
+    Zero-config builds and deployments
+  </Card>
+
+  <Card title="GitHub Actions" icon="github" href="/integrations/ci-cd/github-actions">
+    GitHub Actions workflows
+  </Card>
+
+  <Card title="GitHub Actions Enterprise" icon="github" href="/integrations/ci-cd/github-actions-enterprise">
+    GitHub Enterprise self-hosted runners
+  </Card>
+
+  <Card title="GitLab CI" icon="gitlab" href="/integrations/ci-cd/gitlab-ci">
+    GitLab CI/CD pipelines
+  </Card>
+
+  <Card title="CircleCI" icon="circle" href="/integrations/ci-cd/circleci">
+    CircleCI workflows
+  </Card>
+
+  <Card title="Jenkins" icon="jenkins" href="/integrations/ci-cd/jenkins">
+    Jenkins pipelines
+  </Card>
+</CardGroup>
+
+### Secret Managers
+
+<CardGroup cols={3}>
+  <Card title="Doppler" icon="key" href="/integrations/secret-managers/doppler">
+    Doppler secrets sync
+  </Card>
+
+  <Card title="AWS Secrets Manager" icon="aws" href="/integrations/secret-managers/aws-secrets-manager">
+    AWS Secrets Manager
+  </Card>
+</CardGroup>
+
+### Observability
+
+<CardGroup cols={3}>
+  <Card title="Qovery Observe" icon="chart-line" href="/integrations/observability/qovery-observe">
+    Built-in observability platform
+  </Card>
+
+  <Card title="Datadog" icon="dog" href="/integrations/observability/datadog">
+    Datadog monitoring
+  </Card>
+
+  <Card title="Kubecost" icon="dollar-sign" href="/integrations/observability/kubecost">
+    Kubernetes cost optimization
+  </Card>
+</CardGroup>
+
+### Notifications & Webhooks
+
+<CardGroup cols={3}>
+  <Card title="Slack" icon="slack" href="/integrations/slack">
+    Slack notifications
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="/integrations/webhooks">
+    Custom webhooks for events
+  </Card>
+</CardGroup>
+
+### Other Integrations
+
+<CardGroup cols={3}>
+  <Card title="Infrastructure as Code" icon="/images/logos/terraform-icon.svg" href="/integrations/iac/overview">
+    Terraform, CloudFormation, and more
+  </Card>
+
+  <Card title="Helm Charts" icon="/images/logos/helm-icon-light.svg" href="/integrations/helm/overview">
+    Deploy Helm charts
+  </Card>
+
+  <Card title="API Gateway (NGINX)" icon="network-wired" href="/integrations/api-gateway-nginx">
+    NGINX API Gateway
+  </Card>
+
+  <Card title="AWS VPC Peering" icon="diagram-project" href="/integrations/aws/vpc-peering">
+    AWS VPC peering configuration
+  </Card>
+</CardGroup>
+
+---
 
 ## Configuration Methods
 

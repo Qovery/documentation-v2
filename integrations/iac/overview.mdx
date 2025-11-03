@@ -1,0 +1,34 @@
+---
+title: "Infrastructure as Code"
+description: "Manage infrastructure through popular IaC frameworks"
+---
+
+## Purpose
+
+Qovery enables infrastructure management through popular IaC frameworks, allowing users to define and manage external resources that integrate seamlessly with Kubernetes-deployed applications.
+
+![IAC Deployment Flow](/images/integration/iac.png)
+
+## How It Works
+
+The IaC deployment flow consists of five key steps:
+
+1. **Configuration**: Users specify the git repository, folder location, and necessary inputs (credentials, manifest parameters).
+
+2. **Containerization**: Manifests and inputs are packaged into a containerized application using a Qovery-provided Dockerfile that defines framework CLI versions and execution commands.
+
+3. **Event Triggering**: When environment or job events occur (deploy, stop, destroy), the job is scheduled for execution.
+
+4. **Resource Management**: The job executes on the cluster to create or destroy resources based on triggered events.
+
+5. **Output Integration**: Created resources output values are injected as environment variables, making them accessible to other services in the same environment.
+
+## Supported Frameworks
+
+- **Terraform**
+- **CloudFormation**
+- **Other** frameworks
+
+## Key Feature
+
+When a resource is created, your manifest/template output is retrieved and injected as environment variables for other services within the same environment, enabling resource sharing and access across applications.

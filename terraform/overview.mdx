@@ -197,15 +197,25 @@ You'll need various IDs from Qovery for your Terraform configuration:
     # Login
     qovery auth
 
-    # List organizations
-    qovery organization list
+    # Set context (interactive selection of organization)
+    qovery context set
 
-    # List projects
+    # List projects in current organization
     qovery project list
 
-    # List clusters
+    # List clusters in current organization
     qovery cluster list
+
+    # List environments in current project
+    qovery environment list
+
+    # List applications in current environment
+    qovery application list
     ```
+
+    <Note>
+    The CLI uses a context-based approach. Use `qovery context set` to interactively select your organization, then run list commands to get IDs of resources within that context. See [CLI documentation](/cli/overview) for more details.
+    </Note>
   </Tab>
 </Tabs>
 
@@ -308,104 +318,6 @@ terraform {
 }
 ```
 
-## Common Patterns
-
-### Multi-Environment Setup
-
-```hcl
-# Create environments for different stages
-locals {
-  environments = {
-    dev = {
-      mode = "DEVELOPMENT"
-      replicas = 1
-    }
-    staging = {
-      mode = "STAGING"
-      replicas = 2
-    }
-    production = {
-      mode = "PRODUCTION"
-      replicas = 3
-    }
-  }
-}
-
-resource "qovery_environment" "envs" {
-  for_each = local.environments
-
-  project_id = data.qovery_project.my_project.id
-  cluster_id = data.qovery_cluster.my_cluster.id
-  name = each.key
-  mode = each.value.mode
-}
-```
-
-### Application with Database
-
-```hcl
-# Create database
-resource "qovery_database" "postgres" {
-  environment_id = qovery_environment.prod.id
-  name = "my-database"
-  type = "POSTGRESQL"
-  version = "15"
-  mode = "MANAGED"
-  storage = 20
-  accessibility = "PRIVATE"
-}
-
-# Create application
-resource "qovery_application" "api" {
-  environment_id = qovery_environment.prod.id
-  name = "api"
-
-  git_repository = {
-    url = "https://github.com/my-org/my-api"
-    branch = "main"
-  }
-
-  build_mode = "DOCKER"
-  dockerfile_path = "Dockerfile"
-
-  ports = [{
-    internal_port = 3000
-    external_port = 443
-    protocol = "HTTP"
-    publicly_accessible = true
-  }]
-
-  # Database connection automatically injected
-  depends_on = [qovery_database.postgres]
-}
-```
-
-### Deployment Pipeline
-
-```hcl
-# Control deployment order with stages
-resource "qovery_deployment_stage" "database" {
-  environment_id = qovery_environment.prod.id
-  name = "Database"
-  description = "Deploy databases first"
-  is_before = true
-}
-
-resource "qovery_deployment_stage" "backend" {
-  environment_id = qovery_environment.prod.id
-  name = "Backend"
-  description = "Deploy backend services"
-  is_after = qovery_deployment_stage.database.id
-}
-
-resource "qovery_deployment_stage" "frontend" {
-  environment_id = qovery_environment.prod.id
-  name = "Frontend"
-  description = "Deploy frontend last"
-  is_after = qovery_deployment_stage.backend.id
-}
-```
-
 ## Importing Existing Resources
 
 Import existing Qovery resources into Terraform:
@@ -421,11 +333,7 @@ terraform import qovery_environment.prod <environment-id>
 terraform import qovery_database.postgres <database-id>
 ```
 
-Then generate configuration:
-```bash
-# Generate configuration from imported resources
-terraform show -json | jq '.values.root_module.resources'
-```
+---
 
 ## Complete Documentation
 
@@ -444,26 +352,39 @@ Please visit the **[Qovery Terraform Provider on Terraform Registry](https://reg
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Terraform Registry Docs" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
-    **Complete provider documentation** - Resources, data sources, and configuration reference
+  <Card title="Basic Application" icon="rocket" href="/terraform/basic-application">
+    Deploy your first application with Terraform
   </Card>
 
-  <Card title="Complete Examples" icon="code" href="/terraform/examples">
-    See practical examples including deploying Airbyte
+  <Card title="Application with Database" icon="database" href="/terraform/application-with-database">
+    Deploy an application connected to a database
   </Card>
 
-  <Card title="Deploy Applications" icon="rocket" href="/using-qovery/configuration/application">
-    Learn about application configuration
+  <Card title="Multi-Environment Setup" icon="layer-group" href="/terraform/multi-environment">
+    Create dev, staging, and production environments
   </Card>
 
-  <Card title="GitHub Examples" icon="github" href="https://github.com/Qovery/terraform-examples">
-    Browse example repositories
+  <Card title="Advanced Patterns" icon="code" href="/terraform/advanced-patterns">
+    Deployment pipelines, modules, and advanced configurations
   </Card>
 </CardGroup>
 
-## Resources
+## Additional Resources
 
-- [Qovery Terraform Provider on GitHub](https://github.com/Qovery/terraform-provider-qovery)
-- [Terraform Registry Documentation](https://registry.terraform.io/providers/Qovery/qovery/latest/docs)
-- [Qovery API Documentation](/api-reference/introduction)
-- [Qovery CLI Documentation](/cli/overview)
+<CardGroup cols={2}>
+  <Card title="Terraform Registry" icon="book-open" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Complete provider documentation and reference
+  </Card>
+
+  <Card title="GitHub Repository" icon="github" href="https://github.com/Qovery/terraform-provider-qovery">
+    Provider source code and issue tracking
+  </Card>
+
+  <Card title="Example Templates" icon="file-code" href="https://github.com/Qovery/terraform-examples">
+    Ready-to-use Terraform templates
+  </Card>
+
+  <Card title="API Documentation" icon="brackets-curly" href="/api-reference/introduction">
+    Qovery API reference
+  </Card>
+</CardGroup>

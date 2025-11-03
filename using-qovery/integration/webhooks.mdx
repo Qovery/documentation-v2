@@ -1,17 +1,145 @@
 ---
-title: "Webhooks"
-description: "Configure webhooks for event notifications"
+title: "Webhook Integration"
+description: "Get real-time notifications about deployments and events"
 ---
 
-## Coming Soon
+## Overview
 
-This guide will cover:
-- Webhook configuration
-- Available events
-- Webhook payload format
-- Webhook security
-- Integration examples (Slack, Discord, custom)
+Configure webhooks to receive real-time notifications about deployments and other Qovery events. Send notifications to Slack, Discord, custom endpoints, or incident management tools.
 
-<Info>
-This guide is being created. See [hub.qovery.com](https://hub.qovery.com) for current documentation.
-</Info>
+## Popular Integrations
+
+<CardGroup cols={2}>
+  <Card title="Slack" icon="slack" href="/integrations/slack">
+    Send deployment notifications to Slack channels
+  </Card>
+
+  <Card title="Discord" icon="discord" href="/integrations/webhooks">
+    Post updates to Discord servers
+  </Card>
+
+  <Card title="Microsoft Teams" icon="microsoft" href="/integrations/webhooks">
+    Notify via Microsoft Teams channels
+  </Card>
+
+  <Card title="Custom Webhooks" icon="webhook" href="/integrations/webhooks">
+    Send events to any HTTP endpoint
+  </Card>
+</CardGroup>
+
+## Webhook Types
+
+<AccordionGroup>
+  <Accordion title="Standard Webhooks" icon="webhook">
+    **Qovery JSON Format**
+
+    Receive events in Qovery's proprietary JSON format:
+    - Complete event details
+    - Deployment metadata
+    - Environment and service information
+    - Custom payload processing
+
+    Best for: Custom integrations and automation
+  </Accordion>
+
+  <Accordion title="Slack Webhooks" icon="slack">
+    **Pre-formatted for Slack**
+
+    Messages automatically formatted for Slack:
+    - Rich message formatting
+    - Direct to Slack channels
+    - No transformation needed
+    - Ready-to-use notifications
+
+    Best for: Team chat notifications
+  </Accordion>
+</AccordionGroup>
+
+## Supported Events
+
+Configure webhooks to trigger on specific events:
+
+- **DEPLOYMENT_STARTED** - When a deployment begins
+- **DEPLOYMENT_SUCCESS** - Deployment completed successfully
+- **DEPLOYMENT_FAILURE** - Deployment encountered errors
+- **DEPLOYMENT_CANCELLED** - Deployment was cancelled
+
+## Quick Start
+
+<Steps>
+  <Step title="Navigate to Settings">
+    Go to Organization or Project Settings → Webhooks
+  </Step>
+
+  <Step title="Create Webhook">
+    Click "Add Webhook" and configure:
+    - Webhook URL (your endpoint or Slack webhook)
+    - Webhook type (Standard or Slack)
+    - Events to monitor
+    - Environment filter (optional)
+  </Step>
+
+  <Step title="Test Webhook">
+    Send a test event to verify configuration
+  </Step>
+
+  <Step title="Deploy">
+    Trigger a deployment to see notifications in action
+  </Step>
+</Steps>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="ChatOps" icon="comments">
+    Notify teams in Slack, Discord, or Microsoft Teams
+  </Card>
+
+  <Card title="Incident Management" icon="triangle-exclamation">
+    Alert on-call engineers via PagerDuty or OpsGenie
+  </Card>
+
+  <Card title="CI/CD Orchestration" icon="diagram-project">
+    Trigger downstream workflows and pipelines
+  </Card>
+
+  <Card title="Audit & Compliance" icon="clipboard-list">
+    Log all deployment events for compliance
+  </Card>
+
+  <Card title="Custom Automation" icon="robot">
+    Build custom automation workflows
+  </Card>
+
+  <Card title="Analytics" icon="chart-line">
+    Track deployment metrics and KPIs
+  </Card>
+</CardGroup>
+
+## Webhook Payload Example
+
+### Standard Webhook
+
+```json
+{
+  "event_type": "deployment.success",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "organization_id": "org_xxx",
+  "project_id": "proj_xxx",
+  "environment_id": "env_xxx",
+  "application_id": "app_xxx",
+  "application_name": "my-api",
+  "commit_id": "abc123",
+  "commit_message": "Add new feature",
+  "status": "success",
+  "duration_seconds": 154
+}
+```
+
+## Configuration Details
+
+For detailed webhook setup and integration guides, see:
+
+- [Webhook Configuration](/integrations/webhooks) - Complete webhook documentation
+- [Slack Integration](/integrations/slack) - Step-by-step Slack setup
+- [Environment Variables](/configuration/environment-variables) - Managing webhook secrets

@@ -1,0 +1,221 @@
+---
+title: "Application with Database"
+description: "Deploy an application with PostgreSQL database"
+---
+
+## Overview
+
+This example shows how to deploy an application with a PostgreSQL database, including automatic connection string injection.
+
+## Configuration
+
+```hcl
+terraform {
+  required_providers {
+    qovery = {
+      source  = "qovery/qovery"
+      version = "~> 0.48.2"
+    }
+  }
+}
+
+provider "qovery" {
+  token = var.qovery_api_token
+}
+
+# Look up existing resources
+data "qovery_organization" "my_org" {
+  name = "My Organization"
+}
+
+data "qovery_project" "my_project" {
+  organization_id = data.qovery_organization.my_org.id
+  name            = "My Project"
+}
+
+data "qovery_cluster" "my_cluster" {
+  organization_id = data.qovery_organization.my_org.id
+  name            = "production"
+}
+
+# Create environment
+resource "qovery_environment" "production" {
+  project_id = data.qovery_project.my_project.id
+  cluster_id = data.qovery_cluster.my_cluster.id
+  name       = "production"
+  mode       = "PRODUCTION"
+}
+
+# Create a PostgreSQL database
+resource "qovery_database" "postgres" {
+  environment_id = qovery_environment.production.id
+  name           = "main-db"
+  type           = "POSTGRESQL"
+  version        = "15"
+  mode           = "MANAGED"
+
+  cpu     = 250
+  memory  = 512
+  storage = 10
+
+  accessibility = "PRIVATE"
+}
+
+# Application with database connection
+resource "qovery_application" "backend" {
+  environment_id = qovery_environment.production.id
+  name           = "backend"
+
+  git_repository = {
+    url    = "https://github.com/your-org/backend"
+    branch = "main"
+  }
+
+  build_mode      = "DOCKER"
+  dockerfile_path = "Dockerfile"
+
+  cpu    = 500
+  memory = 512
+
+  ports = [{
+    internal_port       = 8080
+    external_port       = 443
+    protocol            = "HTTP"
+    publicly_accessible = true
+  }]
+
+  # Environment variables for database connection
+  environment_variables = [
+    {
+      key   = "DATABASE_HOST"
+      value = qovery_database.postgres.internal_host
+    },
+    {
+      key   = "DATABASE_PORT"
+      value = tostring(qovery_database.postgres.port)
+    },
+    {
+      key   = "DATABASE_NAME"
+      value = qovery_database.postgres.name
+    }
+  ]
+
+  # Database credentials as secrets
+  secrets = [
+    {
+      key   = "DATABASE_USER"
+      value = qovery_database.postgres.login
+    },
+    {
+      key   = "DATABASE_PASSWORD"
+      value = qovery_database.postgres.password
+    }
+  ]
+
+  depends_on = [qovery_database.postgres]
+}
+```
+
+## Variables
+
+```hcl
+variable "qovery_api_token" {
+  description = "Qovery API token"
+  type        = string
+  sensitive   = true
+}
+```
+
+## Outputs
+
+```hcl
+output "database_host" {
+  value       = qovery_database.postgres.internal_host
+  description = "Database internal host"
+}
+
+output "database_port" {
+  value       = qovery_database.postgres.port
+  description = "Database port"
+}
+
+output "application_url" {
+  value       = qovery_application.backend.external_host
+  description = "Application URL"
+}
+```
+
+## Database Connection in Your Application
+
+The database connection details are automatically injected as environment variables:
+
+```javascript
+// Node.js example
+const dbConfig = {
+  host: process.env.DATABASE_HOST,
+  port: process.env.DATABASE_PORT,
+  database: process.env.DATABASE_NAME,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+};
+```
+
+```python
+# Python example
+import os
+
+DATABASE_URL = f"postgresql://{os.getenv('DATABASE_USER')}:{os.getenv('DATABASE_PASSWORD')}@{os.getenv('DATABASE_HOST')}:{os.getenv('DATABASE_PORT')}/{os.getenv('DATABASE_NAME')}"
+```
+
+## Deployment
+
+```bash
+# Initialize
+terraform init
+
+# Set API token
+export TF_VAR_qovery_api_token="your-api-token"
+
+# Deploy
+terraform apply
+```
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Automatic Connection Injection" icon="plug">
+    Database credentials automatically injected as environment variables
+  </Card>
+
+  <Card title="Secure Secrets" icon="lock">
+    Passwords stored as encrypted secrets
+  </Card>
+
+  <Card title="Private Access" icon="shield">
+    Database accessible only within the cluster
+  </Card>
+
+  <Card title="Managed Mode" icon="cloud">
+    Fully managed by your cloud provider
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Multi-Environment Setup" icon="layer-group" href="/terraform/multi-environment">
+    Deploy to multiple environments
+  </Card>
+
+  <Card title="Airbyte Deployment" icon="diagram-project" href="/terraform/airbyte-deployment">
+    Complete real-world example
+  </Card>
+
+  <Card title="Database Configuration" icon="database" href="/configuration/database">
+    Learn more about database configuration
+  </Card>
+
+  <Card title="Provider Documentation" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Complete provider reference
+  </Card>
+</CardGroup>

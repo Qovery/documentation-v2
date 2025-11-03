@@ -1,469 +1,68 @@
 ---
 title: "Deployment Strategies"
-description: "Choose between rolling updates and recreate strategies for your application deployments"
+description: "Choose between rolling updates and recreate strategies"
 ---
 
-Qovery supports two deployment strategies that determine how your applications are updated when new versions are deployed. Choose the strategy that best fits your application's requirements and downtime tolerance.
+Qovery supports two deployment strategies for your applications.
 
-## Available Strategies
+## RollingUpdate (Default)
 
-<CardGroup cols={2}>
-  <Card title="RollingUpdate (Default)" icon="rotate">
-    Gradually replaces old versions with new ones without downtime
-  </Card>
-  <Card title="Recreate" icon="power-off">
-    Stops all old versions before starting new ones
-  </Card>
-</CardGroup>
+The RollingUpdate strategy will gracefully rollout new versions of your application and automatically rollback if the new version fails to start.
 
-## RollingUpdate Strategy
+This is the recommended strategy as it avoids downtime and load spikes during deployments.
 
-The **RollingUpdate** strategy is the default and recommended approach for most applications. It gracefully rolls out new versions while maintaining service availability.
+![Rolling Update Strategy](/images/advanced_settings/deployment_rolling_update.gif)
 
-![Rolling Update Strategy](/images/deployment/deployment_rolling_update.gif)
+### How it works
 
-### How RollingUpdate Works
+When using RollingUpdate:
+1. New pods are created with the new version
+2. Once the new pods are ready, traffic is gradually shifted to them
+3. Old pods are terminated only after new pods are healthy
+4. If new pods fail to start, the deployment automatically rolls back
 
-<Steps>
-  <Step title="Start New Pods">
-    New pods with the updated version are created alongside existing pods
-  </Step>
-  <Step title="Health Checks">
-    New pods must pass health checks before receiving traffic
-  </Step>
-  <Step title="Gradual Replacement">
-    Once healthy, new pods start receiving traffic while old pods are gradually removed
-  </Step>
-  <Step title="Complete Rollout">
-    Process continues until all old pods are replaced with new ones
-  </Step>
-  <Step title="Automatic Rollback">
-    If new version fails health checks, deployment automatically rolls back
-  </Step>
-</Steps>
+This ensures your application remains available throughout the deployment process.
 
-### RollingUpdate Characteristics
+## Recreate
 
-<Tabs>
-  <Tab title="Advantages">
-    **Benefits of RollingUpdate:**
+The Recreate strategy will stop all current versions and create new ones once all old ones have been shutdown.
 
-    - **Zero Downtime**: Service remains available throughout deployment
-    - **Graceful Migration**: Traffic shifts smoothly from old to new versions
-    - **Automatic Rollback**: Failed deployments roll back automatically
-    - **Load Distribution**: Both versions can handle traffic during transition
-    - **Safe Updates**: New version is validated before fully replacing old version
+![Recreate Strategy](/images/advanced_settings/deployment_recreate.gif)
 
-    <Info>
-    RollingUpdate is ideal for stateless applications and services that require continuous availability.
-    </Info>
-  </Tab>
+### How it works
 
-  <Tab title="Configuration">
-    **RollingUpdate Parameters:**
+When using Recreate:
+1. All existing pods are terminated
+2. The system waits for all old pods to shut down completely
+3. New pods are created with the new version
+4. Service becomes available once new pods are ready
 
-    You can configure how the rolling update behaves:
+This strategy causes downtime but ensures only one version of your application runs at any time.
 
-    ```yaml
-    deployment_strategy:
-      type: RollingUpdate
-      rolling_update:
-        max_surge: 25%        # Max new pods created at once
-        max_unavailable: 25%  # Max old pods that can be unavailable
-    ```
+### When to use Recreate
 
-    **Max Surge**:
-    - Controls how many new pods are created above desired count
-    - `25%` means up to 25% more pods during update
-    - Higher values = faster rollout but more resources
-
-    **Max Unavailable**:
-    - Controls how many old pods can be down during update
-    - `25%` means up to 25% of pods can be unavailable
-    - Lower values = higher availability but slower rollout
-  </Tab>
-
-  <Tab title="Use Cases">
-    **When to Use RollingUpdate:**
-
-    <CardGroup cols={2}>
-      <Card title="Web Applications" icon="globe">
-        User-facing applications requiring continuous availability
-      </Card>
-      <Card title="APIs" icon="code">
-        Backend services that must handle requests without interruption
-      </Card>
-      <Card title="Microservices" icon="cubes">
-        Services in a microservices architecture
-      </Card>
-      <Card title="Production Services" icon="server">
-        Any production service where downtime is unacceptable
-      </Card>
-    </CardGroup>
-  </Tab>
-
-  <Tab title="Considerations">
-    **Important Considerations:**
-
-    <Warning>
-    During rolling updates, both old and new versions run simultaneously. Ensure your application handles this scenario properly.
-    </Warning>
-
-    **Version Compatibility:**
-    - New version must be compatible with old version
-    - Database migrations should be backward compatible
-    - API changes should not break old version
-    - Session handling should work across versions
-
-    **Resource Requirements:**
-    - Requires extra resources during deployment
-    - Cluster must have capacity for surge pods
-    - May temporarily use 125% of normal resources
-  </Tab>
-</Tabs>
-
-### Rolling Update Example Timeline
-
-```
-Time    Old Pods    New Pods    Status
-00:00   [■ ■ ■ ■]   [ ]         Starting deployment
-00:30   [■ ■ ■ ■]   [□]         Creating new pod
-01:00   [■ ■ ■ ■]   [■]         New pod ready
-01:30   [■ ■ ■ □]   [■ □]       Replacing first old pod
-02:00   [■ ■ ■]     [■ ■]       Two new pods running
-02:30   [■ ■ □]     [■ ■ □]     Replacing second old pod
-03:00   [■ ■]       [■ ■ ■]     Three new pods running
-03:30   [■ □]       [■ ■ ■ □]   Replacing third old pod
-04:00   [■]         [■ ■ ■ ■]   Four new pods running
-04:30   [ ]         [■ ■ ■ ■]   Deployment complete
-
-■ = Running pod
-□ = Starting/Terminating pod
-```
-
-## Recreate Strategy
-
-The **Recreate** strategy stops all running instances before creating new ones. This results in downtime but ensures only one version runs at a time.
-
-![Recreate Strategy](/images/deployment/deployment_recreate.gif)
-
-### How Recreate Works
-
-<Steps>
-  <Step title="Stop All Pods">
-    All existing pods are terminated gracefully
-  </Step>
-  <Step title="Wait for Shutdown">
-    System waits for all old pods to fully shut down
-  </Step>
-  <Step title="Start New Pods">
-    New pods with the updated version are created
-  </Step>
-  <Step title="Wait for Ready">
-    New pods start and pass health checks
-  </Step>
-  <Step title="Resume Service">
-    Service becomes available once new pods are ready
-  </Step>
-</Steps>
-
-### Recreate Characteristics
-
-<Tabs>
-  <Tab title="Advantages">
-    **Benefits of Recreate:**
-
-    - **Clean State**: Only one version runs at any time
-    - **Simple**: No complex version compatibility needed
-    - **Resource Efficient**: No surge capacity required
-    - **State Management**: Easier for stateful applications
-    - **Schema Changes**: Safe for breaking database changes
-
-    <Info>
-    Recreate is ideal when version incompatibility or state management makes rolling updates impractical.
-    </Info>
-  </Tab>
-
-  <Tab title="Configuration">
-    **Recreate Configuration:**
-
-    ```yaml
-    deployment_strategy:
-      type: Recreate
-    ```
-
-    No additional parameters are needed for Recreate strategy.
-
-    **Downtime Duration:**
-    - Depends on shutdown time + startup time
-    - Typically 30 seconds to 2 minutes
-    - Can be longer for applications with slow startup
-  </Tab>
-
-  <Tab title="Use Cases">
-    **When to Use Recreate:**
-
-    <CardGroup cols={2}>
-      <Card title="Stateful Applications" icon="database">
-        Applications that maintain state and can't run multiple versions
-      </Card>
-      <Card title="Breaking Changes" icon="triangle-exclamation">
-        Deployments with incompatible schema or API changes
-      </Card>
-      <Card title="Development Environments" icon="flask">
-        Non-production environments where downtime is acceptable
-      </Card>
-      <Card title="Batch Jobs" icon="list-check">
-        Applications that process data in batches
-      </Card>
-      <Card title="Single Instance Apps" icon="1">
-        Applications designed to run only one instance
-      </Card>
-      <Card title="Resource Constrained" icon="memory">
-        Environments without capacity for surge pods
-      </Card>
-    </CardGroup>
-  </Tab>
-
-  <Tab title="Considerations">
-    **Important Considerations:**
-
-    <Warning>
-    Recreate strategy causes service downtime. Users will not be able to access your application during deployment.
-    </Warning>
-
-    **Downtime Impact:**
-    - Plan deployments during maintenance windows
-    - Notify users of scheduled downtime
-    - Consider using blue-green deployment for zero downtime
-
-    **Data Consistency:**
-    - Flush in-memory caches before shutdown
-    - Complete in-flight transactions
-    - Handle graceful shutdown properly
-  </Tab>
-</Tabs>
-
-### Recreate Example Timeline
-
-```
-Time    Old Pods    New Pods    Status
-00:00   [■ ■ ■ ■]   [ ]         Starting deployment
-00:15   [□ □ □ □]   [ ]         Stopping all old pods
-00:30   [ ]         [ ]         All old pods stopped (DOWNTIME)
-00:45   [ ]         [□ □ □ □]   Creating new pods (DOWNTIME)
-01:00   [ ]         [■ ■ ■ ■]   New pods ready
-01:15   [ ]         [■ ■ ■ ■]   Deployment complete
-
-■ = Running pod
-□ = Starting/Terminating pod
-```
-
-## Choosing a Strategy
-
-Use this decision matrix to choose the right strategy:
-
-| Requirement | RollingUpdate | Recreate |
-|-------------|---------------|----------|
-| Zero downtime needed | ✅ Yes | ❌ No |
-| Version compatibility required | ✅ Yes | ❌ No |
-| Resource surge capacity | ⚠️ Required | ✅ Not needed |
-| Stateful application | ⚠️ Challenging | ✅ Easier |
-| Breaking schema changes | ❌ Difficult | ✅ Safe |
-| Production environment | ✅ Recommended | ⚠️ Use carefully |
-| Development environment | ✅ Works | ✅ Works |
-| Single instance only | ❌ Not suitable | ✅ Perfect |
-
-<Info>
-Most production applications should use **RollingUpdate** for continuous availability. Use **Recreate** only when necessary for compatibility or state reasons.
-</Info>
-
-## Configuring Deployment Strategy
-
-### Via Web Console
-
-<Steps>
-  <Step title="Open Application Settings">
-    Navigate to your application or container settings
-  </Step>
-  <Step title="Find Deployment Section">
-    Locate the "Deployment Strategy" configuration
-  </Step>
-  <Step title="Select Strategy">
-    Choose between RollingUpdate or Recreate
-  </Step>
-  <Step title="Configure Parameters">
-    For RollingUpdate, optionally adjust max surge and max unavailable
-  </Step>
-  <Step title="Save Changes">
-    Save and redeploy for changes to take effect
-  </Step>
-</Steps>
-
-### Via CLI
-
-```bash
-# Set deployment strategy via CLI
-qovery application update --deployment-strategy RollingUpdate
-
-# Configure rolling update parameters
-qovery application update \
-  --deployment-strategy RollingUpdate \
-  --max-surge 50% \
-  --max-unavailable 25%
-
-# Switch to recreate strategy
-qovery application update --deployment-strategy Recreate
-```
-
-### Via API
-
-```bash
-# Update deployment strategy via API
-curl -X PATCH \
-  "https://api.qovery.com/application/$APPLICATION_ID" \
-  -H "Authorization: Token $QOVERY_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "deployment_strategy": {
-      "type": "RollingUpdate",
-      "rolling_update": {
-        "max_surge": "25%",
-        "max_unavailable": "25%"
-      }
-    }
-  }'
-```
-
-## Advanced Deployment Patterns
-
-### Blue-Green Deployment
-
-For zero-downtime deployments with instant rollback capability:
-
-<Accordion title="Blue-Green with Qovery">
-  While Qovery doesn't have a specific "blue-green" strategy, you can implement it using environments:
-
-  1. **Create two environments**: `production-blue` and `production-green`
-  2. **Deploy new version** to the inactive environment (e.g., green)
-  3. **Test the deployment** thoroughly on green
-  4. **Switch traffic** by updating DNS or load balancer to point to green
-  5. **Keep blue running** for instant rollback if needed
-
-  This provides zero downtime and instant rollback capabilities.
-</Accordion>
-
-### Canary Deployment
-
-Gradually roll out changes to a subset of users:
-
-<Accordion title="Canary with Qovery">
-  Implement canary deployments using multiple instances:
-
-  1. **Deploy new version** to a small percentage of pods
-  2. **Monitor metrics** for errors or performance issues
-  3. **Gradually increase** percentage if metrics look good
-  4. **Full rollout** once confidence is achieved
-  5. **Quick rollback** if issues are detected
-
-  Use Kubernetes service mesh or ingress rules for traffic splitting.
-</Accordion>
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Use RollingUpdate" icon="circle-check">
-    Default to RollingUpdate for production applications
-  </Card>
-  <Card title="Test Compatibility" icon="flask">
-    Ensure new versions are compatible with old versions
-  </Card>
-  <Card title="Health Checks" icon="heart-pulse">
-    Implement robust health checks for automatic rollback
-  </Card>
-  <Card title="Graceful Shutdown" icon="power-off">
-    Handle SIGTERM properly for clean shutdowns
-  </Card>
-  <Card title="Monitor Deployments" icon="chart-line">
-    Watch metrics during and after deployments
-  </Card>
-  <Card title="Plan Maintenance" icon="calendar">
-    Schedule Recreate deployments during low-traffic periods
-  </Card>
-</CardGroup>
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="RollingUpdate stuck in progress">
-    **Symptoms:**
-    - New pods start but never become ready
-    - Deployment doesn't progress past certain point
-
-    **Common Causes:**
-    - Failed health checks
-    - Image pull errors
-    - Insufficient cluster resources
-    - Application crashes on startup
-
-    **Solutions:**
-    1. Check pod logs for startup errors
-    2. Verify health check endpoints
-    3. Ensure cluster has available resources
-    4. Review recent code changes
-  </Accordion>
-
-  <Accordion title="RollingUpdate causing errors">
-    **Symptoms:**
-    - Errors occur during deployment
-    - Users report intermittent failures
-
-    **Common Causes:**
-    - Version incompatibility between old and new
-    - Database schema incompatibility
-    - API breaking changes
-    - Session handling issues
-
-    **Solutions:**
-    1. Ensure backward compatibility
-    2. Use database migration tools properly
-    3. Version your APIs
-    4. Implement sticky sessions if needed
-    5. Consider using Recreate if incompatibility is unavoidable
-  </Accordion>
-
-  <Accordion title="Recreate downtime too long">
-    **Symptoms:**
-    - Service unavailable for extended period
-    - Users experiencing long outages
-
-    **Common Causes:**
-    - Slow application startup
-    - Database migrations taking too long
-    - Large initialization processes
-
-    **Solutions:**
-    1. Optimize application startup time
-    2. Pre-warm caches
-    3. Run migrations separately
-    4. Use init containers for setup
-    5. Consider switching to RollingUpdate
-  </Accordion>
-</AccordionGroup>
+Use the Recreate strategy when:
+- Your application cannot run multiple versions simultaneously
+- You have breaking changes that are incompatible with the old version
+- You're deploying to development or test environments where downtime is acceptable
+- Your application manages state that cannot be shared between versions
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Health Checks" icon="heart-pulse" href="/configuration/service/health-checks">
-    Configure health checks for reliable deployments
-  </Card>
   <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
-    Optimize your deployment pipeline
+    Configure deployment stages
   </Card>
+
   <Card title="Deployment Actions" icon="gears" href="/configuration/deployment/actions">
     Learn about deployment actions
   </Card>
-  <Card title="Monitoring" icon="chart-line" href="/configuration/observability/overview">
-    Monitor deployment health and performance
+
+  <Card title="Image Mirroring" icon="copy" href="/configuration/deployment/image-mirroring">
+    Optimize deployments with image mirroring
+  </Card>
+
+  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
+    Monitor your deployments
   </Card>
 </CardGroup>

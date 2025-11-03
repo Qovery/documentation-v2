@@ -68,16 +68,18 @@ Never commit API tokens to version control. Use environment variables or a secur
 ## Quick Start Example
 
 ```hcl
-# Get organization and project
+# Get organization
 data "qovery_organization" "my_org" {
   name = "My Organization"
 }
 
+# Get project (can also be created with qovery_project resource)
 data "qovery_project" "my_project" {
   organization_id = data.qovery_organization.my_org.id
   name            = "My Project"
 }
 
+# Get cluster (can also be created with qovery_cluster resource)
 data "qovery_cluster" "prod_cluster" {
   organization_id = data.qovery_organization.my_org.id
   name            = "production"
@@ -381,7 +383,39 @@ terraform import qovery_environment.prod <environment-id>
 terraform import qovery_database.postgres <database-id>
 ```
 
-Get resource IDs from the Qovery Console or API.
+### Getting Resource IDs
+
+Resource IDs can be obtained in two ways:
+
+**1. From the Console URL**
+
+IDs are available in the URL when viewing resources in the Qovery Console. For example:
+- Application: `https://console.qovery.com/organization/xxx/project/yyy/environment/zzz/application/{application-id}`
+- Environment: `https://console.qovery.com/organization/xxx/project/yyy/environment/{environment-id}`
+- Database: `https://console.qovery.com/organization/xxx/project/yyy/environment/zzz/database/{database-id}`
+
+**2. Using the Qovery CLI**
+
+List resources and retrieve their IDs using CLI commands:
+
+```bash
+# List projects and their IDs
+qovery project list
+
+# List environments in current project
+qovery environment list
+
+# List applications in current environment
+qovery application list
+
+# List databases in current environment
+qovery database list
+
+# List clusters in organization
+qovery cluster list
+```
+
+For more information, see the [CLI documentation](/cli/overview).
 
 ## CI/CD Integration
 

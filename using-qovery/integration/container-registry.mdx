@@ -1,18 +1,78 @@
 ---
-title: "Container Registry"
-description: "Integrate with container registries"
+title: "Container Registry Integration"
+description: "Connect container registries to deploy pre-built images"
 ---
 
-## Coming Soon
+## Overview
 
-This guide will cover:
-- Supported container registries
-- Docker Hub integration
-- AWS ECR integration
-- Google Container Registry
-- Azure Container Registry
-- Private registry configuration
+Qovery integrates with all major container registries, allowing you to deploy pre-built container images or use them as cache for faster builds.
 
-<Info>
-This guide is being created. See [hub.qovery.com](https://hub.qovery.com) for current documentation.
-</Info>
+## Supported Container Registries
+
+<CardGroup cols={2}>
+  <Card title="Docker Hub" icon="docker" href="/integrations/container-registries/docker-hub">
+    Connect the world's most popular container registry
+  </Card>
+
+  <Card title="AWS ECR" icon="aws" href="/integrations/container-registries/aws-ecr">
+    Use Amazon Elastic Container Registry
+  </Card>
+
+  <Card title="GCP Artifact Registry" icon="google" href="/integrations/container-registries/gcp-artifact-registry">
+    Integrate with Google Cloud Artifact Registry
+  </Card>
+
+  <Card title="Azure ACR" icon="microsoft" href="/integrations/container-registries/azure-acr">
+    Connect Azure Container Registry
+  </Card>
+
+  <Card title="GitHub Container Registry" icon="github" href="/integrations/container-registries/github-cr">
+    Use GitHub's built-in container registry
+  </Card>
+
+  <Card title="GitLab Container Registry" icon="gitlab" href="/integrations/container-registries/gitlab-cr">
+    Connect GitLab Container Registry
+  </Card>
+
+  <Card title="Scaleway Container Registry" icon="server" href="/integrations/container-registries/scaleway-cr">
+    Use Scaleway Container Registry
+  </Card>
+
+  <Card title="Generic Registry" icon="box" href="/integrations/container-registries/generic">
+    Connect any OCI-compliant registry
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+<Steps>
+  <Step title="Navigate to Organization Settings">
+    Go to Organization Settings → Container Registries
+  </Step>
+
+  <Step title="Add Registry">
+    Click "Add Container Registry" and select your provider
+  </Step>
+
+  <Step title="Configure Credentials">
+    Enter registry URL, username/access key, and password/secret key
+  </Step>
+
+  <Step title="Use in Applications">
+    Reference the registry when deploying container-based applications
+  </Step>
+</Steps>
+
+## Use Cases
+
+- **Deploy Pre-built Images**: Deploy containers built by external CI/CD pipelines
+- **Build Cache**: Speed up builds by caching layers in your registry
+- **Private Images**: Use private images from your organization's registry
+- **Multi-Registry**: Connect multiple registries for different use cases
+
+## Configuration Details
+
+For detailed setup instructions for each registry provider, see:
+
+- [Container Registry Configuration](/configuration/organization/container-registry) - Organization-level setup
+- [Container Registries Overview](/integrations/container-registries/overview) - Complete integration guide

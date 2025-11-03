@@ -1,16 +1,63 @@
 ---
-title: "Doppler Integration"
+title: "Doppler"
 description: "Integrate Doppler secrets with Qovery"
 ---
 
-<Info>Detailed integration guide coming soon</Info>
+Doppler is a universal secrets manager that integrates with Qovery. Doppler allows you to store and manage your application secrets in a single place and access them from anywhere.
 
-## Features
+Check out [this Doppler documentation](https://docs.doppler.com/docs/qovery) to integrate Qovery with your Doppler account.
 
-- Universal secrets sync
-- Environment-specific secrets
-- Automatic updates
-- Audit logging
-- Team collaboration
+## Prerequisites
 
-[Secret Managers Overview](/integrations/secret-managers/overview)
+You will need:
+- An active Qovery account with at least one project
+- An application, container, or job in your Qovery project
+- A Doppler account
+
+## Setup Steps
+
+### Step 1: Generate a Qovery API Token
+
+From your Qovery dashboard, navigate to your organization settings and generate a new API token.
+
+![Generate Qovery API Token](/images/doppler/api-token.png)
+
+Learn more about [generating API tokens](/configuration/organization/api-token).
+
+### Step 2: Select Qovery Integration in Doppler
+
+In Doppler, navigate to the Integrations section and select **Qovery** from the list of available integrations.
+
+![Select Qovery Integration](/images/doppler/integrations-selection.png)
+
+### Step 3: Connect Doppler to Qovery
+
+Name your integration and paste the API token you generated in Step 1.
+
+![Connect Doppler to Qovery](/images/doppler/connection-setup.png)
+
+### Step 4: Configure the Sync
+
+Select your Qovery scope, project, environment, and target resource (application, container, or job). Choose which Doppler config to sync and configure the import behavior for any pre-existing variables.
+
+![Configure Sync Settings](/images/doppler/configuration.png)
+
+## How It Works
+
+Once configured, Doppler provides immediate and continuous syncing of secrets from your Doppler config to your Qovery applications, containers, or jobs. Your deployed applications will automatically fetch secrets from Doppler.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Token" icon="key" href="/configuration/organization/api-token">
+    Generate and manage API tokens
+  </Card>
+
+  <Card title="Environment Variables" icon="code" href="/configuration/environment-variables">
+    Learn about environment variables in Qovery
+  </Card>
+
+  <Card title="AWS Secrets Manager" icon="lock" href="/integrations/secret-managers/aws-secrets-manager">
+    Alternative secrets management solution
+  </Card>
+</CardGroup>

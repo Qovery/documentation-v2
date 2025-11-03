@@ -1,377 +1,42 @@
 ---
 title: "Deployment History"
-description: "Review and track all past deployments for your environments and services"
+description: "View past deployment executions"
 ---
-
-The deployment history feature allows you to view and track all past deployments for your environments and services. This provides visibility into what was deployed, when, and by whom.
-
-## Accessing Deployment History
 
 You can access the deployment history from the **Deployments** tab on any environment or service page.
 
-![Deployment History Interface](/images/deployment/deployment_history.png)
+![Deployment History](/images/deployment/deployment_history.png)
 
-### Navigation
+## Information Available
 
-<Steps>
-  <Step title="Open Environment or Service">
-    Navigate to the environment or service you want to review
-  </Step>
-  <Step title="Click Deployments Tab">
-    Select the "Deployments" tab from the navigation menu
-  </Step>
-  <Step title="View History">
-    Browse through the chronological list of past deployments
-  </Step>
-  <Step title="Inspect Details">
-    Click on any deployment to see detailed information
-  </Step>
-</Steps>
+The deployment history shows the following information for each past deployment trigger:
 
-## Deployment History Information
+### Execution ID
 
-Each deployment entry in the history shows:
+An internal ID assigned to each deployment. This ID can be shared with the Qovery support team when troubleshooting deployment issues.
 
-<CardGroup cols={2}>
-  <Card title="Execution ID" icon="fingerprint">
-    Unique identifier for tracking the deployment
-  </Card>
-  <Card title="Services Deployed" icon="layer-group">
-    List of all services included in the deployment
-  </Card>
-  <Card title="Deployment Status" icon="circle-check">
-    Final status (Success, Failed, Cancelled)
-  </Card>
-  <Card title="Deployed Version" icon="code-commit">
-    Git commit hash or container image tag deployed
-  </Card>
-  <Card title="Timestamp" icon="clock">
-    When the deployment was initiated
-  </Card>
-  <Card title="Triggered By" icon="user">
-    User or system that initiated the deployment
-  </Card>
-  <Card title="Duration" icon="hourglass">
-    How long the deployment took to complete
-  </Card>
-  <Card title="Deployment Type" icon="tag">
-    Whether it was deploy, redeploy, or rollback
-  </Card>
-</CardGroup>
+### Service Details
 
-## Filtering Deployment History
-
-Filter your deployment history to find specific deployments:
-
-<Tabs>
-  <Tab title="By Status">
-    Filter deployments by their final status:
-    - **Success**: Completed deployments
-    - **Failed**: Deployments that encountered errors
-    - **Cancelled**: Manually cancelled deployments
-    - **In Progress**: Currently running deployments
-  </Tab>
-
-  <Tab title="By Service">
-    View deployments for specific services:
-    - Filter by application name
-    - Filter by database name
-    - Filter by container name
-    - View all services
-  </Tab>
-
-  <Tab title="By Time Range">
-    Filter deployments by date range:
-    - Last 24 hours
-    - Last 7 days
-    - Last 30 days
-    - Custom date range
-  </Tab>
-
-  <Tab title="By User">
-    Filter deployments by who triggered them:
-    - Manual deployments by specific users
-    - Auto-deploy (Git webhook)
-    - CI/CD pipelines
-    - Scheduled deployments
-  </Tab>
-</Tabs>
-
-## Deployment Details
-
-Click on any deployment in the history to view detailed information:
-
-### Deployment Overview
-
-<CardGroup cols={2}>
-  <Card title="Deployment Timeline" icon="timeline">
-    Visual timeline showing each deployment stage
-  </Card>
-  <Card title="Service Status" icon="heartbeat">
-    Health status of each deployed service
-  </Card>
-  <Card title="Configuration Snapshot" icon="camera">
-    Configuration used for this deployment
-  </Card>
-  <Card title="Logs Access" icon="file-lines">
-    Direct access to build and deployment logs
-  </Card>
-</CardGroup>
-
-### What Changed
-
-For each deployment, you can see:
-- **Code Changes**: Git diff showing what code changed
-- **Configuration Changes**: Environment variables, resources, or settings modified
-- **Service Changes**: New services added or removed
-- **Infrastructure Changes**: Kubernetes resource updates
-
-### Deployment Actions
-
-From the deployment history, you can:
-
-<CardGroup cols={2}>
-  <Card title="View Logs" icon="file-lines">
-    Access build and deployment logs for troubleshooting
-  </Card>
-  <Card title="Redeploy" icon="rotate">
-    Redeploy the same version to current environment
-  </Card>
-  <Card title="Rollback" icon="rotate-left">
-    Rollback to this specific deployment version
-  </Card>
-  <Card title="Compare" icon="code-compare">
-    Compare with other deployments to see differences
-  </Card>
-</CardGroup>
-
-## Use Cases
-
-### Troubleshooting Failed Deployments
-
-When a deployment fails, use the history to:
-
-<Steps>
-  <Step title="Identify Failed Deployment">
-    Locate the failed deployment in the history
-  </Step>
-  <Step title="Review Logs">
-    Click to view detailed error logs
-  </Step>
-  <Step title="Compare with Success">
-    Compare with the last successful deployment
-  </Step>
-  <Step title="Identify Root Cause">
-    Determine what changed that caused the failure
-  </Step>
-</Steps>
-
-### Auditing and Compliance
-
-Use deployment history for audit trails:
-
-<CardGroup cols={2}>
-  <Card title="Change Tracking" icon="list-check">
-    Track all changes made to production environments
-  </Card>
-  <Card title="Compliance Reports" icon="file-contract">
-    Generate reports showing deployment activity
-  </Card>
-  <Card title="Access Control" icon="shield">
-    Verify who deployed what and when
-  </Card>
-  <Card title="Rollback History" icon="clock-rotate-left">
-    Document rollback events and reasons
-  </Card>
-</CardGroup>
-
-### Performance Analysis
-
-Analyze deployment performance over time:
-
-<Accordion title="Deployment Metrics">
-  Track important deployment metrics:
-  - **Average deployment time**: How long deployments typically take
-  - **Success rate**: Percentage of successful deployments
-  - **Failure patterns**: Common failure reasons or timing
-  - **Deployment frequency**: How often services are deployed
-  - **Peak deployment times**: When most deployments occur
-</Accordion>
-
-## Rollback Using History
-
-One of the most powerful features of deployment history is the ability to rollback to previous versions:
-
-### How to Rollback
-
-<Steps>
-  <Step title="Find Stable Version">
-    Locate the last known good deployment in the history
-  </Step>
-  <Step title="Select Deployment">
-    Click on the deployment you want to rollback to
-  </Step>
-  <Step title="Click Rollback">
-    Select "Rollback to this version" from the actions menu
-  </Step>
-  <Step title="Confirm Rollback">
-    Review the changes and confirm the rollback
-  </Step>
-  <Step title="Monitor Progress">
-    Watch the rollback deployment complete
-  </Step>
-</Steps>
-
-<Warning>
-Rollback creates a new deployment using the previous version's configuration. It does not reverse database migrations or data changes.
-</Warning>
-
-### Rollback Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Document Reason" icon="note">
-    Always document why you're rolling back
-  </Card>
-  <Card title="Notify Team" icon="users">
-    Inform your team before rolling back production
-  </Card>
-  <Card title="Check Dependencies" icon="sitemap">
-    Ensure dependent services are compatible
-  </Card>
-  <Card title="Monitor After Rollback" icon="chart-line">
-    Watch metrics closely after rollback completes
-  </Card>
-</CardGroup>
-
-## Deployment History Retention
-
-### Retention Policy
-
-Qovery retains deployment history according to your plan:
-
-| Plan | Retention Period | Max Entries |
-|------|------------------|-------------|
-| Free | 30 days | 100 deployments |
-| Team | 90 days | 500 deployments |
-| Business | 1 year | 2,000 deployments |
-| Enterprise | Custom | Custom |
-
-<Info>
-Enterprise customers can configure custom retention policies to meet compliance requirements.
-</Info>
-
-### Exporting History
-
-Export deployment history for long-term archival:
-
-```bash
-# Export deployment history via CLI
-qovery deployment history --export csv
-
-# Export for specific environment
-qovery deployment history --environment production --export json
-
-# Export for date range
-qovery deployment history --from 2024-01-01 --to 2024-12-31 --export csv
-```
-
-## Integration with Other Tools
-
-### Monitoring and Alerting
-
-Link deployment history with monitoring:
-- **Correlate Metrics**: Match performance changes with deployments
-- **Alert on Failures**: Notify team when deployments fail
-- **Track Rollbacks**: Monitor rollback frequency
-
-### CI/CD Integration
-
-Connect deployment history with your CI/CD:
-- **Deployment Webhooks**: Send notifications on deployment events
-- **Status Checks**: Query deployment status from pipelines
-- **Automated Rollbacks**: Trigger rollbacks based on health checks
-
-## API Access
-
-Access deployment history programmatically via the Qovery API:
-
-```bash
-# Get deployment history for an environment
-curl -X GET \
-  "https://api.qovery.com/environment/$ENVIRONMENT_ID/deployments" \
-  -H "Authorization: Token $QOVERY_API_TOKEN"
-
-# Get specific deployment details
-curl -X GET \
-  "https://api.qovery.com/deployment/$DEPLOYMENT_ID" \
-  -H "Authorization: Token $QOVERY_API_TOKEN"
-
-# Rollback to specific deployment
-curl -X POST \
-  "https://api.qovery.com/deployment/$DEPLOYMENT_ID/rollback" \
-  -H "Authorization: Token $QOVERY_API_TOKEN"
-```
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Regular Reviews" icon="calendar">
-    Periodically review deployment history to identify patterns
-  </Card>
-  <Card title="Document Issues" icon="pen">
-    Add notes to failed deployments for future reference
-  </Card>
-  <Card title="Track Trends" icon="chart-line">
-    Monitor deployment frequency and success rates
-  </Card>
-  <Card title="Automate Exports" icon="download">
-    Schedule regular exports for compliance archival
-  </Card>
-  <Card title="Tag Releases" icon="tag">
-    Use Git tags to mark important releases
-  </Card>
-  <Card title="Quick Rollbacks" icon="bolt">
-    Bookmark stable deployments for fast rollback access
-  </Card>
-</CardGroup>
-
-## Frequently Asked Questions
-
-<AccordionGroup>
-  <Accordion title="How long is deployment history retained?">
-    Deployment history is retained based on your Qovery plan, ranging from 30 days (Free) to 1 year (Business) or custom retention for Enterprise customers.
-  </Accordion>
-
-  <Accordion title="Can I delete deployment history?">
-    Individual deployment history entries cannot be deleted as they serve as an audit trail. However, entries older than your plan's retention period are automatically archived.
-  </Accordion>
-
-  <Accordion title="Does rollback affect database data?">
-    No, rollback only reverts application code and configuration. Database migrations and data changes are not automatically reversed. You must handle database rollbacks separately.
-  </Accordion>
-
-  <Accordion title="Can I compare two deployments?">
-    Yes, you can select two deployments from the history and compare their configurations, code changes, and service differences.
-  </Accordion>
-
-  <Accordion title="Are auto-deployments shown in history?">
-    Yes, all deployments are shown in the history regardless of how they were triggered (manual, auto-deploy, CI/CD, or scheduled).
-  </Accordion>
-</AccordionGroup>
+Each service deployed during the execution is listed with:
+- Deployment status
+- Version deployed (commit hash or image tag)
 
 ## Next Steps
 
 <CardGroup cols={2}>
   <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
-    Access detailed logs for each deployment
+    Access deployment logs
   </Card>
+
   <Card title="Deployment Actions" icon="gears" href="/configuration/deployment/actions">
-    Learn about available deployment actions
+    Control your deployments
   </Card>
+
   <Card title="Deployment Statuses" icon="circle-info" href="/configuration/deployment/statuses">
-    Understand deployment status indicators
+    Understand deployment statuses
   </Card>
-  <Card title="Monitoring" icon="chart-line" href="/configuration/observability/overview">
-    Set up monitoring for your deployments
+
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
+    Configure deployment stages
   </Card>
 </CardGroup>

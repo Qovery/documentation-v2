@@ -1,18 +1,132 @@
 ---
-title: "Continuous Integration"
-description: "Integrate with CI platforms"
+title: "CI/CD Integration"
+description: "Integrate with continuous integration and deployment platforms"
 ---
 
-## Coming Soon
+## Overview
 
-This guide will cover:
-- GitHub Actions
-- GitLab CI
-- CircleCI
-- Jenkins
-- Travis CI
-- Custom CI platforms
+Qovery provides multiple ways to integrate with CI/CD platforms. Use Qovery Deploy for zero-configuration builds, or integrate with your existing CI/CD pipeline to deploy pre-built images.
 
-<Info>
-This guide is being created. See [CI/CD Integration](/using-qovery/deployment/ci-cd) for deployment integration.
-</Info>
+## Deployment Options
+
+<CardGroup cols={2}>
+  <Card title="Qovery Deploy" icon="rocket" href="/integrations/ci-cd/qovery-deploy">
+    Zero-config builds with automatic Docker image creation
+  </Card>
+
+  <Card title="External CI/CD" icon="arrows-rotate" href="/configuration/deployment/ci-cd">
+    Deploy images built by your existing CI/CD pipeline
+  </Card>
+</CardGroup>
+
+## Supported CI/CD Platforms
+
+<CardGroup cols={2}>
+  <Card title="GitHub Actions" icon="github" href="/integrations/ci-cd/github-actions">
+    Integrate with GitHub Actions workflows
+  </Card>
+
+  <Card title="GitHub Actions Enterprise" icon="github" href="/integrations/ci-cd/github-actions-enterprise">
+    Use GitHub Enterprise self-hosted runners
+  </Card>
+
+  <Card title="GitLab CI" icon="gitlab" href="/integrations/ci-cd/gitlab-ci">
+    Deploy from GitLab CI/CD pipelines
+  </Card>
+
+  <Card title="CircleCI" icon="circle" href="/integrations/ci-cd/circleci">
+    Integrate with CircleCI workflows
+  </Card>
+
+  <Card title="Jenkins" icon="jenkins" href="/integrations/ci-cd/jenkins">
+    Connect Jenkins pipelines
+  </Card>
+
+  <Card title="Custom CI/CD" icon="code" href="/configuration/deployment/ci-cd">
+    Any platform that can build container images
+  </Card>
+</CardGroup>
+
+## Integration Approaches
+
+<AccordionGroup>
+  <Accordion title="Qovery Deploy (Recommended)" icon="star">
+    **Zero Configuration Required**
+
+    Qovery automatically builds your application from Git:
+    - Detects Dockerfile or builds from source
+    - Manages container registry
+    - Handles build caching
+    - No CI/CD configuration needed
+
+    Best for: Teams wanting simplicity and zero maintenance
+  </Accordion>
+
+  <Accordion title="External CI/CD Build" icon="arrows-rotate">
+    **Custom Build Pipeline**
+
+    Use your existing CI/CD to build images:
+    - Full control over build process
+    - Custom build steps and testing
+    - Push images to container registry
+    - Qovery deploys the pre-built images
+
+    Best for: Teams with existing CI/CD infrastructure
+  </Accordion>
+
+  <Accordion title="Hybrid Approach" icon="shuffle">
+    **Mix Both Methods**
+
+    Use different approaches per environment:
+    - Qovery Deploy for dev/staging (fast iteration)
+    - CI/CD pipeline for production (strict controls)
+
+    Best for: Teams needing flexibility
+  </Accordion>
+</AccordionGroup>
+
+## Quick Start
+
+### Using Qovery Deploy
+
+<Steps>
+  <Step title="Connect Git Repository">
+    Link your GitHub, GitLab, or Bitbucket repository
+  </Step>
+
+  <Step title="Configure Application">
+    Qovery auto-detects your Dockerfile or build configuration
+  </Step>
+
+  <Step title="Deploy">
+    Push to your Git branch and Qovery automatically builds and deploys
+  </Step>
+</Steps>
+
+### Using External CI/CD
+
+<Steps>
+  <Step title="Build in CI/CD">
+    Use your CI/CD platform to build the Docker image
+  </Step>
+
+  <Step title="Push to Registry">
+    Push the image to your container registry (ECR, GCR, ACR, Docker Hub, etc.)
+  </Step>
+
+  <Step title="Configure Qovery">
+    Set application to use container image instead of Git
+  </Step>
+
+  <Step title="Deploy">
+    Trigger deployment via API, CLI, or Console
+  </Step>
+</Steps>
+
+## Configuration Details
+
+For detailed setup instructions, see:
+
+- [CI/CD Configuration](/configuration/deployment/ci-cd) - Choose between Qovery Deploy and external CI/CD
+- [CI/CD Integrations](/integrations/ci-cd/qovery-deploy) - Platform-specific guides
+- [Container Registry Setup](/using-qovery/integration/container-registry) - Connect your registry

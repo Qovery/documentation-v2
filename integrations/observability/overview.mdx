@@ -18,16 +18,8 @@ Qovery provides comprehensive observability through **Qovery Observe** (built-in
     Deploy Datadog agent via Helm chart for full-stack monitoring
   </Card>
 
-  <Card title="New Relic" icon="chart-line" href="/integrations/observability/new-relic">
-    Deploy New Relic infrastructure and APM via Helm chart
-  </Card>
-
   <Card title="Kubecost" icon="dollar-sign" href="/integrations/observability/kubecost">
     Monitor and optimize Kubernetes costs
-  </Card>
-
-  <Card title="Other Solutions" icon="chart-network" href="/integrations/observability/other-solutions">
-    Prometheus, Grafana, Elastic, and more via Helm
   </Card>
 </CardGroup>
 
@@ -39,7 +31,7 @@ Qovery provides comprehensive observability through **Qovery Observe** (built-in
 | **Cost** | Included with Qovery | Tool-specific pricing |
 | **Log Retention** | 90 days (with package) | Based on tool configuration |
 | **Metrics** | CPU, memory, network | Full custom metrics |
-| **APM** | Basic | Advanced (Datadog, New Relic) |
+| **APM** | Basic | Advanced (Datadog) |
 | **Alerts** | Via Qovery Console | Native tool alerting |
 | **Integration** | Deep Qovery integration | Standard Kubernetes |
 
@@ -79,7 +71,6 @@ Deploy observability tools as Helm services:
   <Step title="Select Official Chart">
     Choose from:
     - Datadog: `datadog/datadog`
-    - New Relic: `newrelic/nri-bundle`
     - Prometheus: `prometheus-community/kube-prometheus-stack`
     - Grafana: `grafana/grafana`
   </Step>
@@ -123,7 +114,7 @@ Deploy observability tools as Helm services:
   <Card title="Multi-Tool Strategy" icon="layer-group">
     **Combine solutions**:
     - Qovery Observe for quick access
-    - Datadog/New Relic for deep insights
+    - Datadog for deep insights
     - Grafana for custom dashboards
     - Best of both worlds
   </Card>
@@ -146,7 +137,6 @@ Deploy any observability tool that provides an official Helm chart:
 
 **APM & Monitoring**:
 - Datadog
-- New Relic
 - Dynatrace
 - AppDynamics
 - Elastic APM
@@ -284,7 +274,7 @@ Available on AWS, GCP, Scaleway (Azure coming soon):
 
 ```
 ✓ Qovery Observe for quick debugging
-✓ Datadog/New Relic for deep analysis
+✓ Datadog for deep analysis
 ✓ Best of both worlds
 ✓ Gradual migration path
 ```
@@ -302,8 +292,8 @@ Available on AWS, GCP, Scaleway (Azure coming soon):
       │   Observe   │          │  (via Helm)      │
       │             │          │                  │
       │ • Logs      │          │ • Datadog        │
-      │ • Metrics   │          │ • New Relic      │
-      │ • Events    │          │ • Prometheus     │
+      │ • Metrics   │          │ • Prometheus     │
+      │ • Events    │          │ • Grafana        │
       └──────┬──────┘          └────────┬─────────┘
              │                          │
              │                          │
@@ -403,12 +393,8 @@ Available on AWS, GCP, Scaleway (Azure coming soon):
     Set up Datadog monitoring via Helm
   </Card>
 
-  <Card title="Deploy New Relic" icon="chart-line" href="/integrations/observability/new-relic">
-    Configure New Relic APM and infrastructure
-  </Card>
-
-  <Card title="Other Solutions" icon="chart-network" href="/integrations/observability/other-solutions">
-    Explore Prometheus, Grafana, Elastic, and more
+  <Card title="Kubecost" icon="dollar-sign" href="/integrations/observability/kubecost">
+    Cost monitoring and optimization
   </Card>
 </CardGroup>
 

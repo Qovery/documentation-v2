@@ -1,0 +1,100 @@
+---
+title: "Terraform Exporter"
+description: "Export your Qovery environment configuration as Terraform code"
+---
+
+## Overview
+
+The Terraform Exporter converts your Qovery environment configuration into Terraform manifests, enabling you to transition from UI-based setup to infrastructure-as-code management without manually writing configurations.
+
+<Info>
+Build your infrastructure in the Qovery Console, then export everything as Terraform code for version control and automation.
+</Info>
+
+## What Gets Exported
+
+The exporter generates a complete Terraform configuration including:
+
+- **Environment**: Name, mode, cluster assignment, variables, deployment rules
+- **Services**: Applications, databases, jobs, and Helm charts with all their configurations
+- **Resources**: Organization, project, and cluster data sources
+- **Configuration**: Advanced settings, ports, resource limits, auto-deploy settings
+- **Secrets** (optional): Environment variables and secrets
+
+## How to Export
+
+<Steps>
+  <Step title="Navigate to Environment">
+    Go to the environment you want to export in the Qovery Console
+  </Step>
+
+  <Step title="Export">
+    Click on the environment settings (three dots menu) and select **Export as Terraform**
+  </Step>
+
+  <Step title="Choose Options">
+    Select whether to include secrets in the export
+
+    <Warning>
+    If you include secrets, they will be in plain text. Use environment variables or secret managers before committing to version control.
+    </Warning>
+  </Step>
+
+  <Step title="Download">
+    Download the generated Terraform configuration
+  </Step>
+</Steps>
+
+## Using Exported Configuration
+
+<Steps>
+  <Step title="Import Existing Resources">
+    Import resources to avoid recreating them:
+
+    ```bash
+    terraform import qovery_environment.prod <environment-id>
+    terraform import qovery_application.api <application-id>
+    terraform import qovery_database.postgres <database-id>
+    ```
+  </Step>
+
+  <Step title="Initialize and Apply">
+    ```bash
+    terraform init
+    export TF_VAR_qovery_api_token="your-api-token"
+    terraform plan
+    terraform apply
+    ```
+  </Step>
+</Steps>
+
+<Info>
+If you imported resources correctly, `terraform plan` should show no or minimal changes.
+</Info>
+
+## Best Practices
+
+- **Never commit secrets** to version control - use environment variables or secret managers
+- **Import existing resources** before applying to avoid recreation
+- Use **remote state backend** (S3, Terraform Cloud) for team collaboration
+- Keep exported configurations in **separate directories** per environment
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Terraform Provider" icon="code" href="/terraform/overview">
+    Learn about the Qovery Terraform Provider
+  </Card>
+
+  <Card title="Terraform Examples" icon="file-code" href="/terraform/basic-application">
+    Explore Terraform configuration examples
+  </Card>
+
+  <Card title="Terraform Registry" icon="book-open" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Complete provider documentation
+  </Card>
+
+  <Card title="Environment Variables" icon="sliders" href="/configuration/environment-variables">
+    Manage environment variables and secrets
+  </Card>
+</CardGroup>

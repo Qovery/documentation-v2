@@ -1,0 +1,115 @@
+---
+title: "Using Lifecycle Jobs to Deploy Resources"
+description: "Tutorial on deploying any kind of resources using Lifecycle Jobs"
+---
+
+## Overview
+
+The Lifecycle Job feature enables executing commands before or after environment deployment. Use cases include running infrastructure-as-code tools, creating cloud resources (SQS, SNS, Lambdas), deploying managed services, or seeding databases.
+
+## Execution Flow
+
+**Deployment sequence:**
+1. Qovery builds the Lifecycle Job and other services
+2. Qovery executes the Job's Start Event
+3. Job creates AWS RDS MySQL instance
+4. Job writes database credentials to `/qovery-output/qovery-output.json`
+5. Qovery injects credentials as environment variables
+6. Services access the database
+
+**Deletion sequence:**
+1. Qovery runs Job's Deleted Event
+2. Job destroys AWS RDS MySQL instance
+3. Qovery releases all resources
+
+## Prerequisites
+
+- Active Qovery account
+- Existing project and environment
+- S3 bucket for Terraform state backend
+
+## Step 1: Repository Setup
+
+Fork the [lifecycle-job-examples repository](https://github.com/Qovery/lifecycle-job-examples)
+
+Root application path: `/examples/aws-rds-with-terraform`
+
+## Step 2: Add Lifecycle Job
+
+![Add Lifecycle Job](/images/how-to-use-lifecycle-job/1.png)
+
+Configure the job with the following settings:
+
+![Configure name and repository](/images/how-to-use-lifecycle-job/2.png)
+
+**Select both Start and Deleted events:**
+
+![Select events](/images/how-to-use-lifecycle-job/3.png)
+
+**Event commands:**
+- Start Event command: `["-c","terraform apply -no-color -auto-approve && terraform output -json > /qovery-output/qovery-output.json"]`
+- Deleted Event command: `["-c","terraform destroy -no-color -auto-approve"]`
+
+**Timeout configuration:**
+
+![Set timeout](/images/how-to-use-lifecycle-job/4.png)
+
+Set timeout to 1800 seconds (30 minutes)
+
+**Resource allocation:**
+
+![Allocate resources](/images/how-to-use-lifecycle-job/5.png)
+
+- CPU: 0.5
+- RAM: 256 MB
+
+## Step 3: Environment Variables
+
+![Configure environment variables](/images/how-to-use-lifecycle-job/6.png)
+
+Required variables:
+- `TF_VAR_terraform_backend_bucket`
+- `TF_VAR_aws_region`
+- `TF_VAR_aws_access_key_id`
+- `TF_VAR_aws_secret_access_key`
+- `TF_VAR_qovery_environment_id`
+
+![Create without deployment](/images/how-to-use-lifecycle-job/7.png)
+
+## Step 4: Multi-Environment Support
+
+![MySQL RDS Variables](/images/how-to-use-lifecycle-job/8.png)
+
+![Search QOVERY_ENVIRONMENT_ID](/images/how-to-use-lifecycle-job/9.png)
+
+Create an alias linking `QOVERY_ENVIRONMENT_ID` to `TF_VAR_qovery_environment_id` at service scope level.
+
+![Create environment variable alias](/images/how-to-use-lifecycle-job/10.png)
+
+## Step 5: Deploy
+
+![Deploy Lifecycle Job](/images/how-to-use-lifecycle-job/11.png)
+
+![Access job logs](/images/how-to-use-lifecycle-job/12.png)
+
+![Terraform init logs](/images/how-to-use-lifecycle-job/13.png)
+
+![Terraform apply](/images/how-to-use-lifecycle-job/14.png)
+
+![Completed deployment](/images/how-to-use-lifecycle-job/15.png)
+
+## Output Credentials
+
+After deployment, Terraform output automatically generates `QOVERY_OUTPUT_**` environment variables containing database credentials for application use.
+
+![Generated output variables](/images/how-to-use-lifecycle-job/16.png)
+
+## FAQ
+
+**Environment Deletion:** Deleted Event executes `terraform destroy` automatically.
+
+**Application Deployment:** Lifecycle Jobs can deploy applications but official Qovery methods are recommended.
+
+**Environment Cloning:** Cloned environments receive unique `QOVERY_ENVIRONMENT_ID` values; S3 state management preserves existing resources.
+
+**Post-Deployment Modifications:** Redeploying updated Jobs uses existing S3 state; resource modifications depend on configuration file changes.

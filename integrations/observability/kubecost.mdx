@@ -1,9 +1,7 @@
 ---
 title: "Kubecost"
-description: "Monitor and reduce Kubernetes spending with Kubecost"
+description: "Monitor and reduce Kubernetes spend with Kubecost"
 ---
-
-## Overview
 
 Kubecost provides real-time cost visibility and insights for your Kubernetes clusters. This guide shows you how to deploy Kubecost on your Qovery cluster to track and optimize your infrastructure spending.
 
@@ -15,136 +13,92 @@ Kubecost provides real-time cost visibility and insights for your Kubernetes clu
 This tutorial takes approximately **3 minutes** to complete.
 </Info>
 
-## What is Kubecost?
+## Step 1. Add the Kubecost Helm Repository
 
-Kubecost helps you:
+Add the Kubecost Helm repository in Qovery:
 
-- **Monitor costs**: Track spending by namespace, service, label, and more
-- **Identify waste**: Find over-provisioned resources and idle workloads
-- **Optimize resources**: Get recommendations to reduce costs
-- **Set budgets**: Create alerts and budgets for cost control
+1. Go to your **Organization** settings
+2. Select **Helm Repositories**
+3. Click **Add Repository**
+4. Enter the repository details:
+   - **Name**: Kubecost
+   - **Repository URL**: `https://kubecost.github.io/cost-analyzer/`
+5. Click **Create**
 
-## Installation Steps
+## Step 2. Deploy the Kubecost Helm Chart
 
-<Steps>
-  <Step title="Add Helm Repository">
-    In Qovery Console, add the Kubecost Helm repository:
+Create a new Helm service in your environment:
 
-    1. Go to your **Organization** settings
-    2. Navigate to **Helm Repositories**
-    3. Click **Add Repository**
-    4. Configure the repository:
-       - **Name**: Kubecost
-       - **Repository URL**: `https://kubecost.github.io/cost-analyzer/`
-    5. Click **Save**
-  </Step>
+1. Navigate to your **Environment**
+2. Click **Create** → **Helm**
+3. Configure the Helm service:
+   - **Service name**: kubecost
+   - **Source**: Kubecost (the repository you just added)
+   - **Chart name**: `cost-analyzer`
+   - **Chart version**: `1.108.0`
+   - **Allow cluster-wide resources**: Enable
 
-  <Step title="Deploy Kubecost Helm Chart">
-    Deploy the Kubecost cost-analyzer chart:
+4. **(Optional)** If you have a Kubecost token:
+   - Create an environment variable named `KUBECOST_TOKEN`
+   - Set it as **Secret**
+   - Enter your token value
 
-    1. Go to your **Environment**
-    2. Click **Add Service** → **Helm**
-    3. Configure the Helm service:
-       - **Name**: kubecost
-       - **Source**: Select the Kubecost repository
-       - **Chart Name**: `cost-analyzer`
-       - **Chart Version**: `1.108.0` (or latest)
+5. If using a token, add this in the **Values override** section:
+   ```yaml
+   kubecostToken: qovery.env.KUBECOST_TOKEN
+   ```
 
-    4. **Optional**: Add Kubecost Token for additional features
-       - Create an environment variable: `KUBECOST_TOKEN`
-       - Mark it as **Secret**
-       - Set the value to your Kubecost token
+6. Click **Create** and wait for the deployment to complete
 
-    5. Add values override (if using token):
-       ```yaml
-       kubecostToken: qovery.env.KUBECOST_TOKEN
-       ```
+## Step 3. Expose Kubecost
 
-    6. Click **Create** and deploy
-  </Step>
+To access the Kubecost interface, you need to expose it publicly:
 
-  <Step title="Expose Kubecost Dashboard">
-    Make Kubecost accessible via a public URL:
+1. Once deployed, check the **Deployment logs** to find the service name
 
-    1. Wait for deployment to complete
-    2. View deployment logs to find the service name
+<img src="/images/kubecost/service-name.png" alt="Service name" />
 
-    <img src="/images/kubecost/service-name.png" alt="Find Kubecost service name in logs" />
+The service name will be something like: `helm-z325f0565-kubecost-cost-analyzer`
 
-    The service name will look like: `helm-z325f0565-kubecost-cost-analyzer`
+2. Go to your Helm service **Settings** → **Port**
+3. Click **Add Port**
 
-    3. Go to your Helm service → **Settings** → **Networking**
-    4. Click **Add Port**
+<img src="/images/kubecost/add-port.png" alt="Add port" />
 
-    <img src="/images/kubecost/add-port.png" alt="Add port configuration" />
+4. Configure the port:
+   - **Service name**: The service name from step 1 (e.g., `helm-z325f0565-kubecost-cost-analyzer`)
+   - **Service port**: `9090`
+   - **Protocol**: `HTTP`
+   - **Publicly exposed**: Enable
 
-    5. Configure the port:
-       - **Service Name**: `helm-YOUR_ID-kubecost-cost-analyzer` (from logs)
-       - **Service Port**: `9090`
-       - **Protocol**: HTTP
-       - **Public**: Enable
+5. Click **Create**
 
-    6. Click **Save** and redeploy
+6. After redeployment, you'll see a public link to access Kubecost
 
-    7. Once deployed, you'll see a public URL to access Kubecost
+<img src="/images/kubecost/link.png" alt="Link" />
 
-    <img src="/images/kubecost/link.png" alt="Kubecost public URL" />
-  </Step>
-</Steps>
+## Conclusion
 
-## Accessing Kubecost
+You've successfully deployed Kubecost on your Qovery cluster. You can now access the Kubecost dashboard to monitor your Kubernetes costs and get optimization recommendations.
 
-Once deployed, click the public URL to access the Kubecost dashboard. You'll see:
-
-- **Cost allocation**: Breakdown by namespace, deployment, service, and label
-- **Savings insights**: Recommendations to reduce costs
-- **Cluster health**: Resource utilization and efficiency metrics
-- **Reports**: Custom cost reports and alerts
-
-## Using Kubecost
-
-### Monitor Costs by Namespace
-
-View spending breakdown by namespace to identify which environments or teams are consuming the most resources.
-
-### Identify Waste
-
-Kubecost highlights:
-- **Abandoned resources**: Workloads no longer in use
-- **Over-provisioned pods**: Resources allocated but not used
-- **Idle resources**: Low utilization workloads
-
-### Get Optimization Recommendations
-
-Kubecost provides actionable recommendations:
-- Right-size pod requests and limits
-- Reduce replica counts for low-traffic services
-- Switch to spot instances for non-critical workloads
-- Consolidate underutilized nodes
-
-### Set Budgets and Alerts
-
-Create budgets and get alerts when spending exceeds thresholds:
-- Monthly budget by namespace
-- Cost anomaly detection
-- Slack/email notifications
+To learn more about using Kubecost, check out their [Getting Started guide](https://docs.kubecost.com/#getting-started).
 
 ## Next Steps
 
 <CardGroup cols={2}>
   <Card title="Kubecost Documentation" icon="book" href="https://docs.kubecost.com/#getting-started">
-    Learn more about Kubecost features and configuration
+    Learn more about Kubecost features
   </Card>
 
-  <Card title="Optimize Costs" icon="gauge-high" href="/guides/qovery-101/optimize">
-    Learn optimization strategies with Qovery
+  <Card title="Optimize" icon="gauge-high" href="/guides/qovery-101/optimize">
+    Optimization strategies with Qovery
   </Card>
 
-  <Card title="Other Monitoring Solutions" icon="chart-line" href="/integrations/observability/overview">
-    Explore other observability integrations
+  <Card title="Qovery Observe" icon="chart-line" href="/integrations/observability/qovery-observe">
+    Built-in observability
   </Card>
 
-  <Card title="Environment Scheduling" icon="clock" href="/configuration/environment">
-    Reduce costs by scheduling environments
+  <Card title="Datadog" icon="dog" href="/integrations/observability/datadog">
+    Advanced monitoring with Datadog
   </Card>
 </CardGroup>

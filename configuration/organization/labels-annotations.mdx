@@ -5,444 +5,67 @@ description: "Manage Kubernetes labels and annotations for your organization"
 
 ## Overview
 
-Labels and annotations management in Qovery allows you to define and organize Kubernetes labels and annotations that are automatically applied to your resources. This feature helps you:
-
-- Standardize resource labeling across your organization
-- Apply consistent metadata to all deployed resources
-- Integrate with monitoring, cost allocation, and governance tools
-- Enforce organizational policies and compliance requirements
-- Propagate labels as cloud provider tags for billing and resource management
+Qovery enables centralized management of Kubernetes object annotations and labels through the console. Organizations can establish annotation/label groups in the settings, then assign them to services.
 
 ![Labels and Annotations Settings](/images/configuration/organization/annotations_labels_settings.png)
 
-## Understanding Labels vs Annotations
-
-### Labels
-- **Purpose**: Identify and select Kubernetes objects
-- **Structure**: Key-value pairs with strict syntax rules
-- **Usage**: Querying, grouping, and selecting resources
-- **Examples**: `env=production`, `team=backend`, `app=web-api`
-
-### Annotations
-- **Purpose**: Store non-identifying metadata
-- **Structure**: Key-value pairs with flexible syntax
-- **Usage**: Store additional information, tool configurations
-- **Examples**: Monitoring configs, documentation links, version info
-
-## Accessing Labels & Annotations Settings
-
-<Steps>
-  <Step title="Open Organization Settings">
-    Click the "Wheel" button (⚙️) on the left navigation bar
-
-    ![How to access your organization settings](/images/configuration/organization/access_settings.png)
-  </Step>
-
-  <Step title="Navigate to Labels & Annotations Section">
-    Open the `Labels & Annotations` section within the organization settings
-
-    ![Labels and Annotations interface](/images/configuration/organization/annotations_labels_settings.png)
-  </Step>
-</Steps>
-
 ## Label Groups
 
-Label groups allow you to organize and apply sets of labels to your resources systematically.
+### Creating Label Groups
 
-![Label Group Management](/images/configuration/organization/label_group.png)
+Access label group creation via the `Add new` button, then select `Add label group`. Required inputs include:
 
-### Create a Label Group
+- Group name identifier
+- Key/value pairs following [Kubernetes label syntax](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set)
 
-<Steps>
-  <Step title="Click Add Label Group">
-    In the Labels section, click the `Add Label Group` button
-  </Step>
+**Forbidden Label Prefixes** (non-exhaustive):
+- `kubernetes.io/`, `k8s.io/`
+- `qovery.com` (all variants)
+- `aws`, `eks:*`
+- System identifiers: `appId`, `envId`, `cluster_id`, `organization_id`
 
-  <Step title="Configure Label Group">
-    Provide the following information:
-    - **Name**: Descriptive name for the label group (e.g., "Cost Allocation", "Environment")
-    - **Labels**: Add key-value pairs
-      - Key: Label key (e.g., `cost-center`, `environment`, `team`)
-      - Value: Label value (e.g., `engineering`, `production`, `platform`)
-  </Step>
+**Propagate as Tag Option:** Forwards Kubernetes labels to cloud provider resources, subject to cloud-specific tag format requirements (AWS, GCP, Scaleway).
 
-  <Step title="Add Multiple Labels">
-    Click `Add Label` to include multiple labels in the group
-  </Step>
+**Current Scope:** Managed databases on AWS clusters; future releases will support environment and cluster-level tagging.
 
-  <Step title="Save Label Group">
-    Click **Save** to create the label group
-  </Step>
-</Steps>
+![Label Group](/images/configuration/organization/label_group.png)
 
-### Edit a Label Group
+Applicable to applications, cronjobs, lifecycle jobs, and databases (not Helm).
 
-1. Locate the label group in the list
-2. Click the **Edit** button
-3. Modify labels (add, remove, or update)
-4. Click **Save** to apply changes
+### Managing Label Groups
 
-### Delete a Label Group
+**Editing:** Modify existing groups to add, remove, or update labels. Services require redeployment to reflect changes.
 
-1. Locate the label group in the list
-2. Click the **Delete** button (trash icon)
-3. Confirm the deletion
-
-<Note>
-Changes to label groups will be applied during the next deployment of your services.
-</Note>
+**Deletion:** Remove groups; services need redeployment to remove associated labels.
 
 ## Annotation Groups
 
-Annotation groups allow you to organize and apply sets of annotations to your resources.
+### Creating Annotation Groups
 
-![Annotation Group Management](/images/configuration/organization/annotation_group.png)
+Select `Add annotation` button. Provide:
 
-### Create an Annotation Group
+- Group name
+- Annotation key/value pairs per [Kubernetes annotation syntax](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/#syntax-and-character-set)
+- Kubernetes scope (e.g., `ingress`, `pod`, `deployment`)
 
-<Steps>
-  <Step title="Click Add Annotation Group">
-    In the Annotations section, click the `Add Annotation Group` button
-  </Step>
+**Forbidden Annotation Prefixes** (non-exhaustive):
+- `kubernetes.io/`, `k8s.io/`
+- `meta.helm.sh/*`
+- `qovery.com` (all variants)
+- System checksums: `checksum/*`, `appCommitId`
 
-  <Step title="Configure Annotation Group">
-    Provide the following information:
-    - **Name**: Descriptive name for the annotation group (e.g., "Monitoring", "Documentation")
-    - **Annotations**: Add key-value pairs
-      - Key: Annotation key (e.g., `prometheus.io/scrape`, `docs.link`)
-      - Value: Annotation value (e.g., `true`, `https://docs.example.com`)
-  </Step>
+**Scope Definition:** Restricts annotations to specific Kubernetes objects (ingress, pod, deployment).
 
-  <Step title="Add Multiple Annotations">
-    Click `Add Annotation` to include multiple annotations in the group
-  </Step>
+![Annotation Group](/images/configuration/organization/annotation_group.png)
 
-  <Step title="Save Annotation Group">
-    Click **Save** to create the annotation group
-  </Step>
-</Steps>
+Applicable to applications, cronjobs, lifecycle jobs, and database containers (not Helm).
 
-### Edit an Annotation Group
+### Managing Annotation Groups
 
-1. Locate the annotation group in the list
-2. Click the **Edit** button
-3. Modify annotations (add, remove, or update)
-4. Click **Save** to apply changes
+**Editing:** Update annotations or modify scope; redeployment required for active services.
 
-### Delete an Annotation Group
+**Deletion:** Remove groups; services require redeployment to strip associated annotations.
 
-1. Locate the annotation group in the list
-2. Click the **Delete** button (trash icon)
-3. Confirm the deletion
+## Important Note
 
-## Forbidden Label & Annotation Prefixes
-
-Qovery reserves certain label and annotation prefixes for internal use. You cannot create labels or annotations with these prefixes:
-
-### Reserved Prefixes
-- `qovery.com/*`
-- `kubernetes.io/*`
-- `k8s.io/*`
-
-Attempting to use these prefixes will result in a validation error.
-
-### Recommended Custom Prefixes
-
-For organization-specific labels and annotations, use your own domain prefix:
-- `company.com/*`
-- `myorg.io/*`
-- `team.internal/*`
-
-## Propagate as Tag Feature
-
-The "Propagate as Tag" feature allows Kubernetes labels to be automatically propagated as tags to cloud provider resources.
-
-### How It Works
-
-When enabled, Qovery will:
-1. Take specified Kubernetes labels
-2. Convert them to cloud provider tags
-3. Apply them to associated cloud resources (EC2, EBS, Load Balancers, etc.)
-
-### Benefits
-
-- **Cost Allocation**: Track costs by team, project, or environment
-- **Resource Management**: Identify and organize cloud resources
-- **Compliance**: Meet tagging requirements for governance
-- **Automation**: Integrate with cloud provider tag-based automation
-
-### Enabling Propagate as Tag
-
-<Steps>
-  <Step title="Create or Edit Label Group">
-    When creating or editing a label group, locate the label you want to propagate
-  </Step>
-
-  <Step title="Enable Propagate Option">
-    Check the **Propagate as Tag** checkbox next to the label
-  </Step>
-
-  <Step title="Save Configuration">
-    Click **Save** to apply the setting
-  </Step>
-</Steps>
-
-<Info>
-Only labels can be propagated as cloud provider tags. Annotations cannot be propagated.
-</Info>
-
-### Supported Cloud Providers
-
-Tag propagation is supported on:
-- **AWS**: Tags on EC2, EBS, ELB, RDS, and other resources
-- **GCP**: Labels on Compute Engine, GKE, and other resources
-- **Azure**: Tags on VMs, AKS, and other resources
-- **Scaleway**: Tags on instances and other resources
-
-### Tag Propagation Rules
-
-1. **Character Restrictions**: Cloud providers have tag naming restrictions
-   - AWS: Maximum 128 characters for keys, 256 for values
-   - GCP: Maximum 63 characters for keys and values
-   - Azure: Maximum 512 characters for keys, 256 for values
-
-2. **Special Characters**: Some special characters may be converted or removed
-
-3. **Reserved Prefixes**: Cloud provider reserved prefixes cannot be used
-
-<Warning>
-Tag propagation happens during resource creation and updates. Changing propagation settings requires redeployment of services to apply changes to cloud resources.
-</Warning>
-
-## Common Label & Annotation Examples
-
-### Cost Allocation Labels
-
-```yaml
-labels:
-  cost-center: "engineering"
-  project: "web-platform"
-  environment: "production"
-  owner: "platform-team"
-```
-
-Enable "Propagate as Tag" for cost tracking in your cloud provider billing dashboard.
-
-### Environment Labels
-
-```yaml
-labels:
-  environment: "production"
-  region: "us-east-1"
-  tier: "frontend"
-  version: "v1.2.3"
-```
-
-### Monitoring Annotations
-
-```yaml
-annotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "9090"
-  prometheus.io/path: "/metrics"
-  datadog.com/logs: "true"
-```
-
-### Documentation Annotations
-
-```yaml
-annotations:
-  docs.link: "https://docs.example.com/service"
-  runbook.link: "https://runbooks.example.com/service"
-  oncall.team: "platform-team"
-  contact.email: "platform@example.com"
-```
-
-### Compliance Labels
-
-```yaml
-labels:
-  compliance.soc2: "true"
-  compliance.hipaa: "true"
-  data-classification: "confidential"
-  retention-policy: "7-years"
-```
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Use Consistent Naming Conventions">
-    Establish and follow naming conventions:
-    - Use lowercase with hyphens: `cost-center`, `app-version`
-    - Use domain prefixes for custom labels: `company.com/team`
-    - Keep names descriptive but concise
-    - Document your naming standards
-  </Accordion>
-
-  <Accordion title="Organize by Purpose">
-    Create label groups by function:
-    - **Cost Allocation**: Labels for billing and chargeback
-    - **Operations**: Labels for monitoring and alerting
-    - **Compliance**: Labels for governance and audit
-    - **Lifecycle**: Labels for resource management
-  </Accordion>
-
-  <Accordion title="Enable Tag Propagation for Billing">
-    For cost tracking, enable tag propagation on:
-    - Cost center labels
-    - Project/team labels
-    - Environment labels
-    - Budget category labels
-
-    This enables detailed cost allocation in your cloud provider billing dashboard.
-  </Accordion>
-
-  <Accordion title="Keep Labels Stable">
-    Labels are often used in selectors:
-    - Don't change label keys frequently
-    - Version your label schemas if changes are needed
-    - Test label changes in non-production first
-    - Document any label schema changes
-  </Accordion>
-
-  <Accordion title="Use Annotations for Dynamic Data">
-    Use annotations for information that changes frequently:
-    - Deployment timestamps
-    - Version information
-    - Configuration references
-    - Tool-specific metadata
-  </Accordion>
-
-  <Accordion title="Limit Label Cardinality">
-    Avoid high-cardinality labels:
-    - Don't use unique IDs as label values
-    - Don't use timestamps as label values
-    - Don't use user-specific data as label values
-    - Use annotations for high-cardinality data
-  </Accordion>
-
-  <Accordion title="Document Label Schema">
-    Maintain documentation of your label schema:
-    - Purpose of each label
-    - Allowed values
-    - Which labels should be propagated
-    - Update procedures
-  </Accordion>
-</AccordionGroup>
-
-## Integration Examples
-
-### AWS Cost Explorer Integration
-
-With tag propagation enabled:
-
-1. Apply labels with "Propagate as Tag":
-   ```yaml
-   labels:
-     cost-center: "engineering"
-     project: "api-platform"
-     environment: "production"
-   ```
-
-2. In AWS Cost Explorer:
-   - Filter costs by `cost-center:engineering`
-   - Group by `project` tag
-   - Create cost allocation reports
-
-### Prometheus Monitoring
-
-Configure Prometheus scraping with annotations:
-
-```yaml
-annotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "8080"
-  prometheus.io/path: "/metrics"
-```
-
-### Datadog Integration
-
-Enable Datadog monitoring with annotations:
-
-```yaml
-annotations:
-  ad.datadoghq.com/service.check_names: '["http_check"]'
-  ad.datadoghq.com/service.init_configs: '[{}]'
-  ad.datadoghq.com/service.instances: '[{"name":"My Service","url":"http://%%host%%:8080/health"}]'
-```
-
-### Service Mesh (Istio)
-
-Configure Istio with annotations:
-
-```yaml
-annotations:
-  sidecar.istio.io/inject: "true"
-  traffic.sidecar.istio.io/includeInboundPorts: "8080,8443"
-  proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
-```
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Labels Not Applied">
-    **Problem**: Labels not visible on Kubernetes resources
-
-    **Solutions**:
-    - Redeploy services to apply new label groups
-    - Check for forbidden prefix errors
-    - Verify label syntax (lowercase, alphanumeric, hyphens)
-    - Review Qovery deployment logs
-  </Accordion>
-
-  <Accordion title="Tags Not Propagating to Cloud">
-    **Problem**: Cloud provider tags not created
-
-    **Solutions**:
-    - Verify "Propagate as Tag" is enabled
-    - Redeploy services to trigger tag creation
-    - Check cloud provider IAM permissions for tagging
-    - Verify tag name meets cloud provider requirements
-    - Review character limits and special characters
-  </Accordion>
-
-  <Accordion title="Label Conflicts">
-    **Problem**: Label conflicts with existing labels
-
-    **Solutions**:
-    - Check for duplicate label keys
-    - Review application-level labels
-    - Ensure no conflicts with Qovery reserved labels
-    - Use unique prefixes for custom labels
-  </Accordion>
-
-  <Accordion title="Annotation Validation Errors">
-    **Problem**: Cannot save annotation with certain values
-
-    **Solutions**:
-    - Check for special characters in annotation values
-    - Verify JSON syntax if using structured data
-    - Escape quotes in annotation values
-    - Check annotation size limits (256KB per annotation)
-  </Accordion>
-</AccordionGroup>
-
-## Related Resources
-
-<CardGroup cols={2}>
-  <Card title="Cloud Credentials" href="/configuration/organization/cloud-credentials">
-    Manage cloud provider credentials
-  </Card>
-
-  <Card title="Applications" href="/configuration/applications">
-    Configure application deployments
-  </Card>
-
-  <Card title="Monitoring" href="/integrations/monitoring">
-    Integrate monitoring tools
-  </Card>
-
-  <Card title="Clusters" href="/configuration/clusters">
-    Manage Kubernetes clusters
-  </Card>
-</CardGroup>
+Helm services support direct label/annotation configuration within chart definitions; these centralized groups don't apply.

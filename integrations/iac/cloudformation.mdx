@@ -1,0 +1,48 @@
+---
+title: "CloudFormation"
+description: "Deploy CloudFormation templates with Qovery"
+---
+
+## Overview
+
+Qovery enables deployment of CloudFormation templates to manage custom cloud resources like databases, Lambda functions, and message brokers. The integration leverages Lifecycle Jobs for orchestration.
+
+## Deployment Process
+
+The implementation follows six core steps:
+
+**Step 1: Service Addition**
+
+Navigate to your environment and select "Add Service" to begin the CloudFormation integration.
+
+**Step 2: Template Selection**
+
+Choose "CloudFormation" from the available service options and proceed through configuration steps.
+
+**Step 3: Manifest Configuration**
+
+Provide the location of your manifest within your git repository to specify where templates are stored.
+
+**Step 4: Customization Components**
+
+Three customizable elements include:
+- **Dockerfile**: Pre-configured to package manifests and execute CloudFormation commands based on lifecycle events
+- **Triggers**: Default triggers and commands aligned with the Dockerfile configuration
+- **Resources**: CPU/Memory defaults suitable for running CloudFormation CLI in Kubernetes jobs
+- **Environment Variables**: Input parameters stored as files or standard environment variables (including AWS credentials)
+
+**Step 5: Deployment**
+
+Create and deploy the CloudFormation job to trigger manifest execution.
+
+**Step 6: Output Integration**
+
+If your CloudFormation manifest/template generates an output, the output will be fetched and injected as environment variable to any service of the same environment.
+
+![Job Output](/images/configuration/job/job_output.png)
+
+## Related Resources
+
+- [Lifecycle Job Documentation](/configuration/lifecycle-job)
+- [Lifecycle Job Examples Repository](https://github.com/Qovery/lifecycle-job-examples)
+- [Deployment Guide for Custom Resources](/integrations/iac/lifecycle-job-tutorial)
