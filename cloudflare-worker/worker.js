@@ -10,7 +10,7 @@ export default {
 
       // If the request is to the docs subdirectory
       if (/^\/docs/.test(urlObject.pathname)) {
-        // Then Proxy to Mintlify
+        // Proxy to Mintlify
         const DOCS_URL = "qovery.mintlify.dev";
         const CUSTOM_URL = "www.qovery.com";
 
@@ -28,10 +28,22 @@ export default {
         return await fetch(proxyRequest);
       }
 
-      // If no action found, play the regular request
+      // Route everything else to main Webflow site
+      const MAIN_SITE_URL = "qovery.webflow.io";
+      if (MAIN_SITE_URL && MAIN_SITE_URL !== "[LANDING_DOMAIN]") {
+        let mainSiteUrl = new URL(request.url);
+        mainSiteUrl.hostname = MAIN_SITE_URL;
+        return await fetch(mainSiteUrl, {
+          method: request.method,
+          headers: request.headers,
+          body: request.body
+        });
+      }
+
+      // If no action found, serve the regular request
       return await fetch(request);
     } catch (error) {
-      // If error occurs, play the regular request
+      // If error occurs, serve the regular request
       return await fetch(request);
     }
   }
