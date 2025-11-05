@@ -30,7 +30,7 @@ export default {
 
       // Route everything else to main Webflow site
       const MAIN_SITE_URL = "qovery.webflow.io";
-      if (MAIN_SITE_URL && MAIN_SITE_URL !== "[LANDING_DOMAIN]") {
+      if (MAIN_SITE_URL && MAIN_SITE_URL !== "www.qovery.com") {
         let mainSiteUrl = new URL(request.url);
         mainSiteUrl.hostname = MAIN_SITE_URL;
         return await fetch(mainSiteUrl, {
