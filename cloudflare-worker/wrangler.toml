@@ -2,7 +2,8 @@ name = "qovery-docs"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
-# Route configuration for www.qovery.com/docs/*
+# Route configuration for www.qovery.com/docs and www.qovery.com/docs/*
 routes = [
+  { pattern = "www.qovery.com/docs", zone_name = "qovery.com" },
   { pattern = "www.qovery.com/docs/*", zone_name = "qovery.com" }
 ]
