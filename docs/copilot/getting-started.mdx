@@ -5,7 +5,41 @@ description: "Start automating your infrastructure with agentic AI"
 
 ## Overview
 
-Qovery AI Copilot is currently available in beta through the Model Context Protocol (MCP) Server. This allows you to interact with your Qovery infrastructure using natural language in Claude Desktop or other MCP-compatible clients.
+Qovery AI Copilot is your intelligent assistant for managing infrastructure. It's available through three interfaces: the **Console** (built-in), **Slack Bot** (team collaboration), and **MCP Server** (power users). All allow you to interact with your Qovery infrastructure using natural language.
+
+## Operating Modes
+
+The Qovery AI Copilot operates in two modes:
+
+<CardGroup cols={2}>
+  <Card title="Read-Only Mode (Default)" icon="eye">
+    **Safe exploration and information access**
+
+    - View information and status
+    - Get help and recommendations
+    - Troubleshoot issues
+    - Learn about features
+    - **Cannot make changes** to infrastructure
+
+    **Available in:** Console (only), Slack Bot, MCP Server
+  </Card>
+
+  <Card title="Read-Write Mode" icon="pen-to-square">
+    **Full automation capabilities**
+
+    - Everything in read-only mode
+    - Deploy and restart services
+    - Create/modify/delete resources
+    - Update configurations
+    - Manage environment variables
+
+    **Available in:** Slack Bot, MCP Server (not Console)
+  </Card>
+</CardGroup>
+
+<Note>
+**Default Mode**: By default, the Copilot operates in **read-only mode** for safety. The Console Copilot is permanently in read-only mode. Slack Bot and MCP Server support read-write mode when needed.
+</Note>
 
 <Note>
 **Early Access Required**: Qovery AI Copilot is available online and on demand. Contact [Qovery Support](mailto:support@qovery.com) to request early access.
@@ -15,33 +49,118 @@ Qovery AI Copilot is currently available in beta through the Model Context Proto
 **Beta Status**: Qovery AI Copilot is currently in beta. Features and capabilities are being actively developed.
 </Warning>
 
+## Choose Your Interface
+
+Qovery AI Copilot is available through three interfaces:
+
+<CardGroup cols={3}>
+  <Card title="Console" icon="browser" href="/copilot/console">
+    **Built-in help (Recommended)**
+
+    Get contextual assistance directly in the Qovery Console.
+
+    - 🔒 Read-only mode only
+    - No setup required
+    - Contextual awareness
+    - Always available
+    - Quick access (⌘ I)
+  </Card>
+
+  <Card title="Slack Bot" icon="slack" href="/copilot/slack-bot">
+    **Best for teams**
+
+    Use Copilot in Slack for collaborative infrastructure management.
+
+    - 🔓 Read-write mode supported
+    - Team collaboration
+    - Mobile access
+    - Full automation
+    - Shared visibility
+  </Card>
+
+  <Card title="MCP Server" icon="desktop" href="/copilot/mcp-server">
+    **Best for power users**
+
+    Use Copilot in Claude Desktop for advanced workflows.
+
+    - 🔓 Read-write mode supported
+    - Desktop integration
+    - Most powerful
+    - Advanced features
+    - Richer context
+  </Card>
+</CardGroup>
+
 ## Prerequisites
 
-Before you begin, make sure you have:
-
 - **Qovery Account**: Active account with infrastructure deployed
-- **API Token**: Generate from Qovery Console (Settings → API Tokens)
-- **Claude Desktop**: Install from [Anthropic](https://claude.ai/download) (for MCP access)
+- **For Console**: No additional setup needed! Just log into the [Qovery Console](https://console.qovery.com)
+- **For Slack Bot**: Slack workspace and API token
+- **For MCP Server**: Claude Desktop and API token
 
 ## Quick Start
 
-<Steps>
-  <Step title="Install MCP Server">
-    Follow the [MCP Server setup guide](/copilot/mcp-server) to install and configure the Qovery MCP Server
-  </Step>
+Choose your preferred interface to get started:
 
-  <Step title="Configure Authentication">
-    Add your Qovery API token to the MCP Server configuration
-  </Step>
+<Tabs>
+  <Tab title="Console (Easiest)">
+    <Steps>
+      <Step title="Log into Console">
+        Go to [Qovery Console](https://console.qovery.com)
+      </Step>
 
-  <Step title="Start Claude Desktop">
-    Launch Claude Desktop with the Qovery MCP Server enabled
-  </Step>
+      <Step title="Click AI Copilot">
+        Click the **AI Copilot** button (top-right) or press `⌘ I`
+      </Step>
 
-  <Step title="Interact with Your Infrastructure">
-    Start asking Copilot to manage your infrastructure!
-  </Step>
-</Steps>
+      <Step title="Start Asking">
+        Ask questions or click on suggested actions
+      </Step>
+    </Steps>
+
+    [Full Console Copilot Guide →](/copilot/console)
+  </Tab>
+
+  <Tab title="Slack Bot (For Teams)">
+    <Steps>
+      <Step title="Get API Token">
+        Generate an API token from [Qovery Console](https://console.qovery.com)
+      </Step>
+
+      <Step title="Configure Bot">
+        DM the bot in Slack with `/qovery-token <your-token> <channel-id>`
+      </Step>
+
+      <Step title="Start Using">
+        Go to your channel and interact with @qovery
+      </Step>
+    </Steps>
+
+    [Full Slack Bot Setup Guide →](/copilot/slack-bot)
+  </Tab>
+
+  <Tab title="MCP Server (For Power Users)">
+    <Steps>
+      <Step title="Install MCP Server">
+        Follow the [MCP Server setup guide](/copilot/mcp-server)
+      </Step>
+
+      <Step title="Configure Authentication">
+        Add your Qovery API token to the MCP Server configuration
+      </Step>
+
+      <Step title="Start Claude Desktop">
+        Launch Claude Desktop with Qovery MCP Server enabled
+      </Step>
+
+      <Step title="Start Using">
+        Interact with Copilot in Claude Desktop
+      </Step>
+    </Steps>
+
+    [Full MCP Server Setup Guide →](/copilot/mcp-server)
+  </Tab>
+</Tabs>
 
 ## Your First Interactions
 
@@ -258,16 +377,25 @@ Copilot will provide guidance and suggestions.
 
 Current limitations while in beta:
 
-- **MCP Only**: Currently available only through MCP Server
-- **No Web UI**: Console integration coming soon
+- **Console is Read-Only**: Console Copilot operates permanently in read-only mode for safety
+- **Default Mode is Read-Only**: Slack Bot and MCP Server default to read-only mode
+- **Confirmation Required**: Destructive operations require user confirmation in read-write mode
 - **Beta Features**: Some capabilities still being developed
 - **Response Time**: Complex operations may take time
 
 ## Next Steps
 
-<CardGroup cols={2}>
-  <Card title="Setup MCP Server" icon="rocket" href="/copilot/mcp-server">
-    Complete setup guide for Claude Desktop
+<CardGroup cols={3}>
+  <Card title="Console Copilot" icon="browser" href="/copilot/console">
+    Start using the built-in Console Copilot (no setup!)
+  </Card>
+
+  <Card title="Slack Bot" icon="slack" href="/copilot/slack-bot">
+    Set up Copilot in Slack for team collaboration
+  </Card>
+
+  <Card title="MCP Server" icon="desktop" href="/copilot/mcp-server">
+    Set up Copilot in Claude Desktop for power users
   </Card>
 
   <Card title="View All Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
@@ -287,7 +415,6 @@ Current limitations while in beta:
 
 We're actively improving Qovery AI Copilot. Share your feedback:
 
-- **Discord**: Join the [Qovery Community](https://discord.qovery.com)
 - **GitHub**: Report issues on [GitHub](https://github.com/Qovery/qovery-mcp-server)
 - **Email**: Contact support@qovery.com
 

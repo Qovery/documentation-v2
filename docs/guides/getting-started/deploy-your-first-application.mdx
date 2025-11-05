@@ -3,12 +3,23 @@ title: "Deploy Your First Application"
 description: "Quick guide to deploying your first application on Qovery"
 ---
 
-Deploy a containerized application on Qovery in minutes. This guide walks you through creating and deploying your first application from a Git repository.
+Deploy a containerized application on Qovery in minutes. Choose your deployment source based on your needs: build from Git, deploy pre-built containers, or use Helm charts.
 
 ## Prerequisites
 
+Before deploying your first application, ensure you have:
+
 <Check>Qovery account - [Sign up here](https://console.qovery.com/signup)</Check>
-<Check>Git repository with your application code (GitHub, GitLab, or Bitbucket)</Check>
+<Check>Kubernetes cluster - [Install a cluster](/installation/aws) or [connect your own](/integrations/kubernetes/byok)</Check>
+
+**Depending on your deployment source:**
+- **Git Repository**: GitHub, GitLab, or Bitbucket repository with a Dockerfile
+- **Container Registry**: Pre-built Docker image in a registry (Docker Hub, ECR, GCR, etc.)
+- **Helm Chart**: Packaged Helm application ([See Helm documentation](/configuration/helm))
+
+<Info>
+This guide covers Git Repository and Container Registry deployments. For Helm charts, see the [Helm Configuration Guide](/configuration/helm).
+</Info>
 
 ## Step 1: Create a Project
 
@@ -48,103 +59,192 @@ Deploy a containerized application on Qovery in minutes. This guide walks you th
   <img src="/images/configuration/environment/create_environment_1.png" alt="Create a new environment" />
 </Frame>
 
-## Step 3: Create Your Application
+## Step 3: Choose Your Deployment Source
 
-Now let's deploy your application:
+Qovery supports multiple deployment sources. Choose the one that fits your workflow:
 
-<Steps>
-  <Step title="Start Application Creation">
-    In your environment, click **New Service** → **Create application**
+<Tabs>
+  <Tab title="Git Repository (Build with Qovery)">
+    **Best for:** Building your application from source code
 
-    <Frame>
-      <img src="/images/configuration/environment/create_service.png" alt="Click New Service to create an application" />
-    </Frame>
-  </Step>
-
-  <Step title="Configure Basic Settings">
-    **Application Name**: Enter a name for your application
-
-    **Application Source**: Choose your deployment method:
-    - **Git Repository** (recommended for most cases)
-    - **Container Registry** (if you have pre-built images)
-  </Step>
-
-  <Step title="Configure Source">
-    **For Git Repository:**
-    - Select your Git provider (GitHub, GitLab, Bitbucket)
-    - Choose your repository
-    - Select the branch to deploy (e.g., `main`)
-    - Set root application path if needed
+    **Requirements:**
+    - Git repository (GitHub, GitLab, or Bitbucket)
+    - Dockerfile in your repository
 
     <Info>
-    Need to connect your Git provider? See [Git Repository Access](/configuration/organization/git-repository-access) for GitHub, GitLab, or Bitbucket setup.
+    Qovery will clone your repo, build the Docker image, and deploy it automatically.
     </Info>
 
-    **For Container Registry:**
-    - Select your registry
-    - Enter image name and tag
-    - **Important**: Use unique tags (avoid `latest`, `dev`, `master`)
+    ### Create Your Application
+
+    <Steps>
+      <Step title="Start Application Creation">
+        In your environment, click **New Service** → **Create application**
+
+        <Frame>
+          <img src="/images/configuration/environment/create_service.png" alt="Click New Service to create an application" />
+        </Frame>
+      </Step>
+
+      <Step title="Configure Basic Settings">
+        - **Application Name**: Enter a name (e.g., "my-api")
+        - **Application Source**: Select **Git Repository**
+      </Step>
+
+      <Step title="Connect Git Repository">
+        - **Git Provider**: Select your provider (GitHub, GitLab, Bitbucket)
+        - **Repository**: Choose your repository
+        - **Branch**: Select the branch to deploy (e.g., `main`, `develop`)
+        - **Root Application Path**: Leave blank if Dockerfile is at root, or specify subfolder
+
+        <Info>
+        **First time?** You'll need to authorize Qovery to access your Git provider. See [Git Repository Access](/configuration/organization/git-repository-access).
+        </Info>
+
+        <Tip>
+        **Dockerfile Required**: Qovery needs a Dockerfile to build your application. Place it at the root or specify the path.
+        </Tip>
+      </Step>
+
+      <Step title="Allocate Resources">
+        Set compute resources:
+        - **vCPU**: Default 500m (0.5 core)
+        - **RAM**: Default 512 MB
+        - **Instances**: Min and max for auto-scaling (default: 1-1)
+
+        <Tip>
+        Start with defaults and scale based on actual usage.
+        </Tip>
+      </Step>
+
+      <Step title="Define Ports">
+        If your app serves HTTP/gRPC traffic:
+        - **Port**: The port your app listens on (e.g., 8080, 3000)
+        - **Protocol**: HTTPS, gRPC, TCP, or UDP
+        - **Publicly Accessible**: Enable to expose via internet
+        - **External Port**: 443 for HTTPS
+
+        <Warning>
+        Your app must listen on `0.0.0.0:$PORT`, not `localhost:$PORT`.
+        </Warning>
+      </Step>
+
+      <Step title="Configure Health Checks (Optional)">
+        Improve reliability with health checks:
+        - **Liveness Probe**: Checks if container is alive
+        - **Readiness Probe**: Checks if container is ready for traffic
+
+        Recommended: Add `/health` or `/healthz` endpoint to your app.
+      </Step>
+
+      <Step title="Set Environment Variables (Optional)">
+        Add configuration as needed:
+        - API keys (mark as secret)
+        - Configuration values
+        - Feature flags
+
+        <Info>
+        You can add these later in application settings.
+        </Info>
+      </Step>
+
+      <Step title="Review and Deploy">
+        - Click **Create and Deploy** to build and deploy immediately
+        - Or **Create** to configure more before deploying
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Container Registry (Pre-built Image)">
+    **Best for:** Deploying pre-built Docker images
+
+    **Requirements:**
+    - Docker image already built and pushed to a registry
+    - Registry connected to Qovery (Docker Hub, ECR, GCR, ACR, etc.)
 
     <Info>
-    Need to connect a container registry? See [Container Registry](/configuration/organization/container-registry) for Docker Hub, ECR, GCR, ACR, and other registries.
+    Use this when you build images in your own CI/CD pipeline or want to deploy third-party images.
     </Info>
-  </Step>
 
-  <Step title="Allocate Resources">
-    Set compute resources for your application:
+    ### Deploy Pre-built Image
 
-    - **vCPU**: Default 500m (0.5 core) - adjust as needed
-    - **RAM**: Default 512 MB - adjust as needed
-    - **Instances**: Min and max for auto-scaling (default: 1-1)
+    <Steps>
+      <Step title="Start Application Creation">
+        In your environment, click **New Service** → **Create application**
 
-    <Tip>
-    Start with defaults and scale up based on actual usage.
-    </Tip>
-  </Step>
+        <Frame>
+          <img src="/images/configuration/environment/create_service.png" alt="Click New Service to create an application" />
+        </Frame>
+      </Step>
 
-  <Step title="Define Ports">
-    If your application serves traffic:
+      <Step title="Configure Basic Settings">
+        - **Application Name**: Enter a name (e.g., "my-api")
+        - **Application Source**: Select **Container Registry**
+      </Step>
 
-    - **Port**: The port your app listens on (e.g., 8080, 3000)
-    - **Protocol**: Select HTTPS, gRPC, TCP, or UDP
-    - **Publicly Accessible**: Enable to expose to the internet
-    - **External Port**: 443 for HTTPS
+      <Step title="Select Container Image">
+        - **Registry**: Choose your connected registry
+        - **Image Name**: Enter the full image name (e.g., `myapp/api`)
+        - **Image Tag**: Enter a specific tag (e.g., `v1.0.0`, `sha-abc123`)
 
-    <Warning>
-    Make sure your application listens on `0.0.0.0:$PORT` not just `localhost`.
-    </Warning>
-  </Step>
+        <Warning>
+        **Avoid generic tags like `latest`, `dev`, or `master`**. Use specific version tags or commit SHAs for reliable deployments.
+        </Warning>
 
-  <Step title="Configure Health Checks">
-    Set up health checks for reliability:
+        <Info>
+        **First time?** Connect your registry first: [Container Registry Setup](/configuration/organization/container-registry)
+        </Info>
+      </Step>
 
-    - **Liveness Probe**: Checks if app is running
-    - **Readiness Probe**: Checks if app is ready for traffic
+      <Step title="Configure Entrypoint (Optional)">
+        Override the image's default entrypoint if needed:
+        - Custom command
+        - Custom arguments
 
-    Configure based on your declared ports and endpoints.
-  </Step>
+        <Tip>
+        Leave blank to use the image's default CMD/ENTRYPOINT.
+        </Tip>
+      </Step>
 
-  <Step title="Set Environment Variables (Optional)">
-    Add any environment variables your application needs:
+      <Step title="Allocate Resources">
+        Set compute resources:
+        - **vCPU**: Default 500m (0.5 core)
+        - **RAM**: Default 512 MB
+        - **Instances**: Min and max for auto-scaling (default: 1-1)
+      </Step>
 
-    - Configuration values
-    - API keys (use secrets for sensitive data)
-    - Feature flags
+      <Step title="Define Ports">
+        If your app serves HTTP/gRPC traffic:
+        - **Port**: The port your app listens on
+        - **Protocol**: HTTPS, gRPC, TCP, or UDP
+        - **Publicly Accessible**: Enable to expose via internet
+        - **External Port**: 443 for HTTPS
+      </Step>
 
-    <Info>
-    You can add these later in the application settings.
-    </Info>
-  </Step>
+      <Step title="Configure Health Checks (Optional)">
+        Set up health monitoring:
+        - **Liveness Probe**: HTTP, TCP, or exec checks
+        - **Readiness Probe**: When to route traffic
+      </Step>
 
-  <Step title="Review and Deploy">
-    Review your configuration, then:
+      <Step title="Set Environment Variables (Optional)">
+        Add runtime configuration:
+        - API endpoints
+        - Feature toggles
+        - Secrets (encrypted)
+      </Step>
 
-    - Click **Create and Deploy** to deploy immediately
-    - Or **Create** to deploy later
+      <Step title="Review and Deploy">
+        - Click **Create and Deploy** to deploy immediately
+        - Or **Create** to configure more before deploying
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
 
-    Your application will start deploying!
-  </Step>
-</Steps>
+<Note>
+**Using Helm?** Qovery also supports deploying Helm charts for packaged applications. See the [Helm Configuration Guide](/configuration/helm) for detailed instructions.
+</Note>
 
 ## Monitor Your Deployment
 
@@ -181,39 +281,94 @@ Watch your application come to life:
 
 ## What Happened Behind the Scenes
 
-Qovery automatically:
+<Tabs>
+  <Tab title="Git Repository Deployment">
+    When deploying from Git, Qovery automatically:
 
-1. ✅ Cloned your Git repository
-2. ✅ Built a container image
-3. ✅ Pushed to container registry
-4. ✅ Deployed to Kubernetes
-5. ✅ Configured networking with HTTPS
-6. ✅ Started health checks
+    1. ✅ Cloned your Git repository
+    2. ✅ Built a Docker image using your Dockerfile
+    3. ✅ Pushed the image to container registry (ECR, GCR, etc.)
+    4. ✅ Created Kubernetes deployment, service, and ingress
+    5. ✅ Configured automatic HTTPS with Let's Encrypt
+    6. ✅ Started health checks and monitoring
+    7. ✅ Made your app accessible via `https://your-app-xxx.qovery.io`
+
+    <Info>
+    Qovery handles the entire build and deployment pipeline for you!
+    </Info>
+  </Tab>
+
+  <Tab title="Container Registry Deployment">
+    When deploying from a container registry, Qovery automatically:
+
+    1. ✅ Pulled your pre-built Docker image from the registry
+    2. ✅ Created Kubernetes deployment with your specified image
+    3. ✅ Configured networking and load balancing
+    4. ✅ Set up automatic HTTPS with Let's Encrypt
+    5. ✅ Started health checks and monitoring
+    6. ✅ Made your app accessible via `https://your-app-xxx.qovery.io`
+
+    <Info>
+    No build step needed - your image is deployed directly to Kubernetes!
+    </Info>
+  </Tab>
+</Tabs>
 
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="Build Failed">
-    **Check**:
-    - All dependencies listed in package manager file
-    - Dockerfile syntax (if custom)
-    - Build logs for specific errors
+  <Accordion title="Build Failed (Git Repository)">
+    **Common causes**:
+    - Missing or invalid Dockerfile
+    - Build dependencies not installed
+    - Syntax errors in Dockerfile
+    - Insufficient build resources
+
+    **Solutions**:
+    - Check build logs for specific errors
+    - Verify Dockerfile builds locally: `docker build .`
+    - Ensure all dependencies are in package files
+    - Increase build resources if needed
+  </Accordion>
+
+  <Accordion title="Image Pull Failed (Container Registry)">
+    **Common causes**:
+    - Registry not connected to Qovery
+    - Image name or tag incorrect
+    - Authentication issues
+    - Image doesn't exist
+
+    **Solutions**:
+    - Verify registry is connected: [Container Registry Setup](/configuration/organization/container-registry)
+    - Check image name matches exactly (case-sensitive)
+    - Use specific tags, not `latest`
+    - Verify image exists in your registry
   </Accordion>
 
   <Accordion title="Application Crashes">
     **Check**:
-    - Application logs for errors
-    - Environment variables are correct
-    - Port configuration matches your app
+    - Application logs for error messages
+    - Environment variables are set correctly
+    - Port configuration matches your app (Git: check Dockerfile EXPOSE)
     - Resource limits (CPU/memory) are sufficient
+    - Health check endpoints are accessible
   </Accordion>
 
   <Accordion title="Cannot Access Application">
     **Check**:
     - "Publicly Accessible" is enabled
-    - App listens on `0.0.0.0:$PORT` not `localhost`
-    - Health checks are passing
-    - Wait a few minutes for DNS propagation
+    - App listens on `0.0.0.0:$PORT` not `localhost:$PORT`
+    - Health checks are passing (if configured)
+    - Wait 2-3 minutes for DNS propagation
+    - Check firewall rules if using custom domains
+  </Accordion>
+
+  <Accordion title="Dockerfile Not Found (Git Repository)">
+    **Solutions**:
+    - Ensure Dockerfile exists at repository root
+    - If in subdirectory, set "Root Application Path"
+    - Check filename is exactly `Dockerfile` (case-sensitive)
+    - Verify branch contains the Dockerfile
   </Accordion>
 </AccordionGroup>
 
@@ -221,7 +376,10 @@ Qovery automatically:
 
 <CardGroup cols={2}>
   <Card title="Add a Database" icon="database" href="/guides/getting-started/connect-database">
-    Connect PostgreSQL, MySQL, or other databases
+    Connect PostgreSQL, MySQL, Redis, or MongoDB
+  </Card>
+  <Card title="Deploy Helm Charts" icon="helm" href="/configuration/helm">
+    Deploy packaged Helm applications
   </Card>
   <Card title="Custom Domain" icon="globe" href="/configuration/application#domains">
     Use your own domain name
@@ -231,6 +389,9 @@ Qovery automatically:
   </Card>
   <Card title="Auto Deploy" icon="rotate" href="/configuration/deployment/auto-deploy">
     Enable automatic deployments from Git
+  </Card>
+  <Card title="Container Registry" icon="docker" href="/configuration/organization/container-registry">
+    Connect Docker Hub, ECR, GCR, and more
   </Card>
 </CardGroup>
 

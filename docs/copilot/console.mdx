@@ -1,0 +1,452 @@
+---
+title: "Qovery Console AI Copilot"
+description: "Use AI Copilot directly in the Qovery Console"
+---
+
+## Overview
+
+The Qovery Console includes a built-in AI Copilot that provides contextual assistance directly within the web interface. Access intelligent help, troubleshooting guidance, and infrastructure management without leaving the console.
+
+<Info>
+**Available Now**: The Console AI Copilot is available to all Qovery users. Simply click the **AI Copilot** button in the top-right corner of the console.
+</Info>
+
+## Operating Modes
+
+The Qovery AI Copilot supports two operating modes:
+
+<Tabs>
+  <Tab title="Read-Only Mode (Default)">
+    **Default behavior** - Safe for exploration and learning
+
+    **What it can do:**
+    - ✅ View and display information
+    - ✅ Answer questions about your infrastructure
+    - ✅ Provide guidance and recommendations
+    - ✅ Explain concepts and features
+    - ✅ Show deployment status and logs
+    - ✅ List services, environments, and resources
+
+    **What it cannot do:**
+    - ❌ Create, modify, or delete resources
+    - ❌ Deploy or restart services
+    - ❌ Change configurations
+    - ❌ Update environment variables
+    - ❌ Execute any write operations
+
+    <Note>
+    Read-only mode is **enabled by default** for safety. The Console Copilot currently operates exclusively in read-only mode.
+    </Note>
+  </Tab>
+
+  <Tab title="Read-Write Mode">
+    **Full automation capabilities** - Available in Slack Bot and MCP Server
+
+    **What it can do:**
+    - ✅ Everything in read-only mode, plus:
+    - ✅ Deploy applications and services
+    - ✅ Create new environments
+    - ✅ Update configurations and settings
+    - ✅ Add, modify, or delete environment variables
+    - ✅ Scale services
+    - ✅ Restart or stop services
+    - ✅ Delete resources
+
+    <Warning>
+    Read-write mode allows the Copilot to make **real changes** to your infrastructure. The Copilot will ask for confirmation before performing destructive operations.
+    </Warning>
+
+    <Info>
+    To enable read-write capabilities, use the [Slack Bot](/copilot/slack-bot) or [MCP Server](/copilot/mcp-server) interfaces.
+    </Info>
+  </Tab>
+</Tabs>
+
+## Accessing the AI Copilot
+
+### Opening the Copilot
+
+There are two ways to open the AI Copilot in the console:
+
+1. **Click the AI Copilot button** in the top-right corner of any console page
+2. **Use keyboard shortcut**: Press `⌘ I` (Mac) or `Ctrl I` (Windows/Linux)
+
+<Frame>
+  <img src="/images/copilot/console-copilot-button.png" alt="AI Copilot button in Qovery Console" />
+</Frame>
+
+### The Copilot Panel
+
+Once opened, the Copilot appears as a side panel on the right side of the console:
+
+- **Contextual awareness**: Automatically knows what page and environment you're viewing
+- **Suggested actions**: Pre-populated questions based on your current context
+- **Chat interface**: Natural language interaction with your infrastructure
+- **System status**: Shows operational status at the bottom
+
+## Contextual Suggestions
+
+The Copilot provides contextual suggestions based on where you are in the console:
+
+### Environment Page Suggestions
+
+When viewing an environment, you'll see suggestions like:
+
+- **"What is an environment?"** - Learn about environment concepts
+- **"Monitor the running and deployment status of your environments and services"** - Check current status
+- **"How do I manage the deployment order of my services?"** - Configure deployment pipelines
+- **"Manage the deployment lifecycle of your services and environments"** - Control deployments
+- **"Check my deployments and application logs"** - Investigate issues
+
+### Service-Specific Context
+
+The Copilot automatically knows:
+- Which environment you're viewing
+- Which services are deployed
+- Current deployment status
+- Recent errors or issues
+
+## Using the Console Copilot
+
+### Ask Questions
+
+Simply type your question in natural language:
+
+```
+How do I deploy this application?
+Why is my Frontend service showing an error?
+What's the status of my PostgreSQL database?
+How do I add environment variables?
+```
+
+### Get Contextual Help
+
+The Copilot provides answers specific to your current context:
+
+<Tabs>
+  <Tab title="Environment Questions">
+    **You ask:** "What services are running?"
+
+    **Copilot responds:** Based on your current environment "Julien dev", you have:
+    - Frontend (Error)
+    - Grafana (Stopped)
+    - PostgreSQL (Starting)
+    - My service (Error)
+    - And 4 more services...
+  </Tab>
+
+  <Tab title="Troubleshooting">
+    **You ask:** "Why is Frontend failing?"
+
+    **Copilot responds:** Analyzing the Frontend service in your environment, I can see:
+    - Last deployment aborted
+    - Check the deployment logs for specific errors
+    - Common causes include: build failures, missing environment variables...
+  </Tab>
+
+  <Tab title="Configuration Help">
+    **You ask:** "How do I add a database?"
+
+    **Copilot responds:** To add a database to your "Julien dev" environment:
+    1. Click "New service" button
+    2. Select "Database"
+    3. Choose your database type...
+  </Tab>
+</Tabs>
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Contextual Awareness" icon="brain">
+    Automatically understands your current environment, services, and deployment status
+  </Card>
+
+  <Card title="Suggested Actions" icon="lightbulb">
+    Pre-populated questions based on common tasks for your current page
+  </Card>
+
+  <Card title="Natural Language" icon="comments">
+    Ask questions in plain English without technical jargon
+  </Card>
+
+  <Card title="Real-time Status" icon="chart-line">
+    Shows current system operational status
+  </Card>
+
+  <Card title="Quick Access" icon="keyboard">
+    Keyboard shortcut (⌘ I) for instant access
+  </Card>
+
+  <Card title="Multi-Environment" icon="layer-group">
+    Context switches automatically as you navigate
+  </Card>
+</CardGroup>
+
+## Common Use Cases
+
+### Getting Started
+
+**New to Qovery?** Ask the basics:
+
+```
+What is an environment?
+How do I deploy my first application?
+What's the difference between staging and production?
+How do I connect a database to my app?
+```
+
+### Troubleshooting Deployments
+
+**Having issues?** Get instant help:
+
+```
+Why is my deployment failing?
+How do I check application logs?
+My service shows an error, what should I do?
+How do I rollback to a previous version?
+```
+
+### Managing Services
+
+**Configure your infrastructure:**
+
+```
+How do I scale my application?
+How do I add environment variables?
+What's the deployment order of my services?
+How do I manage secrets?
+```
+
+### Understanding Status
+
+**Check what's happening:**
+
+```
+What's the status of my services?
+Which services are currently running?
+Are there any errors in my environment?
+When was my last deployment?
+```
+
+## Current Mode in Console
+
+<Note>
+**Console = Read-Only Mode Only**: The Console Copilot currently operates exclusively in **read-only mode** for safety and security. This means:
+
+- ✅ You can explore, learn, and get help safely
+- ✅ No risk of accidental changes to your infrastructure
+- ✅ Perfect for understanding and troubleshooting
+- ❌ Cannot execute actions or make changes
+
+**Need write capabilities?** Switch to [Slack Bot](/copilot/slack-bot) or [MCP Server](/copilot/mcp-server) for read-write mode.
+</Note>
+
+## Context Switching
+
+The Copilot automatically adjusts its context as you navigate:
+
+<Steps>
+  <Step title="Navigate to Different Environment">
+    Switch to a different environment in the console
+  </Step>
+
+  <Step title="Copilot Updates Context">
+    The Copilot immediately becomes aware of the new environment
+  </Step>
+
+  <Step title="Relevant Suggestions Appear">
+    Contextual suggestions update to match the new environment
+  </Step>
+
+  <Step title="Environment Indicator">
+    The current environment is shown in the Copilot panel (e.g., "Environment: Julien dev")
+  </Step>
+</Steps>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Be specific about your context" icon="bullseye">
+    While the Copilot knows your current environment, being specific helps:
+
+    **Instead of:** "Why is it failing?"
+
+    **Try:** "Why is the Frontend service deployment failing?"
+  </Accordion>
+
+  <Accordion title="Use suggested questions" icon="lightbulb">
+    The contextual suggestions are tailored to common tasks:
+    - Click on a suggested question to get started
+    - They're designed for your current page context
+    - Great for learning what's possible
+  </Accordion>
+
+  <Accordion title="Ask follow-up questions" icon="comments">
+    Build on previous answers:
+
+    1. "What services are in error state?"
+    2. "Show me logs for the Frontend service"
+    3. "How do I fix this deployment error?"
+  </Accordion>
+
+  <Accordion title="Use keyboard shortcuts" icon="keyboard">
+    Speed up your workflow:
+    - `⌘ I` (Mac) or `Ctrl I` (Windows/Linux) to open
+    - Type your question and press Enter
+    - ESC to close the panel
+  </Accordion>
+</AccordionGroup>
+
+## System Status
+
+At the bottom of the Copilot panel, you'll see the system status:
+
+- **All systems operational** 🟢 - Everything working normally
+- **Degraded performance** 🟡 - Some issues affecting performance
+- **Partial outage** 🟠 - Some features unavailable
+- **Major outage** 🔴 - Significant service disruption
+
+This helps you understand if issues you're experiencing are related to the Qovery platform itself.
+
+## Privacy & Security
+
+<AccordionGroup>
+  <Accordion title="What data does Copilot access?" icon="shield">
+    The Console Copilot can access:
+    - Your current page context (environment, services)
+    - Service names and status
+    - Deployment history visible in the console
+    - Public documentation and help content
+
+    It cannot access:
+    - Your application code
+    - Application logs content
+    - Secret values
+    - API tokens
+  </Accordion>
+
+  <Accordion title="Is my conversation private?" icon="lock">
+    - Conversations are associated with your user account
+    - Used to improve Copilot responses
+    - Not shared with other users
+    - Follow Qovery's privacy policy
+  </Accordion>
+</AccordionGroup>
+
+## Comparison: Console vs Slack Bot vs MCP Server
+
+<Tabs>
+  <Tab title="Console Copilot">
+    **Best for:**
+    - Quick help while working in the console
+    - Learning about features
+    - Understanding current status
+    - Troubleshooting guidance
+
+    **Mode:**
+    - 🔒 Read-only mode only (default)
+
+    **Advantages:**
+    - No setup required
+    - Contextual awareness
+    - Always available
+    - Integrated experience
+    - Safe exploration
+
+    **Limitations:**
+    - Cannot execute actions
+    - Cannot modify infrastructure
+    - Web interface only
+
+    **Use when:**
+    - You're already in the console
+    - You need quick answers
+    - You want contextual help
+    - Learning the platform
+    - Don't need to make changes
+  </Tab>
+
+  <Tab title="Slack Bot">
+    **Best for:**
+    - Team collaboration
+    - Executing deployments
+    - Shared infrastructure management
+    - ChatOps workflows
+
+    **Mode:**
+    - 🔓 Read-write mode supported (defaults to read-only)
+
+    **Advantages:**
+    - Full automation capabilities
+    - Can create, modify, delete resources
+    - Team collaboration
+    - Mobile access
+    - No installation required
+
+    **Use when:**
+    - Working with a team
+    - Need to execute actions
+    - Want to deploy/modify services
+    - Want mobile access
+    - Prefer Slack interface
+
+    [Learn more →](/copilot/slack-bot)
+  </Tab>
+
+  <Tab title="MCP Server">
+    **Best for:**
+    - Individual power users
+    - Complex automation
+    - Desktop workflows
+    - Advanced integrations
+
+    **Mode:**
+    - 🔓 Read-write mode supported (defaults to read-only)
+
+    **Advantages:**
+    - Most powerful capabilities
+    - Can create, modify, delete resources
+    - Desktop integration
+    - Richer context
+    - Advanced features
+
+    **Use when:**
+    - Working individually
+    - Need advanced automation
+    - Want desktop integration
+    - Require maximum capabilities
+    - Need complex workflows
+
+    [Learn more →](/copilot/mcp-server)
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Slack Bot" icon="slack" href="/copilot/slack-bot">
+    Use Copilot in Slack for team collaboration and automation
+  </Card>
+
+  <Card title="MCP Server" icon="desktop" href="/copilot/mcp-server">
+    Use Copilot in Claude Desktop for power users
+  </Card>
+
+  <Card title="Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
+    Explore all Copilot capabilities
+  </Card>
+
+  <Card title="Common Tasks" icon="book" href="/copilot/examples/common-tasks">
+    Learn from practical examples
+  </Card>
+</CardGroup>
+
+## Feedback
+
+Help us improve the Console Copilot:
+
+- **In-Console Feedback**: Use the feedback button in the Copilot panel
+- **Email**: Contact support@qovery.com
+- **Feature Requests**: Share ideas for new capabilities
+
+Your feedback helps us make the Copilot more helpful!

@@ -1,0 +1,151 @@
+---
+title: "User Account"
+description: "Manage your personal account settings and preferences"
+---
+
+Your user account settings allow you to manage your personal information and communication preferences in Qovery.
+
+## Accessing Your Account Settings
+
+To access your user account settings:
+
+1. Click on the **user icon** in the bottom left corner of the Qovery Console
+2. Select **Your profile** from the menu
+
+<Frame>
+  <img src="/images/configuration/user-account/access_user_account.png" alt="Access user account settings" />
+</Frame>
+
+## Account Information
+
+### Name Fields
+
+Your **first name** and **last name** are retrieved from your Git account and cannot be changed directly in Qovery.
+
+<Info>
+To update your name, you need to modify it in your Git provider (GitHub, GitLab, or Bitbucket) settings.
+</Info>
+
+### Account Email
+
+Your **account email** is sourced from your Git credentials and cannot be modified within Qovery. This email is used for authentication and account identification.
+
+<Info>
+To change your account email, update it in your Git provider settings. The change will be reflected in Qovery after your next login.
+</Info>
+
+### Communication Email
+
+The **communication email** is a customizable field where you designate your preferred contact address for product updates, announcements, and important notifications.
+
+<Warning>
+Qovery uses your communication email to share important updates about the product. Please provide a valid, professional business email address that you check regularly.
+</Warning>
+
+**To update your communication email:**
+
+1. Navigate to your user account settings
+2. Locate the **Communication Email** field
+3. Enter your preferred email address
+4. Click **Save** to update
+
+**Best practices:**
+- Use a business email address
+- Ensure the email is monitored regularly
+- Don't use temporary or disposable email addresses
+- Keep this email up-to-date to receive important notifications
+
+### Timezone
+
+Your **timezone** is automatically synced with your browser settings to display dates and times correctly throughout the Qovery Console.
+
+This ensures that:
+- Deployment times are shown in your local timezone
+- Logs timestamps match your local time
+- Scheduled tasks display correctly
+- Activity history is accurately represented
+
+<Tip>
+The timezone is automatically detected and updated based on your browser. No manual configuration is needed.
+</Tip>
+
+## Why Account Settings Matter
+
+### Stay Informed
+
+By maintaining accurate communication email settings, you'll receive:
+- **Product updates** - New features and improvements
+- **Service notifications** - Important system announcements
+- **Security alerts** - Account and security-related updates
+- **Best practices** - Tips and guides for using Qovery effectively
+
+### Accurate Timestamps
+
+Proper timezone configuration ensures:
+- Deployment schedules align with your team's working hours
+- Log analysis uses correct timestamps
+- Collaboration across distributed teams is easier
+- Audit trails are accurate
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="How do I change my name?">
+    Your name is synced from your Git provider (GitHub, GitLab, or Bitbucket). To update it:
+
+    1. Log into your Git provider
+    2. Update your profile name
+    3. Log out and back into Qovery
+    4. Your updated name will be reflected
+  </Accordion>
+
+  <Accordion title="How do I change my account email?">
+    Your account email is tied to your Git provider authentication. To change it:
+
+    1. Update your email in your Git provider settings
+    2. Ensure the new email is verified
+    3. Log out and back into Qovery
+    4. The new email will be used for your account
+  </Accordion>
+
+  <Accordion title="I'm not receiving communication emails">
+    If you're not receiving emails:
+
+    1. Check your spam/junk folder
+    2. Verify your communication email is correct
+    3. Ensure your email server isn't blocking emails from Qovery
+    4. Add Qovery's email domain to your safe senders list
+    5. Contact support if the issue persists
+  </Accordion>
+
+  <Accordion title="My timezone is incorrect">
+    The timezone is automatically detected from your browser. If it's incorrect:
+
+    1. Check your computer's system timezone settings
+    2. Ensure your browser has correct timezone settings
+    3. Try clearing your browser cache
+    4. Refresh the Qovery Console
+
+    The timezone should update automatically when you refresh the page.
+  </Accordion>
+</AccordionGroup>
+
+## Related Settings
+
+<CardGroup cols={2}>
+  <Card title="Organization Settings" icon="building" href="/configuration/organization">
+    Manage organization-level settings
+  </Card>
+
+  <Card title="Members & RBAC" icon="users" href="/configuration/organization/members-rbac">
+    Manage team members and permissions
+  </Card>
+
+  <Card title="SSO Configuration" icon="shield" href="/configuration/organization/sso">
+    Set up single sign-on
+  </Card>
+
+  <Card title="API Tokens" icon="key" href="/configuration/organization/api-token">
+    Generate API tokens
+  </Card>
+</CardGroup>

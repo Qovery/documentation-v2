@@ -1,0 +1,363 @@
+---
+title: "Qovery Slack Bot"
+description: "Use AI Copilot directly in Slack to manage your infrastructure"
+---
+
+## Overview
+
+The Qovery Slack Bot brings AI Copilot capabilities directly into your Slack workspace, allowing you and your team to manage infrastructure through natural language commands in Slack channels.
+
+<Note>
+**Early Access Required**: The Qovery Slack Bot is available online and on demand. Contact [Qovery Support](mailto:support@qovery.com) to request early access.
+</Note>
+
+<Warning>
+**Beta Status**: The Qovery Slack Bot is currently in beta. Features and capabilities are being actively developed.
+</Warning>
+
+## Operating Modes
+
+The Slack Bot supports both operating modes:
+
+<Tabs>
+  <Tab title="Read-Only Mode (Default)">
+    **Default behavior** - Safe for exploration
+
+    The Slack Bot starts in **read-only mode** by default, allowing you to:
+    - View information and status
+    - Get help and recommendations
+    - Troubleshoot issues
+    - Monitor deployments
+    - **No changes** to infrastructure
+
+    This ensures safe exploration without risk of accidental modifications.
+  </Tab>
+
+  <Tab title="Read-Write Mode">
+    **Full automation** - When you need to take action
+
+    When needed, the Slack Bot can operate in **read-write mode** to:
+    - Deploy applications and services
+    - Create new environments
+    - Update configurations
+    - Add/modify/delete environment variables
+    - Scale, restart, or stop services
+    - Delete resources (with confirmation)
+
+    <Warning>
+    The Copilot will **ask for confirmation** before performing destructive operations like deletions.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Prerequisites
+
+Before setting up the Slack bot, ensure you have:
+
+- **Qovery Account**: Active account with infrastructure deployed
+- **Slack Workspace**: Admin access to install apps
+- **API Token**: You'll generate this during setup
+
+## Setup Instructions
+
+<Steps>
+  <Step title="Get Your API Token">
+    1. Go to [Qovery Console](https://console.qovery.com/)
+    2. Click your profile icon (bottom left corner)
+    3. Select the correct organization
+    4. Navigate to **API Tokens**
+    5. Click **Create Token** and give it a descriptive name
+    6. Copy the generated token (it will only be shown once)
+  </Step>
+
+  <Step title="Configure the Bot">
+    1. Open a **Direct Message** with the Qovery bot in Slack
+    2. Use the command:
+
+    ```
+    /qovery-token <your-api-token> <channel-id>
+    ```
+
+    **Example:**
+    ```
+    /qovery-token qov_abc123xyz456 C09M85XK3GQ
+    ```
+
+    <Info>
+    Replace `<your-api-token>` with your actual API token and `<channel-id>` with your Slack channel ID.
+    </Info>
+  </Step>
+
+  <Step title="Start Using Copilot">
+    Go to your configured channel and start interacting with Qovery AI Copilot!
+  </Step>
+</Steps>
+
+## Finding Your Channel ID
+
+To find your Slack channel ID:
+
+1. Right-click on the channel name in Slack
+2. Select **View channel details**
+3. Scroll to the bottom
+4. Copy the **Channel ID**
+
+Alternatively, the channel ID is visible in the URL when viewing the channel in a browser:
+```
+https://app.slack.com/client/T123ABC/C09M85XK3GQ
+                                        ^^^^^^^^^^^
+                                        Channel ID
+```
+
+## Security Considerations
+
+<AccordionGroup>
+  <Accordion title="Token Privacy" icon="shield">
+    **Your API token stays private:**
+    - Tokens are configured via Direct Message (DM) with the bot
+    - Only you see your token in the DM
+    - The token is never exposed in public channels
+
+    **Access for team members:**
+    - Once configured, all members of the channel can use the bot
+    - Team members don't need their own tokens
+    - The bot uses your configured token to perform actions
+  </Accordion>
+
+  <Accordion title="Best Practices" icon="lock">
+    - **Use dedicated tokens**: Create a specific token for the Slack bot
+    - **Set appropriate permissions**: Grant only necessary permissions to the token
+    - **Rotate regularly**: Update tokens periodically for security
+    - **Monitor usage**: Review audit logs for bot activities
+    - **Revoke if needed**: Delete tokens immediately if compromised
+  </Accordion>
+
+  <Accordion title="Channel Access" icon="users">
+    - Configure the bot for specific channels only
+    - All channel members can use the bot once configured
+    - Actions are performed with the configured token's permissions
+    - Consider using separate tokens for different channels/teams
+  </Accordion>
+</AccordionGroup>
+
+## Using the Slack Bot
+
+### Basic Commands
+
+Interact with the bot using natural language in your configured channel:
+
+**Read-only commands** (default, always safe):
+```
+@qovery Show me all production environments
+@qovery What's the status of the database?
+@qovery List all applications in the dev environment
+@qovery Show me recent deployment history
+```
+
+**Read-write commands** (when you need to take action):
+```
+@qovery Deploy the api-service to staging
+@qovery Restart the frontend application
+@qovery Scale the api to 3 replicas
+@qovery Add environment variable API_KEY=xxx to production
+```
+
+<Note>
+The bot will **confirm destructive actions** before executing them in read-write mode.
+</Note>
+
+### Common Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Check Status" icon="chart-line">
+    ```
+    @qovery What's running in production?
+    @qovery Show me failed deployments
+    @qovery Check the health of my services
+    ```
+  </Card>
+
+  <Card title="Deploy Applications" icon="rocket">
+    ```
+    @qovery Deploy the latest version to staging
+    @qovery Redeploy the frontend app
+    @qovery Roll back the api-service
+    ```
+  </Card>
+
+  <Card title="Investigate Issues" icon="magnifying-glass">
+    ```
+    @qovery Why is my app failing?
+    @qovery Show error logs from the last hour
+    @qovery Check if the database is reachable
+    ```
+  </Card>
+
+  <Card title="Manage Environments" icon="layer-group">
+    ```
+    @qovery Stop the dev environment
+    @qovery List all preview environments
+    @qovery Scale up the production cluster
+    ```
+  </Card>
+</CardGroup>
+
+## Team Collaboration
+
+### Multi-User Access
+
+Once configured, the bot enables team collaboration:
+
+- **Shared visibility**: All team members see bot responses
+- **Collaborative debugging**: Multiple people can investigate issues together
+- **Faster response**: Anyone can trigger deployments or check status
+- **Knowledge sharing**: Team learns from each other's interactions
+
+### Channel Organization
+
+Consider organizing channels by:
+
+- **Environment**: #prod-ops, #staging-ops, #dev-ops
+- **Team**: #platform-team, #backend-team, #frontend-team
+- **Purpose**: #deployments, #incidents, #monitoring
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Bot not responding">
+    **Check:**
+    1. Token is correctly configured for the channel
+    2. Token hasn't expired or been revoked
+    3. You're mentioning the bot (@qovery) in messages
+    4. The channel ID is correct
+
+    **Solution:** Reconfigure with `/qovery-token` command in DM
+  </Accordion>
+
+  <Accordion title="Permission errors">
+    **Issue:** Bot says it can't perform an action
+
+    **Check:**
+    1. API token has necessary permissions
+    2. You have access to the resources in Qovery
+    3. Resources exist and names are correct
+
+    **Solution:** Create a new token with appropriate permissions
+  </Accordion>
+
+  <Accordion title="Bot installed but can't configure">
+    **Check:**
+    1. You're sending `/qovery-token` in a Direct Message (not a channel)
+    2. Token format is correct (no extra spaces)
+    3. Channel ID is valid
+
+    **Solution:** Double-check command format and try again in DM
+  </Accordion>
+</AccordionGroup>
+
+## Comparison: Console vs Slack Bot vs MCP Server
+
+<Tabs>
+  <Tab title="Console Copilot">
+    **Best for:**
+    - Quick contextual help
+    - Learning the platform
+    - Troubleshooting guidance
+    - While working in console
+
+    **Advantages:**
+    - No setup required
+    - Contextual awareness
+    - Always available
+    - Instant access (⌘ I)
+
+    **Limitations:**
+    - Read-only mode
+    - Cannot execute actions
+    - Web interface only
+
+    **Use when:**
+    - Already in the console
+    - Need quick answers
+    - Want contextual help
+    - Learning features
+
+    [Learn more →](/copilot/console)
+  </Tab>
+
+  <Tab title="Slack Bot">
+    **Best for:**
+    - Team collaboration
+    - Shared infrastructure management
+    - Quick status checks
+    - ChatOps workflows
+
+    **Mode:**
+    - 🔓 Read-write mode supported (defaults to read-only)
+
+    **Advantages:**
+    - Full automation capabilities
+    - Can create, modify, delete resources
+    - Works on any device with Slack
+    - Team visibility
+    - Mobile access
+
+    **Use when:**
+    - Working with a team
+    - Need to execute actions
+    - Want mobile access
+    - Want shared visibility
+    - Prefer Slack interface
+  </Tab>
+
+  <Tab title="MCP Server">
+    **Best for:**
+    - Individual power users
+    - Complex automation
+    - Deep integrations
+    - Advanced workflows
+
+    **Advantages:**
+    - Most powerful capabilities
+    - Desktop integration
+    - Richer context
+    - Advanced features
+
+    **Use when:**
+    - Working individually
+    - Need advanced automation
+    - Want desktop integration
+    - Require maximum capabilities
+
+    [Learn more →](/copilot/mcp-server)
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Console Copilot" icon="browser" href="/copilot/console">
+    Use the built-in Console Copilot for quick help
+  </Card>
+
+  <Card title="MCP Server" icon="desktop" href="/copilot/mcp-server">
+    Set up the MCP Server for Claude Desktop
+  </Card>
+
+  <Card title="Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
+    Explore all Copilot capabilities
+  </Card>
+
+  <Card title="Common Tasks" icon="book" href="/copilot/examples/common-tasks">
+    Learn from practical examples
+  </Card>
+</CardGroup>
+
+## Feedback & Support
+
+We're actively improving the Qovery Slack Bot. Share your feedback:
+
+- **GitHub**: Report issues on [GitHub](https://github.com/Qovery/qovery-slack-bot)
+- **Email**: Contact support@qovery.com
+
+Your feedback helps us build better automation!

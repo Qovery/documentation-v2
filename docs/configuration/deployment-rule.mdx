@@ -1,0 +1,226 @@
+---
+title: "Deployment Rules"
+description: "Automate environment lifecycle management to optimize costs and save time"
+---
+
+A **Deployment Rule** lets you configure the lifecycle of your [Environments](/configuration/environment) by automating when and where resources are deployed across your infrastructure.
+
+## Benefits
+
+### Cost Optimization
+
+Reduce your cloud costs up to **60%** by using Deployment Rules through intelligent resource management during off-peak hours.
+
+**Example:** Automatically stop development environments outside business hours (nights and weekends) to eliminate unnecessary compute costs.
+
+### Time Savings
+
+Automating environment lifecycle management eliminates manual configuration tasks, freeing developers to focus on core work.
+
+**Example:** Set rules once and let Qovery automatically start environments Monday morning and stop them Friday evening.
+
+## Use Cases
+
+### Shutting Down Environments
+
+Stop development instances during non-working hours and weekends to eliminate unnecessary expenses.
+
+**Common scenarios:**
+- Stop dev/staging environments after 7 PM and restart at 8 AM
+- Shut down all preview environments on weekends
+- Pause ephemeral test environments after CI/CD runs complete
+
+### Multi-Provider Strategy
+
+Deploy development workloads to budget-friendly cloud providers while maintaining production on premium services.
+
+**Example:** Run development on Scaleway (cost-effective) while keeping production on AWS (premium features).
+
+## Configuration Levels
+
+Rules can be established at two hierarchical levels:
+
+### Project Level
+
+- Provides defaults automatically applied to newly created environments
+- Ensures consistent policies across all environments in a project
+- Can be overridden by environment-specific rules
+
+<Frame>
+  <img src="/images/configuration/deployment-rule/deployment_rules_project.png" alt="Deployment rules at project level" />
+</Frame>
+
+### Environment Level
+
+- Allows overriding project-level rules for specific environments
+- Gives fine-grained control for exceptions (e.g., keep staging running 24/7)
+- Takes precedence over project-level rules
+
+## Wildcard Patterns
+
+Environment targeting supports wildcard patterns for flexible matching:
+
+| Pattern | Behavior | Examples | Use Case |
+|---------|----------|----------|----------|
+| `*` | Matches any characters | `dev-*` matches `dev-api`, `dev-web` | Match all environments with prefix |
+| `?` | Matches single character | `prod-?` matches `prod-1`, `prod-a` | Match specific pattern length |
+| `*-staging` | Ends with | Matches any environment ending in `-staging` | Target all staging environments |
+| `[PR]*` | Preview environments | Matches all PR-based deployments | Control all preview environments |
+
+**Examples:**
+
+```
+dev-*          → Matches: dev-api, dev-frontend, dev-backend
+staging-*      → Matches: staging-api, staging-web
+[PR]*          → Matches: All preview environments from pull requests
+prod-?         → Matches: prod-1, prod-2, prod-a (single character after prod-)
+```
+
+<Tip>
+Use wildcards to create powerful rules that automatically apply to groups of environments without manual updates.
+</Tip>
+
+## Rule Configuration Options
+
+### General Settings
+
+- **Target Cluster**: Specify which Kubernetes cluster the environment should deploy to
+- **Environment Type**: Set production, staging, or development classification
+- **Wildcard Pattern**: Define which environments this rule applies to
+
+### Start & Stop Controls
+
+Define precise scheduling for deployment and teardown operations:
+
+- **Auto-start**: Schedule when environments should automatically start
+- **Auto-stop**: Schedule when environments should automatically shut down
+- **Timezone**: Set timezone for start/stop schedules
+- **Days of week**: Choose which days the rule applies
+
+**Example Schedule:**
+```
+Start:  Monday-Friday at 8:00 AM (Europe/Paris)
+Stop:   Monday-Friday at 7:00 PM (Europe/Paris)
+```
+
+## Priority Management
+
+Multiple applicable rules follow a priority stack—rules are evaluated top-to-bottom, with highest-priority rules evaluated first.
+
+<Frame>
+  <img src="/images/configuration/deployment-rule/ordering_deployment_rule.png" alt="Reorder deployment rule priority" />
+</Frame>
+
+**How Priority Works:**
+
+1. When an environment matches multiple rules, Qovery checks from top to bottom
+2. The **first matching rule** is applied
+3. Lower priority rules are ignored if a higher priority rule matches
+
+**Example Priority Order:**
+
+```
+Priority 1: prod-*        → Never stop (highest priority)
+Priority 2: staging-*     → Stop weekends only
+Priority 3: *             → Stop every night (catch-all)
+```
+
+In this example:
+- `prod-api` matches Priority 1 → Never stops
+- `staging-web` matches Priority 2 → Stops on weekends
+- `dev-test` matches Priority 3 → Stops every night
+
+<Warning>
+Order matters! Always place more specific rules (like production exceptions) higher in the priority list than general catch-all rules.
+</Warning>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start with specific rules first">
+    Place specific rules (like production exceptions) at the top, followed by broader rules. This ensures critical environments aren't accidentally matched by catch-all rules.
+  </Accordion>
+
+  <Accordion title="Use preview environment wildcards">
+    Use `[PR]*` patterns to automatically manage all preview environments created from pull requests without manual configuration.
+  </Accordion>
+
+  <Accordion title="Test rules on non-critical environments first">
+    Before applying rules to production-like environments, test them on development environments to ensure they work as expected.
+  </Accordion>
+
+  <Accordion title="Document your rules">
+    Add clear descriptions to each rule explaining its purpose, especially for team environments where multiple people manage infrastructure.
+  </Accordion>
+
+  <Accordion title="Review rules regularly">
+    As your infrastructure evolves, periodically review and update deployment rules to ensure they still match your needs.
+  </Accordion>
+</AccordionGroup>
+
+## Examples
+
+### Example 1: Cost-Saving Development Rule
+
+**Scenario:** Stop all development environments outside business hours
+
+```
+Name: Stop Dev Environments After Hours
+Pattern: dev-*
+Auto-start: Monday-Friday 8:00 AM
+Auto-stop: Monday-Friday 7:00 PM
+Weekend: Stopped
+```
+
+**Savings:** ~60% reduction in compute costs for development environments
+
+### Example 2: Preview Environment Cleanup
+
+**Scenario:** Automatically stop all PR preview environments overnight
+
+```
+Name: Stop Preview Environments Overnight
+Pattern: [PR]*
+Auto-start: Monday-Friday 8:00 AM
+Auto-stop: Every day 11:00 PM
+```
+
+**Benefit:** Reduces costs while ensuring fresh environments each morning
+
+### Example 3: Multi-Region Production
+
+**Scenario:** Deploy production to high-performance cluster, staging to cost-effective cluster
+
+```
+Rule 1 - Production:
+  Pattern: prod-*
+  Target Cluster: AWS US-East (Premium)
+  Never stop
+
+Rule 2 - Staging:
+  Pattern: staging-*
+  Target Cluster: Scaleway Paris (Cost-Effective)
+  Stop: Weekends
+```
+
+**Benefit:** Balance performance and cost across environments
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Environment Configuration" icon="layer-group" href="/configuration/environment">
+    Learn more about environment settings
+  </Card>
+
+  <Card title="Project Configuration" icon="folder-tree" href="/configuration/project">
+    Configure project-level settings
+  </Card>
+
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
+    Understand deployment workflows
+  </Card>
+
+  <Card title="Auto-Deploy" icon="rotate" href="/configuration/deployment/auto-deploy">
+    Set up automatic deployments
+  </Card>
+</CardGroup>

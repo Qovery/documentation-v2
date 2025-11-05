@@ -1,0 +1,231 @@
+---
+title: "Integrate Application Logs to CloudWatch"
+description: "Stream Kubernetes pod logs to AWS CloudWatch for full-text search"
+---
+
+This tutorial explains how to stream Kubernetes pod logs to AWS CloudWatch for full-text search capabilities. While Qovery provides log access through its Console and CLI using Loki, that solution has limitations for direct querying and full-text search functionality.
+
+<Info>
+Loki is not a full-text search engine. It is a log aggregation system designed for Qovery's interface rather than direct queries.
+</Info>
+
+## Prerequisites
+
+- Qovery cluster running on AWS EKS
+- Access to AWS IAM Console
+- Basic knowledge of Helm charts
+
+## Step 1: AWS Permissions Setup
+
+### Create IAM Policy
+
+Create an IAM policy named `fluent-bit-write-policy` with these permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:DescribeLogStreams",
+        "logs:PutRetentionPolicy",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+<Frame>
+  <img src="/images/aws-cloudwatch/fluent-bit-policy-create.png" alt="Create IAM policy" />
+</Frame>
+
+### Create IAM User
+
+1. Create an IAM user
+2. Attach the `fluent-bit-write-policy` to the user
+3. Generate access credentials for later use
+
+<Frame>
+  <img src="/images/aws-cloudwatch/fluent-bit-user-create.png" alt="Create IAM user" />
+</Frame>
+
+<Frame>
+  <img src="/images/aws-cloudwatch/fluent-bit-cloudwatch-permissions.png" alt="Attach CloudWatch permissions" />
+</Frame>
+
+---
+
+## Step 2: Deploy Fluent Bit with Helm
+
+### Add AWS EKS Helm Repository
+
+1. In Qovery Console, navigate to your environment
+2. Add a new Helm repository:
+   - **Name**: `eks`
+   - **Kind**: `HTTPS`
+   - **URL**: `https://aws.github.io/eks-charts`
+
+### Create Helm Service
+
+Configure the Helm service with the following settings:
+
+**Basic Configuration:**
+- **Chart**: `aws-for-fluent-bit`
+- **Version**: `0.1.21`
+- **Enable cluster-wide resources**: Yes
+
+**Values Override:**
+
+```yaml
+cloudWatch:
+  enabled: true
+  region: us-east-1  # Change to your region
+  logGroupName: /aws/eks/fluent-bit
+
+env:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: fluent-bit-secrets
+        key: AWS_ACCESS_KEY
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: fluent-bit-secrets
+        key: AWS_SECRET_ACCESS_KEY
+```
+
+---
+
+## Step 3: Store AWS Secrets
+
+Add two service-scoped secret variables:
+
+1. **AWS_ACCESS_KEY**: Your IAM user access key ID
+2. **AWS_SECRET_ACCESS_KEY**: Your IAM user secret access key
+
+<Warning>
+Always use secret variables (not regular environment variables) for AWS credentials to ensure they are encrypted.
+</Warning>
+
+---
+
+## Step 4: Deploy
+
+1. Save your Helm configuration
+2. Click the **Play button** to trigger deployment
+3. Wait for the deployment to complete
+4. Verify the pods are running successfully
+
+---
+
+## Step 5: Access CloudWatch Logs
+
+### Using CloudWatch Logs Insight
+
+1. Navigate to AWS CloudWatch Console
+2. Go to **Logs** → **Insights**
+3. Select the `fluent-bit` log group
+4. Use CloudWatch Logs Insights query syntax to filter and search logs
+
+<Frame>
+  <img src="/images/aws-cloudwatch/cloudwatch-search.png" alt="CloudWatch Logs Insights" />
+</Frame>
+
+### Example Queries
+
+**Find all error logs:**
+```
+fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp desc
+| limit 100
+```
+
+**Search by application name:**
+```
+fields @timestamp, kubernetes.pod_name, @message
+| filter kubernetes.namespace_name = "your-namespace"
+| sort @timestamp desc
+| limit 100
+```
+
+**Count logs by pod:**
+```
+stats count() by kubernetes.pod_name
+| sort count desc
+```
+
+---
+
+## Benefits of CloudWatch Integration
+
+<CardGroup cols={2}>
+  <Card title="Full-Text Search" icon="magnifying-glass">
+    Perform complex queries across all your logs
+  </Card>
+
+  <Card title="Long-Term Retention" icon="clock">
+    Configure custom retention policies up to 10 years
+  </Card>
+
+  <Card title="Advanced Analytics" icon="chart-line">
+    Use CloudWatch Insights for log analysis
+  </Card>
+
+  <Card title="Alerting" icon="bell">
+    Set up metric filters and alarms on log patterns
+  </Card>
+</CardGroup>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Logs not appearing in CloudWatch">
+    - Verify IAM permissions are correct
+    - Check Fluent Bit pod logs for errors
+    - Ensure AWS credentials are properly configured as secrets
+    - Verify the log group name matches your configuration
+  </Accordion>
+
+  <Accordion title="Access denied errors">
+    - Confirm IAM policy includes all required permissions
+    - Check that the IAM user credentials are valid
+    - Verify the region in your configuration matches your cluster region
+  </Accordion>
+
+  <Accordion title="High costs">
+    - Configure log retention policies to reduce storage costs
+    - Use log filtering to send only relevant logs
+    - Consider using S3 archiving for older logs
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="View Logs" icon="file-lines" href="/configuration/deployment/logs">
+    Access logs through Qovery Console
+  </Card>
+
+  <Card title="Helm Services" icon="helm" href="/configuration/helm">
+    Deploy applications with Helm
+  </Card>
+
+  <Card title="Observability" icon="chart-line" href="/integrations/observability/qovery-observe">
+    Learn about observability options
+  </Card>
+
+  <Card title="Advanced Settings" icon="sliders" href="/configuration/service-advanced-settings">
+    Configure service advanced settings
+  </Card>
+</CardGroup>

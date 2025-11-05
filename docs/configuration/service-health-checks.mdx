@@ -1,0 +1,74 @@
+---
+title: "Service Health Checks"
+description: "Configure liveness and readiness probes to monitor your application health"
+---
+
+Health checks are automated procedures that monitor application status, determining readiness for traffic or restart needs. Qovery leverages Kubernetes probes for continuous verification during deployment and runtime phases.
+
+## Kubernetes Probe Types
+
+Qovery utilizes two primary probe mechanisms:
+
+- **Liveness probe**: Verifies container vitality. Failed checks trigger container restarts, addressing issues like deadlocks where applications run but cannot progress.
+- **Readiness probe**: Confirms container readiness for incoming requests. Traffic routes only to ready pods; unready containers are removed from load balancers.
+
+<Frame>
+  <img src="/images/configuration/health-checks/workflow.png" alt="Kubernetes Probes Workflow" />
+</Frame>
+
+During deployment, both probes must succeed for successful completion if configured.
+
+## Probes Configuration Parameters
+
+### Type
+
+Configure probe execution method:
+
+- **NONE**: Disables the probe (not recommended for liveness probes)
+- **HTTP probes**: Ping specified path/port; success requires 200-300 range responses
+- **TCP probes**: Establish port connections; successful connections indicate health
+- **gRPC probes**: Connect to specified port/service; successful connections confirm health
+- **EXEC probes**: Execute container commands; failed execution = probe failure
+
+### Initial Delay (in seconds)
+
+Specifies interval between container start and first liveness check. Useful for applications requiring extended boot time.
+
+### Period (in seconds)
+
+Sets interval between consecutive probe executions.
+
+### Timeout (in seconds)
+
+Defines maximum wait time for probe response.
+
+### Success Threshold
+
+Minimum consecutive successes required after previous failures (limited to 1 by Kubernetes).
+
+### Failure Threshold
+
+Minimum consecutive failures required to mark probe as failed after successes.
+
+## Long-Starting Applications
+
+Applications with extended boot operations may fail deployment if probes cannot verify status within timeframes. Look for warnings:
+
+```
+"Liveness probe failed: dial tcp xx.xx.xx.xx:xx: connect: connection refused"
+```
+
+<Tip>
+Increase **Initial Delay** settings to match your application boot duration to prevent premature probe failures.
+</Tip>
+
+<Warning>
+Startup probes are not yet available in Qovery.
+</Warning>
+
+## Applicable Services
+
+Configure probes for:
+- Applications
+- Cronjobs
+- Lifecycle Jobs
