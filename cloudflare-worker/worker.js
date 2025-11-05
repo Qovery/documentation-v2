@@ -9,7 +9,7 @@ export default {
       }
 
       // If the request is to the docs subdirectory
-      if (/^\/docs/.test(urlObject.pathname)) {
+      if (urlObject.pathname === '/docs' || urlObject.pathname.startsWith('/docs/')) {
         // Proxy to Mintlify
         const DOCS_URL = "qovery.mintlify.dev";
         const CUSTOM_URL = "www.qovery.com";
