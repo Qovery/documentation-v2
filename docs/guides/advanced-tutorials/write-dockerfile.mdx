@@ -1,0 +1,443 @@
+---
+title: "How to Write a Dockerfile"
+description: "Learn how to write your first Dockerfile to deploy applications with Qovery"
+---
+
+This guide explains Docker as a container engine that builds and uses images for application deployment. A Dockerfile serves as the recipe for building application images.
+
+## Prerequisites
+
+- Qovery CLI installed
+- Code hosted on GitHub
+- Basic understanding of Docker concepts
+
+## Overview
+
+The tutorial recommends creating both a **Dockerfile** at the project root and a **.dockerignore** file to exclude unnecessary files from your image.
+
+---
+
+## Dockerfile Instructions
+
+### FROM - Base Image
+
+The first line you'll add in your Dockerfile is **FROM**.
+
+This pulls an existing image from Docker Hub matching your application language:
+
+```dockerfile
+FROM <image_name>:<image_version>
+```
+
+**Example:**
+```dockerfile
+FROM python:3
+```
+
+<Tip>
+Choose specific version tags (e.g., `python:3.11`) instead of `latest` for reproducible builds.
+</Tip>
+
+---
+
+### WORKDIR - Working Directory
+
+Sets the working directory within the container:
+
+```dockerfile
+FROM python:3
+WORKDIR /app
+```
+
+All subsequent commands will be executed from this directory.
+
+---
+
+### COPY - Copy Source Code
+
+Copies your source code into the image:
+
+```dockerfile
+COPY . .
+```
+
+You can also specify specific source/destination paths using relative directories:
+
+```dockerfile
+COPY ./src /app/src
+COPY package.json /app/
+```
+
+---
+
+### RUN - Execute Commands
+
+Executes commands for installing dependencies and building applications:
+
+```dockerfile
+RUN echo "Installing or doing stuff."
+RUN <my_command>
+```
+
+**Examples:**
+
+<Tabs>
+  <Tab title="Python">
+    ```dockerfile
+    FROM python:3.11
+    WORKDIR /app
+    COPY requirements.txt .
+    RUN pip install -r requirements.txt
+    COPY . .
+    ```
+  </Tab>
+
+  <Tab title="Node.js">
+    ```dockerfile
+    FROM node:18
+    WORKDIR /app
+    COPY package*.json ./
+    RUN npm ci
+    COPY . .
+    RUN npm run build
+    ```
+  </Tab>
+
+  <Tab title="Go">
+    ```dockerfile
+    FROM golang:1.21
+    WORKDIR /app
+    COPY go.* ./
+    RUN go mod download
+    COPY . .
+    RUN go build -o app
+    ```
+  </Tab>
+
+  <Tab title="Java">
+    ```dockerfile
+    FROM maven:3.8-openjdk-17
+    WORKDIR /app
+    COPY pom.xml .
+    RUN mvn dependency:go-offline
+    COPY src ./src
+    RUN mvn package
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+### EXPOSE - Open Ports
+
+Opens ports for external access:
+
+```dockerfile
+EXPOSE <app_port>
+```
+
+**Example:**
+```dockerfile
+EXPOSE 8080
+```
+
+<Warning>
+**Important:** Your application must listen on all interfaces (`0.0.0.0`), not localhost (`127.0.0.1`), for the container to be accessible.
+</Warning>
+
+**Correct binding examples:**
+
+<Tabs>
+  <Tab title="Node.js/Express">
+    ```javascript
+    // ✅ Correct
+    app.listen(8080, '0.0.0.0');
+
+    // ❌ Wrong
+    app.listen(8080, 'localhost');
+    ```
+  </Tab>
+
+  <Tab title="Python/Flask">
+    ```python
+    # ✅ Correct
+    app.run(host='0.0.0.0', port=8080)
+
+    # ❌ Wrong
+    app.run(host='127.0.0.1', port=8080)
+    ```
+  </Tab>
+
+  <Tab title="Go">
+    ```go
+    // ✅ Correct
+    http.ListenAndServe("0.0.0.0:8080", nil)
+
+    // ❌ Wrong
+    http.ListenAndServe("localhost:8080", nil)
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+### CMD - Execute Application
+
+Specifies how to execute the application:
+
+```dockerfile
+CMD [ "<command>", "<argument_1>", "<argument_2>" ]
+```
+
+**Examples:**
+
+<Tabs>
+  <Tab title="Python">
+    ```dockerfile
+    CMD ["python", "app.py"]
+    ```
+  </Tab>
+
+  <Tab title="Node.js">
+    ```dockerfile
+    CMD ["node", "server.js"]
+    ```
+  </Tab>
+
+  <Tab title="Go">
+    ```dockerfile
+    CMD ["./app"]
+    ```
+  </Tab>
+
+  <Tab title="Java">
+    ```dockerfile
+    CMD ["java", "-jar", "target/app.jar"]
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Complete Dockerfile Examples
+
+### Python Flask Application
+
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 8080
+
+# Run application
+CMD ["python", "app.py"]
+```
+
+### Node.js Express Application
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Run application
+CMD ["node", "server.js"]
+```
+
+### Multi-stage Go Application
+
+```dockerfile
+# Build stage
+FROM golang:1.21 AS builder
+WORKDIR /app
+COPY go.* ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o app
+
+# Production stage
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /app/app .
+EXPOSE 8080
+CMD ["./app"]
+```
+
+---
+
+## .dockerignore File
+
+Create a `.dockerignore` file to exclude unnecessary files:
+
+```
+# Git
+.git
+.gitignore
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Dependencies
+node_modules
+__pycache__
+*.pyc
+vendor
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Build artifacts
+dist
+build
+target
+
+# Documentation
+README.md
+docs
+
+# Tests
+tests
+*.test.js
+```
+
+---
+
+## Building Your Image
+
+### Local Testing
+
+Test your Docker image locally:
+
+```bash
+cd ~/my/folder/where/my/code/is
+docker build -t my-app:latest .
+```
+
+### Testing with Qovery CLI
+
+Test with Qovery CLI before deploying:
+
+```bash
+qovery run
+```
+
+This builds and runs your application locally, simulating the Qovery environment.
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use specific base image tags">
+    ```dockerfile
+    # ✅ Good
+    FROM python:3.11-slim
+
+    # ❌ Avoid
+    FROM python:latest
+    ```
+  </Accordion>
+
+  <Accordion title="Minimize layer count">
+    Combine RUN commands when possible:
+
+    ```dockerfile
+    # ✅ Good
+    RUN apt-get update && \
+        apt-get install -y package1 package2 && \
+        apt-get clean && \
+        rm -rf /var/lib/apt/lists/*
+
+    # ❌ Avoid
+    RUN apt-get update
+    RUN apt-get install -y package1
+    RUN apt-get install -y package2
+    ```
+  </Accordion>
+
+  <Accordion title="Use multi-stage builds">
+    Reduce final image size by separating build and runtime stages:
+
+    ```dockerfile
+    FROM node:18 AS builder
+    WORKDIR /app
+    COPY package*.json ./
+    RUN npm ci
+    COPY . .
+    RUN npm run build
+
+    FROM node:18-alpine
+    WORKDIR /app
+    COPY --from=builder /app/dist ./dist
+    CMD ["node", "dist/index.js"]
+    ```
+  </Accordion>
+
+  <Accordion title="Leverage build cache">
+    Copy dependency files before source code:
+
+    ```dockerfile
+    # ✅ Good - dependencies cached
+    COPY package.json package-lock.json ./
+    RUN npm ci
+    COPY . .
+
+    # ❌ Inefficient - rebuilds deps on code change
+    COPY . .
+    RUN npm ci
+    ```
+  </Accordion>
+
+  <Accordion title="Use .dockerignore">
+    Always create a `.dockerignore` file to exclude unnecessary files from your build context.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## What's Next
+
+Once your Dockerfile is ready, you can deploy your application to Qovery:
+
+<CardGroup cols={2}>
+  <Card title="Deploy Your First Application" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+    Step-by-step deployment guide
+  </Card>
+
+  <Card title="Application Configuration" icon="gear" href="/configuration/application">
+    Configure your application settings
+  </Card>
+
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Manage environment variables
+  </Card>
+
+  <Card title="Ports Configuration" icon="network-wired" href="/configuration/application">
+    Configure application ports
+  </Card>
+</CardGroup>

@@ -15,6 +15,43 @@ The Qovery MCP (Model Context Protocol) Server enables you to use Qovery AI Copi
 **What is MCP?** The Model Context Protocol is an open standard developed by Anthropic that allows AI assistants to interact with external tools and systems. [Learn more →](https://modelcontextprotocol.io)
 </Info>
 
+## Operating Modes
+
+The MCP Server supports both operating modes:
+
+<Tabs>
+  <Tab title="Read-Only Mode (Default)">
+    **Default behavior** - Safe for exploration
+
+    The MCP Server starts in **read-only mode** by default, allowing you to:
+    - View information and status
+    - Get help and recommendations
+    - Troubleshoot issues
+    - Monitor deployments
+    - Analyze infrastructure
+    - **No changes** to infrastructure
+
+    This ensures safe exploration without risk of accidental modifications.
+  </Tab>
+
+  <Tab title="Read-Write Mode">
+    **Full automation** - Maximum capabilities
+
+    When needed, the MCP Server can operate in **read-write mode** for complete automation:
+    - Deploy applications and services
+    - Create new environments and resources
+    - Update configurations and settings
+    - Add/modify/delete environment variables
+    - Scale, restart, or stop services
+    - Delete resources (with confirmation)
+    - Execute complex workflows
+
+    <Warning>
+    The Copilot will **ask for confirmation** before performing destructive operations like deletions.
+    </Warning>
+  </Tab>
+</Tabs>
+
 ## Prerequisites
 
 Before installing the MCP Server:
@@ -299,8 +336,12 @@ The API token has the same permissions as your user account:
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Getting Started Guide" icon="rocket" href="/copilot/getting-started">
-    Learn how to use Qovery AI Copilot effectively
+  <Card title="Console Copilot" icon="browser" href="/copilot/console">
+    Use the built-in Console Copilot for quick help
+  </Card>
+
+  <Card title="Slack Bot" icon="slack" href="/copilot/slack-bot">
+    Set up the Slack Bot for team collaboration
   </Card>
 
   <Card title="View Capabilities" icon="list" href="/copilot/capabilities/infrastructure-management">
@@ -309,10 +350,6 @@ The API token has the same permissions as your user account:
 
   <Card title="Common Tasks" icon="book" href="/copilot/examples/common-tasks">
     Practical examples and use cases
-  </Card>
-
-  <Card title="Full MCP Documentation" icon="file" href="/using-qovery/interface/mcp-server">
-    Complete MCP Server documentation
   </Card>
 </CardGroup>
 

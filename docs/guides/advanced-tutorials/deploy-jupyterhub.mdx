@@ -1,0 +1,274 @@
+---
+title: "Deploy JupyterHub using Helm"
+description: "Deploy JupyterHub on Qovery using the official Helm chart"
+---
+
+JupyterHub is an easy way to interact with a computing environment through a webpage. This tutorial guides you through deploying JupyterHub on Qovery using the official Helm chart.
+
+## Prerequisites
+
+- Existing Qovery cluster
+- Dedicated project and environment ready
+
+---
+
+## Installation
+
+<Steps>
+  <Step title="Add JupyterHub Helm Repository">
+    1. Navigate to your environment in Qovery Console
+    2. Add a new Helm repository:
+       - **Repository name**: `JupyterHub`
+       - **Kind**: `HTTPS`
+       - **URL**: `https://hub.jupyter.org/helm-chart/`
+  </Step>
+
+  <Step title="Create JupyterHub Service">
+    Create a new Helm service with the following configuration:
+
+    **Basic Settings:**
+    - **Application name**: `JupyterHub`
+    - **Chart name**: `jupyterhub`
+    - **Version**: `3.3.7`
+    - **Allow cluster-wide resources**: Enabled
+
+    **YAML Override:**
+    ```yaml
+    proxy:
+      service:
+        type: ClusterIP
+    ```
+
+    <Tip>
+    The `type: ClusterIP` configuration is necessary for JupyterHub to work properly within the Qovery cluster.
+    </Tip>
+  </Step>
+
+  <Step title="Add Network Configuration">
+    Configure the service port:
+    - **Service name**: `jupyterhub-proxy-public`
+    - **Service port**: `80` (HTTP)
+    - **External port**: `443`
+    - **Port name**: `jupyterhub-proxy-public-p80`
+
+    <Info>
+    This configuration exposes JupyterHub's proxy service externally through HTTPS.
+    </Info>
+  </Step>
+
+  <Step title="Deploy Chart">
+    Click the **Play button** to deploy JupyterHub:
+
+    <Frame>
+      <img src="/images/deploy-jupyterhub-qovery/deploy.png" alt="Deploy JupyterHub" />
+    </Frame>
+
+    Wait for the deployment to complete. This may take several minutes as JupyterHub pulls images and initializes.
+  </Step>
+
+  <Step title="Access JupyterHub">
+    Once deployed, access JupyterHub via the **Link button** in the Qovery interface:
+
+    <Frame>
+      <img src="/images/deploy-jupyterhub-qovery/link.png" alt="Access JupyterHub link" />
+    </Frame>
+
+    You'll be directed to the JupyterHub login page.
+  </Step>
+</Steps>
+
+---
+
+## Basic Configuration
+
+### Default Authentication
+
+By default, JupyterHub uses a dummy authenticator that accepts any username/password. For production use, configure proper authentication.
+
+### Customize Your Deployment
+
+This is a basic setup. For advanced configurations, consult:
+- [JupyterHub Customization Guide](https://z2jh.jupyter.org/en/stable/jupyterhub/customization.html)
+- [JupyterHub Administrator Guide](https://z2jh.jupyter.org/en/stable/administrator/index.html)
+
+---
+
+## Common Customizations
+
+<AccordionGroup>
+  <Accordion title="Configure Authentication">
+    Use GitHub OAuth for authentication:
+
+    ```yaml
+    hub:
+      config:
+        JupyterHub:
+          authenticator_class: github
+        GitHubOAuthenticator:
+          client_id: YOUR_CLIENT_ID
+          client_secret: YOUR_CLIENT_SECRET
+          oauth_callback_url: https://your-jupyterhub-url/hub/oauth_callback
+    ```
+
+    Add `YOUR_CLIENT_SECRET` as a secret variable in Qovery.
+  </Accordion>
+
+  <Accordion title="Configure Resource Limits">
+    Set resource limits for user notebooks:
+
+    ```yaml
+    singleuser:
+      cpu:
+        limit: 2
+        guarantee: 0.5
+      memory:
+        limit: 2G
+        guarantee: 1G
+    ```
+  </Accordion>
+
+  <Accordion title="Enable HTTPS">
+    HTTPS is automatically handled by Qovery. Just ensure your port configuration is correct.
+  </Accordion>
+
+  <Accordion title="Add Custom Docker Image">
+    Use a custom notebook image:
+
+    ```yaml
+    singleuser:
+      image:
+        name: jupyter/datascience-notebook
+        tag: latest
+    ```
+  </Accordion>
+
+  <Accordion title="Configure Persistent Storage">
+    Enable persistent storage for user notebooks:
+
+    ```yaml
+    singleuser:
+      storage:
+        type: dynamic
+        capacity: 10Gi
+        dynamic:
+          storageClass: gp2  # AWS EBS
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Accessing User Notebooks
+
+### Default Spawner
+
+Users can spawn notebooks with different configurations:
+- Minimal environment
+- Data science stack (pandas, numpy, scipy)
+- TensorFlow/PyTorch for machine learning
+
+### Custom Profiles
+
+Define multiple profiles for users:
+
+```yaml
+singleuser:
+  profileList:
+    - display_name: "Minimal environment"
+      description: "Basic Python environment"
+      default: true
+    - display_name: "Data Science"
+      description: "Includes pandas, numpy, scipy"
+      kubespawner_override:
+        image: jupyter/datascience-notebook:latest
+    - display_name: "Machine Learning"
+      description: "TensorFlow and PyTorch"
+      kubespawner_override:
+        image: jupyter/tensorflow-notebook:latest
+        cpu_limit: 4
+        mem_limit: "8G"
+```
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Deployment stuck or failing">
+    - Check pod logs in Qovery Console
+    - Verify cluster has sufficient resources
+    - Ensure cluster-wide resources are enabled
+    - Check for image pull errors
+  </Accordion>
+
+  <Accordion title="Cannot access JupyterHub">
+    - Verify the service port configuration
+    - Check that the port name matches
+    - Ensure HTTPS is properly configured
+    - Check ingress logs for errors
+  </Accordion>
+
+  <Accordion title="Users cannot spawn notebooks">
+    - Check resource quotas on the cluster
+    - Verify storage provisioner is working
+    - Review user pod logs
+    - Check for image pull errors
+  </Accordion>
+
+  <Accordion title="Notebooks losing data">
+    - Ensure persistent storage is configured
+    - Verify PVC (PersistentVolumeClaim) is created
+    - Check storage class is available
+    - Review volume mount configuration
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Scaling JupyterHub
+
+### Horizontal Scaling
+
+Scale the hub component:
+
+```yaml
+hub:
+  replicas: 2
+```
+
+### Resource Allocation
+
+Adjust hub resources:
+
+```yaml
+hub:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2
+      memory: 2Gi
+```
+
+---
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Helm Services" icon="helm" href="/configuration/helm">
+    Learn about deploying with Helm
+  </Card>
+
+  <Card title="Advanced Settings" icon="sliders" href="/configuration/service-advanced-settings">
+    Configure service advanced settings
+  </Card>
+
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Manage secrets and variables
+  </Card>
+
+  <Card title="Storage Configuration" icon="database" href="/configuration/database">
+    Configure persistent storage
+  </Card>
+</CardGroup>

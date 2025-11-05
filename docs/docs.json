@@ -30,8 +30,22 @@
       "type": "button",
       "label": "Console",
       "href": "https://console.qovery.com"
-    }
+    },
+    "links": [
+      {
+        "label": "GitHub",
+        "icon": "github",
+        "href": "https://github.com/Qovery"
+      }
+    ]
   },
+  "anchors": [
+    {
+      "name": "Documentation",
+      "icon": "book",
+      "url": "introduction"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -88,13 +102,15 @@
                 "group": "Security & Compliance",
                 "pages": [
                   "security-and-compliance/overview",
+                  "security-and-compliance/audit-logs",
                   "security-and-compliance/soc2",
                   "security-and-compliance/gdpr",
                   "security-and-compliance/dora",
                   "security-and-compliance/hipaa",
                   "security-and-compliance/hds"
                 ]
-              }
+              },
+              "configuration/maintenance"
             ]
           },
           {
@@ -106,10 +122,46 @@
             ]
           },
           {
+            "group": "Advanced Tutorials",
+            "pages": [
+              {
+                "group": "Infrastructure & Security",
+                "pages": [
+                  "guides/advanced-tutorials/aws-iam-roles",
+                  "guides/advanced-tutorials/certificate-management-multi-tenant",
+                  "guides/advanced-tutorials/cloudwatch-integration"
+                ]
+              },
+              {
+                "group": "Networking & Access Control",
+                "pages": [
+                  "guides/advanced-tutorials/cloudflare-custom-domain",
+                  "guides/advanced-tutorials/rate-limiting",
+                  "guides/advanced-tutorials/ip-header-authorization"
+                ]
+              },
+              {
+                "group": "Development & Deployment",
+                "pages": [
+                  "guides/advanced-tutorials/write-dockerfile",
+                  "guides/advanced-tutorials/import-env-vars-cli",
+                  "guides/advanced-tutorials/deploy-jupyterhub",
+                  "guides/advanced-tutorials/rust-api-part-1"
+                ]
+              }
+            ]
+          },
+          {
             "group": "Useful Resources",
             "pages": [
               "useful-resources/faq",
               "useful-resources/help-and-support"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshoot/overview"
             ]
           }
         ]
@@ -125,8 +177,9 @@
             ]
           },
           {
-            "group": "Organization",
+            "group": "Account & Organization",
             "pages": [
+              "configuration/user-account",
               "configuration/organization",
               {
                 "group": "Access & Security",
@@ -181,8 +234,7 @@
                 "pages": [
                   "integrations/kubernetes/byok",
                   "integrations/kubernetes/eks-anywhere",
-                  "integrations/kubernetes/docker",
-                  "integrations/kubernetes/keda"
+                  "integrations/kubernetes/docker"
                 ]
               }
             ]
@@ -252,9 +304,11 @@
                 "group": "Data & Infrastructure",
                 "pages": [
                   "configuration/database",
+                  "configuration/object-storage",
                   "configuration/terraform"
                 ]
               },
+              "configuration/service-health-checks",
               "configuration/service-advanced-settings"
             ]
           },
@@ -269,7 +323,8 @@
                 "pages": [
                   "configuration/deployment/actions",
                   "configuration/deployment/strategies",
-                  "configuration/deployment/image-mirroring"
+                  "configuration/deployment/image-mirroring",
+                  "configuration/deployment-rule"
                 ]
               },
               {
@@ -362,6 +417,8 @@
             "group": "Getting Started",
             "pages": [
               "copilot/getting-started",
+              "copilot/console",
+              "copilot/slack-bot",
               "copilot/mcp-server"
             ]
           },

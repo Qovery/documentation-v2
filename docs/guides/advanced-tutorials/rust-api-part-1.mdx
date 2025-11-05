@@ -1,0 +1,327 @@
+---
+title: "Create a Blazingly Fast REST API in Rust (Part 1/2)"
+description: "Build a performant Twitter clone API with Rust and deploy on Qovery"
+---
+
+This tutorial introduces building performant REST APIs using Rust. Unlike typical "Hello World" benchmarks, we'll create a real-world Twitter clone with database operations.
+
+**Rust's positioning:** "Fast, reliable, productive - Pick three"
+
+## Prerequisites
+
+- Cargo installed
+- Basic Rust knowledge
+- GitHub account
+- Qovery account
+
+---
+
+## Twitter Clone Project
+
+### API Design
+
+We'll create a miniature Twitter API with these endpoints:
+
+**Route: /tweets**
+- `GET`: Retrieve last 50 tweets
+- `POST`: Create new tweet
+
+**Route: /tweets/:id**
+- `GET`: Fetch tweet by identifier
+- `DELETE`: Remove tweet by identifier
+
+**Route: /tweets/:id/likes**
+- `GET`: Retrieve all likes for a tweet
+- `POST`: Increment like counter
+- `DELETE`: Decrement like counter
+
+---
+
+## Implementation
+
+### Framework: Actix Web
+
+We're using Actix, ranked as one of the most performant frameworks by Techempower.
+
+### Application Structure
+
+The implementation uses three primary files:
+
+1. **main.rs** - HTTP request routing
+2. **tweet.rs** - /tweets endpoint handling
+3. **like.rs** - /tweets/:id/likes endpoint handling
+
+### Main Application Setup
+
+```rust
+#[actix_rt::main]
+async fn main() -> io::Result<()> {
+    env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
+    env_logger::init();
+
+    HttpServer::new(|| {
+        App::new()
+            .wrap(middleware::Logger::default())
+            .service(tweet::list)
+            .service(tweet::get)
+            .service(tweet::create)
+            .service(tweet::delete)
+            .service(like::list)
+            .service(like::plus_one)
+            .service(like::minus_one)
+    })
+    .bind("0.0.0.0:9090")?
+    .run()
+    .await
+}
+```
+
+### Route Definitions
+
+Routes use attribute macros for clean path binding:
+
+```rust
+#[get("/tweets")]
+async fn list() -> impl Responder {
+    // Implementation
+}
+
+#[get("/tweets/{id}")]
+async fn get(id: web::Path<String>) -> impl Responder {
+    // Implementation
+}
+
+#[post("/tweets")]
+async fn create(tweet: web::Json<NewTweet>) -> impl Responder {
+    // Implementation
+}
+
+#[delete("/tweets/{id}")]
+async fn delete(id: web::Path<String>) -> impl Responder {
+    // Implementation
+}
+```
+
+---
+
+## PostgreSQL Integration
+
+### Diesel ORM
+
+Diesel serves as the primary ORM for PostgreSQL connectivity.
+
+<Warning>
+Diesel lacks tokio support, requiring use of `web::block()` to execute blocking database operations on separate threads, preventing server thread blocking.
+</Warning>
+
+### Database Schema
+
+```rust
+table! {
+    likes (id) {
+        id -> Uuid,
+        created_at -> Timestamp,
+        tweet_id -> Uuid,
+    }
+}
+
+table! {
+    tweets (id) {
+        id -> Uuid,
+        created_at -> Timestamp,
+        message -> Text,
+    }
+}
+
+joinable!(likes -> tweets (tweet_id));
+allow_tables_to_appear_in_same_query!(likes, tweets);
+```
+
+### Connection Pool Setup
+
+```rust
+#[actix_rt::main]
+async fn main() -> io::Result<()> {
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL");
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+    let pool = r2d2::Pool::builder()
+        .build(manager)
+        .expect("Failed to create pool");
+
+    HttpServer::new(move || {
+        App::new()
+            .data(pool.clone())
+            .wrap(middleware::Logger::default())
+            // ... service registrations
+    })
+    .bind("0.0.0.0:9090")?
+    .run()
+    .await
+}
+```
+
+---
+
+## Local Testing
+
+Test your API endpoints locally:
+
+```bash
+# List tweets
+curl http://localhost:9090/tweets
+
+# Get specific tweet
+curl http://localhost:9090/tweets/abc
+
+# Create tweet
+curl -X POST -d '{"message": "This is a tweet"}' \
+  -H "Content-type: application/json" http://localhost:9090/tweets
+
+# Delete tweet
+curl -X DELETE http://localhost:9090/tweets/abc
+
+# List likes
+curl http://localhost:9090/tweets/abc/likes
+
+# Add like
+curl -X POST http://localhost:9090/tweets/abc/likes
+
+# Remove like
+curl -X DELETE http://localhost:9090/tweets/abc/likes
+```
+
+---
+
+## Deploy to Qovery
+
+<Steps>
+  <Step title="Create Project">
+    Sign in to Qovery web console and create a new project.
+  </Step>
+
+  <Step title="Create Environment">
+    Establish a new environment within your project.
+  </Step>
+
+  <Step title="Register Application">
+    Link your GitHub repository:
+    - Repository: `https://github.com/evoxmusic/twitter-clone-rust`
+    - Branch: `master`
+
+    <Frame>
+      <img src="/images/rust/rust.png" alt="Register Rust application" />
+    </Frame>
+  </Step>
+
+  <Step title="Configure Port">
+    1. Navigate to application settings
+    2. Select **Ports** section
+    3. Add port `9090`
+
+    <Frame>
+      <img src="/images/micro/micros-1.png" alt="Configure application port" />
+    </Frame>
+  </Step>
+
+  <Step title="Deploy PostgreSQL">
+    Create a PostgreSQL database named `my-pql-db` following the [database guide](/configuration/database).
+  </Step>
+
+  <Step title="Configure Database Connection">
+    1. Access **Variables** tab in application overview
+    2. Add environment variable `DATABASE_URL`
+    3. Alias it to the PostgreSQL connection string
+
+    <Frame>
+      <img src="/images/open-env-var.png" alt="Open environment variables" />
+    </Frame>
+
+    <Frame>
+      <img src="/images/alias.png" alt="Alias database connection" />
+    </Frame>
+  </Step>
+
+  <Step title="Deploy Application">
+    Navigate to application dashboard and click **Deploy** button. Monitor status until completion.
+
+    <Frame>
+      <img src="/images/heroku/heroku-1.png" alt="Deploy application" />
+    </Frame>
+  </Step>
+</Steps>
+
+---
+
+## Live Testing
+
+After deployment, test your production API:
+
+```bash
+# Create tweet
+curl -X POST -d '{"message": "This is a tweet"}' \
+  -H "Content-type: application/json" \
+  https://main-gxbuagyvgnkbrp5l-gtw.qovery.io/tweets
+
+# List tweets
+curl https://main-gxbuagyvgnkbrp5l-gtw.qovery.io/tweets
+
+# Get specific tweet
+curl https://main-gxbuagyvgnkbrp5l-gtw.qovery.io/tweets/<id>
+
+# Like management
+curl -X POST https://main-gxbuagyvgnkbrp5l-gtw.qovery.io/tweets/<id>/likes
+curl -X DELETE https://main-gxbuagyvgnkbrp5l-gtw.qovery.io/tweets/<id>/likes
+
+# Delete tweet
+curl -X DELETE https://main-gxbuagyvgnkbrp5l-gtw.qovery.io/tweets/<id>
+```
+
+---
+
+## Next Steps
+
+Part 2 will compare this Rust implementation's performance against an equivalent Go application.
+
+---
+
+## Learning Resources
+
+<CardGroup cols={2}>
+  <Card title="Rust Blog" icon="rust" href="https://blog.rust-lang.org/inside-rust/">
+    Official Rust blog and updates
+  </Card>
+
+  <Card title="The Rust Book" icon="book" href="https://doc.rust-lang.org/book/">
+    Free comprehensive Rust programming guide
+  </Card>
+
+  <Card title="Jon Gjengset" icon="youtube" href="https://www.youtube.com/@jonhoo">
+    MIT distributed systems and Rust live-coding
+  </Card>
+
+  <Card title="GitHub Repository" icon="github" href="https://github.com/evoxmusic/twitter-clone-rust">
+    Complete source code for this tutorial
+  </Card>
+</CardGroup>
+
+---
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Deploy Your First App" icon="rocket" href="/guides/getting-started/deploy-your-first-application">
+    Step-by-step deployment guide
+  </Card>
+
+  <Card title="Database Configuration" icon="database" href="/configuration/database">
+    Configure PostgreSQL databases
+  </Card>
+
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Manage environment variables
+  </Card>
+
+  <Card title="Application Settings" icon="gear" href="/configuration/application">
+    Configure application settings
+  </Card>
+</CardGroup>
