@@ -8,19 +8,19 @@ export default {
         return await fetch(request);
       }
 
-      // If the request is to /docs without trailing slash, redirect to /docs/
-      if (urlObject.pathname === '/docs') {
-        return Response.redirect(urlObject.origin + '/docs/', 301);
-      }
-
       // If the request is to the docs subdirectory
-      if (urlObject.pathname.startsWith('/docs/')) {
+      if (urlObject.pathname === '/docs' || urlObject.pathname.startsWith('/docs/')) {
         // Proxy to Mintlify
         const DOCS_URL = "qovery.mintlify.dev";
         const CUSTOM_URL = "www.qovery.com";
 
         let url = new URL(request.url);
         url.hostname = DOCS_URL;
+
+        // Ensure /docs gets a trailing slash for Mintlify
+        if (url.pathname === '/docs') {
+          url.pathname = '/docs/';
+        }
 
         let proxyRequest = new Request(url, request);
 
