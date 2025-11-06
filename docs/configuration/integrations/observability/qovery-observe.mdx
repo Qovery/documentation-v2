@@ -1,0 +1,170 @@
+---
+title: "Qovery Observe"
+description: "Built-in observability for monitoring applications and infrastructure"
+---
+
+## Overview
+
+Qovery provides integrated observability to help you monitor the health, performance, and behavior of your services directly within the Qovery Console. Your observability data stays within your infrastructure with zero maintenance required.
+
+<img src="/images/observability/overview.png" alt="Qovery Observability Overview" />
+
+<Note>
+Currently available for AWS, GCP, and Scaleway clusters. Azure support is coming soon. Supports Applications and Containers (Jobs and Managed Databases support coming soon).
+</Note>
+
+<Info>
+Qovery Observe is not yet self-service. Contact Qovery via Slack or email to get access.
+</Info>
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Service Health" icon="heart-pulse">
+    Real-time service health and performance tracking
+  </Card>
+  <Card title="Metrics" icon="chart-line">
+    CPU, memory, network, request latency, and error rates
+  </Card>
+  <Card title="Logs" icon="file-lines">
+    12 weeks log retention with automatic error detection
+  </Card>
+  <Card title="Events" icon="clock">
+    Qovery and Kubernetes events (deployments, scaling, failures)
+  </Card>
+</CardGroup>
+
+<img src="/images/observability/capabilities.png" alt="Observability Capabilities" />
+
+## Key Benefits
+
+- **Data stays in your infrastructure**: All observability data remains within your cloud
+- **Zero maintenance**: No configuration or management required
+- **Correlated data**: Metrics and logs automatically linked for faster troubleshooting
+
+## Architecture
+
+Qovery's observability combines open-source tools to monitor your Kubernetes infrastructure:
+
+### Data Collection
+
+<CardGroup cols={3}>
+  <Card title="Metrics" icon="chart-mixed">
+    **Prometheus + Thanos** collect and store metrics (CPU, memory, network)
+  </Card>
+  <Card title="Logs" icon="file-lines">
+    **Loki + Promtail** collect and store container logs
+  </Card>
+  <Card title="Events" icon="bell">
+    **Qovery Event Logger** captures Kubernetes events
+  </Card>
+</CardGroup>
+
+### Data Retention
+
+- **Prometheus**: 7-day local retention
+- **Thanos**: Raw metrics (15 days), 5-minute resolution (30 days), 1-hour resolution (30 days)
+- **Loki**: 12-week log retention
+
+### Key Features
+
+- **Per-cluster isolation**: Data protection and performance optimization
+- **Automatic error detection**: Custom metrics track error logs for alerting
+- **High availability**: Prometheus runs with 2 replicas; Thanos auto-scales 2-5 replicas
+
+### Architecture Diagram
+
+<img src="/images/observability/architecture-light.png" alt="Qovery Observability Architecture" className="light-mode-only" />
+<img src="/images/observability/architecture-dark.png" alt="Qovery Observability Architecture" className="dark-mode-only" />
+
+## Monitoring
+
+Access the **Monitoring** tab at the service level to view real-time and historical application data.
+
+### Service Health
+
+Monitor your service health with:
+
+- **Event tracking**: Qovery events (deployments, failures) and Kubernetes events (autoscaler triggers, OOMKilled pods, health check issues)
+- **Error logging**: Automatically counts error-level logs with direct navigation to errors
+- **HTTP error metrics**: Aggregated 499 and 5xx error rates by endpoint and status code
+- **Request latency**: P99 tail latency visualization (expandable to P90 and P50)
+
+<img src="/images/observability/events.png" alt="Service Health and Events" />
+
+### Resource Monitoring
+
+Track per-pod resources:
+
+- **CPU usage**: Against configured requests and limits
+- **Memory usage**: Against configured requests and limits
+
+<img src="/images/observability/resources.png" alt="Resource Monitoring" />
+
+### Network Metrics
+
+Monitor network-level data:
+
+- Request status by path and error code
+- Request duration (P50, P95, P99 percentiles)
+- Request size statistics
+
+<Note>
+Metrics represent ingress traffic for services with public ports or internal cluster traffic otherwise. Scaleway clusters currently lack internal traffic monitoring when no public port is exposed.
+</Note>
+
+<img src="/images/observability/network.png" alt="Network Metrics" />
+
+### Controls
+
+- **Live update toggle**: Continuous chart refresh
+- **Custom time frames**: Select data display ranges
+
+## Logs
+
+Access logs via the **Logs** tab or the Monitoring tab.
+
+<img src="/images/deployment/live_logs.png" alt="Service Logs" />
+
+### Log Features
+
+Qovery collects and stores logs using **Loki + Promtail** with:
+
+- **12 weeks retention** when observability is enabled
+- **24 hours retention** without observability
+- **Automatic error detection**: Error-level logs are counted and highlighted
+- **Log enrichment**: Service ID, environment ID, and pod information
+
+### Filtering Capabilities
+
+<CardGroup cols={3}>
+  <Card title="Keyword Search" icon="magnifying-glass">
+    Locate specific messages within log entries
+  </Card>
+  <Card title="Time Range" icon="clock">
+    Isolate logs around deployments or incidents
+  </Card>
+  <Card title="Log Level" icon="filter">
+    Filter by severity (error, info, debug)
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Datadog" icon="dog" href="/configuration/integrations/observability/datadog">
+    Add Datadog for advanced monitoring
+  </Card>
+
+  <Card title="Kubecost" icon="dollar-sign" href="/configuration/integrations/observability/kubecost">
+    Monitor and reduce Kubernetes costs
+  </Card>
+
+  <Card title="Deployment Logs" icon="file-lines" href="/configuration/deployment/logs">
+    View deployment and service logs
+  </Card>
+
+  <Card title="Application Config" icon="sliders" href="/configuration/application">
+    Configure health checks and ports
+  </Card>
+</CardGroup>

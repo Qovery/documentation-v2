@@ -1,0 +1,229 @@
+---
+title: "Qovery-Managed EKS"
+description: "Fully automated Amazon EKS cluster provisioning and management"
+---
+
+## Overview
+
+Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zero configuration. Qovery handles everything: cluster creation, networking, scaling, monitoring, and ongoing maintenance.
+
+**Perfect for**: Teams who want AWS but don't want to manage Kubernetes infrastructure.
+
+### Karpenter-Powered Auto-Scaling
+
+All Qovery-managed EKS clusters use [Karpenter](https://karpenter.sh/) for intelligent node provisioning:
+
+- **60-90% cost savings** through spot instances and consolidation
+- **Fast scaling** in seconds (not minutes)
+- **Smart instance selection** from your chosen instance types
+- **Automatic workload optimization** to minimize costs
+
+<Info>
+You **select multiple instance types** during setup (e.g., t3.medium, t3.large, m5.xlarge). Karpenter then automatically picks the best option based on your workload requirements, spot availability, and cost.
+</Info>
+
+## Create Your First Cluster
+
+<Steps>
+  <Step title="Open Qovery Console">
+    1. Go to **Organization Settings** → **Clusters**
+    2. Click **Create Cluster**
+    3. Select **AWS**
+  </Step>
+
+  <Step title="Configure Cluster">
+    - **Name**: e.g., `production-eks`
+    - **Region**: Choose closest to your users (e.g., `us-east-1`)
+  </Step>
+
+  <Step title="Connect AWS Account">
+    Choose how to connect your AWS account:
+
+    <Tabs>
+      <Tab title="STS Assume Role (Recommended)">
+        **Most secure** - Temporary credentials that auto-rotate automatically.
+
+        1. Click the **CloudFormation link** in Qovery
+        2. In AWS CloudFormation Console:
+           - Click **Next** → **Next** → **Next**
+           - ✅ Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
+           - Click **Create stack**
+        3. Wait 1 minute for `CREATE_COMPLETE` status
+        4. Go to **Outputs** tab
+        5. Copy the **RoleArn** value (starts with `arn:aws:iam::`)
+        6. Paste back in Qovery and click **Save**
+
+        <Tip>
+        CloudFormation creates an IAM role that uses AWS STS for temporary credentials. More secure than static access keys.
+        </Tip>
+      </Tab>
+
+      <Tab title="Static Credentials">
+        **Alternative** - AWS Access Keys (manual rotation required every 90 days).
+
+        1. In AWS IAM Console, go to **Users** → **Create user**
+        2. User name: `qovery-admin`
+        3. Select **Attach policies directly** → Choose **AdministratorAccess**
+        4. Click **Create user**
+        5. Open user → **Security credentials** → **Create access key**
+        6. Select **Third-party service** → **Create access key**
+        7. Copy **Access Key ID** and **Secret Access Key**
+        8. In Qovery, select **Static Credentials**
+        9. Paste your keys and click **Save**
+
+        <Warning>
+        Static credentials require manual rotation every 90 days. STS Assume Role recommended for production environments.
+        </Warning>
+      </Tab>
+    </Tabs>
+
+    For detailed instructions with policy information, see [AWS Installation Guide](/installation/aws#connect-aws-account).
+  </Step>
+
+  <Step title="Select Instance Types">
+    **Select ALL instance types** you want Karpenter to choose from:
+
+    Recommended selections:
+    - ✅ **t3.medium** (2 vCPU, 4GB)
+    - ✅ **t3.large** (2 vCPU, 8GB)
+    - ✅ **t3.xlarge** (4 vCPU, 16GB)
+    - ✅ **t3.2xlarge** (8 vCPU, 32GB)
+    - ✅ **m5.large** (2 vCPU, 8GB)
+    - ✅ **m5.xlarge** (4 vCPU, 16GB)
+    - ✅ **m6i.large** (2 vCPU, 8GB)
+    - ✅ **m6i.xlarge** (4 vCPU, 16GB)
+
+    <Info>
+    Karpenter will automatically select the **best instance type** from your list based on:
+    - Current workload requirements
+    - Spot instance availability
+    - Cost optimization
+
+    More instance types = better optimization and availability!
+    </Info>
+
+    <Tip>
+    Enable **spot instances** for 60-90% cost savings. Karpenter automatically falls back to on-demand if spot is unavailable.
+    </Tip>
+  </Step>
+
+  <Step title="Create">
+    Click **Create and Deploy** - your cluster will be ready in 20-30 minutes!
+  </Step>
+</Steps>
+
+<Card title="Need detailed instructions?" icon="book" href="/configuration/integrations/kubernetes/eks/overview">
+  See the complete AWS installation guide with screenshots and troubleshooting
+</Card>
+
+## What Qovery Creates
+
+- ✅ **EKS Cluster** - Latest stable Kubernetes
+- ✅ **VPC & Networking** - Public/private subnets across 3 AZs
+- ✅ **NAT Gateways** - Secure internet access
+- ✅ **Security Groups & IAM Roles** - Pre-configured best practices
+- ✅ **Karpenter** - Intelligent auto-scaling (save up to 60% on costs)
+- ✅ **AWS Load Balancer Controller** - Automatic ingress management
+- ✅ **EBS CSI Driver** - Persistent volume support
+- ✅ **Metrics Server** - Resource monitoring
+- ✅ **Qovery Agent** - Observability and management
+
+### Karpenter Auto-Scaling
+
+Qovery uses [Karpenter](https://karpenter.sh/) to automatically provision optimal EC2 instances:
+
+- Scales nodes within seconds based on workload demands
+- Consolidates workloads to reduce costs
+- Handles spot instance interruptions gracefully
+- Supports wide range of instance types (t3, m5, m6i, c5, r5, GPU)
+- Mix of on-demand and spot instances for reliability
+
+<Tip>
+Configure Karpenter node pools and instance types in **Cluster Settings** after creation. Learn more in [Cluster Configuration](/configuration/clusters).
+</Tip>
+
+## Configuration Options
+
+### Cluster Settings
+
+**Instance Types**:
+- General Purpose: t3, m5, m6i, m6g (Graviton)
+- Compute Optimized: c5, c6i, c6g (Graviton)
+- Memory Optimized: r5, r6i, r6g (Graviton)
+- GPU Instances: g4dn, g5, p3, p4 (for AI/ML workloads)
+
+**Auto-Scaling**:
+- Min nodes: 1
+- Max nodes: 100
+- Karpenter automatically provisions optimal instances
+
+**Spot Instances**:
+- Enable Spot instances for cost savings (60-90% off)
+- Qovery handles interruptions gracefully
+- Mix of Spot and On-Demand for reliability
+
+### GPU Support
+
+Karpenter clusters support GPU-enabled instances for AI/ML workloads, scientific computing, and graphics-intensive applications.
+
+**Available GPU Instance Types**:
+
+| Instance Type | GPU | vCPU | Memory | Use Case |
+|--------------|-----|------|--------|----------|
+| g4dn.xlarge | 1x NVIDIA T4 | 4 | 16 GB | ML inference, video processing |
+| g4dn.2xlarge | 1x NVIDIA T4 | 8 | 32 GB | ML training, rendering |
+| g5.xlarge | 1x NVIDIA A10G | 4 | 16 GB | High-performance ML inference |
+| g5.2xlarge | 1x NVIDIA A10G | 8 | 32 GB | ML training, graphics workloads |
+| p3.2xlarge | 1x NVIDIA V100 | 8 | 61 GB | Deep learning training |
+| p4d.24xlarge | 8x NVIDIA A100 | 96 | 1152 GB | Large-scale ML training |
+
+**Setup Steps**:
+
+<Steps>
+  <Step title="Include GPU Instance Types">
+    When creating your cluster, select GPU instance types (g4dn, g5, p3, p4) in addition to your standard instances.
+  </Step>
+
+  <Step title="Configure Application">
+    In your application settings, configure the GPU resource requirement:
+
+    ```yaml
+    resources:
+      gpu: 1  # Number of GPUs needed
+    ```
+
+    See [Application GPU Configuration](/configuration/application#gpu-configuration) for details.
+  </Step>
+
+  <Step title="Karpenter Auto-Provisioning">
+    Karpenter will automatically provision GPU instances when your application requests GPU resources, and deprovision them when not needed.
+  </Step>
+</Steps>
+
+<Info>
+**GPU Instance Costs**: GPU instances are significantly more expensive than standard instances. Ensure your workload actually utilizes GPU acceleration before enabling.
+
+**Example Pricing** (us-east-1):
+- g4dn.xlarge: ~$0.526/hour
+- g5.xlarge: ~$1.006/hour
+- p3.2xlarge: ~$3.06/hour
+</Info>
+
+<Tip>
+Use Spot instances for GPU workloads to save 60-90% on costs. Karpenter handles spot interruptions gracefully, making them suitable for batch processing and training workloads.
+</Tip>
+
+### Network Settings
+
+**VPC Configuration**:
+- CIDR: /16 (65,536 IPs)
+- 3 public subnets (load balancers)
+- 3 private subnets (pods)
+- NAT Gateways per AZ
+
+**Access**:
+- Public endpoint (default)
+- Private endpoint (enterprise feature)
+- VPN access for private endpoints
+
+For detailed AWS installation guide, see [AWS Installation](/installation/aws).

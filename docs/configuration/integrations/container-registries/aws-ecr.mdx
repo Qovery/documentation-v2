@@ -1,0 +1,85 @@
+---
+title: "AWS ECR"
+description: "Connect Amazon Elastic Container Registry with Qovery"
+---
+
+## Overview
+
+Amazon Elastic Container Registry (ECR) is a fully managed container registry that makes it easy to store, manage, share, and deploy your container images.
+
+## Automatic Registry
+
+When you create a cluster on AWS, Qovery automatically creates a container registry (named `registry-{UUID}`) that is used to manage the deployment of your applications by mirroring Docker images.
+
+The credentials configured on this automatic registry are the ones used to create the cluster, but you can update them if you prefer to manage them separately.
+
+## Adding Your Own ECR Registry
+
+To connect your own AWS ECR repository to Qovery:
+
+### Required Information
+
+<Steps>
+  <Step title="Registry URL">
+    Format: `https://<aws_account_id>.dkr.ecr.<region>.amazonaws.com`
+
+    Example: `https://123456789012.dkr.ecr.us-east-1.amazonaws.com`
+  </Step>
+
+  <Step title="Region">
+    Your ECR repository region (e.g., `us-east-1`, `eu-west-1`)
+  </Step>
+
+  <Step title="Access Credentials">
+    - AWS Access Key ID
+    - AWS Secret Access Key
+  </Step>
+</Steps>
+
+### Configuration in Qovery
+
+<Steps>
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries**
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
+  </Step>
+
+  <Step title="Select ECR">
+    Choose **ECR** from the registry type dropdown
+  </Step>
+
+  <Step title="Enter Details">
+    Provide:
+    - Registry URL
+    - Region
+    - Access Key ID
+    - Secret Access Key
+  </Step>
+
+  <Step title="Save">
+    Qovery will verify the credentials and save the configuration
+  </Step>
+</Steps>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="AWS EKS Setup" icon="aws" href="/configuration/integrations/kubernetes/eks/overview">
+    Set up AWS EKS cluster with Qovery
+  </Card>
+
+  <Card title="AWS Credentials" icon="key" href="/configuration/organization/cloud-credentials">
+    Manage AWS credentials
+  </Card>
+</CardGroup>

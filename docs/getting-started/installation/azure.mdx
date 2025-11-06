@@ -1,0 +1,491 @@
+---
+title: "Install Qovery on Azure"
+description: "Complete guide to installing Qovery on Microsoft Azure with AKS"
+---
+
+Install Qovery on your Azure account and deploy a fully managed Kubernetes cluster (AKS) in less than 20 minutes.
+
+## Overview
+
+Qovery simplifies Azure Kubernetes Service (AKS) management by:
+- Automating cluster creation and configuration
+- Managing networking, load balancers, and DNS
+- Providing built-in monitoring and logging
+- Handling rolling updates and scaling
+- Securing your infrastructure with best practices
+
+<CardGroup cols={2}>
+  <Card title="Fully Managed" icon="wand-magic-sparkles">
+    Qovery creates and manages your AKS cluster automatically
+  </Card>
+  <Card title="Production Ready" icon="shield-check">
+    Best practices for security, networking, and reliability
+  </Card>
+  <Card title="Auto-Scaling" icon="arrows-maximize">
+    Automatic node scaling based on workload
+  </Card>
+  <Card title="Multi-Region" icon="globe">
+    Deploy across Azure regions worldwide
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+<Check>**Azure Account**: Active Azure subscription with admin access</Check>
+<Check>**Azure Tenant**: Access to an Azure Active Directory tenant</Check>
+<Check>**Qovery Account**: Free account at [console.qovery.com](https://console.qovery.com/signup)</Check>
+<Check>**Permissions**: Ability to create service principals and assign roles</Check>
+
+### Required Azure Permissions
+
+Your Azure account needs these permissions:
+- Create and manage AKS clusters
+- Create service principals
+- Assign contributor role
+- Manage virtual networks
+- Create resource groups
+
+## Step 1: Create Azure Credentials
+
+Qovery needs credentials to manage resources in your Azure subscription. We use a secure service principal approach that avoids storing long-lived credentials.
+
+### Get Your Azure IDs
+
+<Steps>
+  <Step title="Find Tenant ID">
+    1. Go to [Azure Portal](https://portal.azure.com)
+    2. Navigate to **Azure Active Directory**
+    3. Click **Overview** in the left sidebar
+    4. Copy your **Tenant ID** (also called Directory ID)
+
+    You can also find it directly at: [portal.azure.com/#view/Microsoft_AAD_IAM/TenantProperties.ReactView](https://portal.azure.com/#view/Microsoft_AAD_IAM/TenantProperties.ReactView)
+
+    <Tip>
+    The Tenant ID is a GUID that looks like: `12345678-1234-1234-1234-123456789abc`
+    </Tip>
+  </Step>
+
+  <Step title="Find Subscription ID">
+    1. In Azure Portal, go to **Subscriptions**
+    2. Click on the subscription you want to use
+    3. Copy the **Subscription ID** from the overview page
+
+    You can also find it at: [portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBlade](https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBlade)
+
+    <Warning>
+    Make sure the subscription is **active** and has billing enabled. Qovery cannot create resources in disabled subscriptions.
+    </Warning>
+  </Step>
+</Steps>
+
+### Generate Installation Command
+
+<Steps>
+  <Step title="Start Cluster Creation">
+    1. Go to [Qovery Console](https://console.qovery.com)
+    2. Click **Clusters** in the left sidebar
+    3. Click **Create Cluster**
+    4. Select **Azure** as the cloud provider
+  </Step>
+
+  <Step title="Enter Azure Details">
+    1. Enter your **Tenant ID**
+    2. Enter your **Subscription ID**
+    3. Click **Next**
+
+    Qovery will generate a secure installation command for you.
+  </Step>
+
+  <Step title="Copy the Command">
+    Copy the generated command to your clipboard.
+
+    <Info>
+    This command creates a service principal using Azure's app registration. It's completely secure and you can inspect the script at: [hub.qovery.com/files/create_credentials_azure.sh](https://hub.qovery.com/files/create_credentials_azure.sh)
+    </Info>
+  </Step>
+</Steps>
+
+### Run Installation Script
+
+<Steps>
+  <Step title="Open Azure Cloud Shell">
+    1. In Azure Portal, click the **Cloud Shell** icon (>_) in the top navigation bar
+    2. **Important**: Select **Bash** mode (not PowerShell)
+
+    ![Azure Cloud Shell](/images/azure-credentials/azure_shell_1.png)
+
+    <Warning>
+    The script must run in **Bash mode**. If you're in PowerShell, click the dropdown and switch to Bash.
+    </Warning>
+  </Step>
+
+  <Step title="Run the Command">
+    1. Paste the command from Qovery into Azure Cloud Shell
+    2. Press **Enter**
+    3. Review the subscription details displayed
+    4. The script will create a service principal and assign necessary permissions
+
+    **Example output:**
+    ```bash
+    Creating service principal for Qovery...
+    Service principal created successfully!
+    Assigning Contributor role...
+    ✓ Credentials configured successfully
+
+    Subscription ID: 12345678-1234-1234-1234-123456789abc
+    Tenant ID: 87654321-4321-4321-4321-cba987654321
+    ```
+  </Step>
+
+  <Step title="Verify in Qovery">
+    The credentials are automatically linked to your Qovery organization.
+
+    <Tip>
+    If you have multiple subscriptions, you can specify which one to use by passing it as a parameter to the script.
+    </Tip>
+  </Step>
+</Steps>
+
+<Info>
+**Source**: Content above is maintained in `/snippets/azure-credentials.mdx`. Update snippet first, then copy to all usage locations.
+</Info>
+
+## Step 2: Configure Your Cluster
+
+Now configure your AKS cluster settings in the Qovery console.
+
+### Basic Configuration
+
+<Steps>
+  <Step title="Cluster Name">
+    Choose a descriptive name for your cluster:
+    - `production-aks`
+    - `staging-azure`
+    - `dev-aks-eastus`
+
+    <Tip>
+    Use naming conventions that indicate environment and region for easier management.
+    </Tip>
+  </Step>
+
+  <Step title="Select Region">
+    Choose an Azure region closest to your users:
+
+    **North America:**
+    - `eastus` - East US (Virginia)
+    - `eastus2` - East US 2 (Virginia)
+    - `westus2` - West US 2 (Washington)
+    - `centralus` - Central US (Iowa)
+
+    **Europe:**
+    - `westeurope` - West Europe (Netherlands)
+    - `northeurope` - North Europe (Ireland)
+    - `uksouth` - UK South (London)
+    - `francecentral` - France Central (Paris)
+
+    **Asia Pacific:**
+    - `southeastasia` - Southeast Asia (Singapore)
+    - `eastasia` - East Asia (Hong Kong)
+    - `japaneast` - Japan East (Tokyo)
+    - `australiaeast` - Australia East (Sydney)
+
+    <Info>
+    Choose a region that complies with your data residency requirements.
+    </Info>
+  </Step>
+
+  <Step title="Attach Credentials">
+    Select the Azure credentials you created in Step 1.
+
+    If you need to create new credentials, click **Add new credentials** and repeat Step 1.
+  </Step>
+</Steps>
+
+### Node Pool Configuration
+
+Configure the VM sizes for your AKS node pools:
+
+<Accordion title="VM Size Recommendations">
+  **Development/Testing:**
+  - `Standard_B2s` (2 vCPU, 4GB RAM)
+  - `Standard_B2ms` (2 vCPU, 8GB RAM)
+
+  **General Purpose Production:**
+  - `Standard_D2s_v3` (2 vCPU, 8GB RAM)
+  - `Standard_D4s_v3` (4 vCPU, 16GB RAM)
+  - `Standard_D8s_v3` (8 vCPU, 32GB RAM)
+
+  **Compute Optimized:**
+  - `Standard_F2s_v2` (2 vCPU, 4GB RAM)
+  - `Standard_F4s_v2` (4 vCPU, 8GB RAM)
+
+  **Memory Optimized:**
+  - `Standard_E2s_v3` (2 vCPU, 16GB RAM)
+  - `Standard_E4s_v3` (4 vCPU, 32GB RAM)
+
+  <Tip>
+  Select **multiple VM sizes** to give the cluster autoscaler flexibility in choosing the most cost-effective options.
+  </Tip>
+</Accordion>
+
+**Example Configuration:**
+```yaml
+Node Pool Settings:
+  - Standard_B2s (2 vCPU, 4GB) - Development workloads
+  - Standard_D2s_v3 (2 vCPU, 8GB) - General purpose
+  - Standard_D4s_v3 (4 vCPU, 16GB) - Larger workloads
+  - Standard_F4s_v2 (4 vCPU, 8GB) - CPU-intensive tasks
+```
+
+### Networking Configuration
+
+Qovery automatically configures Azure networking:
+
+**What's Created:**
+- Virtual Network (VNet) with CIDR `10.0.0.0/16`
+- Public subnet for load balancers
+- Private subnets for nodes
+- NAT Gateway for outbound internet access
+- Network Security Groups (NSGs)
+- Azure Load Balancer for ingress
+
+<Accordion title="Advanced Networking Options">
+  **VNet Peering:**
+  Configure VNet peering to connect to existing Azure resources (databases, storage, etc.).
+
+  **Custom CIDR:**
+  Change the default VNet CIDR if it conflicts with your existing networks.
+
+  **Private Cluster:**
+  Enable private cluster mode to remove public API endpoints (requires VPN or ExpressRoute).
+</Accordion>
+
+## Step 3: Deploy Your Cluster
+
+<Steps>
+  <Step title="Review Configuration">
+    Review all your cluster settings:
+    - Cluster name
+    - Region
+    - VM sizes
+    - Networking options
+  </Step>
+
+  <Step title="Create and Deploy">
+    Click **Create and Deploy**
+
+    <Info>
+    You can start configuring applications immediately! The cluster will be available once deployment completes.
+    </Info>
+  </Step>
+
+  <Step title="Monitor Progress">
+    Watch the deployment progress in the Qovery console.
+
+    **Timeline:**
+    - **0-5 min**: Creating Azure resources (Resource Group, VNet, NSGs)
+    - **5-10 min**: Provisioning AKS control plane
+    - **10-15 min**: Creating node pools
+    - **15-20 min**: Installing Qovery components (ingress, monitoring, etc.)
+
+    **Status indicators:**
+    - 🟡 **Creating**: Infrastructure provisioning in progress
+    - 🟢 **Running**: Cluster is ready to use
+    - 🔴 **Error**: Check logs for troubleshooting
+  </Step>
+
+  <Step title="Verify Installation">
+    Once complete, your cluster will appear in the cluster list with status **Running**.
+
+    ![Azure Cluster Running](/images/install-qovery/common/list-azure-clusters.png)
+  </Step>
+</Steps>
+
+## What Gets Created
+
+Qovery automatically provisions these Azure resources:
+
+<AccordionGroup>
+  <Accordion title="Core Infrastructure">
+    - **Resource Group**: Dedicated group for all cluster resources
+    - **AKS Cluster**: Managed Kubernetes cluster
+    - **Virtual Network**: Isolated network for your cluster
+    - **Subnets**: Public and private subnets
+    - **NAT Gateway**: Outbound internet connectivity
+    - **Network Security Groups**: Firewall rules
+  </Accordion>
+
+  <Accordion title="Networking">
+    - **Azure Load Balancer**: Layer 4 load balancing
+    - **Application Gateway** (optional): Layer 7 load balancing
+    - **Public IP Addresses**: For ingress traffic
+    - **Private DNS Zone**: Internal service discovery
+  </Accordion>
+
+  <Accordion title="Compute">
+    - **Virtual Machine Scale Sets**: Auto-scaling node pools
+    - **Managed Disks**: Persistent storage for nodes
+    - **System Node Pool**: Kubernetes system components
+    - **User Node Pools**: Your application workloads
+  </Accordion>
+
+  <Accordion title="Qovery Components">
+    - **NGINX Ingress Controller**: HTTP/HTTPS routing
+    - **Cert-Manager**: Automatic SSL/TLS certificates
+    - **Qovery Agent**: Cluster management
+    - **Monitoring Stack**: Metrics and logging
+    - **DNS Management**: Automatic domain configuration
+  </Accordion>
+</AccordionGroup>
+
+## Post-Installation Steps
+
+Once your cluster is running:
+
+<Steps>
+  <Step title="Deploy Your First Application">
+    Follow the [Deploy Your First App](/guides/getting-started/deploy-your-first-application) guide
+  </Step>
+
+  <Step title="Configure Custom Domain">
+    Set up your own domain instead of the default Qovery domain
+  </Step>
+
+  <Step title="Set Up Monitoring">
+    Configure [Azure Monitor](/integrations/observability/overview) or [Datadog](/integrations/observability/datadog)
+  </Step>
+
+  <Step title="Configure Backups">
+    Set up backup policies for persistent data
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Credential Creation Failed">
+    **Error**: "Failed to create service principal"
+
+    **Solutions:**
+    - Verify you have permissions to create service principals
+    - Check that your Azure subscription is active
+    - Ensure you're using Bash mode (not PowerShell) in Cloud Shell
+    - Verify Tenant ID and Subscription ID are correct
+  </Accordion>
+
+  <Accordion title="Cluster Creation Stuck">
+    **Issue**: Cluster stuck in "Creating" state for over 30 minutes
+
+    **Solutions:**
+    - Check Azure quotas for your subscription (vCPUs, Public IPs)
+    - Verify the selected region has capacity
+    - Check Azure status page for outages
+    - Contact Qovery support if issue persists
+  </Accordion>
+
+  <Accordion title="Insufficient Quota">
+    **Error**: "Quota exceeded for resource"
+
+    **Solutions:**
+    1. Check your Azure quotas: [portal.azure.com/#view/Microsoft_Azure_Capacity/QuotaMenuBlade](https://portal.azure.com/#view/Microsoft_Azure_Capacity/QuotaMenuBlade)
+    2. Request quota increase through Azure Portal
+    3. Choose a different VM size or region
+    4. Reduce the number of nodes
+
+    **Common quota limits:**
+    - Total Regional vCPUs
+    - VM family specific vCPUs (D-series, F-series, etc.)
+    - Public IP addresses
+    - Load balancers
+  </Accordion>
+
+  <Accordion title="Network Configuration Issues">
+    **Issue**: Applications can't access external services
+
+    **Solutions:**
+    - Verify NAT Gateway is properly configured
+    - Check Network Security Group rules
+    - Ensure subnet routing tables are correct
+    - Test connectivity from a pod: `kubectl run -it debug --image=nicolaka/netshoot --rm`
+  </Accordion>
+</AccordionGroup>
+
+## Advanced Configuration
+
+### Private Cluster Mode
+
+For enhanced security, enable private cluster mode:
+
+<Warning>
+Private clusters require VPN or ExpressRoute to access the Kubernetes API. Plan your network connectivity before enabling.
+</Warning>
+
+### VNet Peering
+
+Connect your AKS cluster to existing Azure resources:
+
+1. Create VNet peering from Qovery VNet to your VNet
+2. Configure route tables
+3. Update Network Security Groups
+4. Test connectivity
+
+### Custom DNS
+
+Use your own DNS servers:
+
+1. Configure custom DNS in VNet settings
+2. Update CoreDNS configuration
+3. Test name resolution
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Right-Size VMs" icon="gauge">
+    Start with smaller VMs and scale up based on actual usage patterns
+  </Card>
+
+  <Card title="Enable Monitoring" icon="chart-line">
+    Configure Azure Monitor or third-party monitoring from day one
+  </Card>
+
+  <Card title="Implement RBAC" icon="shield">
+    Use Azure AD integration and Kubernetes RBAC for access control
+  </Card>
+
+  <Card title="Regular Updates" icon="arrows-rotate">
+    Keep your AKS cluster updated with the latest Kubernetes versions
+  </Card>
+
+  <Card title="Backup Strategy" icon="floppy-disk">
+    Implement automated backups for persistent data and configurations
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy Your First App" icon="rocket" href="/getting-started/guides/getting-started/deploy-your-first-application">
+    Complete step-by-step deployment guide
+  </Card>
+
+  <Card title="Configure RBAC" icon="users" href="/configuration/organization/members-rbac">
+    Set up team access control
+  </Card>
+
+  <Card title="Set Up CI/CD" icon="code-branch" href="/configuration/integrations/ci-cd/github-actions">
+    Automate deployments with GitHub Actions or Azure DevOps
+  </Card>
+
+  <Card title="Monitor Your Cluster" icon="chart-line" href="/configuration/integrations/observability/qovery-observe">
+    Configure monitoring and alerting
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+- [Azure AKS Documentation](https://docs.microsoft.com/en-us/azure/aks/)
+- [Azure Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/)
+- [Qovery Status Page](https://status.qovery.com)
+- [Qovery Community Forum](https://discuss.qovery.com)

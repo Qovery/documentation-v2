@@ -1,0 +1,226 @@
+---
+title: "Get Started with Qovery"
+description: "Deploy your first app in 15 minutes. No Kubernetes knowledge required."
+mode: "wide"
+---
+
+<Info>
+**New to Qovery?** Start by choosing your use case below. We'll guide you through creating a cluster (the prerequisite) and then walk you through the complete setup for your specific scenario.
+</Info>
+
+## Choose Your Use Case
+
+Select the scenario that best matches your needs:
+
+<CardGroup cols={2}>
+  <Card title="Test & Learn Locally" icon="flask" href="/getting-started/quickstart/docker-desktop">
+    **Explore Qovery without cloud costs**
+
+    Perfect for:
+    - **First-time users** exploring the platform
+    - **Local development** and testing
+    - **Learning** Qovery features risk-free
+    - **Proof of concepts** before production
+
+    What you get:
+    - Free local k3s cluster on your laptop
+    - Full Qovery feature access
+    - No cloud account or credit card needed
+
+    **Time:** ~15 minutes | **Cost:** Free
+
+    → **Path: Docker Desktop**
+  </Card>
+
+  <Card title="Production SaaS & Web Apps" icon="rocket" href="/getting-started/guides/use-cases/production-environment-management">
+    **Deploy scalable applications to production**
+
+    Perfect for:
+    - **SaaS platforms** with multi-tenant architecture
+    - **Web applications** needing auto-scaling
+    - **API services** (REST, GraphQL, gRPC)
+    - **Microservices** architectures
+
+    **Your journey:**
+    1. Create a managed cluster (AWS/GCP/Azure/Scaleway) - ~30 min
+    2. Follow the complete production setup guide
+    3. Deploy your first application with auto-scaling & monitoring
+
+    **Time:** ~45 minutes total | **Expertise:** None required
+
+    → **Complete Guide Available**
+  </Card>
+
+  <Card title="Preview & Ephemeral Environments" icon="code-branch" href="/getting-started/guides/use-cases/ephemeral-environment">
+    **Temporary environments for every pull request**
+
+    Perfect for:
+    - **Preview environments** for each PR/branch
+    - **QA testing** with isolated environments
+    - **Feature testing** before merging to main
+    - **Demo environments** for stakeholders
+
+    **Your journey:**
+    1. Create a managed cluster (AWS/GCP/Azure/Scaleway) - ~30 min
+    2. Follow the ephemeral environment setup guide
+    3. Enable auto-preview for automatic PR environments
+
+    **Time:** ~45 minutes setup | **Per PR:** Automatic
+
+    → **Complete Guide Available**
+  </Card>
+
+  <Card title="Enterprise with Custom Requirements" icon="building" href="/getting-started/installation/kubernetes">
+    **Full control over infrastructure**
+
+    Perfect for:
+    - **Existing Kubernetes clusters** to connect
+    - **Compliance requirements** (HIPAA, PCI-DSS, custom)
+    - **On-premise or hybrid** infrastructure
+    - **Custom networking** and security configs
+
+    **Your journey:**
+    1. Prepare your existing Kubernetes cluster (or create one)
+    2. Follow the BYOK integration guide
+    3. Connect Qovery to your cluster with full control
+
+    **Time:** ~20 minutes | **Control:** Complete
+
+    → **Bring Your Own Cluster (BYOK)**
+  </Card>
+</CardGroup>
+
+---
+
+## Detailed Use Case Comparison
+
+<AccordionGroup>
+  <Accordion title="Testing & Learning" icon="flask">
+    **Use Case: Local Development & Exploration**
+
+    **Best for:**
+    - Developers new to Qovery wanting to explore features
+    - Teams evaluating Qovery for adoption
+    - Students and learners practicing DevOps
+    - Building POCs before cloud deployment
+
+    **What you can do:**
+    - Deploy apps, databases, and jobs locally
+    - Test GitOps workflows with GitHub/GitLab
+    - Practice Qovery CLI and Console
+    - Experiment with environment configurations
+    - Learn Kubernetes concepts without cloud costs
+
+    **Limitations:**
+    - Runs on laptop (limited resources)
+    - Not for production workloads
+    - Single-node cluster
+
+    **Path:** Docker Desktop | **Time:** 15 min | **Cost:** Free
+  </Accordion>
+
+  <Accordion title="Production Applications" icon="rocket">
+    **Use Case: SaaS, Web Apps, APIs, Microservices**
+
+    **Best for:**
+    - SaaS platforms with paying customers
+    - High-traffic web applications
+    - RESTful/GraphQL/gRPC APIs
+    - Microservices architectures
+    - Production workloads requiring 99.9% uptime
+
+    **Complete Journey:**
+
+    **Step 1: Create Your Cluster (Prerequisite)**
+    - Choose your cloud provider (AWS/GCP/Azure/Scaleway)
+    - Qovery provisions managed Kubernetes for you
+    - Multi-AZ for high availability
+    - Time: ~30 minutes
+
+    **Step 2: Follow the Production Guide**
+    - Deploy Node.js, Python, Go, Java, PHP, Ruby, .NET apps
+    - Set up auto-scaling based on traffic
+    - Configure managed databases with automatic backups
+    - Add custom domains with automatic SSL
+    - Enable zero-downtime deployments
+    - Set up monitoring (Datadog or Qovery Observe)
+
+    [→ View Complete Production Guide](/guides/use-cases/production-environment-management)
+  </Accordion>
+
+  <Accordion title="Preview & Ephemeral Environments" icon="code-branch">
+    **Use Case: Temporary Environments for Testing & Review**
+
+    **Best for:**
+    - Preview environments for every pull request
+    - QA teams testing features in isolation
+    - Product managers reviewing features before release
+    - Stakeholder demos without affecting production
+    - Short-lived environments for testing
+
+    **Complete Journey:**
+
+    **Step 1: Create Your Cluster (Prerequisite)**
+    - Choose your cloud provider (AWS/GCP/Azure/Scaleway)
+    - Qovery sets up the infrastructure
+    - Time: ~30 minutes
+
+    **Step 2: Follow the Ephemeral Environment Guide**
+    - Enable auto-preview environments
+    - Configure automatic PR environment creation
+    - Set up full-stack previews (app + database)
+    - Configure automatic cleanup on PR close
+    - Share unique URLs with your team
+    - Cost-effective: only pay when environments are active
+
+    **How it works after setup:**
+    1. Open pull request in GitHub/GitLab
+    2. Qovery auto-creates preview environment
+    3. Get unique URL to access (e.g., `pr-123.preview.example.com`)
+    4. Test, review, and iterate
+    5. Merge PR → Environment auto-deleted
+
+    [→ View Complete Ephemeral Environment Guide](/guides/use-cases/ephemeral-environment)
+  </Accordion>
+
+  <Accordion title="Enterprise & Custom Requirements" icon="building">
+    **Use Case: Existing Clusters, Compliance, On-Premise**
+
+    **Best for:**
+    - Organizations with existing Kubernetes clusters
+    - Regulated industries (Healthcare, Finance, Government)
+    - Companies with strict compliance (HIPAA, PCI-DSS, SOC2)
+    - On-premise or air-gapped environments
+    - Hybrid cloud architectures
+    - Teams with dedicated platform/SRE engineers
+
+    **Complete Journey:**
+
+    **Step 1: Prepare Your Cluster (Prerequisite)**
+    - Use your existing Kubernetes 1.24+ cluster, OR
+    - Create a new cluster on any platform (AWS, GCP, Azure, DigitalOcean, OVH, Civo, on-premise)
+    - Ensure kubectl access and proper permissions
+    - Time: Depends on your setup
+
+    **Step 2: Follow the BYOK Integration Guide**
+    - Install Qovery agent on your cluster
+    - Configure custom networking and security policies
+    - Set up your monitoring and logging
+    - Define autoscaling rules
+    - Maintain complete control over infrastructure
+
+    **You manage:**
+    - Kubernetes cluster provisioning and upgrades
+    - Infrastructure security and networking
+    - Backup and disaster recovery
+
+    **Qovery provides:**
+    - Developer-friendly UI and CLI
+    - GitOps workflows and CI/CD
+    - Environment management
+    - Application deployment and monitoring
+
+    [→ View BYOK Integration Guide](/installation/kubernetes)
+  </Accordion>
+</AccordionGroup>
+

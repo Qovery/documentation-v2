@@ -1,0 +1,446 @@
+---
+title: "AWS EKS Integration"
+description: "Deploy on Amazon Elastic Kubernetes Service with Qovery"
+---
+
+## Overview
+
+Qovery integrates with Amazon Elastic Kubernetes Service (EKS) to provide managed Kubernetes deployments on AWS. Choose between **Qovery-managed EKS** (fully automated) or **BYOK** (bring your existing EKS cluster).
+
+## Deployment Options
+
+<CardGroup cols={2}>
+  <Card title="Qovery-Managed EKS" icon="wand-magic-sparkles" href="/configuration/integrations/kubernetes/eks/managed">
+    **Zero Configuration**
+
+    Qovery creates and manages your EKS cluster in your AWS account. Automated setup, updates, and scaling.
+
+    ✅ Full automation
+    ✅ 15-30 minute setup
+    ✅ Best practices built-in
+    ✅ Auto-scaling with Karpenter
+    ✅ Spot instance support
+    ✅ Graviton (ARM) support
+  </Card>
+
+  <Card title="Bring Your Own EKS (BYOK)" icon="server" href="/configuration/integrations/kubernetes/eks/byok">
+    **Full Control**
+
+    Connect your existing EKS cluster to Qovery. You manage the cluster, Qovery manages deployments.
+
+    ✅ Use existing clusters
+    ✅ Custom configurations
+    ✅ Compliance requirements
+    ✅ Multi-tenant setups
+    ✅ Your cluster upgrade schedule
+  </Card>
+</CardGroup>
+
+## Features
+
+<Tabs>
+  <Tab title="Qovery-Managed">
+    **What Qovery Creates**:
+    - EKS cluster (latest stable version)
+    - VPC with public/private subnets
+    - NAT Gateways for outbound traffic
+    - Security groups and network ACLs
+    - IAM roles and policies
+    - Karpenter for auto-scaling
+    - AWS Load Balancer Controller
+    - EBS CSI driver for volumes
+    - Cluster autoscaler
+    - Metrics server
+
+    **Auto-Scaling**:
+    - Karpenter for intelligent node provisioning
+    - Supports On-Demand and Spot instances
+    - Automatically right-sizes nodes
+    - Fast scale-up (< 1 minute)
+    - Cost-optimized instance selection
+
+    **Networking**:
+    - VPC with /16 CIDR
+    - Public subnets for load balancers
+    - Private subnets for pods
+    - NAT Gateways for internet access
+    - VPC endpoints for AWS services
+    - Network policies support
+
+    **Security**:
+    - Private EKS endpoint option
+    - Encryption at rest (EBS volumes)
+    - Secrets encryption with KMS
+    - IAM for service accounts (IRSA)
+    - Pod security policies
+    - Network policies
+  </Tab>
+
+  <Tab title="BYOK">
+    **Requirements**:
+    - EKS cluster (Kubernetes 1.24+)
+    - kubectl admin access
+    - AWS credentials with appropriate permissions
+    - Load Balancer support
+    - EBS CSI driver (for volumes)
+    - Metrics server
+
+    **What Qovery Installs**:
+    - Qovery agent (manages deployments)
+    - Nginx Ingress Controller (if not present)
+    - Cert-manager (for SSL certificates)
+    - External-DNS (for domain management)
+
+    **Networking**:
+    - Your VPC and subnets
+    - Your security groups
+    - Your load balancers
+    - Your internet gateway/NAT
+
+    **Permissions**:
+    Qovery needs permissions to:
+    - Deploy applications
+    - Create load balancers
+    - Manage DNS records
+    - Create/manage secrets
+  </Tab>
+</Tabs>
+
+## Supported Configurations
+
+### Instance Types
+
+<Tabs>
+  <Tab title="General Purpose">
+    **T3/T3a** (Burstable):
+    - t3.medium, t3.large, t3.xlarge
+    - Best for: Development, staging
+    - Cost: $
+
+    **M5/M6i** (Balanced):
+    - m5.large, m5.xlarge, m5.2xlarge
+    - Best for: Production workloads
+    - Cost: $$
+
+    **M6g/M7g** (Graviton ARM):
+    - m6g.large, m6g.xlarge, m7g.large
+    - Best for: Cost-optimized production
+    - Cost: $$ (20% cheaper than Intel)
+  </Tab>
+
+  <Tab title="Compute Optimized">
+    **C5/C6i**:
+    - c5.large, c5.xlarge, c5.2xlarge
+    - Best for: CPU-intensive workloads
+    - Cost: $$
+
+    **C6g/C7g** (Graviton ARM):
+    - c6g.large, c6g.xlarge
+    - Best for: Cost-optimized compute
+    - Cost: $$ (20% cheaper)
+  </Tab>
+
+  <Tab title="Memory Optimized">
+    **R5/R6i**:
+    - r5.large, r5.xlarge, r5.2xlarge
+    - Best for: Memory-intensive workloads
+    - Cost: $$$
+
+    **R6g/R7g** (Graviton ARM):
+    - r6g.large, r6g.xlarge
+    - Best for: Cost-optimized memory
+    - Cost: $$$ (20% cheaper)
+  </Tab>
+
+  <Tab title="Spot Instances">
+    **All Types Available**:
+    - 60-90% discount vs On-Demand
+    - Can be interrupted with 2-min notice
+    - Best for: Stateless, fault-tolerant workloads
+
+    **Qovery Spot Support**:
+    - Automatic spot instance provisioning
+    - Graceful handling of interruptions
+    - Fallback to On-Demand when needed
+    - Mix of Spot and On-Demand nodes
+  </Tab>
+</Tabs>
+
+### Kubernetes Versions
+
+| Version | Status | Support End |
+|---------|--------|-------------|
+| **1.29** | ✅ Recommended | Jan 2025 |
+| **1.28** | ✅ Supported | Nov 2024 |
+| **1.27** | ✅ Supported | Jul 2024 |
+| **1.26** | ⚠️ End of life soon | May 2024 |
+| **1.25** | ❌ End of life | Feb 2024 |
+
+**Note**: Qovery automatically upgrades clusters to supported versions
+
+### Regions
+
+All AWS regions supported:
+- **US East**: us-east-1, us-east-2
+- **US West**: us-west-1, us-west-2
+- **Europe**: eu-west-1, eu-west-2, eu-west-3, eu-central-1, eu-north-1
+- **Asia Pacific**: ap-southeast-1, ap-southeast-2, ap-northeast-1, ap-northeast-2, ap-south-1
+- **Others**: ca-central-1, sa-east-1, af-south-1, me-south-1
+
+## Cost Breakdown
+
+### Qovery-Managed EKS
+
+**EKS Control Plane**: $0.10/hour (~$73/month)
+- Managed by AWS
+- Highly available across 3 AZs
+- Automatic version upgrades
+- Backed by AWS SLA
+
+**Worker Nodes** (Example: 3x m5.large):
+- Instance cost: $0.096/hour × 3 = $0.288/hour (~$210/month)
+- EBS volumes: ~$10/month
+- Data transfer: ~$10-50/month
+
+**Networking**:
+- NAT Gateway: $0.045/hour × 3 AZs = ~$100/month
+- Load Balancer: ~$20/month
+
+**Total Example**: ~$400-500/month for small production cluster
+
+**Cost Optimization**:
+- Use Spot instances (60-90% discount)
+- Use Graviton instances (20% cheaper)
+- Right-size instances with Karpenter
+- Use single NAT Gateway for dev/staging
+- Reserved instances for predictable workloads
+
+### BYOK
+
+**Your Costs**:
+- EKS control plane: ~$73/month
+- Worker nodes: Based on your configuration
+- Networking: Your VPC and load balancers
+- Storage: Your EBS volumes
+
+**Qovery Cost**:
+- Included in Qovery subscription
+- No additional cluster management fees
+
+## Setup Time
+
+| Step | Qovery-Managed | BYOK |
+|------|----------------|------|
+| **AWS Account Setup** | 5 minutes | N/A |
+| **Cluster Creation** | 20-30 minutes | Existing cluster |
+| **Qovery Agent Installation** | Automatic | 10 minutes |
+| **First Deployment** | 5 minutes | 5 minutes |
+| **Total** | ~40 minutes | ~15 minutes |
+
+## Security Features
+
+<AccordionGroup>
+  <Accordion title="Network Security" icon="network-wired">
+    **Private Clusters**:
+    - EKS endpoint in private subnets only
+    - No public access to Kubernetes API
+    - Access via VPN or AWS PrivateLink
+
+    **Network Policies**:
+    - Calico network policies
+    - Pod-to-pod traffic control
+    - Namespace isolation
+
+    **Security Groups**:
+    - Minimal required access
+    - Separate SGs for control plane and workers
+    - Locked down by default
+  </Accordion>
+
+  <Accordion title="IAM & Access Control" icon="key">
+    **IAM Roles for Service Accounts (IRSA)**:
+    - Fine-grained AWS permissions
+    - No shared credentials
+    - Automatic credential rotation
+
+    **RBAC**:
+    - Kubernetes RBAC enabled
+    - Namespace-level access control
+    - Integration with AWS IAM
+
+    **Audit Logging**:
+    - EKS control plane logging
+    - CloudWatch Logs integration
+    - API audit logs
+  </Accordion>
+
+  <Accordion title="Data Encryption" icon="lock">
+    **At Rest**:
+    - EBS volume encryption with KMS
+    - Secrets encryption with KMS
+    - Custom KMS keys supported
+
+    **In Transit**:
+    - TLS for all communication
+    - Pod-to-pod encryption option
+    - HTTPS load balancers
+
+    **Secrets Management**:
+    - Kubernetes secrets encryption
+    - AWS Secrets Manager integration
+    - External Secrets Operator support
+  </Accordion>
+
+  <Accordion title="Compliance" icon="shield-check">
+    **Certifications**:
+    - SOC 2
+    - ISO 27001
+    - HIPAA eligible
+    - PCI DSS
+
+    **Features**:
+    - Audit logs
+    - Encryption at rest and in transit
+    - Private clusters
+    - VPC isolation
+  </Accordion>
+</AccordionGroup>
+
+## Integrations
+
+### AWS Services
+
+<CardGroup cols={2}>
+  <Card title="RDS Databases" icon="database">
+    - Automatic RDS provisioning
+    - PostgreSQL, MySQL, MariaDB
+    - Multi-AZ for high availability
+    - Automated backups
+  </Card>
+
+  <Card title="S3 Storage" icon="box">
+    - Bucket creation and management
+    - IAM role for pod access
+    - Lifecycle policies
+    - Versioning and replication
+  </Card>
+
+  <Card title="Route 53 DNS" icon="globe">
+    - Automatic DNS record creation
+    - SSL certificate automation
+    - Health checks
+    - Failover routing
+  </Card>
+
+  <Card title="ECR Registry" icon="warehouse">
+    - Private container registry
+    - Image scanning
+    - Lifecycle policies
+    - Cross-region replication
+  </Card>
+</CardGroup>
+
+### Third-Party Tools
+
+- **Datadog**: Monitoring and APM
+- **External Secrets**: Secrets management
+- **Cert-Manager**: SSL certificates
+- **ArgoCD**: GitOps deployments
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="High Availability" icon="shield">
+    - Use multiple node pools
+    - Spread across 3+ AZs
+    - Mix of On-Demand and Spot
+    - Pod disruption budgets
+  </Card>
+
+  <Card title="Cost Optimization" icon="dollar-sign">
+    - Use Spot instances (60-90% off)
+    - Graviton instances (20% off)
+    - Auto-scaling with Karpenter
+    - Right-size node instances
+  </Card>
+
+  <Card title="Security" icon="lock">
+    - Private EKS endpoint
+    - Enable audit logging
+    - Use IRSA for pod permissions
+    - Network policies
+  </Card>
+
+  <Card title="Monitoring" icon="chart-line">
+    - Enable CloudWatch Container Insights
+    - Set up CloudWatch alarms
+    - Use Qovery Observe
+    - Consider Datadog for production
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Cluster Creation Failed">
+    **Common Issues**:
+    - AWS API rate limits
+    - Insufficient IAM permissions
+    - VPC CIDR conflicts
+    - Service quota limits
+
+    **Solutions**:
+    - Check AWS Service Quotas
+    - Verify IAM permissions
+    - Ensure no CIDR conflicts
+    - Contact AWS support for quota increases
+  </Accordion>
+
+  <Accordion title="Pods Not Starting">
+    **Common Issues**:
+    - Insufficient node capacity
+    - Image pull errors
+    - Resource limits too high
+    - Node not ready
+
+    **Solutions**:
+    - Check node autoscaling
+    - Verify ECR/registry access
+    - Review resource requests/limits
+    - Check node status with kubectl
+  </Accordion>
+
+  <Accordion title="High AWS Costs">
+    **Common Causes**:
+    - Multiple NAT Gateways
+    - Over-provisioned instances
+    - Only On-Demand instances
+    - High data transfer
+
+    **Solutions**:
+    - Use single NAT Gateway for dev/staging
+    - Enable Spot instances
+    - Right-size with Karpenter
+    - Use VPC endpoints for AWS services
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Qovery-Managed EKS Setup" icon="rocket" href="/configuration/integrations/kubernetes/eks/managed">
+    Set up automated EKS cluster
+  </Card>
+
+  <Card title="BYOK EKS Setup" icon="plug" href="/configuration/integrations/kubernetes/eks/byok">
+    Connect existing EKS cluster
+  </Card>
+
+  <Card title="AWS Installation Guide" icon="book" href="/configuration/integrations/kubernetes/eks/overview">
+    Detailed AWS installation guide
+  </Card>
+
+  <Card title="EKS Anywhere" icon="building" href="/configuration/integrations/kubernetes/eks-anywhere">
+    Deploy EKS on-premise
+  </Card>
+</CardGroup>

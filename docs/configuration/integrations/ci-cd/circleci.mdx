@@ -1,0 +1,137 @@
+---
+title: "CircleCI"
+description: "Deploy with CircleCI and Qovery CLI"
+---
+
+Deploy your applications with CircleCI using the Qovery CLI.
+
+## Prerequisites
+
+Before you can deploy your application with CircleCI, you need to:
+
+1. Install the [Qovery CLI](/cli/overview)
+2. Generate a [Qovery API token](/configuration/organization/api-token) (via CLI or Console)
+3. Set the environment variable `QOVERY_CLI_ACCESS_TOKEN` with your API token
+4. Disable [Qovery Auto Deployment](/configuration/deployment/auto-deploy) on the services you want to deploy manually
+
+## CircleCI Configuration
+
+Since CircleCI also provides a `.yaml` file to configure your pipeline, refer to [GitLab CI](/integrations/ci-cd/gitlab-ci) and [GitHub Actions](/integrations/ci-cd/github-actions) examples to learn how to configure your pipeline with Qovery.
+
+## Deploy a Single Application
+
+Use the Qovery CLI to deploy a single application:
+
+```bash
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --application "myapp" \
+  --commit-id <commit-id> \
+  --watch
+```
+
+## Deploy Multiple Applications
+
+### Different Applications with Different Commits
+
+```bash
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --application "app1" \
+  --commit-id <commit-id-1> \
+  --watch
+
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --application "app2" \
+  --commit-id <commit-id-2> \
+  --watch
+```
+
+### Multiple Applications with the Same Commit (Monorepo)
+
+```bash
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --applications "app1,app2,app3" \
+  --commit-id <commit-id> \
+  --watch
+```
+
+## Manage Preview Environments
+
+### Clone an Environment
+
+```bash
+qovery environment clone \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "Production" \
+  --new-environment-name "preview-pr-123" \
+  --cluster "my-cluster"
+```
+
+### Update Application Branch in Cloned Environment
+
+```bash
+qovery application update \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "preview-pr-123" \
+  --application "myapp" \
+  --branch "feature-branch"
+```
+
+### Deploy the Preview Environment
+
+```bash
+qovery application deploy \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "preview-pr-123" \
+  --application "myapp" \
+  --commit-id <commit-id> \
+  --watch
+```
+
+### Delete Preview Environment
+
+```bash
+qovery environment delete \
+  --organization "My Organization" \
+  --project "My Project" \
+  --environment "preview-pr-123" \
+  --yes
+```
+
+## Integration with Terraform
+
+If you're using Terraform to manage your infrastructure, you can integrate it with your CI/CD pipeline. See the [Terraform Provider documentation](/using-qovery/interface/terraform-provider) for more information.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Qovery CLI" icon="terminal" href="/cli/overview">
+    Learn more about Qovery CLI commands
+  </Card>
+
+  <Card title="API Token" icon="key" href="/configuration/organization/api-token">
+    Generate and manage API tokens
+  </Card>
+
+  <Card title="Auto-Deploy" icon="rotate" href="/configuration/deployment/auto-deploy">
+    Configure automatic deployments
+  </Card>
+
+  <Card title="GitHub Actions" icon="github" href="/configuration/integrations/ci-cd/github-actions">
+    Deploy with GitHub Actions
+  </Card>
+</CardGroup>

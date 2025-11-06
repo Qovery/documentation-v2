@@ -1,0 +1,202 @@
+---
+title: "Generic Container Registry"
+description: "Connect any Docker-compatible container registry with Qovery"
+---
+
+## Overview
+
+The Generic Container Registry option allows you to connect any Docker-compatible or OCI-compliant container registry to Qovery. This provides flexibility to use your preferred registry solution or self-hosted registries.
+
+<Info>
+If your registry supports the standard `docker login` format, you can connect it using the Generic registry option.
+</Info>
+
+## Supported Registries
+
+The Generic option works with:
+
+- **Harbor** - Open-source cloud-native registry
+- **Nexus Repository** - Universal artifact repository
+- **JFrog Artifactory** - Universal DevOps platform
+- **Quay.io** - Red Hat's container registry
+- **Self-hosted Docker Registry** - Docker's official registry
+- **Any OCI-compliant registry** - Following OCI Distribution Spec
+
+## Configuration in Qovery
+
+<Steps>
+  <Step title="Gather Registry Information">
+    Collect the following from your registry:
+    - Registry URL (must include `https://`)
+    - Username or access key
+    - Password or access token
+    - Authentication method (Basic Auth)
+  </Step>
+
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries** in Qovery
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
+  </Step>
+
+  <Step title="Select Generic Registry">
+    Choose **Generic Container Registry** from the registry type dropdown
+  </Step>
+
+  <Step title="Enter Registry Details">
+    Provide:
+    - **Name**: Descriptive name for the registry
+    - **Registry URL**: Full URL with protocol (e.g., `https://registry.example.com`)
+    - **Username**: Authentication username
+    - **Password**: Authentication password or token
+  </Step>
+
+  <Step title="Optional: TLS Configuration">
+    If using self-signed certificates:
+    - Enable **Skip TLS Verification** (not recommended for production)
+
+    <Warning>
+    Skipping TLS verification reduces security. Use only for development or testing with self-signed certificates.
+    </Warning>
+  </Step>
+
+  <Step title="Save">
+    Qovery will test the connection and save the configuration
+  </Step>
+</Steps>
+
+## Registry-Specific Examples
+
+### Harbor
+
+```
+Registry URL: https://harbor.example.com
+Username: admin
+Password: Harbor access token
+```
+
+### Nexus Repository
+
+```
+Registry URL: https://nexus.example.com/repository/docker-private
+Username: nexus-user
+Password: Nexus password
+```
+
+### JFrog Artifactory
+
+```
+Registry URL: https://mycompany.jfrog.io
+Username: artifactory-user
+Password: Identity token or API key
+```
+
+### Quay.io
+
+```
+Registry URL: https://quay.io
+Username: quay-username
+Password: Encrypted password or robot account token
+```
+
+### Self-Hosted Docker Registry
+
+```
+Registry URL: https://registry.mycompany.com
+Username: docker-user
+Password: Registry password
+```
+
+## Image Format
+
+The image format depends on your registry configuration:
+
+**Standard format**:
+```
+<registry-url>/<namespace>/<image-name>:<tag>
+```
+
+**Examples**:
+- `registry.example.com/production/api:v1.0.0`
+- `harbor.company.com/project/frontend:latest`
+- `nexus.internal.net/docker/backend:stable`
+
+## Authentication Methods
+
+Most registries support:
+- **Basic Authentication** (username + password)
+- **Token-based Authentication** (username + token)
+- **Robot Accounts** (service accounts with limited permissions)
+
+<Tip>
+Use robot accounts or service accounts instead of personal credentials for production deployments.
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Connection Failed">
+    **Check**:
+    - Registry URL is correct and includes `https://`
+    - Registry is accessible from Qovery (not behind firewall)
+    - Credentials are valid
+    - Username format is correct (some registries use email)
+  </Accordion>
+
+  <Accordion title="TLS Certificate Errors">
+    **Solutions**:
+    - Ensure TLS certificates are properly configured
+    - Use certificates from trusted CA
+    - For development only: Enable "Skip TLS Verification"
+  </Accordion>
+
+  <Accordion title="Authentication Errors">
+    **Verify**:
+    - Username is correct (not email if registry expects username)
+    - Password/token hasn't expired
+    - Account has necessary permissions
+    - Using token instead of password if required
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Service Accounts" icon="user-gear">
+    Create dedicated service accounts for Qovery instead of using personal credentials
+  </Card>
+
+  <Card title="Rotate Credentials" icon="arrows-rotate">
+    Regularly rotate registry access tokens and passwords
+  </Card>
+
+  <Card title="Proper TLS" icon="shield-check">
+    Always use valid TLS certificates in production environments
+  </Card>
+
+  <Card title="Least Privilege" icon="lock">
+    Grant minimum required permissions (read-only for deployments)
+  </Card>
+</CardGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="Docker Hub" icon="docker" href="/configuration/integrations/container-registries/docker-hub">
+    Popular public registry option
+  </Card>
+
+  <Card title="Cloud Registries" icon="cloud" href="/configuration/integrations/container-registries/aws-ecr">
+    Cloud-specific registry options
+  </Card>
+</CardGroup>

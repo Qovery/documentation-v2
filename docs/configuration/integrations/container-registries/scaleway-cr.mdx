@@ -1,0 +1,81 @@
+---
+title: "Scaleway Container Registry"
+description: "Connect Scaleway Container Registry with Qovery"
+---
+
+## Overview
+
+Scaleway Container Registry is a fully managed container registry service for storing and distributing your Docker container images.
+
+## Automatic Registry
+
+When you create a cluster on Scaleway, Qovery automatically creates a container registry (named `registry-{UUID}`) that is used to manage the deployment of your applications by mirroring Docker images.
+
+The credentials configured on this automatic registry are the ones used to create the cluster, but you can update them if you prefer to manage them separately.
+
+## Adding Your Own Scaleway Registry
+
+To connect your own Scaleway Container Registry to Qovery:
+
+### Required Information
+
+<Steps>
+  <Step title="Registry URL">
+    Format: `https://rg.<region>.scw.cloud/<namespace>`
+
+    Example: `https://rg.fr-par.scw.cloud/my-namespace`
+  </Step>
+
+  <Step title="Namespace">
+    Your Scaleway Container Registry namespace
+  </Step>
+
+  <Step title="Access Credentials">
+    - API access key
+    - Secret key
+  </Step>
+</Steps>
+
+### Configuration in Qovery
+
+<Steps>
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries**
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
+  </Step>
+
+  <Step title="Select Scaleway">
+    Choose **Scaleway Container Registry** from the registry type dropdown
+  </Step>
+
+  <Step title="Enter Details">
+    Provide the registry URL and credentials
+  </Step>
+
+  <Step title="Save">
+    Qovery will verify the credentials and save the configuration
+  </Step>
+</Steps>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="Scaleway Kapsule Setup" icon="/images/logos/cloud-providers/scaleway-icon-light.svg" href="/configuration/integrations/kubernetes/scaleway/overview">
+    Set up Scaleway Kapsule cluster with Qovery
+  </Card>
+
+  <Card title="Scaleway Credentials" icon="key" href="/configuration/organization/cloud-credentials">
+    Manage Scaleway credentials
+  </Card>
+</CardGroup>

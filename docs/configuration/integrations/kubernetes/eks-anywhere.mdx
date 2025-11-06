@@ -1,0 +1,160 @@
+---
+title: "AWS EKS Anywhere"
+description: "Deploy EKS on your own infrastructure with Qovery"
+---
+
+## Overview
+
+AWS EKS Anywhere allows you to run Amazon EKS on your own infrastructure (on-premise, edge locations). Connect your EKS Anywhere cluster to Qovery using BYOK (Bring Your Own Kubernetes).
+
+## What is EKS Anywhere?
+
+EKS Anywhere is a deployment option for Amazon EKS that lets you create and operate Kubernetes clusters on your own infrastructure:
+
+- **On-premise data centers**
+- **Edge locations**
+- **Private clouds**
+- **Air-gapped environments**
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="AWS Consistency" icon="aws">
+    Same EKS experience as cloud-based EKS
+  </Card>
+  <Card title="Full Control" icon="server">
+    Deploy on your own hardware and network
+  </Card>
+  <Card title="AWS Support" icon="headset">
+    AWS support and tooling available
+  </Card>
+  <Card title="Hybrid Cloud" icon="cloud">
+    Bridge on-premise and cloud workloads
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+<Check>EKS Anywhere cluster (v0.15.0+)</Check>
+<Check>Kubernetes 1.24+</Check>
+<Check>kubectl admin access</Check>
+<Check>Network connectivity to Qovery Control Plane</Check>
+<Check>Load balancer solution (MetalLB, HAProxy, etc.)</Check>
+
+## Supported Infrastructure
+
+- **VMware vSphere** (most common)
+- **Bare metal** servers
+- **Nutanix** (coming soon)
+- **Apache CloudStack**
+
+## Setup
+
+<Steps>
+  <Step title="Deploy EKS Anywhere">
+    Follow AWS documentation to create EKS Anywhere cluster:
+    ```bash
+    eksctl anywhere create cluster \
+      -f cluster-config.yaml
+    ```
+  </Step>
+
+  <Step title="Install Prerequisites">
+    - Load balancer (MetalLB for bare metal)
+    - Storage class (local-path, NFS, or enterprise solution)
+    - Metrics server
+  </Step>
+
+  <Step title="Connect to Qovery">
+    Follow BYOK setup guide to connect cluster to Qovery:
+    
+    [BYOK Setup Guide](/integrations/kubernetes/byok)
+  </Step>
+
+  <Step title="Deploy Applications">
+    Start deploying applications on your on-premise cluster
+  </Step>
+</Steps>
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Data Sovereignty" icon="globe">
+    Keep data on-premise for compliance or regulatory requirements while using Kubernetes
+  </Accordion>
+
+  <Accordion title="Edge Computing" icon="tower-broadcast">
+    Run workloads closer to data sources or users for lower latency
+  </Accordion>
+
+  <Accordion title="Air-Gapped Environments" icon="lock">
+    Deploy in environments without internet access for security requirements
+  </Accordion>
+
+  <Accordion title="Hybrid Cloud" icon="cloud">
+    Bridge on-premise infrastructure with cloud deployments seamlessly
+  </Accordion>
+</AccordionGroup>
+
+## Comparison
+
+| Feature | EKS Anywhere | Cloud EKS |
+|---------|--------------|-----------|
+| **Infrastructure** | Your hardware | AWS-managed |
+| **Control Plane** | Your control | AWS-managed |
+| **Cost** | Your hardware costs | Pay-per-use |
+| **Network** | Your network | AWS VPC |
+| **Updates** | Manual | Automated |
+| **Support** | AWS Enterprise Support | Included |
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="High Availability" icon="shield">
+    - 3+ control plane nodes
+    - 3+ worker nodes
+    - Spread across hardware/racks
+    - External etcd backups
+  </Card>
+
+  <Card title="Networking" icon="network-wired">
+    - Dedicated VLAN for Kubernetes
+    - Load balancer with HA
+    - Firewall rules for Qovery
+    - DNS resolution
+  </Card>
+
+  <Card title="Storage" icon="database">
+    - Enterprise storage solution
+    - Regular backups
+    - Persistent volume provisioning
+    - Snapshot capabilities
+  </Card>
+
+  <Card title="Monitoring" icon="chart-line">
+    - Deploy Prometheus/Grafana
+    - Monitor hardware health
+    - Track resource usage
+    - Set up alerts
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="EKS Anywhere Docs" icon="book" href="https://anywhere.eks.amazonaws.com">
+    Official EKS Anywhere documentation
+  </Card>
+
+  <Card title="BYOK Setup" icon="plug" href="/configuration/integrations/kubernetes/byok">
+    Connect EKS Anywhere to Qovery
+  </Card>
+
+  <Card title="Cloud EKS" icon="aws" href="/configuration/integrations/kubernetes/eks/overview">
+    Compare with cloud-based EKS
+  </Card>
+
+  <Card title="Generic BYOK" icon="dharmachakra" href="/configuration/integrations/kubernetes/byok">
+    Generic Kubernetes BYOK guide
+  </Card>
+</CardGroup>

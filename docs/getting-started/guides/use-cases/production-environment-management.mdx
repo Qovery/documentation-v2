@@ -1,0 +1,209 @@
+---
+title: "Production Environment Management"
+description: "Manage production environments with Qovery"
+---
+
+## Overview
+
+Managing production environments requires robust infrastructure, high availability, security, and comprehensive monitoring. Qovery provides the tools and features to ensure your production workloads run reliably and securely.
+
+## Prerequisites
+
+<Warning>
+**Production Cluster Required**: Before following this guide, you need a Kubernetes cluster flagged as **Production** in Qovery.
+</Warning>
+
+**Don't have a cluster yet?**
+
+<CardGroup cols={2}>
+  <Card title="Managed Cluster (Recommended)" icon="cloud" href="/getting-started/quickstart">
+    Let Qovery provision and manage your production-grade Kubernetes cluster on AWS, GCP, Azure, or Scaleway
+  </Card>
+
+  <Card title="Bring Your Own Cluster (BYOK)" icon="server" href="/configuration/integrations/kubernetes/byok">
+    Connect your existing Kubernetes cluster
+  </Card>
+</CardGroup>
+
+<Info>
+When creating your cluster:
+- Flag it as **Production** environment type
+- Use production-grade instance types (minimum 2 vCPU, 8GB RAM)
+- Enable multi-AZ deployment for high availability
+</Info>
+
+## Key Production Features
+
+<CardGroup cols={2}>
+  <Card title="High Availability" icon="server" href="/configuration/clusters">
+    Multi-AZ deployment with automatic failover
+  </Card>
+
+  <Card title="Auto-Scaling" icon="chart-line" href="/configuration/application#auto-scaling">
+    Horizontal pod autoscaling based on CPU/memory
+  </Card>
+
+  <Card title="Monitoring & Logs" icon="chart-mixed" href="/getting-started/guides/qovery-101/observe">
+    Built-in observability with Prometheus, Thanos, and Loki
+  </Card>
+
+  <Card title="Security & Compliance" icon="shield" href="/getting-started/security-and-compliance/overview">
+    SOC 2, GDPR compliant infrastructure
+  </Card>
+</CardGroup>
+
+## Production Setup
+
+### 1. Application Configuration
+
+Deploy your application and configure it for production.
+
+<Card title="Deploy Your First Application" icon="rocket" href="/getting-started/guides/getting-started/deploy-your-first-application">
+  Follow the guide to deploy your application to production
+</Card>
+
+**Production application settings**:
+- Enable **Auto-Scaling** to handle traffic spikes
+- Set appropriate **resource limits** (CPU and memory)
+- Configure **health checks** (liveness and readiness probes)
+- Set up **custom domains** with SSL/TLS
+
+### 2. Database Configuration
+
+Configure your production database with backups and high availability.
+
+<Card title="Connect Database" icon="database" href="/getting-started/guides/getting-started/connect-database">
+  Follow the guide to set up and connect your database
+</Card>
+
+**Production database recommendations**:
+- Use **Managed** mode for automatic backups and maintenance
+- Enable **Multi-AZ** for high availability (cloud provider feature)
+- Configure backup retention via your cloud provider
+- Use strong passwords and restrict access
+
+### 3. Environment Variables & Secrets
+
+Securely manage your production configuration.
+
+<Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+  Configure variables and secrets for your applications
+</Card>
+
+**Best practices**:
+- Use **Secrets** type for sensitive data (passwords, API keys)
+- Never commit secrets to Git
+- Use environment-specific variables
+- Consider [Doppler integration](/integrations/secret-managers/doppler) for advanced secret management
+
+### 4. Access Control
+
+Configure role-based access control for your team.
+
+<Card title="RBAC Configuration" icon="user-lock" href="/configuration/organization/members-rbac">
+  Set up roles and permissions for your organization
+</Card>
+
+**Production access**:
+- Limit production access to essential team members
+- Use custom roles with specific permissions
+- Enable MFA for all production users
+- Regular access reviews
+
+## Monitoring and Observability
+
+### Application Monitoring
+
+Qovery provides built-in observability for your production applications.
+
+<Card title="Qovery Observe" icon="chart-mixed" href="/getting-started/guides/qovery-101/observe">
+  Access logs, metrics, and monitoring for your services
+</Card>
+
+**Available features**:
+- **Logs**: 12-week retention with Loki
+- **Metrics**: Prometheus and Thanos for monitoring
+- **Service Metrics**: CPU, memory, network, and application metrics
+- **Events**: Track deployments and service events
+
+## Deployment Strategy
+
+Configure your deployment pipeline for production.
+
+<CardGroup cols={2}>
+  <Card title="Auto-Deploy" icon="rotate" href="/configuration/deployment/auto-deploy">
+    Automatic deployments on Git push
+  </Card>
+
+  <Card title="Deployment Pipeline" icon="diagram-project" href="/configuration/deployment/pipeline">
+    Configure multi-stage deployments
+  </Card>
+
+  <Card title="Deployment History" icon="clock-rotate-left" href="/configuration/deployment/history">
+    View and rollback deployments
+  </Card>
+
+  <Card title="CI/CD Integration" icon="code-branch" href="/configuration/integrations/ci-cd/github-actions">
+    Integrate with GitHub Actions, GitLab CI, etc.
+  </Card>
+</CardGroup>
+
+## Production Checklist
+
+<AccordionGroup>
+  <Accordion title="Infrastructure" icon="server">
+    - [ ] Production cluster created and flagged as Production
+    - [ ] Multi-AZ deployment enabled
+    - [ ] Production-grade instance types configured
+    - [ ] Network and security configured
+  </Accordion>
+
+  <Accordion title="Applications" icon="code">
+    - [ ] Auto-scaling configured
+    - [ ] Resource limits set
+    - [ ] Health checks enabled
+    - [ ] Custom domains configured with SSL
+    - [ ] Multiple replicas running
+  </Accordion>
+
+  <Accordion title="Database" icon="database">
+    - [ ] Managed database configured
+    - [ ] Backups enabled via cloud provider
+    - [ ] Multi-AZ enabled for high availability
+    - [ ] Strong passwords configured
+  </Accordion>
+
+  <Accordion title="Security" icon="shield">
+    - [ ] RBAC configured with appropriate roles
+    - [ ] Secrets used for sensitive data
+    - [ ] Access limited to essential team members
+    - [ ] Network security configured
+  </Accordion>
+
+  <Accordion title="Monitoring" icon="chart-line">
+    - [ ] Qovery Observe configured
+    - [ ] Logs retention configured
+    - [ ] External monitoring integrated (optional)
+    - [ ] Key metrics monitored
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Observe Your Apps" icon="chart-mixed" href="/getting-started/guides/qovery-101/observe">
+    Set up monitoring and logging
+  </Card>
+
+  <Card title="Secure Your Infrastructure" icon="shield" href="/getting-started/guides/qovery-101/secure">
+    Configure RBAC, secrets, and audit logs
+  </Card>
+
+  <Card title="Ephemeral Environments" icon="code-branch" href="/getting-started/guides/use-cases/ephemeral-environment">
+    Set up preview environments for testing
+  </Card>
+
+  <Card title="Cloud Migration" icon="cloud" href="/getting-started/guides/use-cases/cloud-migration-and-scaling">
+    Migrate your application from Heroku to AWS
+  </Card>
+</CardGroup>

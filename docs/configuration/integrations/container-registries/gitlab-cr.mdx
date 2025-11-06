@@ -1,0 +1,154 @@
+---
+title: "GitLab Container Registry"
+description: "Connect GitLab Container Registry with Qovery"
+---
+
+## Overview
+
+GitLab Container Registry is a secure container image registry integrated with GitLab repositories and CI/CD pipelines. It's included with both GitLab.com and self-hosted GitLab instances.
+
+## Registry URL
+
+**GitLab.com**:
+```
+https://registry.gitlab.com
+```
+
+**Self-hosted GitLab**:
+```
+https://gitlab.example.com:5050
+```
+
+## Image Format
+
+```
+registry.gitlab.com/<group>/<project>/<image-name>:<tag>
+```
+
+Examples:
+- `registry.gitlab.com/mycompany/api:latest`
+- `registry.gitlab.com/team/project/frontend:v1.2.3`
+
+## Authentication
+
+GitLab Container Registry uses GitLab Personal Access Tokens or Deploy Tokens for authentication.
+
+### Personal Access Token (Recommended)
+
+**Required Scopes**:
+- `read_registry` - Pull images
+- `write_registry` - Push images (if needed)
+
+### Deploy Token
+
+Deploy tokens can be created at project or group level for read-only or read-write access.
+
+## Configuration in Qovery
+
+<Steps>
+  <Step title="Create Personal Access Token">
+    1. Go to GitLab → **User Settings** → **Access Tokens**
+    2. Enter token name (e.g., "Qovery Registry Access")
+    3. Select expiration date
+    4. Select required scopes:
+       - `read_registry`
+       - `write_registry` (if pushing images)
+    5. Click **Create personal access token**
+    6. Copy the token immediately
+
+    <Warning>
+    GitLab shows the token only once. Save it securely.
+    </Warning>
+  </Step>
+
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries** in Qovery
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
+  </Step>
+
+  <Step title="Select GitLab Container Registry">
+    Choose **GitLab Container Registry** from the registry type dropdown
+  </Step>
+
+  <Step title="Enter Registry URL">
+    - For GitLab.com: `https://registry.gitlab.com`
+    - For self-hosted: `https://your-gitlab-instance:5050`
+  </Step>
+
+  <Step title="Enter Credentials">
+    Provide:
+    - **Username**: Your GitLab username
+    - **Password**: Personal Access Token or Deploy Token
+  </Step>
+
+  <Step title="Save">
+    Qovery will verify the credentials and save the configuration
+  </Step>
+</Steps>
+
+## Using Deploy Tokens
+
+Deploy tokens are ideal for production deployments:
+
+<Steps>
+  <Step title="Create Deploy Token">
+    1. Navigate to your GitLab project or group
+    2. Go to **Settings** → **Repository** → **Deploy Tokens**
+    3. Enter token name and expiration (optional)
+    4. Select scopes:
+       - `read_registry`
+    5. Click **Create deploy token**
+    6. Copy username and token
+  </Step>
+
+  <Step title="Use in Qovery">
+    Enter the deploy token username and token as credentials
+  </Step>
+</Steps>
+
+## Self-Hosted GitLab
+
+For self-hosted GitLab instances:
+- Ensure the registry is enabled in GitLab configuration
+- Use the correct registry URL (typically `https://<gitlab-host>:5050`)
+- Verify SSL/TLS certificates are properly configured
+- Ensure Qovery can reach your GitLab instance
+
+## Integration with GitLab CI/CD
+
+GitLab Container Registry integrates seamlessly with GitLab CI/CD:
+
+```yaml
+docker-build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+```
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="GitHub Container Registry" icon="github" href="/configuration/integrations/container-registries/github-cr">
+    Alternative Git-based registry
+  </Card>
+
+  <Card title="Generic Registry" icon="server" href="/configuration/integrations/container-registries/generic">
+    Connect any Docker-compatible registry
+  </Card>
+</CardGroup>

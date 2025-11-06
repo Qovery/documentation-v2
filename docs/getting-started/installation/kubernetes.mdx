@@ -1,0 +1,187 @@
+---
+title: "BYOK (Bring Your Own Kubernetes)"
+description: "Install Qovery on your own Kubernetes cluster"
+---
+
+Qovery Self-Managed (also known as BYOK: Bring Your Own Kubernetes) is a self-hosted version of Qovery. It allows you to install Qovery on your own Kubernetes cluster.
+
+<Warning>
+**For Kubernetes Experts Only**: Qovery BYOK is for Kubernetes experts who want to manage their own Kubernetes cluster. If you are not familiar with Kubernetes, we recommend using [Qovery-Managed Kubernetes](/installation/aws) on AWS, GCP, Azure, or Scaleway.
+</Warning>
+
+<Note>
+Qovery automatically updates ONLY the Qovery applications (agent, shell-agent, etc.) via the Qovery Helm chart. With the self-managed offer, it will be up to you to manage any dependency components (ingress, DNS, logging), making sure they run with the right version over time.
+
+The dependencies provided with the Qovery Helm chart are here to help you with the bootstrap, and are not maintained by Qovery. If you want to simplify the maintenance of your cluster, please look at the [Qovery managed Kubernetes offer](/installation/aws).
+</Note>
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+<Check>An operational Kubernetes cluster (any distribution)</Check>
+<Check>Minimum 4 CPUs and 8GB RAM available in your cluster</Check>
+<Check>`kubectl` installed and configured for cluster access</Check>
+<Check>`helm` package manager installed</Check>
+<Check>Active Qovery account - [Sign up here](https://start.qovery.com)</Check>
+
+## Installation
+
+### Step 1: Install Qovery CLI
+
+Install the Qovery CLI on your local machine:
+
+<Tabs>
+  <Tab title="Linux">
+    <Tabs>
+      <Tab title="*nix">
+        To download and install Qovery CLI on any Linux distribution:
+
+        ```bash
+        curl -s https://get.qovery.com | bash
+        ```
+      </Tab>
+
+      <Tab title="Arch Linux">
+        Qovery is part of [AUR](https://aur.archlinux.org/packages) packages, so you can install it with [yay](https://github.com/Jguer/yay):
+
+        ```bash
+        yay qovery-cli
+        ```
+      </Tab>
+
+      <Tab title="Manual">
+        Install the Qovery CLI on Linux manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+      </Tab>
+    </Tabs>
+  </Tab>
+
+  <Tab title="MacOS">
+    <Tabs>
+      <Tab title="Homebrew">
+        The common solution to install a command line binary on the MacOS is to use [Homebrew](https://brew.sh).
+
+        ```bash
+        # Add Qovery brew repository
+        brew tap Qovery/qovery-cli
+
+        # Install the CLI
+        brew install qovery-cli
+        ```
+      </Tab>
+
+      <Tab title="Script">
+        To download and install Qovery CLI from the command line:
+
+        ```bash
+        curl -s https://get.qovery.com | bash
+        ```
+      </Tab>
+
+      <Tab title="Manual">
+        Install the Qovery CLI on Mac OS manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+      </Tab>
+    </Tabs>
+  </Tab>
+
+  <Tab title="Windows">
+    <Tabs>
+      <Tab title="Scoop">
+        The classic way to install binaries on Windows is to use [Scoop](https://scoop.sh).
+
+        ```bash
+        # Add Qovery bucket
+        scoop bucket add qovery https://github.com/Qovery/scoop-qovery-cli
+
+        # Install the CLI
+        scoop install qovery-cli
+        ```
+      </Tab>
+
+      <Tab title="Manual">
+        Install the Qovery CLI on Windows manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to `C:\Windows`.
+      </Tab>
+    </Tabs>
+  </Tab>
+
+  <Tab title="Docker">
+    Install Docker on your local machine and run the following command:
+
+    ```bash
+    # Pull and Run the latest Qovery CLI
+    docker run ghcr.io/qovery/qovery-cli:latest help
+    ```
+
+    Change `latest` by the version you want to use. For example, to use the version 0.58.4, run:
+
+    ```bash
+    docker run ghcr.io/qovery/qovery-cli:0.58.4 help
+    ```
+
+    <Info>
+    `ghcr.io` is the [GitHub Container Registry](https://github.com/Qovery/qovery-cli/pkgs/container/qovery-cli).
+    </Info>
+  </Tab>
+</Tabs>
+
+<Info>
+**Source**: CLI installation instructions are maintained in `/snippets/install-qovery-cli.mdx`. Update snippet first, then copy to all usage locations.
+</Info>
+
+### Step 2: Authenticate
+
+Authenticate with your Qovery account:
+
+```bash
+qovery auth
+```
+
+This will open a browser window for authentication.
+
+<Tip>
+For headless environments (CI/CD, remote servers) without a graphical interface, use `qovery auth --headless` and follow the instructions to authenticate manually.
+</Tip>
+
+### Step 3: Deploy to Kubernetes
+
+Run the installation command and follow the interactive prompts:
+
+```bash
+qovery cluster install
+```
+
+The installation typically takes 5-10 minutes.
+
+## Post-Installation
+
+After successful deployment:
+
+1. **Validate Installation**: Check that all Qovery components are running:
+   ```bash
+   kubectl get pods -n qovery
+   ```
+
+2. **Verify in Console**: Log in to [Qovery Console](https://console.qovery.com) to confirm your cluster appears with a **Connected** status.
+
+3. **Deploy Applications**: You can now start deploying your applications through the Qovery Console.
+
+<Tip>
+For comprehensive validation steps and troubleshooting, see the [BYOK Integration Guide](/integrations/kubernetes/byok).
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy Your First App" icon="rocket" href="/getting-started/guides/getting-started/deploy-your-first-application">
+    Follow our quickstart guide
+  </Card>
+  <Card title="BYOK Advanced Configuration" icon="sliders" href="/configuration/integrations/kubernetes/byok">
+    Detailed setup and configuration options
+  </Card>
+  <Card title="Qovery Helm Chart" icon="/images/logos/helm-icon-light.svg" href="https://github.com/Qovery/qovery-chart">
+    View on GitHub
+  </Card>
+  <Card title="Get Help" icon="headset" href="https://www.qovery.com/support">
+    Contact support
+  </Card>
+</CardGroup>
