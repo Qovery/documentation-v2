@@ -80,18 +80,18 @@ html[data-page-mode="custom"] article > div {
 /* Fix card icon sizes for product logos */
 .card-icon img,
 .card img[src*="/logos/"] {
-  max-width: 20px !important;
-  max-height: 20px !important;
-  width: 20px !important;
-  height: 20px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
   background: transparent !important;
 }
 
 /* Ensure icons maintain aspect ratio */
 [class*="CardIcon"] img,
 [class*="card-icon"] img {
-  max-width: 20px !important;
-  max-height: 20px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
   object-fit: contain !important;
   background: transparent !important;
 }
@@ -99,10 +99,10 @@ html[data-page-mode="custom"] article > div {
 /* Ensure Scaleway icon matches other cloud provider icon sizes */
 img[src*="/scaleway-icon"],
 [class*="Card"] img[src*="/scaleway-icon"] {
-  max-width: 20px !important;
-  max-height: 20px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
   width: auto !important;
-  height: 20px !important;
+  height: 24px !important;
   object-fit: contain !important;
 }
 
@@ -548,6 +548,13 @@ html[class*="dark"] img[src*="/helm-icon.svg"],
 html[data-theme="dark"] img[src*="/helm-icon.svg"],
 .dark img[src*="/helm-icon.svg"] {
   content: url("/images/logos/helm-icon-dark.svg");
+}
+
+/* AWS icon - swap to dark version in dark mode */
+html[class*="dark"] img[src*="/aws-icon.svg"],
+html[data-theme="dark"] img[src*="/aws-icon.svg"],
+.dark img[src*="/aws-icon.svg"] {
+  content: url("/images/logos/cloud-providers/aws-icon-dark.svg");
 }
 
 /* Scaleway icon - swap to dark version in dark mode */

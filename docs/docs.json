@@ -4,8 +4,8 @@
   "theme": "mint",
   "favicon": "/favicon.svg",
   "logo": {
-    "light": "/logos/qovery-logo-black.svg",
-    "dark": "/logos/qovery-logo-white.svg"
+    "light": "/images/logos/qovery-logo-black.svg",
+    "dark": "/images/logos/qovery-logo-white.svg"
   },
   "system": {
     "codeblocks": "light"
@@ -64,6 +64,7 @@
                 "group": "Installation",
                 "pages": [
                   "getting-started/quickstart/docker-desktop",
+                  "getting-started/quickstart/cloud",
                   {
                     "group": "Managed Cluster",
                     "pages": [

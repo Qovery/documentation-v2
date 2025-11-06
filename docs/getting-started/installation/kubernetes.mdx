@@ -6,13 +6,17 @@ description: "Install Qovery on your own Kubernetes cluster"
 Qovery Self-Managed (also known as BYOK: Bring Your Own Kubernetes) is a self-hosted version of Qovery. It allows you to install Qovery on your own Kubernetes cluster.
 
 <Warning>
-**For Kubernetes Experts Only**: Qovery BYOK is for Kubernetes experts who want to manage their own Kubernetes cluster. If you are not familiar with Kubernetes, we recommend using [Qovery-Managed Kubernetes](/installation/aws) on AWS, GCP, Azure, or Scaleway.
+  **For Kubernetes Experts Only**: Qovery BYOK is for Kubernetes experts who
+  want to manage their own Kubernetes cluster. If you are not familiar with
+  Kubernetes, we recommend using [Qovery-Managed Kubernetes](/installation/aws)
+  on AWS, GCP, Azure, or Scaleway.
 </Warning>
 
 <Note>
 Qovery automatically updates ONLY the Qovery applications (agent, shell-agent, etc.) via the Qovery Helm chart. With the self-managed offer, it will be up to you to manage any dependency components (ingress, DNS, logging), making sure they run with the right version over time.
 
 The dependencies provided with the Qovery Helm chart are here to help you with the bootstrap, and are not maintained by Qovery. If you want to simplify the maintenance of your cluster, please look at the [Qovery managed Kubernetes offer](/installation/aws).
+
 </Note>
 
 ## Prerequisites
@@ -54,6 +58,7 @@ Install the Qovery CLI on your local machine:
         Install the Qovery CLI on Linux manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
       </Tab>
     </Tabs>
+
   </Tab>
 
   <Tab title="MacOS">
@@ -82,6 +87,7 @@ Install the Qovery CLI on your local machine:
         Install the Qovery CLI on Mac OS manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
       </Tab>
     </Tabs>
+
   </Tab>
 
   <Tab title="Windows">
@@ -102,6 +108,7 @@ Install the Qovery CLI on your local machine:
         Install the Qovery CLI on Windows manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to `C:\Windows`.
       </Tab>
     </Tabs>
+
   </Tab>
 
   <Tab title="Docker">
@@ -121,11 +128,14 @@ Install the Qovery CLI on your local machine:
     <Info>
     `ghcr.io` is the [GitHub Container Registry](https://github.com/Qovery/qovery-cli/pkgs/container/qovery-cli).
     </Info>
+
   </Tab>
 </Tabs>
 
 <Info>
-**Source**: CLI installation instructions are maintained in `/snippets/install-qovery-cli.mdx`. Update snippet first, then copy to all usage locations.
+  **Source**: CLI installation instructions are maintained in
+  `/snippets/install-qovery-cli.mdx`. Update snippet first, then copy to all
+  usage locations.
 </Info>
 
 ### Step 2: Authenticate
@@ -139,7 +149,9 @@ qovery auth
 This will open a browser window for authentication.
 
 <Tip>
-For headless environments (CI/CD, remote servers) without a graphical interface, use `qovery auth --headless` and follow the instructions to authenticate manually.
+  For headless environments (CI/CD, remote servers) without a graphical
+  interface, use `qovery auth --headless` and follow the instructions to
+  authenticate manually.
 </Tip>
 
 ### Step 3: Deploy to Kubernetes
@@ -157,6 +169,7 @@ The installation typically takes 5-10 minutes.
 After successful deployment:
 
 1. **Validate Installation**: Check that all Qovery components are running:
+
    ```bash
    kubectl get pods -n qovery
    ```
@@ -166,22 +179,35 @@ After successful deployment:
 3. **Deploy Applications**: You can now start deploying your applications through the Qovery Console.
 
 <Tip>
-For comprehensive validation steps and troubleshooting, see the [BYOK Integration Guide](/integrations/kubernetes/byok).
+  For comprehensive validation steps and troubleshooting, see the [BYOK
+  Integration Guide](/integrations/kubernetes/byok).
 </Tip>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Deploy Your First App" icon="rocket" href="/getting-started/guides/getting-started/deploy-your-first-application">
+  <Card
+    title="Deploy Your First App"
+    icon="rocket"
+    href="/getting-started/guides/getting-started/deploy-your-first-application"
+  >
     Follow our quickstart guide
   </Card>
-  <Card title="BYOK Advanced Configuration" icon="sliders" href="/configuration/integrations/kubernetes/byok">
+  <Card
+    title="BYOK Advanced Configuration"
+    icon="sliders"
+    href="/configuration/integrations/kubernetes/byok"
+  >
     Detailed setup and configuration options
   </Card>
-  <Card title="Qovery Helm Chart" icon="/images/logos/helm-icon-light.svg" href="https://github.com/Qovery/qovery-chart">
+  <Card
+    title="Qovery Helm Chart"
+    icon="/images/logos/helm-icon.svg"
+    href="https://github.com/Qovery/qovery-chart"
+  >
     View on GitHub
   </Card>
-  <Card title="Get Help" icon="headset" href="https://www.qovery.com/support">
+  <Card title="Get Help" icon="headset" href="/getting-started/useful-resources/help-and-support">
     Contact support
   </Card>
 </CardGroup>

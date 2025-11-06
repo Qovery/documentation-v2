@@ -20,7 +20,7 @@ In the [Cluster Advanced Settings](/configuration/clusters#advanced-settings), y
 
 To meet SOC2 retention requirements, set the `aws.cloudwatch.eks_logs_retention_days` to at least 365 days.
 
-### Application Logs Retention <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### Application Logs Retention <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
 
 To meet SOC2 retention requirements, and store applications/containers logs in the object storage used by Loki, set the `loki.log_retention_in_week` to at least 365 days.
 
@@ -36,7 +36,7 @@ On GCP:
 * Set `gcp.vpc.enable_flow_logs` to `true`.
 * Set `gcp.vpc.flow_logs_sampling` to `1.0` to capture all network traffic.
 
-### Databases access <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### Databases access <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
 
 Qovery allows databases to be publicly accessible for convenience; however, to comply with SOC2, it's recommended to [restrict this access](/configuration/clusters#advanced-settings) to secure your databases by changing the value of those settings:
 
@@ -55,7 +55,7 @@ SOC2 compliance, however, mandates restricted access to the Kubernetes API. To a
 Please refer to the [dedicated documentation section](/configuration/clusters#advanced-settings), you have to create a Dockerhub account and link it to Qovery to avoid rate limit.
 </Info>
 
-### Container images retention time <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon-light.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### Container images retention time <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
 
 SOC2 requires that images be retained for a minimum of 365 days. To meet this requirement, set the `registry.image_retention_time` to at least 365 days.
 

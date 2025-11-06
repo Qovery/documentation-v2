@@ -64,25 +64,6 @@ Throughout the Qovery Console, you'll find quick access to audit logs via the **
 
 ---
 
-## Export
-
-You can export audit logs using the Qovery CLI:
-
-```bash
-qovery audit-log export \
-  --from-date="2025-10-01T00:00:00Z" \
-  --to-date="2025-09-10T00:00:00Z"
-```
-
-**Requirements:**
-
-- Dates must be in **ISO-8601 format** (UTC-based)
-- Offset format is also supported (e.g., `2025-10-01T01:00:00+02:00`)
-- `--from-date` is **required**
-- `--to-date` is **optional** (defaults to current datetime if not specified)
-
----
-
 ## Related Documentation
 
 <CardGroup cols={2}>
@@ -96,9 +77,5 @@ qovery audit-log export \
 
   <Card title="Security Overview" icon="shield" href="/getting-started/security-and-compliance/overview">
     Comprehensive security practices
-  </Card>
-
-  <Card title="CLI Documentation" icon="terminal" href="/cli/overview">
-    Learn about the Qovery CLI
   </Card>
 </CardGroup>
