@@ -557,6 +557,13 @@ html[data-theme="dark"] img[src*="/aws-icon.svg"],
   content: url("/images/logos/cloud-providers/aws-icon-dark.svg");
 }
 
+/* GitHub icon - swap to dark version in dark mode */
+html[class*="dark"] img[src*="/github-icon.svg"],
+html[data-theme="dark"] img[src*="/github-icon.svg"],
+.dark img[src*="/github-icon.svg"] {
+  content: url("/images/logos/github-icon-dark.svg");
+}
+
 /* Scaleway icon - swap to dark version in dark mode */
 html[class*="dark"] img[src*="/scaleway-icon-light.svg"],
 html[data-theme="dark"] img[src*="/scaleway-icon-light.svg"],
