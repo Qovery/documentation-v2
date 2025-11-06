@@ -1,0 +1,133 @@
+---
+title: "API Gateway with NGINX"
+description: "How to connect an API gateway in front of multiple services using NGINX"
+---
+
+## Overview
+
+This guide shows you how to connect an API gateway in front of 3 different applications using NGINX, a lightweight web server capable of handling thousands of requests per second.
+
+![API Gateway Architecture](/images/api-gateway-nginx/api-gateway.jpg)
+
+## Prerequisites
+
+- At least one application created in Qovery
+- Ideally three applications (billing API, core API, messaging API), though one application is sufficient to follow this tutorial
+
+## Step 1: Clone API Gateway Template
+
+Fork the NGINX gateway repository:
+
+```
+https://github.com/Qovery/nginx-gateway
+```
+
+The project includes two configuration files that you'll need to modify for your setup.
+
+## Step 2: Edit Configuration Files
+
+### routes.conf.template
+
+The routing configuration directs incoming traffic to the appropriate backend services:
+
+```nginx
+location ~* ^/api/billing/?(.*)$ {
+    proxy_pass http://$BILLING_BACKEND$request_uri;
+}
+
+location ~* ^/api/messaging/?(.*)$ {
+    proxy_pass http://$MESSAGING_BACKEND$request_uri;
+}
+
+location ~* ^/api/(.*)$ {
+    proxy_pass http://$CORE_BACKEND$request_uri;
+}
+
+location ~* ^/?(.*)$ {
+    proxy_pass http://$CORE_BACKEND$request_uri;
+}
+```
+
+<Info>
+**Important Notes:**
+- Rules apply sequentially - the first match wins
+- Internal network uses HTTP protocol
+- External connections use HTTPS
+- Complex path patterns are supported
+</Info>
+
+**Example of an Advanced Rule:**
+
+```nginx
+location ~* ^/api/v1/user/(.*)/app/(.*)/index/(.*)/search/?(.*)$ {
+    proxy_pass http://$CORE_BACKEND/api/v1/user/$1/app/$2/index/$3/search/$4$is_args$args;
+}
+```
+
+## Step 3: Create API Gateway App in Qovery
+
+Create a new application in Qovery with the following settings:
+
+- **Build mode**: Dockerfile
+- **Port**: 80
+
+## Step 4: Configure Environment Variables
+
+Create three environment variable aliases with **ENVIRONMENT** scope:
+
+| Built-in Variable | Alias Name |
+|------------------|------------|
+| `XXX_HOST_INTERNAL` | `BILLING_BACKEND` |
+| `YYY_HOST_INTERNAL` | `MESSAGING_BACKEND` |
+| `ZZZ_HOST_INTERNAL` | `CORE_BACKEND` |
+
+### Finding the Correct Environment Variables
+
+To find the right environment variable for each service:
+
+1. Access the target application in the Qovery Console
+2. Extract the application ID from the URL:
+   ```
+   https://console.qovery.com/platform/organization/xxx/projects/yyy/environments/zzz/applications/082e36c4-7fbb-42b2-9046-37ccce21616a
+   ```
+3. Take the first segment of the ID: `082e36c4`
+4. Prepend 'Z': `Z082e36c4`
+5. Search for environment variables containing this prefix
+
+<Info>
+The environment variable with this prefix and suffix `_HOST_INTERNAL` is the one you need to use.
+</Info>
+
+## Step 5: Set Up Custom Domain
+
+Add a custom domain to expose the gateway with your chosen domain name.
+
+Navigate to your API gateway application settings and configure your custom domain.
+
+## Step 6: Deploy
+
+1. Commit your changes to the `routes.conf.template` file
+2. Push to your repository
+3. Deploy the application from the Qovery Console
+
+Your API gateway is now ready to route traffic to your backend services!
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="NGINX Gateway Repository" icon="/images/logos/github-icon.svg" href="https://github.com/Qovery/nginx-gateway">
+    View the template repository with example configurations
+  </Card>
+
+  <Card title="Application Configuration" icon="gear" href="/configuration/application">
+    Learn more about configuring applications on Qovery
+  </Card>
+
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Detailed guide on managing environment variables
+  </Card>
+
+  <Card title="Custom Domains" icon="globe" href="/configuration/application#domains">
+    Configure custom domains for your applications
+  </Card>
+</CardGroup>

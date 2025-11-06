@@ -1,0 +1,180 @@
+---
+title: "Create Your Cluster"
+description: "Set up a managed Kubernetes cluster as the foundation for your Qovery deployment"
+---
+
+<Info>
+**This is Step 1** - You need a cluster before deploying applications. This takes about 30 minutes and only needs to be done once.
+</Info>
+
+## Why Create a Cluster First?
+
+Your Kubernetes cluster is the foundation where all your applications, databases, and services will run. Qovery handles all the complexity:
+
+<CardGroup cols={2}>
+  <Card title="Infrastructure Management" icon="server">
+    Kubernetes installation, configuration, and upgrades
+  </Card>
+  <Card title="Networking & Security" icon="shield">
+    Load balancing, SSL/TLS certificates, and secure networking
+  </Card>
+  <Card title="Auto-Scaling" icon="chart-line">
+    Automatic scaling based on traffic and resource usage
+  </Card>
+  <Card title="Monitoring & Logging" icon="chart-bar">
+    Built-in observability and log aggregation
+  </Card>
+</CardGroup>
+
+<Note>
+**After creating your cluster**, return to your use case guide:
+- [Production Applications](/getting-started/guides/use-cases/production-environment-management)
+- [Ephemeral Environments](/getting-started/guides/use-cases/ephemeral-environment)
+</Note>
+
+---
+
+## Choose Your Cloud Provider
+
+Select where you want Qovery to create your managed Kubernetes cluster:
+
+<CardGroup cols={2}>
+  <Card title="Amazon Web Services" icon="/images/logos/cloud-providers/aws-icon.svg" href="/getting-started/installation/aws">
+    <Badge text="Most Popular Choice" />
+
+    **Features:**
+    - 30+ global regions
+    - EKS with Karpenter auto-scaling
+    - Spot instances for cost optimization
+
+    **Best for:** Production workloads at scale
+  </Card>
+
+  <Card title="Google Cloud Platform" icon="/images/logos/cloud-providers/gcp-icon.svg" href="/getting-started/installation/gcp">
+    <Badge text="Best Performance" />
+
+    **Features:**
+    - Global fiber network infrastructure
+    - GKE with autopilot mode
+    - Efficient resource management
+
+    **Best for:** Data-intensive applications
+  </Card>
+
+  <Card title="Microsoft Azure" icon="/images/logos/cloud-providers/azure-icon.svg" href="/getting-started/installation/azure">
+    <Badge text="Enterprise Ready" />
+
+    **Features:**
+    - Azure AD integration
+    - AKS managed Kubernetes
+    - Hybrid cloud support
+
+    **Best for:** Enterprise environments
+  </Card>
+
+  <Card title="Scaleway" icon="/images/logos/cloud-providers/scaleway-icon.svg" href="/getting-started/installation/scaleway">
+    <Badge text="Europe First" />
+
+    **Features:**
+    - EU data residency (Paris, Amsterdam, Warsaw)
+    - Kapsule Kubernetes
+    - 100% European infrastructure
+
+    **Best for:** European startups, GDPR compliance
+  </Card>
+</CardGroup>
+
+---
+
+## What You'll Get
+
+<AccordionGroup>
+  <Accordion title="Managed Kubernetes Cluster" icon="server">
+    Your cluster will be created using your cloud provider's managed Kubernetes service:
+    - **AWS**: Elastic Kubernetes Service (EKS)
+    - **GCP**: Google Kubernetes Engine (GKE)
+    - **Azure**: Azure Kubernetes Service (AKS)
+    - **Scaleway**: Kapsule Kubernetes
+
+    Qovery automatically configures:
+    - Latest stable Kubernetes version
+    - Multi-node setup for high availability
+    - Automatic updates and patches
+    - Optimized configurations for production
+  </Accordion>
+
+  <Accordion title="Production Networking" icon="network-wired">
+    Complete networking infrastructure:
+    - **VPC/VNet**: Isolated network for your resources
+    - **Load Balancers**: Automatic traffic distribution
+    - **NAT Gateways**: Secure outbound connectivity
+    - **Security Groups**: Firewall rules and access control
+    - **SSL/TLS Certificates**: Automatic HTTPS encryption
+    - **Custom Domains**: Support for your own domains
+  </Accordion>
+
+  <Accordion title="Auto-Scaling & High Availability" icon="chart-line">
+    Built-in scalability and reliability:
+    - **Node Auto-Scaling**: Automatically add/remove cluster nodes based on demand
+    - **Multi-Availability Zones**: Resources distributed across multiple data centers
+    - **Pod Auto-Scaling**: Scale applications based on CPU/memory usage
+    - **Health Checks**: Automatic failure detection and recovery
+    - **Zero-Downtime Updates**: Deploy without service interruption
+  </Accordion>
+
+  <Accordion title="Security & Compliance" icon="shield">
+    Enterprise-grade security:
+    - **Private Container Registry**: Secure image storage
+    - **Secrets Management**: Encrypted environment variables
+    - **Network Isolation**: Private subnets and security groups
+    - **Role-Based Access Control (RBAC)**: Team permissions management
+    - **Audit Logs**: Track all infrastructure changes
+    - **Encryption**: Data encrypted at rest and in transit
+  </Accordion>
+
+  <Accordion title="Monitoring & Logging" icon="chart-bar">
+    Complete observability:
+    - **Real-Time Logs**: Application and infrastructure logs
+    - **Metrics & Dashboards**: CPU, memory, network usage
+    - **Deployment History**: Track all changes and rollbacks
+    - **Build Logs**: Complete CI/CD pipeline visibility
+    - **Alerting**: Optional integration with Datadog, Grafana
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## What's Next?
+
+<Warning>
+**Important:** Cluster creation is just Step 1. After your cluster is ready, you must return to your use case guide to complete the setup.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Production Applications" icon="rocket" href="/getting-started/guides/use-cases/production-environment-management">
+    **Continue your setup:**
+    - Deploy your first application
+    - Configure auto-scaling
+    - Set up monitoring
+    - Add custom domains
+  </Card>
+
+  <Card title="Ephemeral Environments" icon="code-branch" href="/getting-started/guides/use-cases/ephemeral-environment">
+    **Continue your setup:**
+    - Enable preview environments
+    - Configure PR deployments
+    - Set up auto-cleanup policies
+  </Card>
+
+  <Card title="Deploy First App" icon="play" href="/getting-started/guides/getting-started/deploy-your-first-application">
+    **Quick start option:**
+
+    Skip the full guide and deploy your first application right away
+  </Card>
+
+  <Card title="Explore More Use Cases" icon="compass" href="/getting-started/quickstart">
+    **Browse all options:**
+
+    See all available use cases and deployment scenarios
+  </Card>
+</CardGroup>

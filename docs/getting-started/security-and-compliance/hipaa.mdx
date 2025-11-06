@@ -1,0 +1,496 @@
+---
+title: "HIPAA Compliance"
+description: "HIPAA eligibility and protected health information (PHI) handling with Qovery"
+---
+
+## Overview
+
+The Health Insurance Portability and Accountability Act (HIPAA) establishes national standards for protecting sensitive patient health information. Qovery provides a HIPAA-eligible infrastructure platform for healthcare organizations and their business associates.
+
+<Warning>
+**HIPAA Eligibility**: Qovery provides HIPAA-eligible infrastructure. Customers deploying applications that handle Protected Health Information (PHI) must sign a Business Associate Agreement (BAA) and implement appropriate safeguards.
+</Warning>
+
+## HIPAA Overview
+
+HIPAA consists of several key rules:
+
+<CardGroup cols={2}>
+  <Card title="Privacy Rule" icon="user-lock">
+    Standards for protecting PHI privacy and patient rights
+  </Card>
+
+  <Card title="Security Rule" icon="shield">
+    Administrative, physical, and technical safeguards for ePHI
+  </Card>
+
+  <Card title="Breach Notification Rule" icon="bell">
+    Requirements for notifying affected parties of PHI breaches
+  </Card>
+
+  <Card title="Enforcement Rule" icon="gavel">
+    Procedures for investigations and penalties for non-compliance
+  </Card>
+</CardGroup>
+
+## Business Associate Agreement (BAA)
+
+### When You Need a BAA
+
+A BAA is required when:
+- Your application processes, stores, or transmits PHI
+- You're a covered entity or business associate under HIPAA
+- You need to demonstrate HIPAA compliance to clients/auditors
+
+### How to Obtain a BAA
+
+<Steps>
+  <Step title="Contact Sales">
+    Reach out to sales@qovery.com or your account manager
+  </Step>
+
+  <Step title="Review Terms">
+    Review the BAA terms and HIPAA-eligible service features
+  </Step>
+
+  <Step title="Sign Agreement">
+    Execute the BAA with Qovery
+  </Step>
+
+  <Step title="Configure HIPAA Controls">
+    Enable required security controls and logging
+  </Step>
+
+  <Step title="Document Compliance">
+    Maintain documentation of your HIPAA compliance program
+  </Step>
+</Steps>
+
+<Info>
+BAAs are available for customers on Business and Enterprise plans. Contact sales for pricing and availability.
+</Info>
+
+## HIPAA Security Rule Requirements
+
+### Administrative Safeguards
+
+<AccordionGroup>
+  <Accordion title="Security Management Process" icon="clipboard-list">
+    **Qovery Features**:
+    - Risk assessment tools and monitoring
+    - Security incident procedures
+    - Audit controls and logging
+    - Access review and management
+
+    **Customer Responsibilities**:
+    - Conduct regular risk assessments
+    - Implement security policies and procedures
+    - Train workforce members
+    - Manage access controls
+  </Accordion>
+
+  <Accordion title="Workforce Security" icon="users">
+    **Qovery Features**:
+    - Role-based access control (RBAC)
+    - MFA enforcement
+    - SSO/SAML integration
+    - Access termination procedures
+
+    **Best Practices**:
+    - Implement least privilege access
+    - Regular access reviews
+    - Offboarding procedures
+    - Security awareness training
+  </Accordion>
+
+  <Accordion title="Information Access Management" icon="key">
+    **Qovery Features**:
+    - Granular permissions (organization, project, environment)
+    - Service accounts with limited scopes
+    - API token management
+    - Audit logging of all access
+
+    **Implementation**:
+    - Define roles and responsibilities
+    - Document access policies
+    - Regular permission audits
+    - Immediate access revocation on termination
+  </Accordion>
+
+  <Accordion title="Security Awareness and Training" icon="graduation-cap">
+    **Customer Responsibilities**:
+    - HIPAA security training for all workforce
+    - Documentation of training completion
+    - Annual refresher training
+    - Sanction policy for violations
+
+    **Qovery Resources**:
+    - Security best practices documentation
+    - Webinars and training materials
+    - Customer success support
+  </Accordion>
+</AccordionGroup>
+
+### Physical Safeguards
+
+<Tabs>
+  <Tab title="Facility Access">
+    **Cloud Provider Security**:
+    - SOC 2 certified data centers
+    - Physical access controls
+    - Video surveillance
+    - 24/7 security monitoring
+
+    **Qovery Deployment**:
+    - Deploy in HIPAA-eligible cloud regions
+    - AWS, GCP, Azure all offer HIPAA-compliant regions
+    - Dedicated VPC for isolation
+  </Tab>
+
+  <Tab title="Workstation Security">
+    **Developer Workstations**:
+    - Encrypted disk required
+    - Screen lock enforcement
+    - Updated OS and security patches
+    - Antivirus/EDR software
+
+    **Access Controls**:
+    - VPN for remote access
+    - Certificate-based authentication
+    - Session timeouts
+  </Tab>
+
+  <Tab title="Device Controls">
+    **Data Protection**:
+    - No PHI stored on local devices
+    - All data encrypted in transit
+    - Secure disposal procedures
+    - Mobile device management (MDM)
+  </Tab>
+</Tabs>
+
+### Technical Safeguards
+
+<AccordionGroup>
+  <Accordion title="Access Control" icon="fingerprint">
+    **Qovery Implementation**:
+    - Unique user identification (required)
+    - Emergency access procedures
+    - Automatic logoff (session timeout)
+    - Encryption and decryption
+
+    **Features**:
+    - Individual user accounts (no shared credentials)
+    - MFA enforced for all users
+    - API tokens with expiration
+    - Break-glass procedures for emergencies
+  </Accordion>
+
+  <Accordion title="Audit Controls" icon="clipboard-check">
+    **Qovery Audit Logging**:
+    - Comprehensive audit trail of all actions
+    - User authentication events
+    - Resource access and modifications
+    - API calls and deployments
+
+    **Log Features**:
+    - Immutable logs (tamper-proof)
+    - Long-term retention (1+ years)
+    - Export to SIEM systems
+    - Real-time monitoring and alerting
+
+    **Logged Events**:
+    - User login/logout
+    - PHI access attempts
+    - Configuration changes
+    - Deployment activities
+    - Access grant/revoke
+  </Accordion>
+
+  <Accordion title="Integrity Controls" icon="check-double">
+    **Data Integrity**:
+    - Version control for all configurations
+    - GitOps workflow with change tracking
+    - Immutable infrastructure
+    - Cryptographic checksums
+
+    **Validation**:
+    - Automated testing pipelines
+    - Deployment verification
+    - Database integrity checks
+    - Backup validation
+  </Accordion>
+
+  <Accordion title="Transmission Security" icon="signal-stream">
+    **Encryption in Transit**:
+    - TLS 1.2+ for all connections
+    - Certificate-based authentication
+    - VPN support for internal traffic
+    - mTLS between services (optional)
+
+    **Network Security**:
+    - Private VPC networking
+    - Network segmentation
+    - Firewall rules
+    - DDoS protection
+  </Accordion>
+</AccordionGroup>
+
+## ePHI Protection
+
+### Encryption
+
+<Tabs>
+  <Tab title="At Rest">
+    **Database Encryption**:
+    - AES-256 encryption for all databases
+    - Encrypted backups
+    - Key management via cloud provider KMS
+    - Customer-managed keys (CMEK) available
+
+    **Storage Encryption**:
+    - EBS/Persistent Disk encryption
+    - S3/GCS/Azure Blob encryption
+    - Encrypted volumes for applications
+  </Tab>
+
+  <Tab title="In Transit">
+    **Application Traffic**:
+    - HTTPS/TLS 1.2+ enforced
+    - Automatic SSL certificates
+    - Strong cipher suites only
+    - HSTS enabled
+
+    **Internal Communication**:
+    - Encrypted database connections
+    - Private networking
+    - Service mesh encryption (optional)
+  </Tab>
+
+  <Tab title="Backups">
+    **Backup Security**:
+    - Encrypted backups (AES-256)
+    - Secure backup storage
+    - Access controls on backups
+    - Encrypted during transmission
+
+    **Retention**:
+    - Configurable retention (7-35 days)
+    - Point-in-time recovery
+    - Automated backup testing
+  </Tab>
+</Tabs>
+
+### Access Controls
+
+**Role-Based Access Control (RBAC)**:
+- Minimum necessary access
+- Role definitions per HIPAA requirements
+- Regular access reviews
+- Immediate termination of access
+
+**Authentication**:
+- MFA required for all users
+- Strong password policies
+- SSO/SAML integration
+- API token with expiration
+
+## Breach Notification
+
+### Incident Response
+
+<Steps>
+  <Step title="Detection">
+    - Real-time monitoring and alerting
+    - Anomaly detection
+    - Security information and event management (SIEM)
+  </Step>
+
+  <Step title="Assessment">
+    - Determine if PHI was accessed/disclosed
+    - Assess extent and nature of breach
+    - Document findings
+  </Step>
+
+  <Step title="Containment">
+    - Isolate affected systems
+    - Revoke compromised access
+    - Apply security patches
+  </Step>
+
+  <Step title="Notification">
+    - Notify affected individuals (< 60 days)
+    - Notify HHS if >500 individuals
+    - Notify media if >500 individuals in same state
+  </Step>
+
+  <Step title="Remediation">
+    - Address root cause
+    - Implement corrective actions
+    - Update policies and procedures
+  </Step>
+</Steps>
+
+### Qovery's Role
+
+**In Case of Qovery Breach**:
+- Immediate notification to affected customers
+- Detailed incident report
+- Assistance with breach assessment
+- Cooperation with investigation
+
+**In Case of Customer Breach**:
+- Provide audit logs and forensic data
+- Technical support for containment
+- Guidance on remediation
+
+## HIPAA-Eligible Services
+
+### Supported Services
+
+<CardGroup cols={2}>
+  <Card title="Kubernetes" icon="dharmachakra">
+    HIPAA-eligible when deployed in compliant regions with BAA
+  </Card>
+
+  <Card title="Databases" icon="database">
+    Managed databases (PostgreSQL, MySQL, MongoDB) with encryption
+  </Card>
+
+  <Card title="Object Storage" icon="box">
+    S3/GCS/Azure Blob with encryption for PHI storage
+  </Card>
+
+  <Card title="Load Balancers" icon="scale-balanced">
+    TLS termination with certificate management
+  </Card>
+</CardGroup>
+
+### Required Configuration
+
+For HIPAA eligibility, you must:
+- ✅ Sign a BAA with Qovery
+- ✅ Enable encryption at rest and in transit
+- ✅ Enable comprehensive audit logging
+- ✅ Implement MFA for all users
+- ✅ Deploy in HIPAA-eligible regions
+- ✅ Configure backup and disaster recovery
+- ✅ Implement network isolation
+
+## Customer Responsibilities
+
+<Warning>
+**Shared Responsibility Model**: While Qovery provides HIPAA-eligible infrastructure, customers are responsible for:
+</Warning>
+
+<Steps>
+  <Step title="Application Security">
+    - Secure coding practices
+    - Input validation and sanitization
+    - Session management
+    - Vulnerability scanning
+  </Step>
+
+  <Step title="Data Classification">
+    - Identify and classify PHI
+    - Implement data flow mapping
+    - Document where PHI is stored/transmitted
+  </Step>
+
+  <Step title="Policies and Procedures">
+    - Written HIPAA policies
+    - Risk assessment procedures
+    - Incident response plan
+    - Disaster recovery plan
+  </Step>
+
+  <Step title="Training">
+    - HIPAA security training for workforce
+    - Regular security awareness
+    - Documentation of training
+  </Step>
+
+  <Step title="Access Management">
+    - User provisioning and deprovisioning
+    - Access reviews
+    - Minimum necessary access
+  </Step>
+
+  <Step title="Monitoring and Auditing">
+    - Regular log review
+    - Security monitoring
+    - Audit controls testing
+  </Step>
+</Steps>
+
+## HIPAA Regions
+
+Deploy in HIPAA-eligible cloud regions:
+
+<Tabs>
+  <Tab title="AWS">
+    All US regions are HIPAA-eligible when BAA is in place:
+    - us-east-1 (Virginia)
+    - us-east-2 (Ohio)
+    - us-west-1 (California)
+    - us-west-2 (Oregon)
+  </Tab>
+
+  <Tab title="GCP">
+    All US regions are HIPAA-eligible:
+    - us-central1 (Iowa)
+    - us-east1 (South Carolina)
+    - us-west1 (Oregon)
+    - us-east4 (Virginia)
+  </Tab>
+
+  <Tab title="Azure">
+    All US regions support HIPAA:
+    - East US
+    - West US
+    - Central US
+    - South Central US
+  </Tab>
+</Tabs>
+
+## Compliance Documentation
+
+Qovery provides documentation to support HIPAA compliance:
+
+- **BAA**: Business Associate Agreement
+- **Security Documentation**: Technical and administrative safeguards
+- **SOC 2 Report**: Independent security audit
+- **Audit Logs**: Access logs and activity records
+- **DPA**: Data Processing Agreement
+- **Incident Response**: Procedures and historical data
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Request BAA" icon="file-signature">
+    Contact sales@qovery.com to request a Business Associate Agreement
+  </Card>
+
+  <Card title="Security Overview" icon="shield" href="/getting-started/security-and-compliance/overview">
+    Review Qovery's security architecture and encryption
+  </Card>
+
+  <Card title="SOC 2 Compliance" icon="shield-check" href="/getting-started/security-and-compliance/soc2">
+    Learn about Qovery's SOC 2 Type II certification
+  </Card>
+
+  <Card title="Professional Services" icon="user-tie">
+    Engage our team for HIPAA compliance consulting
+  </Card>
+</CardGroup>
+
+## Resources
+
+- [HHS HIPAA Website](https://www.hhs.gov/hipaa/index.html)
+- [HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html)
+- [HIPAA Privacy Rule](https://www.hhs.gov/hipaa/for-professionals/privacy/index.html)
+- [Breach Notification Rule](https://www.hhs.gov/hipaa/for-professionals/breach-notification/index.html)
+
+<Info>
+**Disclaimer**: This documentation provides information about Qovery features that support HIPAA compliance. Customers are responsible for their own compliance with HIPAA and should consult with legal counsel and compliance experts.
+</Info>

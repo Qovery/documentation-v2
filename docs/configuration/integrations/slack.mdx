@@ -1,0 +1,52 @@
+---
+title: "Slack Integration"
+description: "Get real-time deployment notifications in Slack"
+---
+
+## Overview
+
+The Slack integration enables automatic team notifications whenever changes occur within your applications. Users can customize which actions trigger Slack workspace messages.
+
+## Step 1: Create a Slack App
+
+Navigate to the [Slack app creation page](https://api.slack.com/apps) and build a new application from scratch. The app should be named "Qovery" and connected to the desired workspace.
+
+![Create Slack App - Step 1](/images/slack/create-app-slack-1.png)
+
+![Create Slack App - Step 2](/images/slack/create-app-slack-2.png)
+
+![Create Slack App - Step 3](/images/slack/create-app-slack-3.png)
+
+<Info>
+You can customize your Slack app with an optional logo available from [Qovery's public resources repository](https://uploads-ssl.webflow.com/6046393ad41fc8c21e77d3d7/60c0dc4f7c3f2e3e6e2c3b5f_qovery-logo-square.png).
+</Info>
+
+![Customize Slack App](/images/slack/create-app-slack-4.png)
+
+## Step 2: Configure Incoming Webhooks
+
+Activate the Incoming Webhooks feature within your app, then add a new webhook to your workspace. Select the target notification channel and copy the generated webhook URL.
+
+![Activate Incoming Webhooks](/images/slack/create-webhook-1.png)
+
+![Add New Webhook to Workspace](/images/slack/create-webhook-2.png)
+
+![Select Channel](/images/slack/create-webhook-3.png)
+
+![Copy Webhook URL](/images/slack/create-webhook-4.png)
+
+<Note>
+Multiple webhooks can target different channels. Specific events can be filtered (e.g., `"events": ["DEPLOYMENT_FAILURE"]`). Webhooks are manageable and deletable anytime.
+</Note>
+
+## Step 3: Configure Qovery Webhook
+
+Reference the [webhook documentation](/integrations/webhooks) to establish the connection within Qovery, using the copied Slack webhook URL as the endpoint.
+
+## Step 4: Test the Integration
+
+Launch a deployment to verify notifications appear in your designated Slack channel.
+
+## Support
+
+Check [Qovery's community forum](https://discuss.qovery.com) for updates and announcements from the Qovery team.

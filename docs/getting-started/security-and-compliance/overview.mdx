@@ -1,0 +1,600 @@
+---
+title: "Security Overview"
+description: "How Qovery keeps your data secure"
+---
+
+## Your Data Stays on Your Infrastructure
+
+**Qovery is designed so your data always stays within your own infrastructure.** This core design principle ensures maximum security and control.
+
+<Info>
+Qovery operates as a control plane that only transfers metadata using gRPC/TLS. All your application data, databases, and workloads remain exclusively within your cloud infrastructure.
+</Info>
+
+## Security Architecture
+
+<CardGroup cols={2}>
+  <Card title="Your Infrastructure Not Exposed" icon="shield">
+    Your infrastructure is never exposed. Qovery control plane only receives metadata via encrypted gRPC/TLS.
+  </Card>
+
+  <Card title="Data On Your Infrastructure" icon="server">
+    All data stays within your cloud account. Qovery never stores or processes your application data.
+  </Card>
+
+  <Card title="Processes On Your Infrastructure" icon="microchip">
+    All application processes run on your Kubernetes clusters. Qovery only manages orchestration.
+  </Card>
+
+  <Card title="Pen-Tested Regularly" icon="bug">
+    Security is tested regularly by independent security agencies.
+  </Card>
+</CardGroup>
+
+## How It Works
+
+```mermaid
+graph TB
+    Control[Qovery Control Plane<br/>metadata only via gRPC/TLS]
+
+    subgraph Your Infrastructure
+        Engine[Qovery Engine]
+        K8s[Kubernetes]
+        AWS[AWS / GCP / Azure / Scaleway]
+
+        Engine -->|Manages| K8s
+        K8s -->|Runs On| AWS
+    end
+
+    Control -.->|Metadata Only<br/>gRPC/TLS| Engine
+
+    style Control fill:#642DFF,color:#fff
+    style Engine fill:#7D55FF,color:#fff
+    style K8s fill:#326CE5,color:#fff
+    style AWS fill:#FF9900,color:#000
+```
+
+**Key Principles**:
+- **Control Plane Separation** - Qovery's control plane is separate from your data plane
+- **Metadata Only** - Only configuration and status metadata transits to Qovery
+- **Encrypted Communication** - All communication uses gRPC over TLS
+- **Your Cloud Account** - All resources provisioned in your cloud account
+- **No Data Access** - Qovery never has access to your application data
+
+---
+
+## Encryption
+
+Qovery implements comprehensive encryption strategies to protect your data throughout its lifecycle, from transmission to storage.
+
+<AccordionGroup>
+  <Accordion title="Data in Transit" icon="network-wired">
+    Qovery ensures all communications are encrypted using industry-standard protocols.
+
+    ### Qovery Services
+    - **Qovery CLI** - All API communications encrypted with TLS
+    - **Management Console** - HTTPS-only access
+    - **Documentation** - Served over HTTPS
+    - **Landing Page** - Encrypted web traffic
+    - **Back Office** - Secure administrative access
+
+    ### Customer Application Encryption
+
+    Your applications deployed on Qovery benefit from automatic HTTPS protection:
+    - **Automatic SSL/TLS Certificates** - Powered by [Let's Encrypt](https://letsencrypt.org/)
+    - **Free certificates** - No additional cost
+    - **Auto-renewal** - Certificates automatically renewed before expiration
+    - **Custom TLS Certificates** - Available for enterprise users
+
+    ### Internal Network Encryption
+
+    Data in transit on Qovery-controlled networks uses:
+    - **End-to-end encryption** - Data encrypted throughout the entire transmission
+    - **Private networking rules** - Traffic isolated within your VPC
+    - **TLS 1.2+** - Modern encryption protocols only
+    - **Perfect Forward Secrecy** - Each session uses unique encryption keys
+
+    <Tip>
+    Internal traffic never leaves your cloud provider's network, adding an extra layer of security through network isolation.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Data at Rest" icon="hard-drive">
+    Application data receives protection through encrypted storage mechanisms across all supported cloud providers.
+
+    ### Storage Encryption
+
+    Qovery predominantly utilizes **AES-256 block cipher encryption** for data at rest:
+    - **Volume Encryption** - All persistent volumes encrypted
+    - **Database Encryption** - Managed database encryption enabled by default
+    - **Snapshot Encryption** - Backups and snapshots encrypted
+    - **Log Storage** - Application and infrastructure logs encrypted
+
+    ### Encryption Coverage
+
+    | Component | Encryption Method | Key Management |
+    |-----------|-------------------|----------------|
+    | **Application Volumes** | AES-256 | Cloud provider KMS |
+    | **Database Storage** | AES-256 | Cloud provider KMS |
+    | **Backups/Snapshots** | AES-256 | Cloud provider KMS |
+    | **S3/Object Storage** | AES-256 | Cloud provider KMS |
+    | **Container Registry** | AES-256 | Cloud provider KMS |
+    | **Logs** | AES-256 | Cloud provider KMS |
+
+    <Info>
+    AES-256 is approved for top-secret information by the NSA and is the industry standard for data encryption.
+    </Info>
+  </Accordion>
+
+  <Accordion title="Secrets Management" icon="key">
+    Sensitive information receives enhanced protection using **salted AES-256 encryption** methods.
+
+    ### What Qualifies as a Secret?
+
+    - **Environment Variables** marked as "Secret"
+    - **API Keys and Tokens**
+    - **Database Passwords**
+    - **TLS/SSL Private Keys**
+    - **OAuth Client Secrets**
+    - **Encryption Keys**
+    - **Service Account Credentials**
+
+    ### Secret Encryption Details
+
+    **Encryption Method:**
+    - Algorithm: **Salted AES-256**
+    - Salt: Unique per secret (prevents rainbow table attacks)
+    - Key derivation: PBKDF2 or similar
+    - Storage: Encrypted in Qovery database
+
+    **Access Control:**
+    - Secrets encrypted at rest in Qovery's infrastructure
+    - Decrypted only when deployed to your environment
+    - Transmitted over encrypted channels only
+    - Never logged or exposed in plain text
+
+    <Warning>
+    Once a secret is created, it cannot be retrieved in plain text through the Qovery Console. You can only update or delete it.
+    </Warning>
+
+    ### Secret Injection
+
+    Secrets are securely injected into your applications:
+
+    1. **At Build Time** (if needed)
+       - Decrypted on secure build node
+       - Available as environment variables during build
+       - Not stored in container image
+
+    2. **At Runtime**
+       - Decrypted and injected as environment variables
+       - Available only to the specific container
+       - Stored in container memory only (not on disk)
+  </Accordion>
+
+  <Accordion title="Key Management" icon="lock">
+    Encryption keys are managed by your cloud provider's Key Management Service (KMS):
+
+    - **AWS** - AWS Key Management Service (KMS)
+    - **GCP** - Cloud Key Management Service
+    - **Azure** - Azure Key Vault
+    - **Scaleway** - Scaleway KMS
+
+    **Key Rotation:**
+    - Keys are automatically rotated according to cloud provider policies
+    - No manual intervention required
+    - Zero downtime during key rotation
+
+    **Customer-Managed Keys:**
+    - Enterprise customers can use customer-managed keys (CMK)
+    - Bring your own keys (BYOK) supported
+    - Contact Qovery support to configure
+  </Accordion>
+
+  <Accordion title="Encryption by Cloud Provider" icon="cloud">
+    Different cloud providers offer varying levels of encryption capabilities:
+
+    <Tabs>
+      <Tab title="AWS">
+        **Encryption Features:**
+        - EBS volumes encrypted with AWS KMS
+        - RDS encryption at rest with KMS
+        - S3 server-side encryption (SSE-S3 or SSE-KMS)
+        - Certificate Manager for TLS certificates
+        - Secrets Manager for secret storage
+
+        **Key Management:**
+        - AWS KMS for key management
+        - Customer-managed keys (CMK) available
+        - Automatic key rotation
+        - CloudTrail logging of key usage
+      </Tab>
+
+      <Tab title="GCP">
+        **Encryption Features:**
+        - Persistent disk encryption by default
+        - Cloud SQL encryption with Cloud KMS
+        - Cloud Storage encryption at rest
+        - Certificate Manager for TLS
+        - Secret Manager for secrets
+
+        **Key Management:**
+        - Cloud KMS for key management
+        - Customer-managed encryption keys (CMEK)
+        - Automatic key rotation
+        - Cloud Audit Logs for key access
+      </Tab>
+
+      <Tab title="Azure">
+        **Encryption Features:**
+        - Managed disk encryption with Azure Disk Encryption
+        - Azure Database encryption at rest
+        - Azure Storage encryption (SSE)
+        - Azure Key Vault for certificates
+        - Key Vault for secret management
+
+        **Key Management:**
+        - Azure Key Vault for keys
+        - Customer-managed keys available
+        - Automatic rotation support
+        - Azure Monitor for key activity
+      </Tab>
+
+      <Tab title="Scaleway">
+        **Encryption Features:**
+        - Block storage encryption
+        - Database encryption at rest
+        - Object Storage encryption
+        - Managed certificates
+        - Secret management
+
+        **Key Management:**
+        - Scaleway KMS
+        - Automatic encryption for all storage
+        - Backup encryption included
+        - Activity logging available
+      </Tab>
+    </Tabs>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Backup and Restore
+
+Backups and restore are frequently a nightmare to setup, especially for databases. Qovery helps you get this part **always automatically managed by the Cloud provider**.
+
+<AccordionGroup>
+  <Accordion title="Application Backups" icon="container-storage">
+    Container applications maintain backup capabilities through **container image retention**:
+
+    - All successfully built container images are retained
+    - Images are stored in your container registry
+    - Previous versions remain available for rollback
+    - No data loss when rolling back to earlier versions
+
+    **How it works:**
+    1. Every successful build creates a new container image
+    2. Image is tagged with a unique identifier (commit SHA, build ID)
+    3. Image is pushed to your container registry
+    4. Previous images remain available for rollback
+
+    <Tip>
+    Container images act as snapshots of your application at specific points in time. You can roll back to any previous build instantly.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Database Backups" icon="database">
+    Databases have automatic daily backups managed by your cloud provider:
+
+    - **Automated daily backups** - No manual configuration required
+    - **Point-in-time recovery** - Restore to specific timestamps
+    - **Encrypted backups** - All backups encrypted at rest
+    - **Geographic redundancy** - Backups stored across multiple availability zones
+
+    ### Backup Retention
+
+    Default retention periods vary by cloud provider:
+
+    | Provider | Automated Backups | Manual Snapshots | Point-in-Time |
+    |----------|-------------------|------------------|---------------|
+    | **AWS RDS** | 7-35 days | Indefinite | Last 5 minutes |
+    | **GCP Cloud SQL** | 7-365 days | Indefinite | Last second |
+    | **Azure Database** | 7-35 days | Indefinite | Last 5 minutes |
+    | **Scaleway** | 7 days | Indefinite | Not available |
+
+    <CardGroup cols={2}>
+      <Card title="PostgreSQL" icon="database" href="/configuration/database">
+        Automated daily backups with point-in-time recovery
+      </Card>
+
+      <Card title="MySQL" icon="database" href="/configuration/database">
+        Daily snapshots with configurable retention
+      </Card>
+
+      <Card title="MongoDB" icon="database" href="/configuration/database">
+        Continuous backups with point-in-time restore
+      </Card>
+
+      <Card title="Redis" icon="database" href="/configuration/database">
+        Daily snapshots of persistent data
+      </Card>
+    </CardGroup>
+  </Accordion>
+
+  <Accordion title="Application Restore" icon="rotate-left">
+    The Qovery configuration file resides in your Git repository with full version control.
+
+    **Restoration Methods:**
+
+    <Tabs>
+      <Tab title="Via Qovery Console">
+        1. Go to your application in the Qovery Console
+        2. Navigate to **Deployments** → **History**
+        3. Select the version you want to restore
+        4. Click **Redeploy this version**
+
+        <Info>
+        This redeploys the exact container image from the previous build - no rebuild required!
+        </Info>
+      </Tab>
+
+      <Tab title="Via Git Rollback">
+        1. Identify the commit you want to roll back to:
+           ```bash
+           git log --oneline
+           ```
+
+        2. Revert to that commit:
+           ```bash
+           # Option 1: Revert specific commit (creates new commit)
+           git revert <commit-hash>
+
+           # Option 2: Reset to specific commit (rewrites history)
+           git reset --hard <commit-hash>
+           git push --force
+           ```
+
+        3. Qovery automatically detects the change and redeploys
+
+        <Warning>
+        When you rollback a commit containing a Qovery configuration change, ensure there are no other changes to avoid unwanted behavior.
+        </Warning>
+      </Tab>
+
+      <Tab title="Via CLI">
+        Use the Qovery CLI to redeploy a specific version:
+
+        ```bash
+        # List deployment history
+        qovery application list-deployment
+
+        # Redeploy specific version
+        qovery application deploy --version <version-id>
+        ```
+      </Tab>
+    </Tabs>
+
+    **Best Practices:**
+    - Test rollbacks in staging before production
+    - Review configuration changes before rolling back
+    - Communicate with your team before rollback
+    - Monitor after rollback to ensure stability
+  </Accordion>
+
+  <Accordion title="Database Restore" icon="database">
+    Database restoration is managed by your cloud provider and creates a new database instance.
+
+    <Steps>
+      <Step title="Access Cloud Provider Console">
+        Log into your cloud provider console (AWS, GCP, Azure, or Scaleway).
+      </Step>
+
+      <Step title="Navigate to Database Service">
+        Find your managed database service:
+        - **AWS**: RDS or DocumentDB
+        - **GCP**: Cloud SQL or Firestore
+        - **Azure**: Azure Database
+        - **Scaleway**: Managed Databases
+      </Step>
+
+      <Step title="Select Restore Point">
+        Choose your restoration method:
+
+        **Point-in-Time Recovery (PITR):**
+        - Restore to any time within retention period
+        - Most accurate recovery method
+        - No data loss up to the specific second
+
+        **Snapshot Restore:**
+        - Restore from daily automated snapshots
+        - Faster than PITR
+        - Some data loss possible (data since last snapshot)
+      </Step>
+
+      <Step title="Create New Database Instance">
+        Cloud providers create a new database instance from the backup:
+        1. Configure instance settings
+        2. Choose VPC and security groups
+        3. Wait for restoration to complete (5-30 minutes)
+      </Step>
+
+      <Step title="Update Application Configuration">
+        Update your application to point to the new database:
+        1. In Qovery Console, go to your application
+        2. Update environment variables with new database endpoint
+        3. Redeploy your application
+      </Step>
+
+      <Step title="Verify and Cleanup">
+        1. Verify data integrity in restored database
+        2. Test application connectivity
+        3. Delete old database instance if no longer needed
+      </Step>
+    </Steps>
+
+    <Warning>
+    Database restores create a **new instance**. Your application will need to be reconfigured to use the restored database endpoint.
+    </Warning>
+
+    ### Cloud Provider Documentation
+
+    <CardGroup cols={2}>
+      <Card title="AWS RDS Restore" icon="/images/logos/cloud-providers/aws-icon.svg" href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_CommonTasks.BackupRestore.html">
+        Amazon RDS backup and restore guide
+      </Card>
+
+      <Card title="GCP Cloud SQL Restore" icon="/images/logos/cloud-providers/gcp-icon.svg" href="https://cloud.google.com/sql/docs/mysql/backup-recovery/restoring">
+        Google Cloud SQL restore documentation
+      </Card>
+
+      <Card title="Azure Database Restore" icon="/images/logos/cloud-providers/azure-icon.svg" href="https://docs.microsoft.com/en-us/azure/mysql/concepts-backup">
+        Azure Database backup and restore
+      </Card>
+
+      <Card title="Scaleway Kapsule" icon="/images/logos/cloud-providers/scaleway-icon.svg" href="https://www.scaleway.com/en/docs/managed-databases/postgresql-and-mysql/how-to/restore-a-backup/">
+        Scaleway managed database backups
+      </Card>
+    </CardGroup>
+  </Accordion>
+
+  <Accordion title="Disaster Recovery Planning" icon="shield-halved">
+    ### Recovery Time Objectives (RTO)
+
+    Typical recovery times for Qovery-managed services:
+
+    | Component | RTO | Notes |
+    |-----------|-----|-------|
+    | **Application** | < 5 minutes | Redeploy previous container image |
+    | **Database (Snapshot)** | 15-30 minutes | Create new instance from snapshot |
+    | **Database (PITR)** | 30-60 minutes | Restore to specific point in time |
+    | **Configuration** | < 5 minutes | Roll back Git configuration |
+    | **Full Cluster** | 2-4 hours | Rebuild cluster from scratch |
+
+    ### Best Practices
+
+    - **Test restore procedures regularly** - Schedule quarterly restore drills
+    - **Implement multi-region redundancy** - Deploy critical applications across regions
+    - **Monitor backup health** - Set up alerts for failed backups
+    - **Maintain documentation** - Keep runbooks updated with restore procedures
+    - **Consider compliance** - Ensure backup retention meets regulatory requirements
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Compliance Certifications
+
+<CardGroup cols={3}>
+  <Card title="SOC 2 Type II" icon="shield-check" href="/getting-started/security-and-compliance/soc2">
+    Security controls audited annually
+  </Card>
+
+  <Card title="GDPR" icon="gavel" href="/getting-started/security-and-compliance/gdpr">
+    European data protection compliance
+  </Card>
+
+  <Card title="HIPAA" icon="hospital" href="/getting-started/security-and-compliance/hipaa">
+    Healthcare data protection
+  </Card>
+
+  <Card title="HDS" icon="briefcase-medical" href="/getting-started/security-and-compliance/hds">
+    French health data hosting
+  </Card>
+
+  <Card title="DORA" icon="landmark" href="/getting-started/security-and-compliance/dora">
+    Digital resilience compliance
+  </Card>
+</CardGroup>
+
+---
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use secret management">
+    Never hardcode secrets in code. Use Qovery secret manager or external providers like Doppler, AWS Secrets Manager, or HashiCorp Vault.
+  </Accordion>
+
+  <Accordion title="Enable HTTPS everywhere">
+    Always use HTTPS for public applications. Qovery provides automatic SSL certificates via Let's Encrypt.
+  </Accordion>
+
+  <Accordion title="Implement least privilege">
+    Grant minimum required permissions to users and service accounts using RBAC.
+  </Accordion>
+
+  <Accordion title="Enable multi-factor authentication">
+    Require MFA for all team members to protect against compromised credentials.
+  </Accordion>
+
+  <Accordion title="Test your backups regularly">
+    Regularly test restore procedures to ensure backups work when needed.
+  </Accordion>
+
+  <Accordion title="Monitor security events">
+    Set up alerts for suspicious activities and review audit logs regularly.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Access Control
+
+**Authentication**:
+- Email/password with 2FA
+- SSO via SAML 2.0
+- OAuth 2.0 (Google, GitHub, GitLab)
+
+**Authorization**:
+- Role-based access control (RBAC)
+- Predefined roles: Owner, Admin, Developer, Viewer
+- Organization, project, and environment-level permissions
+
+[Configure organization access →](/configuration/organization/members-rbac)
+
+---
+
+## Audit Logging
+
+All actions in Qovery are logged for security and compliance:
+
+- User authentication and authorization
+- Resource creation, modification, deletion
+- Configuration changes
+- Deployment activities
+- API access
+
+Audit logs are immutable, retained for 30+ days, and can be exported to SIEM systems.
+
+[View audit logs documentation →](/security-and-compliance/audit-logs)
+
+---
+
+## Security Incident Response
+
+For security issues or vulnerabilities:
+- Email: **security@qovery.com**
+- [Responsible Disclosure Policy](https://www.qovery.com/security)
+
+---
+
+## Learn More
+
+<CardGroup cols={2}>
+  <Card title="Audit Logs" icon="list" href="/getting-started/security-and-compliance/audit-logs">
+    Track all changes and actions in your organization
+  </Card>
+
+  <Card title="SOC 2 Compliance" icon="shield-check" href="/getting-started/security-and-compliance/soc2">
+    SOC 2 Type II certification details
+  </Card>
+
+  <Card title="GDPR Compliance" icon="gavel" href="/getting-started/security-and-compliance/gdpr">
+    Data protection and privacy
+  </Card>
+
+  <Card title="Database Configuration" icon="database" href="/configuration/database">
+    Configure database settings and backups
+  </Card>
+</CardGroup>

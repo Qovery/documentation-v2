@@ -4,8 +4,8 @@
   "theme": "mint",
   "favicon": "/favicon.svg",
   "logo": {
-    "light": "/qovery-logo-black.svg",
-    "dark": "/qovery-logo-white.svg"
+    "light": "/images/logos/qovery-logo-black.svg",
+    "dark": "/images/logos/qovery-logo-white.svg"
   },
   "system": {
     "codeblocks": "light"
@@ -44,7 +44,7 @@
     {
       "name": "Documentation",
       "icon": "book",
-      "url": "introduction"
+      "url": "getting-started/introduction"
     }
   ],
   "navigation": {
@@ -56,24 +56,25 @@
           {
             "group": "Get Started",
             "pages": [
-              "introduction",
-              "quickstart",
-              "how-it-works",
-              "basic-concepts",
+              "getting-started/introduction",
+              "getting-started/quickstart",
+              "getting-started/how-it-works",
+              "getting-started/basic-concepts",
               {
                 "group": "Installation",
                 "pages": [
-                  "quickstart/docker-desktop",
+                  "getting-started/quickstart/docker-desktop",
+                  "getting-started/quickstart/cloud",
                   {
                     "group": "Managed Cluster",
                     "pages": [
-                      "installation/aws",
-                      "installation/gcp",
-                      "installation/azure",
-                      "installation/scaleway"
+                      "getting-started/installation/aws",
+                      "getting-started/installation/gcp",
+                      "getting-started/installation/azure",
+                      "getting-started/installation/scaleway"
                     ]
                   },
-                  "installation/kubernetes"
+                  "getting-started/installation/kubernetes"
                 ]
               }
             ]
@@ -81,9 +82,9 @@
           {
             "group": "Tutorials",
             "pages": [
-              "guides/getting-started/deploy-your-first-application",
-              "guides/getting-started/connect-database",
-              "guides/others/database-seeding-lifecycle-job"
+              "getting-started/guides/getting-started/deploy-your-first-application",
+              "getting-started/guides/getting-started/connect-database",
+              "getting-started/guides/others/database-seeding-lifecycle-job"
             ]
           },
           {
@@ -92,34 +93,34 @@
               {
                 "group": "Core Products",
                 "pages": [
-                  "guides/qovery-101/provision",
-                  "guides/qovery-101/deploy",
-                  "guides/qovery-101/observe",
-                  "guides/qovery-101/optimize",
-                  "guides/qovery-101/secure"
+                  "getting-started/guides/qovery-101/provision",
+                  "getting-started/guides/qovery-101/deploy",
+                  "getting-started/guides/qovery-101/observe",
+                  "getting-started/guides/qovery-101/optimize",
+                  "getting-started/guides/qovery-101/secure"
                 ]
               },
               {
                 "group": "Security & Compliance",
                 "pages": [
-                  "security-and-compliance/overview",
-                  "security-and-compliance/audit-logs",
-                  "security-and-compliance/soc2",
-                  "security-and-compliance/gdpr",
-                  "security-and-compliance/dora",
-                  "security-and-compliance/hipaa",
-                  "security-and-compliance/hds"
+                  "getting-started/security-and-compliance/overview",
+                  "getting-started/security-and-compliance/audit-logs",
+                  "getting-started/security-and-compliance/soc2",
+                  "getting-started/security-and-compliance/gdpr",
+                  "getting-started/security-and-compliance/dora",
+                  "getting-started/security-and-compliance/hipaa",
+                  "getting-started/security-and-compliance/hds"
                 ]
               },
-              "configuration/maintenance"
+              "getting-started/configuration/maintenance"
             ]
           },
           {
             "group": "How-to Guides",
             "pages": [
-              "guides/use-cases/production-environment-management",
-              "guides/use-cases/cloud-migration-and-scaling",
-              "guides/use-cases/ephemeral-environment"
+              "getting-started/guides/use-cases/production-environment-management",
+              "getting-started/guides/use-cases/cloud-migration-and-scaling",
+              "getting-started/guides/use-cases/ephemeral-environment"
             ]
           },
           {
@@ -128,26 +129,26 @@
               {
                 "group": "Infrastructure & Security",
                 "pages": [
-                  "guides/advanced-tutorials/aws-iam-roles",
-                  "guides/advanced-tutorials/certificate-management-multi-tenant",
-                  "guides/advanced-tutorials/cloudwatch-integration"
+                  "getting-started/guides/advanced-tutorials/aws-iam-roles",
+                  "getting-started/guides/advanced-tutorials/certificate-management-multi-tenant",
+                  "getting-started/guides/advanced-tutorials/cloudwatch-integration"
                 ]
               },
               {
                 "group": "Networking & Access Control",
                 "pages": [
-                  "guides/advanced-tutorials/cloudflare-custom-domain",
-                  "guides/advanced-tutorials/rate-limiting",
-                  "guides/advanced-tutorials/ip-header-authorization"
+                  "getting-started/guides/advanced-tutorials/cloudflare-custom-domain",
+                  "getting-started/guides/advanced-tutorials/rate-limiting",
+                  "getting-started/guides/advanced-tutorials/ip-header-authorization"
                 ]
               },
               {
                 "group": "Development & Deployment",
                 "pages": [
-                  "guides/advanced-tutorials/write-dockerfile",
-                  "guides/advanced-tutorials/import-env-vars-cli",
-                  "guides/advanced-tutorials/deploy-jupyterhub",
-                  "guides/advanced-tutorials/rust-api-part-1"
+                  "getting-started/guides/advanced-tutorials/write-dockerfile",
+                  "getting-started/guides/advanced-tutorials/import-env-vars-cli",
+                  "getting-started/guides/advanced-tutorials/deploy-jupyterhub",
+                  "getting-started/guides/advanced-tutorials/rust-api-part-1"
                 ]
               }
             ]
@@ -155,14 +156,14 @@
           {
             "group": "Useful Resources",
             "pages": [
-              "useful-resources/faq",
-              "useful-resources/help-and-support"
+              "getting-started/useful-resources/faq",
+              "getting-started/useful-resources/help-and-support"
             ]
           },
           {
             "group": "Troubleshooting",
             "pages": [
-              "troubleshoot/overview"
+              "getting-started/troubleshoot/overview"
             ]
           }
         ]
@@ -200,42 +201,42 @@
               {
                 "group": "AWS EKS",
                 "pages": [
-                  "integrations/kubernetes/eks/overview",
-                  "integrations/kubernetes/eks/managed",
-                  "integrations/kubernetes/eks/byok",
-                  "integrations/kubernetes/eks/kubectl-access"
+                  "configuration/integrations/kubernetes/eks/overview",
+                  "configuration/integrations/kubernetes/eks/managed",
+                  "configuration/integrations/kubernetes/eks/byok",
+                  "configuration/integrations/kubernetes/eks/kubectl-access"
                 ]
               },
               {
                 "group": "Google GKE",
                 "pages": [
-                  "integrations/kubernetes/gke/overview",
-                  "integrations/kubernetes/gke/managed",
-                  "integrations/kubernetes/gke/byok"
+                  "configuration/integrations/kubernetes/gke/overview",
+                  "configuration/integrations/kubernetes/gke/managed",
+                  "configuration/integrations/kubernetes/gke/byok"
                 ]
               },
               {
                 "group": "Azure AKS",
                 "pages": [
-                  "integrations/kubernetes/aks/overview",
-                  "integrations/kubernetes/aks/managed",
-                  "integrations/kubernetes/aks/byok"
+                  "configuration/integrations/kubernetes/aks/overview",
+                  "configuration/integrations/kubernetes/aks/managed",
+                  "configuration/integrations/kubernetes/aks/byok"
                 ]
               },
               {
                 "group": "Scaleway Kapsule",
                 "pages": [
-                  "integrations/kubernetes/scaleway/overview",
-                  "integrations/kubernetes/scaleway/managed",
-                  "integrations/kubernetes/scaleway/byok"
+                  "configuration/integrations/kubernetes/scaleway/overview",
+                  "configuration/integrations/kubernetes/scaleway/managed",
+                  "configuration/integrations/kubernetes/scaleway/byok"
                 ]
               },
               {
                 "group": "Other Kubernetes",
                 "pages": [
-                  "integrations/kubernetes/byok",
-                  "integrations/kubernetes/eks-anywhere",
-                  "integrations/kubernetes/docker"
+                  "configuration/integrations/kubernetes/byok",
+                  "configuration/integrations/kubernetes/eks-anywhere",
+                  "configuration/integrations/kubernetes/docker"
                 ]
               }
             ]
@@ -248,24 +249,24 @@
                 "group": "Container Registries",
                 "pages": [
                   "configuration/organization/container-registry",
-                  "integrations/container-registries/docker-hub",
+                  "configuration/integrations/container-registries/docker-hub",
                   {
                     "group": "Cloud Registries",
                     "pages": [
-                      "integrations/container-registries/aws-ecr",
-                      "integrations/container-registries/gcp-artifact-registry",
-                      "integrations/container-registries/azure-acr",
-                      "integrations/container-registries/scaleway-cr"
+                      "configuration/integrations/container-registries/aws-ecr",
+                      "configuration/integrations/container-registries/gcp-artifact-registry",
+                      "configuration/integrations/container-registries/azure-acr",
+                      "configuration/integrations/container-registries/scaleway-cr"
                     ]
                   },
                   {
                     "group": "Git-based Registries",
                     "pages": [
-                      "integrations/container-registries/github-cr",
-                      "integrations/container-registries/gitlab-cr"
+                      "configuration/integrations/container-registries/github-cr",
+                      "configuration/integrations/container-registries/gitlab-cr"
                     ]
                   },
-                  "integrations/container-registries/generic"
+                  "configuration/integrations/container-registries/generic"
                 ]
               },
               {
@@ -339,10 +340,10 @@
               {
                 "group": "CI/CD Integrations",
                 "pages": [
-                  "integrations/ci-cd/github-actions",
-                  "integrations/ci-cd/gitlab-ci",
-                  "integrations/ci-cd/circleci",
-                  "integrations/ci-cd/jenkins"
+                  "configuration/integrations/ci-cd/github-actions",
+                  "configuration/integrations/ci-cd/gitlab-ci",
+                  "configuration/integrations/ci-cd/circleci",
+                  "configuration/integrations/ci-cd/jenkins"
                 ]
               }
             ]
@@ -353,16 +354,16 @@
               {
                 "group": "Secrets Management",
                 "pages": [
-                  "integrations/secret-managers/doppler",
-                  "integrations/secret-managers/aws-secrets-manager"
+                  "configuration/integrations/secret-managers/doppler",
+                  "configuration/integrations/secret-managers/aws-secrets-manager"
                 ]
               },
               {
                 "group": "Observability",
                 "pages": [
-                  "integrations/observability/qovery-observe",
-                  "integrations/observability/datadog",
-                  "integrations/observability/kubecost"
+                  "configuration/integrations/observability/qovery-observe",
+                  "configuration/integrations/observability/datadog",
+                  "configuration/integrations/observability/kubecost"
                 ]
               }
             ]
@@ -370,8 +371,8 @@
           {
             "group": "Notifications",
             "pages": [
-              "integrations/webhooks",
-              "integrations/slack"
+              "configuration/integrations/webhooks",
+              "configuration/integrations/slack"
             ]
           },
           {
@@ -380,8 +381,8 @@
               {
                 "group": "Networking",
                 "pages": [
-                  "integrations/aws/vpc-peering",
-                  "integrations/api-gateway-nginx"
+                  "configuration/integrations/aws/vpc-peering",
+                  "configuration/integrations/api-gateway-nginx"
                 ]
               },
               {
@@ -393,10 +394,10 @@
               {
                 "group": "Infrastructure as Code",
                 "pages": [
-                  "integrations/iac/overview",
-                  "integrations/iac/terraform",
-                  "integrations/iac/cloudformation",
-                  "integrations/iac/lifecycle-job-tutorial"
+                  "configuration/integrations/iac/overview",
+                  "configuration/integrations/iac/terraform",
+                  "configuration/integrations/iac/cloudformation",
+                  "configuration/integrations/iac/lifecycle-job-tutorial"
                 ]
               }
             ]
@@ -448,18 +449,18 @@
           {
             "group": "Getting Started",
             "pages": [
-              "terraform/overview",
-              "terraform/exporter"
+              "terraform-provider/overview",
+              "terraform-provider/exporter"
             ]
           },
           {
             "group": "Examples",
             "pages": [
-              "terraform/basic-application",
-              "terraform/application-with-database",
-              "terraform/multi-environment",
-              "terraform/airbyte-deployment",
-              "terraform/advanced-patterns"
+              "terraform-provider/basic-application",
+              "terraform-provider/application-with-database",
+              "terraform-provider/multi-environment",
+              "terraform-provider/airbyte-deployment",
+              "terraform-provider/advanced-patterns"
             ]
           }
         ]
@@ -509,18 +510,18 @@
             "group": "Getting Started",
             "pages": [
               "api-reference/introduction",
-              "api/authentication"
+              "api-reference/authentication"
             ]
           },
           {
             "group": "Guides",
             "pages": [
-              "api/overview",
-              "api/examples"
+              "api-reference/overview",
+              "api-reference/examples"
             ]
           }
         ],
-        "openapi": "/openapi.yaml"
+        "openapi": "/api-reference/openapi.yaml"
       }
     ]
   },

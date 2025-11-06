@@ -1,0 +1,155 @@
+---
+title: "Basic Application"
+description: "Deploy a containerized application with Terraform"
+---
+
+## Overview
+
+This example shows how to deploy a simple containerized application using the Qovery Terraform provider.
+
+## Prerequisites
+
+- Terraform installed
+- Qovery API token
+- Existing organization, project, and cluster in Qovery
+
+## Configuration
+
+```hcl
+terraform {
+  required_providers {
+    qovery = {
+      source  = "qovery/qovery"
+      version = "~> 0.48.2"
+    }
+  }
+}
+
+provider "qovery" {
+  token = var.qovery_api_token
+}
+
+# Look up existing resources
+data "qovery_organization" "my_org" {
+  name = "My Organization"
+}
+
+data "qovery_project" "my_project" {
+  organization_id = data.qovery_organization.my_org.id
+  name            = "My Project"
+}
+
+data "qovery_cluster" "my_cluster" {
+  organization_id = data.qovery_organization.my_org.id
+  name            = "production"
+}
+
+# Create an environment
+resource "qovery_environment" "production" {
+  project_id = data.qovery_project.my_project.id
+  cluster_id = data.qovery_cluster.my_cluster.id
+  name       = "production"
+  mode       = "PRODUCTION"
+}
+
+# Deploy an application
+resource "qovery_application" "api" {
+  environment_id = qovery_environment.production.id
+  name           = "api"
+
+  git_repository = {
+    url    = "https://github.com/your-org/your-app"
+    branch = "main"
+  }
+
+  build_mode      = "DOCKER"
+  dockerfile_path = "Dockerfile"
+
+  cpu    = 500
+  memory = 512
+
+  ports = [{
+    internal_port       = 8080
+    external_port       = 443
+    protocol            = "HTTP"
+    publicly_accessible = true
+  }]
+
+  auto_deploy = true
+}
+```
+
+## Variables
+
+Create a `variables.tf` file:
+
+```hcl
+variable "qovery_api_token" {
+  description = "Qovery API token"
+  type        = string
+  sensitive   = true
+}
+```
+
+## Deployment
+
+```bash
+# Initialize Terraform
+terraform init
+
+# Set your API token
+export TF_VAR_qovery_api_token="your-api-token"
+
+# Plan changes
+terraform plan
+
+# Apply configuration
+terraform apply
+```
+
+## Outputs
+
+Add outputs to track deployed resources:
+
+```hcl
+output "application_id" {
+  value       = qovery_application.api.id
+  description = "Application ID"
+}
+
+output "application_url" {
+  value       = qovery_application.api.external_host
+  description = "Application URL"
+}
+
+output "environment_id" {
+  value       = qovery_environment.production.id
+  description = "Environment ID"
+}
+```
+
+## Cleanup
+
+```bash
+terraform destroy
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Application with Database" icon="database" href="/terraform-provider/application-with-database">
+    Add a database to your application
+  </Card>
+
+  <Card title="Multi-Environment Setup" icon="layer-group" href="/terraform-provider/multi-environment">
+    Deploy to multiple environments
+  </Card>
+
+  <Card title="Provider Documentation" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Complete provider reference
+  </Card>
+
+  <Card title="Terraform Provider" icon="code" href="/terraform-provider/overview">
+    Back to overview
+  </Card>
+</CardGroup>

@@ -43,7 +43,7 @@ Contains the AWS STS Assume Role credentials setup instructions with CloudFormat
 When updating AWS STS credentials instructions:
 1. Update the snippet file: `/snippets/aws-credentials-sts.mdx`
 2. Copy the updated content to all locations listed above
-3. Keep screenshots in sync: `/images/aws-credentials/stack-output.png` and `/images/install-qovery/aws/create-credentials.jpg`
+3. Keep screenshots in sync: `/images/aws-credentials/stack-output.png` and `/images/install-qovery/aws/create-credentials.png`
 
 **Screenshots included:**
 - CloudFormation stack output with Role ARN
@@ -127,7 +127,7 @@ When updating Scaleway credentials instructions:
 2. Copy the updated content to all locations listed above
 3. Keep screenshots in sync (2 total):
    - `/images/scaleway-credentials/iam-menu.png`
-   - `/images/scaleway-credentials/create-credentials.jpg`
+   - `/images/scaleway-credentials/create-credentials.png`
 
 **Screenshots included:**
 - Scaleway IAM menu access

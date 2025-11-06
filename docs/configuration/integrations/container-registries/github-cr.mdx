@@ -1,0 +1,113 @@
+---
+title: "GitHub Container Registry"
+description: "Connect GitHub Container Registry (GHCR) with Qovery"
+---
+
+## Overview
+
+GitHub Container Registry (GHCR) is GitHub's container image registry service, integrated with GitHub repositories and Actions. It provides free storage for public images and supports private images for GitHub users.
+
+## Registry URL
+
+```
+https://ghcr.io
+```
+
+## Image Format
+
+```
+ghcr.io/<owner>/<image-name>:<tag>
+```
+
+Examples:
+- `ghcr.io/mycompany/api:latest`
+- `ghcr.io/myusername/frontend:v1.2.3`
+
+## Authentication
+
+GitHub Container Registry uses GitHub Personal Access Tokens (PAT) for authentication.
+
+### Required Permissions
+
+Your Personal Access Token needs the following scopes:
+- `read:packages` - Pull images
+- `write:packages` - Push images (if needed)
+
+## Configuration in Qovery
+
+<Steps>
+  <Step title="Create Personal Access Token">
+    1. Go to GitHub → **Settings** → **Developer settings**
+    2. Click **Personal access tokens** → **Tokens (classic)**
+    3. Click **Generate new token (classic)**
+    4. Give it a descriptive name (e.g., "Qovery GHCR Access")
+    5. Select required scopes:
+       - `read:packages`
+       - `write:packages` (if pushing images)
+    6. Click **Generate token** and copy immediately
+
+    <Warning>
+    GitHub shows the token only once. Save it securely.
+    </Warning>
+  </Step>
+
+  <Step title="Access Organization Settings">
+    Navigate to **Organization Settings** → **Container Registries** in Qovery
+  </Step>
+
+  <Step title="Add Registry">
+    Click **Add Registry**
+  </Step>
+
+  <Step title="Select GitHub Container Registry">
+    Choose **GitHub Container Registry** from the registry type dropdown
+  </Step>
+
+  <Step title="Enter Credentials">
+    Provide:
+    - **Username**: Your GitHub username
+    - **Password**: Personal Access Token (not your GitHub password)
+  </Step>
+
+  <Step title="Save">
+    Qovery will verify the credentials and save the configuration
+  </Step>
+</Steps>
+
+## Organization Access
+
+For organization-owned packages:
+- Ensure your PAT has access to the organization
+- Set package visibility appropriately (public/private)
+- Configure package permissions in GitHub
+
+## Integration with GitHub Actions
+
+GHCR integrates seamlessly with GitHub Actions for CI/CD workflows:
+
+```yaml
+- name: Push to GitHub Container Registry
+  run: |
+    echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    docker push ghcr.io/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+```
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Container Registry Management" icon="box" href="/configuration/organization/container-registry">
+    Manage all container registries
+  </Card>
+
+  <Card title="Deploy Application" icon="rocket" href="/configuration/application">
+    Deploy applications from container images
+  </Card>
+
+  <Card title="GitLab Container Registry" icon="/images/logos/gitlab-icon.svg" href="/configuration/integrations/container-registries/gitlab-cr">
+    Alternative Git-based registry
+  </Card>
+
+  <Card title="Docker Hub" icon="docker" href="/configuration/integrations/container-registries/docker-hub">
+    Public container registry option
+  </Card>
+</CardGroup>

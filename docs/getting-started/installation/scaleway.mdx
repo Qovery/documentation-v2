@@ -1,0 +1,596 @@
+---
+title: "Install Qovery on Scaleway"
+description: "Complete guide to installing Qovery on Scaleway with Kapsule Kubernetes"
+---
+
+Install Qovery on your Scaleway account and deploy a fully managed Kubernetes cluster (Kapsule) in less than 20 minutes.
+
+## Overview
+
+Qovery simplifies Scaleway Kapsule management by:
+- Automating Kapsule cluster creation and configuration
+- Managing networking, load balancers, and DNS
+- Providing built-in monitoring and logging
+- Handling rolling updates and scaling
+- Securing your infrastructure with best practices
+
+<CardGroup cols={2}>
+  <Card title="Fully Managed" icon="wand-magic-sparkles">
+    Qovery creates and manages your Kapsule cluster automatically
+  </Card>
+  <Card title="EU Data Sovereignty" icon="shield-check">
+    All data stays in Europe - Paris, Amsterdam, or Warsaw
+  </Card>
+  <Card title="Cost Effective" icon="dollar-sign">
+    Free control plane + competitive instance pricing
+  </Card>
+  <Card title="GDPR Compliant" icon="certificate">
+    European cloud provider with built-in GDPR compliance
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+<Check>**Scaleway Account**: Active Scaleway account with billing enabled</Check>
+<Check>**Scaleway Project**: A project created (or use default project)</Check>
+<Check>**Qovery Account**: Free account at [console.qovery.com](https://console.qovery.com/signup)</Check>
+<Check>**IAM Access**: Ability to create applications and API keys</Check>
+
+### Why Choose Scaleway?
+
+<AccordionGroup>
+  <Accordion title="European Data Sovereignty">
+    - All data centers located in Europe (Paris, Amsterdam, Warsaw)
+    - GDPR compliant by design
+    - No data transfer outside EU
+    - Sovereignty for sensitive workloads
+  </Accordion>
+
+  <Accordion title="Cost-Effective">
+    - Free Kubernetes control plane (mutualized option)
+    - Transparent, predictable pricing
+    - No egress fees within regions
+  </Accordion>
+
+  <Accordion title="Simplified Infrastructure">
+    - Easy-to-use console and APIs
+    - Fast provisioning times
+    - Good performance-to-price ratio
+    - European-based support team
+  </Accordion>
+</AccordionGroup>
+
+## Step 1: Create Scaleway Credentials
+
+Qovery needs API credentials to manage resources in your Scaleway account. We use a secure API key approach with granular permissions.
+
+### Generate API Key
+
+<Steps>
+  <Step title="Access IAM Console">
+    1. Log into [Scaleway Console](https://console.scaleway.com)
+    2. Click your profile/organization name in the top-right
+    3. Select **Identity and Access Management (IAM)**
+
+    ![Scaleway IAM](/images/scaleway-credentials/iam-menu.png)
+  </Step>
+
+  <Step title="Create Application">
+    1. Navigate to **Applications** tab
+    2. Click **+ Create application**
+    3. Name it: `qovery-manager` or similar
+    4. Description: "Qovery cluster management"
+    5. Click **Create application**
+
+    <Tip>
+    Applications help organize API keys by purpose. You can reuse this application for multiple clusters.
+    </Tip>
+  </Step>
+
+  <Step title="Generate API Key">
+    1. Click on your newly created application
+    2. Go to **API keys** tab
+    3. Click **+ Generate API key**
+    4. Description: "Qovery cluster access"
+    5. Select **Object Storage preferred Project** (your main project)
+    6. Click **Generate API key**
+
+    <Warning>
+    **Save these credentials immediately!** The secret key is only shown once and cannot be retrieved later.
+    </Warning>
+
+    You'll see:
+    - **Access key ID**: `SCWxxxxxxxxxxxxxxxxx`
+    - **Secret access key**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+    Copy both to a secure location.
+  </Step>
+
+  <Step title="Configure Permissions">
+    1. Go to **Policies** tab in IAM
+    2. Click **+ Create policy**
+    3. Name it: `qovery-permissions`
+    4. Click **Add rule** for each of these permission sets:
+
+    **Required Permissions:**
+    - ✅ **Containers** - Full access (for Kapsule management)
+    - ✅ **Network Services** - Full access (for VPC, Load Balancers)
+    - ✅ **Compute** - Full access (for instances)
+    - ✅ **Storage** - Full access (for persistent volumes)
+    - ✅ **VPC** - Full access (for networking)
+
+    5. Under **Principal**, attach this policy to your application
+    6. Click **Create policy**
+
+    <Info>
+    These permissions allow Qovery to fully manage your Kubernetes infrastructure, including creating instances, configuring networking, and managing storage.
+    </Info>
+  </Step>
+
+  <Step title="Gather Required IDs">
+    You'll need these identifiers:
+
+    **Organization ID:**
+    1. Go to **Organization Settings**
+    2. Copy the **Organization ID** (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+
+    **Project ID:**
+    1. Go to your **Project Dashboard**
+    2. Click **Project settings**
+    3. Copy the **Project ID** (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+
+    <Tip>
+    Keep these IDs handy - you'll need them when configuring Qovery.
+    </Tip>
+  </Step>
+</Steps>
+
+### Add Credentials to Qovery
+
+<Steps>
+  <Step title="Start Cluster Creation">
+    1. Go to [Qovery Console](https://console.qovery.com)
+    2. Click **Clusters** in the left sidebar
+    3. Click **Create Cluster**
+    4. Select **Scaleway** as the cloud provider
+  </Step>
+
+  <Step title="Enter Credentials">
+    Provide the information you gathered:
+    - **Access Key ID**: Your Scaleway access key
+    - **Secret Access Key**: Your Scaleway secret key
+    - **Organization ID**: Your Scaleway organization ID
+    - **Project ID**: Your Scaleway project ID
+
+    <Frame>
+      <img src="/images/scaleway-credentials/create-credentials.png" alt="Enter Scaleway credentials in Qovery Console" />
+    </Frame>
+
+    Click **Next** to validate the credentials.
+  </Step>
+
+  <Step title="Verify Connection">
+    Qovery will test the credentials and verify it can access your Scaleway account.
+
+    <Info>
+    If validation fails, double-check your API key has all required permissions attached via the policy.
+    </Info>
+  </Step>
+</Steps>
+
+<Info>
+**Source**: Content above is maintained in `/snippets/scaleway-credentials.mdx`. Update snippet first, then copy to all usage locations.
+</Info>
+
+## Step 2: Configure Your Cluster
+
+Now configure your Kapsule cluster settings in the Qovery console.
+
+### Basic Configuration
+
+<Steps>
+  <Step title="Cluster Name">
+    Choose a descriptive name for your cluster:
+    - `production-kapsule`
+    - `staging-scaleway`
+    - `dev-kapsule-paris`
+
+    <Tip>
+    Use naming conventions that indicate environment and region for easier management.
+    </Tip>
+  </Step>
+
+  <Step title="Select Region">
+    Choose a Scaleway region closest to your users:
+
+    **Paris (France) - `fr-par`:**
+    - Availability Zones: `fr-par-1`, `fr-par-2`, `fr-par-3`
+    - Main Scaleway hub with most services
+    - Lowest latency for Western Europe
+    - Multiple data centers for redundancy
+
+    **Amsterdam (Netherlands) - `nl-ams`:**
+    - Availability Zones: `nl-ams-1`, `nl-ams-2`, `nl-ams-3`
+    - Optimal for Northern Europe
+    - Good connectivity to UK and Scandinavia
+    - Growing availability zone coverage
+
+    **Warsaw (Poland) - `pl-waw`:**
+    - Availability Zones: `pl-waw-1`, `pl-waw-2`, `pl-waw-3`
+    - Optimal for Eastern Europe
+    - Central European location
+    - Good latency to Germany, Austria, Czech Republic
+
+    <Info>
+    **Choosing a Region:**
+    - Paris: Most mature, largest service catalog
+    - Amsterdam: Northern Europe, strong connectivity
+    - Warsaw: Eastern Europe, competitive pricing
+    </Info>
+  </Step>
+
+  <Step title="Attach Credentials">
+    Select the Scaleway credentials you created in Step 1.
+
+    If you need to create new credentials, click **Add new credentials** and repeat Step 1.
+  </Step>
+</Steps>
+
+### Node Pool Configuration
+
+Configure the instance types for your Kapsule node pools:
+
+<Accordion title="Instance Type Recommendations">
+  **Development/Testing:**
+  - `DEV1-M` (2 vCPU, 3 GB RAM)
+  - `DEV1-L` (3 vCPU, 4 GB RAM)
+  - `DEV1-XL` (4 vCPU, 6 GB RAM)
+
+  **General Purpose (Balanced workloads):**
+  - `GP1-XS` (4 vCPU, 16 GB RAM)
+  - `GP1-S` (8 vCPU, 32 GB RAM)
+  - `GP1-M` (16 vCPU, 64 GB RAM)
+  - `GP1-L` (32 vCPU, 128 GB RAM)
+
+  **Cost-Optimized (x86):**
+  - `COPARM1-2C-8G` (2 vCPU, 8 GB RAM) - Budget-friendly
+  - `COPARM1-4C-16G` (4 vCPU, 16 GB RAM) - Good balance
+  - `COPARM1-8C-32G` (8 vCPU, 32 GB RAM) - Higher capacity
+
+  **Cost-Optimized (ARM - Ampere Altra):**
+  - `COPARM1-2C-8G` (2 vCPU ARM, 8 GB RAM) - Lower cost
+  - `COPARM1-4C-16G` (4 vCPU ARM, 16 GB RAM) - Great value
+  - `COPARM1-8C-32G` (8 vCPU ARM, 32 GB RAM) - Best price/performance
+
+  <Tip>
+  ARM instances offer excellent price-to-performance ratio for compatible workloads (most modern container images support ARM).
+  </Tip>
+</Accordion>
+
+**Example Configuration:**
+```yaml
+Node Pool Settings:
+  - DEV1-M (2 vCPU, 3GB) - Development workloads
+  - GP1-XS (4 vCPU, 16GB) - General purpose applications
+  - COPARM1-4C-16G (4 vCPU ARM, 16GB) - Cost-optimized workloads
+```
+
+<Info>
+**Multi-architecture Support:** Scaleway Kapsule supports both x86_64 and ARM instances. You can mix both in the same cluster by using node selectors.
+</Info>
+
+### Networking Configuration
+
+Qovery automatically configures Scaleway networking:
+
+**What's Created:**
+- Private Network (VPC) with custom CIDR
+- Load Balancer for ingress traffic
+- Public Gateway for NAT (outbound internet)
+- Security Groups for firewall rules
+- Automatic DNS configuration
+
+<Accordion title="Advanced Networking Options">
+  **Qovery-Managed VPC (Default):**
+  Qovery creates a dedicated Private Network for your cluster with optimal configuration.
+
+  **Existing VPC:**
+  Deploy into your own Private Network to connect with existing Scaleway resources.
+
+  **Load Balancer:**
+  Scaleway Load Balancer automatically configured for HTTP/HTTPS ingress with SSL termination.
+
+  **VPC Peering:**
+  Configure Private Network routes after deployment to connect to databases or other services.
+</Accordion>
+
+### Control Plane Options
+
+<Accordion title="Control Plane Tiers">
+  **Mutualized (Free) - Recommended for most users:**
+  - Shared Kubernetes control plane
+  - No additional cost
+  - Suitable for development, staging, and production
+  - 99.9% SLA
+
+  **Dedicated (Paid) - For high-performance needs:**
+  - Dedicated control plane resources
+  - Higher API rate limits
+  - Better performance under heavy load
+  - 30-day minimum commitment
+
+  <Tip>
+  Start with mutualized (free) control plane. You can upgrade to dedicated later if you need higher performance or rate limits.
+  </Tip>
+</Accordion>
+
+## Step 3: Deploy Your Cluster
+
+<Steps>
+  <Step title="Review Configuration">
+    Review all your cluster settings:
+    - Cluster name
+    - Scaleway project
+    - Region and availability zones
+    - Instance types
+    - Control plane tier
+    - Networking options
+  </Step>
+
+  <Step title="Create and Deploy">
+    Click **Create and Deploy**
+
+    <Info>
+    You can start configuring applications immediately! The cluster will be available once deployment completes.
+    </Info>
+  </Step>
+
+  <Step title="Monitor Progress">
+    Watch the deployment progress in the Qovery console.
+
+    **Timeline:**
+    - **0-5 min**: Creating Private Network and security groups
+    - **5-10 min**: Provisioning Kapsule control plane
+    - **10-15 min**: Creating node pool and instances
+    - **15-20 min**: Installing Qovery components (ingress, monitoring, etc.)
+
+    **Status indicators:**
+    - 🟡 **Creating**: Infrastructure provisioning in progress
+    - 🟢 **Running**: Cluster is ready to use
+    - 🔴 **Error**: Check logs for troubleshooting
+  </Step>
+
+  <Step title="Verify Installation">
+    Once complete, your cluster will appear in the cluster list with status **Running**.
+  </Step>
+</Steps>
+
+## What Gets Created
+
+Qovery automatically provisions these Scaleway resources:
+
+<AccordionGroup>
+  <Accordion title="Core Infrastructure">
+    - **Kapsule Cluster**: Managed Kubernetes cluster
+    - **Private Network**: Isolated VPC for your cluster
+    - **Control Plane**: Mutualized or dedicated (your choice)
+    - **Node Pool**: Auto-scaling group of instances
+    - **Security Groups**: Firewall rules for traffic control
+    - **Public Gateway**: NAT for outbound internet access
+  </Accordion>
+
+  <Accordion title="Networking">
+    - **Load Balancer**: Layer 4/7 load balancing for ingress
+    - **Public IPs**: Flexible IP addresses for services
+    - **DNS**: Automatic domain management
+    - **Private IPs**: Internal cluster communication
+  </Accordion>
+
+  <Accordion title="Compute">
+    - **Instances**: DEV1, GP1, or Cost-Optimized instances
+    - **Block Storage**: SSD volumes for persistent data
+    - **Auto-scaling**: Cluster autoscaler for node provisioning
+    - **Multi-AZ**: Nodes spread across availability zones
+  </Accordion>
+
+  <Accordion title="Qovery Components">
+    - **NGINX Ingress Controller**: HTTP/HTTPS routing
+    - **Cert-Manager**: Automatic SSL/TLS certificates
+    - **Qovery Agent**: Cluster management and monitoring
+    - **Metrics Server**: Resource usage metrics
+    - **DNS Management**: Automatic domain configuration
+  </Accordion>
+</AccordionGroup>
+
+## Post-Installation Steps
+
+Once your cluster is running:
+
+<Steps>
+  <Step title="Deploy Your First Application">
+    Follow the [Deploy Your First App](/guides/getting-started/deploy-your-first-application) guide
+  </Step>
+
+  <Step title="Configure Custom Domain">
+    Set up your own domain instead of the default Qovery domain
+  </Step>
+
+  <Step title="Set Up Monitoring">
+    Configure [monitoring and observability](/integrations/observability/overview)
+  </Step>
+
+  <Step title="Configure Backups">
+    Set up backup policies for persistent data using Scaleway snapshots
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Credential Creation Failed">
+    **Error**: "Invalid credentials" or "Permission denied"
+
+    **Solutions:**
+    - Verify all required permissions are attached to your API key via IAM policy
+    - Check that the API key is active (not expired or revoked)
+    - Ensure you copied the full access key and secret key correctly
+    - Verify the Organization ID and Project ID match your Scaleway account
+    - Make sure your Scaleway project has billing enabled
+  </Accordion>
+
+  <Accordion title="Cluster Creation Stuck">
+    **Issue**: Cluster stuck in "Creating" state for over 30 minutes
+
+    **Solutions:**
+    - Check Scaleway quotas for your project (instances, IPs, block volumes)
+    - Verify the selected region has instance availability
+    - Check [Scaleway Status Page](https://status.scaleway.com) for outages
+    - Verify your billing is up to date
+    - Contact Qovery support if issue persists
+  </Accordion>
+
+  <Accordion title="Insufficient Quota">
+    **Error**: "Quota exceeded" or "No capacity available"
+
+    **Solutions:**
+    1. Check your quotas in Scaleway Console → Organization Settings → Quotas
+    2. Request quota increase through Scaleway support
+    3. Try a different availability zone within the same region
+    4. Choose smaller or different instance types
+    5. Clean up unused resources
+
+    **Common quota limits:**
+    - Compute instances per zone
+    - Total vCPUs per organization
+    - Flexible IPs per project
+    - Block Storage volumes
+    - Load Balancers per region
+  </Accordion>
+
+  <Accordion title="Network Configuration Issues">
+    **Issue**: Applications can't access external services or the internet
+
+    **Solutions:**
+    - Verify Public Gateway is properly configured
+    - Check Security Group rules allow outbound traffic
+    - Ensure Private Network routes are configured
+    - Verify DNS resolution: `kubectl run -it debug --image=nicolaka/netshoot --rm`
+    - Check load balancer health checks are passing
+  </Accordion>
+
+  <Accordion title="Node Provisioning Failures">
+    **Error**: "Instance failed to join cluster" or "Node registration timeout"
+
+    **Solutions:**
+    - Check instance type availability in your region/AZ
+    - Verify Security Group allows Kapsule control plane communication
+    - Ensure Private Network is properly configured
+    - Check instance startup logs in Scaleway console
+    - Try a different instance type or availability zone
+  </Accordion>
+</AccordionGroup>
+
+## Advanced Configuration
+
+### Private Network Routes
+
+Connect your Kapsule cluster to existing Scaleway resources:
+
+1. Navigate to Private Networks in Scaleway Console
+2. Attach your existing Private Network to the Kapsule cluster
+3. Configure routes between networks
+4. Update Security Groups to allow traffic
+5. Test connectivity from pods
+
+### Using Existing Private Network
+
+Deploy Qovery into your own Private Network:
+
+<Warning>
+When using an existing Private Network, ensure it has:
+- Sufficient IP address ranges for pods and services
+- Public Gateway attached for internet access
+- Security Groups configured to allow Kubernetes traffic
+- No conflicts with existing resources
+</Warning>
+
+### ARM Workloads
+
+Take advantage of ARM instances for better price-to-performance:
+
+1. Use ARM-compatible container images (most official images support both)
+2. Add node selector to deployments:
+   ```yaml
+   nodeSelector:
+     kubernetes.io/arch: arm64
+   ```
+3. Test ARM compatibility in staging before production
+4. Mix ARM and x86 nodes using node selectors for different workloads
+
+### Multi-Availability Zone
+
+Increase reliability with multi-AZ deployment:
+
+1. Configure node pools across multiple AZs
+2. Use pod anti-affinity to spread replicas
+3. Configure topology spread constraints
+4. Test failover scenarios
+5. Monitor cross-AZ traffic costs
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use ARM Instances" icon="microchip">
+    Leverage ARM instances (COPARM1) for better price/performance on compatible workloads
+  </Card>
+
+  <Card title="Start with Free Control Plane" icon="dollar-sign">
+    Mutualized control plane is free and suitable for most workloads
+  </Card>
+
+  <Card title="Enable Autoscaling" icon="arrows-maximize">
+    Configure cluster autoscaler to optimize costs during low-traffic periods
+  </Card>
+
+  <Card title="Multi-AZ Deployment" icon="shield">
+    Deploy across multiple AZs for high availability
+  </Card>
+
+  <Card title="Monitor Costs" icon="chart-line">
+    Use Scaleway Cockpit to track resource usage and costs
+  </Card>
+
+  <Card title="Regular Backups" icon="floppy-disk">
+    Leverage Scaleway snapshots for persistent volume backups
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deploy Your First App" icon="rocket" href="/getting-started/guides/getting-started/deploy-your-first-application">
+    Complete step-by-step deployment guide
+  </Card>
+
+  <Card title="Configure RBAC" icon="users" href="/configuration/organization/members-rbac">
+    Set up team access control
+  </Card>
+
+  <Card title="Set Up CI/CD" icon="code-branch" href="/configuration/integrations/ci-cd/github-actions">
+    Automate deployments with GitHub Actions or GitLab CI
+  </Card>
+
+  <Card title="Monitor Your Cluster" icon="chart-line" href="/configuration/integrations/observability/qovery-observe">
+    Configure monitoring and alerting
+  </Card>
+</CardGroup>
+
+## Additional Resources
+
+- [Scaleway Kapsule Documentation](https://www.scaleway.com/en/docs/kubernetes/)
+- [Scaleway Pricing Calculator](https://www.scaleway.com/en/pricing/)
+- [Scaleway Status Page](https://status.scaleway.com)
+- [Qovery Status Page](https://status.qovery.com)
+- [Qovery Community Forum](https://discuss.qovery.com) - Updates and announcements from the Qovery team
