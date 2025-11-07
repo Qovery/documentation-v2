@@ -80,14 +80,6 @@
             ]
           },
           {
-            "group": "Tutorials",
-            "pages": [
-              "getting-started/guides/getting-started/deploy-your-first-application",
-              "getting-started/guides/getting-started/connect-database",
-              "getting-started/guides/others/database-seeding-lifecycle-job"
-            ]
-          },
-          {
             "group": "Platform Capabilities",
             "pages": [
               {
@@ -131,33 +123,47 @@
             ]
           },
           {
-            "group": "Advanced Tutorials",
+            "group": "Tutorials",
             "pages": [
+              "getting-started/guides/getting-started/deploy-your-first-application",
+              "getting-started/guides/getting-started/connect-database",
+              "getting-started/guides/others/database-seeding-lifecycle-job",
               {
-                "group": "Infrastructure & Security",
+                "group": "Advanced Tutorials",
                 "pages": [
-                  "getting-started/guides/advanced-tutorials/aws-iam-roles",
-                  "getting-started/guides/advanced-tutorials/certificate-management-multi-tenant",
-                  "getting-started/guides/advanced-tutorials/cloudwatch-integration"
-                ]
-              },
-              {
-                "group": "Networking & Access Control",
-                "pages": [
-                  "getting-started/guides/advanced-tutorials/cloudflare-custom-domain",
-                  "getting-started/guides/advanced-tutorials/rate-limiting",
-                  "getting-started/guides/advanced-tutorials/ip-header-authorization"
-                ]
-              },
-              {
-                "group": "Development & Deployment",
-                "pages": [
-                  "getting-started/guides/advanced-tutorials/write-dockerfile",
-                  "getting-started/guides/advanced-tutorials/import-env-vars-cli",
-                  "getting-started/guides/advanced-tutorials/deploy-jupyterhub",
-                  "getting-started/guides/advanced-tutorials/rust-api-part-1"
+                  {
+                    "group": "Infrastructure & Security",
+                    "pages": [
+                      "getting-started/guides/advanced-tutorials/aws-iam-roles",
+                      "getting-started/guides/advanced-tutorials/certificate-management-multi-tenant",
+                      "getting-started/guides/advanced-tutorials/cloudwatch-integration"
+                    ]
+                  },
+                  {
+                    "group": "Networking & Access Control",
+                    "pages": [
+                      "getting-started/guides/advanced-tutorials/cloudflare-custom-domain",
+                      "getting-started/guides/advanced-tutorials/rate-limiting",
+                      "getting-started/guides/advanced-tutorials/ip-header-authorization"
+                    ]
+                  },
+                  {
+                    "group": "Development & Deployment",
+                    "pages": [
+                      "getting-started/guides/advanced-tutorials/write-dockerfile",
+                      "getting-started/guides/advanced-tutorials/import-env-vars-cli",
+                      "getting-started/guides/advanced-tutorials/deploy-jupyterhub",
+                      "getting-started/guides/advanced-tutorials/rust-api-part-1"
+                    ]
+                  }
                 ]
               }
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "getting-started/troubleshoot/overview"
             ]
           },
           {
@@ -165,12 +171,6 @@
             "pages": [
               "getting-started/useful-resources/faq",
               "getting-started/useful-resources/help-and-support"
-            ]
-          },
-          {
-            "group": "Troubleshooting",
-            "pages": [
-              "getting-started/troubleshoot/overview"
             ]
           }
         ]
