@@ -204,6 +204,7 @@
             "group": "Clusters & Cloud",
             "pages": [
               "configuration/clusters",
+              "configuration/cluster-advanced-settings",
               "configuration/organization/cloud-credentials",
               {
                 "group": "AWS EKS",
