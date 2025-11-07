@@ -523,88 +523,90 @@ html[data-theme="dark"] .badge-icon-scaleway-dark {
 }
 
 /* Helm and Terraform icon color switching for dark mode */
-/* Swap to dark versions using content property */
+/* Use filter approach for better production compatibility */
 
 /* Light mode - use default light versions */
 img[src*="/terraform-icon.svg"],
-img[src*="/helm-icon.svg"] {
+img[src*="/helm-icon.svg"],
+img[src*="/aws-icon.svg"],
+img[src*="/github-icon.svg"] {
   /* Light mode uses default colors in SVG */
 }
 
-/* Dark mode - swap to dark versions with exact #D8CBFF color */
+/* Dark mode - apply filter to brighten icons */
 html[class*="dark"] img[src*="/terraform-icon.svg"],
 html[data-theme="dark"] img[src*="/terraform-icon.svg"],
 .dark img[src*="/terraform-icon.svg"] {
-  content: url("/images/logos/terraform-icon-dark.svg");
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
+/* Helm icon - make white in dark mode */
+html[class*="dark"] img[src*="/helm-icon.svg"],
+html[data-theme="dark"] img[src*="/helm-icon.svg"],
+.dark img[src*="/helm-icon.svg"],
 html[class*="dark"] img[src*="/helm-icon-light.svg"],
 html[data-theme="dark"] img[src*="/helm-icon-light.svg"],
 .dark img[src*="/helm-icon-light.svg"] {
-  content: url("/images/logos/helm-icon-dark.svg");
+  filter: brightness(0) invert(1);
 }
 
-html[class*="dark"] img[src*="/helm-icon.svg"],
-html[data-theme="dark"] img[src*="/helm-icon.svg"],
-.dark img[src*="/helm-icon.svg"] {
-  content: url("/images/logos/helm-icon-dark.svg");
-}
-
-/* AWS icon - swap to dark version in dark mode */
+/* AWS icon - swap to dark version to preserve orange arrow */
 html[class*="dark"] img[src*="/aws-icon.svg"],
 html[data-theme="dark"] img[src*="/aws-icon.svg"],
 .dark img[src*="/aws-icon.svg"] {
   content: url("/images/logos/cloud-providers/aws-icon-dark.svg");
 }
 
-/* GitHub icon - swap to dark version in dark mode */
+/* GitHub icon - make white in dark mode */
 html[class*="dark"] img[src*="/github-icon.svg"],
 html[data-theme="dark"] img[src*="/github-icon.svg"],
 .dark img[src*="/github-icon.svg"] {
-  content: url("/images/logos/github-icon-dark.svg");
+  filter: brightness(0) invert(1);
 }
 
-/* Scaleway icon - swap to dark version in dark mode */
+/* Scaleway icon - brighten for dark mode */
 html[class*="dark"] img[src*="/scaleway-icon-light.svg"],
 html[data-theme="dark"] img[src*="/scaleway-icon-light.svg"],
 .dark img[src*="/scaleway-icon-light.svg"] {
-  content: url("/images/logos/cloud-providers/scaleway-icon-dark.svg");
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Product logo color switching for dark mode */
+/* Use filter approach for better production compatibility */
+
 /* Provision logo */
 html[class*="dark"] img[src*="/logos/provision-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/provision-logo-only.svg"],
 .dark img[src*="/logos/provision-logo-only.svg"] {
-  content: url("/logos/provision-logo-only-dark.svg");
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Deploy logo */
 html[class*="dark"] img[src*="/logos/deploy-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/deploy-logo-only.svg"],
 .dark img[src*="/logos/deploy-logo-only.svg"] {
-  content: url("/logos/deploy-logo-only-dark.svg");
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Observe logo */
 html[class*="dark"] img[src*="/logos/observe-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/observe-logo-only.svg"],
 .dark img[src*="/logos/observe-logo-only.svg"] {
-  content: url("/logos/observe-logo-only-dark.svg");
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Optimize logo */
 html[class*="dark"] img[src*="/logos/optimize-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/optimize-logo-only.svg"],
 .dark img[src*="/logos/optimize-logo-only.svg"] {
-  content: url("/logos/optimize-logo-only-dark.svg");
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Secure logo */
 html[class*="dark"] img[src*="/logos/secure-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/secure-logo-only.svg"],
 .dark img[src*="/logos/secure-logo-only.svg"] {
-  content: url("/logos/secure-logo-only-dark.svg");
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Remove duplicate page titles */

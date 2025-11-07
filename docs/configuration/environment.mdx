@@ -99,48 +99,275 @@ Configure the deployment pipeline to be executed when a deployment on the enviro
 
 Learn more about [deployment pipelines](/configuration/deployment/pipeline).
 
-## Preview Environment
+## Preview Environments
 
-Preview environments are automatically created for pull requests, enabling you to test changes in isolation before merging.
+Preview Environments are temporary, isolated environments automatically created from your blueprint environment when you open a pull request. They enable you to test changes in production-like conditions before merging.
 
-![Preview Environment Settings](/images/configuration/environment/preview_environment.png)
+<Info>
+**Tutorial**: For a complete step-by-step tutorial on getting started with Preview Environments, including prerequisites and detailed setup instructions, see our [Getting Started with Preview Environments Tutorial](/getting-started/guides/use-cases/preview-environments).
+</Info>
 
-### Creating Preview Environments
+### What are Preview Environments?
 
-Qovery supports two workflows for preview environments:
+Preview Environments solve the challenge of maintaining testing environments that accurately mirror production without manual DevOps overhead. When you open a pull request, Qovery automatically creates a clone of your production setup, allowing you to:
 
-#### On Demand (Manual)
+- **Share live changes** in code reviews beyond Git diffs
+- **Generate shareable links** for stakeholder collaboration
+- **Run CI tests** against high-fidelity production copies before merging
 
-Developers manually create preview environments when needed by commenting on pull requests.
+<Frame>
+  <img src="/images/preview-environment/preview_env_flow_schema.jpg" alt="Preview Environment workflow diagram" />
+</Frame>
 
-**Setup**:
-1. Enable preview environments in environment settings
-2. Configure which services to include
-3. Developers comment on PRs to trigger creation
+### Key Concepts
 
-![Preview Environment Flow](/images/configuration/environment/preview_env_flow_ondemand.png)
+#### Blueprint Environment
 
-#### On Every PR (Automatic)
+A Blueprint Environment serves as the template for all your Preview Environments. It's a fully-configured, working environment that Qovery clones whenever a new pull request is created.
 
-Qovery automatically creates a preview environment for every pull request.
+**Blueprint Best Practices**:
+- Use a separate cluster from production for Preview Environments
+- Ensure all applications and services are properly configured
+- Test the Blueprint thoroughly before enabling Preview Environments
+- Keep it in sync with your production configuration
+
+<Frame>
+  <img src="/images/preview-environment/preview_env_branching.jpg" alt="Git branching strategy for Preview Environments" />
+</Frame>
+
+#### Base Branch
+
+The base branch (e.g., `main` or `staging`) determines when Preview Environments are created. When you create a pull request targeting the base branch, Qovery automatically clones your Blueprint Environment.
+
+### Quick Setup
+
+<Steps>
+  <Step title="Create Blueprint Environment">
+    Clone your existing working environment and name it "blueprint"
+
+    1. Navigate to your working environment
+    2. Click **Clone Environment**
+    3. Name it "blueprint" or similar
+    4. Deploy and verify it works correctly
+  </Step>
+
+  <Step title="Enable Preview Environments">
+    Activate the Preview Environment feature for your applications
+
+    1. Go to Environment Settings
+    2. Select the **Preview Environments** tab
+    3. Toggle **Enable Preview Environments**
+    4. Select which services to include
+
+    ![Preview Environment Settings](/images/configuration/environment/preview_environment.png)
+  </Step>
+
+  <Step title="Configure Base Branch">
+    Set the base branch for each application in your Blueprint
+
+    1. Open each application in the Blueprint environment
+    2. Go to application settings
+    3. Change Git Branch to your base branch (e.g., `main` or `staging`)
+    4. This ensures feature branches create isolated Preview Environments
+  </Step>
+
+  <Step title="Create a Pull Request">
+    Open a PR and Qovery will automatically create a Preview Environment
+
+    1. Create a feature branch
+    2. Make your changes
+    3. Open a pull request to the base branch
+    4. Qovery creates a Preview Environment automatically
+    5. Access the preview URL from the PR comments
+  </Step>
+</Steps>
+
+### Preview Environment Workflows
+
+Qovery supports two workflows for creating Preview Environments:
+
+#### Automatic (On Every PR)
+
+Qovery automatically creates a Preview Environment for every pull request targeting your base branch.
+
+**Best for**: Teams that want maximum automation and always need to test changes
 
 **Setup**:
 1. Enable auto-preview in environment settings
 2. Select services to deploy automatically
 3. Configure auto-delete rules
 
-### Per-Service Activation
+#### Manual (On Demand)
 
-You can control which services are included in preview environments at the service level, giving you fine-grained control over what gets deployed.
+Developers manually trigger Preview Environment creation by commenting on pull requests.
+
+**Best for**: Teams that want to control costs or only need Preview Environments for specific PRs
+
+**Setup**:
+1. Enable preview environments in environment settings
+2. Configure which services to include
+3. Developers comment `/qovery preview` on PRs to trigger creation
+
+![Preview Environment Flow](/images/configuration/environment/preview_env_flow_ondemand.png)
+
+### Per-Service Configuration
+
+You have fine-grained control over which services are deployed in Preview Environments:
+
+- **Applications**: Choose which applications to include
+- **Databases**: Optionally include databases (clones or shared)
+- **Services**: Select supporting services to deploy
+
+This flexibility helps control costs and deployment times.
 
 ### Auto-Delete Functionality
 
-Configure automatic cleanup of preview environments:
-- When PR is merged
-- When PR is closed
-- After specified period of inactivity
+Configure automatic cleanup of Preview Environments to control costs:
 
-This helps control costs and keeps your project organized.
+**Delete triggers**:
+- When PR is merged
+- When PR is closed without merging
+- After specified period of inactivity
+- Manual deletion via CLI or Console
+
+**Cost optimization**: Preview Environments are typically deleted within minutes of PR closure, preventing unnecessary infrastructure costs.
+
+### Advanced Features
+
+<AccordionGroup>
+  <Accordion title="Database Seeding" icon="seedling">
+    Populate Preview Environment databases with test data using Lifecycle Jobs.
+
+    - Run SQL scripts on environment startup
+    - Seed databases with production-like data
+    - Reset data between deployments
+
+    [Learn more about database seeding](/getting-started/guides/others/database-seeding-lifecycle-job)
+  </Accordion>
+
+  <Accordion title="CI/CD Integration" icon="rotate">
+    Integrate Preview Environments with your CI/CD pipeline for automated testing.
+
+    - Trigger tests automatically when Preview Environment is ready
+    - Run E2E tests against preview URLs
+    - Post results back to pull requests
+
+    [See CI/CD integration examples](/configuration/integrations/ci-cd/github-actions)
+  </Accordion>
+
+  <Accordion title="Custom Domains" icon="globe">
+    Configure custom domains for Preview Environments.
+
+    - Use wildcard DNS (e.g., `*.preview.yourdomain.com`)
+    - Automatic SSL certificates
+    - Shareable URLs for stakeholders
+  </Accordion>
+
+  <Accordion title="Resource Management" icon="server">
+    Control resources to optimize costs for Preview Environments.
+
+    - Use smaller instance sizes than production
+    - Set auto-stop rules for inactive environments
+    - Configure memory and CPU limits per service
+  </Accordion>
+</AccordionGroup>
+
+### Common Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Feature Development" icon="code">
+    Test new features in isolation before merging to main branch
+  </Card>
+
+  <Card title="Bug Fixes" icon="bug">
+    Verify bug fixes work correctly in production-like environment
+  </Card>
+
+  <Card title="Stakeholder Review" icon="users">
+    Share live previews with product managers, designers, and clients
+  </Card>
+
+  <Card title="E2E Testing" icon="flask">
+    Run automated tests against realistic environments before deployment
+  </Card>
+</CardGroup>
+
+### Best Practices
+
+<AccordionGroup>
+  <Accordion title="Blueprint Maintenance" icon="wrench">
+    - Keep your Blueprint environment up-to-date with production configuration
+    - Test Blueprint deployments regularly to catch issues early
+    - Document any special configuration requirements
+    - Use environment variables for environment-specific values
+  </Accordion>
+
+  <Accordion title="Cost Optimization" icon="dollar-sign">
+    - Enable auto-delete for merged/closed PRs
+    - Use smaller instance sizes for Preview Environments
+    - Set up deployment rules to stop inactive environments
+    - Only include necessary services in previews
+    - Use shared databases instead of cloning when appropriate
+  </Accordion>
+
+  <Accordion title="Security" icon="shield">
+    - Don't use production secrets in Preview Environments
+    - Restrict access to preview URLs if needed
+    - Use separate clusters for production and previews
+    - Regularly audit and clean up orphaned environments
+  </Accordion>
+
+  <Accordion title="Performance" icon="bolt">
+    - Optimize Docker images to reduce deployment time
+    - Use caching strategies for dependencies
+    - Consider lazy-loading large databases
+    - Parallel deploy services when possible
+  </Accordion>
+</AccordionGroup>
+
+### Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Preview Environment Not Created" icon="circle-xmark">
+    **Possible causes**:
+    - Preview Environments not enabled in settings
+    - PR not targeting the configured base branch
+    - Blueprint environment has errors
+    - Insufficient cluster resources
+
+    **Solutions**:
+    - Verify Preview Environment settings are enabled
+    - Check that PR targets correct base branch
+    - Ensure Blueprint environment deploys successfully
+    - Review cluster capacity and quotas
+  </Accordion>
+
+  <Accordion title="Deployment Failures" icon="triangle-exclamation">
+    **Possible causes**:
+    - Blueprint environment configuration errors
+    - Missing environment variables
+    - Resource constraints
+    - Container image build failures
+
+    **Solutions**:
+    - Test Blueprint environment deployment manually
+    - Review application logs for errors
+    - Verify all required environment variables are set
+    - Check container image build logs
+  </Accordion>
+
+  <Accordion title="Preview Environment Not Deleted" icon="trash">
+    **Possible causes**:
+    - Auto-delete not configured
+    - Webhook not triggered
+    - Manual intervention required
+
+    **Solutions**:
+    - Check auto-delete settings
+    - Manually delete via Console or CLI
+    - Review webhook configuration in Git provider
+  </Accordion>
+</AccordionGroup>
 
 ## Clone Environment
 

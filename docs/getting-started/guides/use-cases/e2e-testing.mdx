@@ -1,0 +1,420 @@
+---
+title: "Build E2E Testing Ephemeral Environments with GitHub Actions and Qovery"
+description: "Step-by-step guide to build e2e testing ephemeral environments with GitHub Actions and Qovery"
+---
+
+Welcome to this comprehensive step-by-step guide on building End-to-End (E2E) testing [ephemeral environments](https://www.qovery.com/solutions/ephemeral-environments) using [GitHub Actions](https://github.com/features/actions) and [Qovery](https://www.qovery.com). If you've been seeking ways to automate your testing processes, reduce operational overhead, and improve the efficiency of your development cycle, then you're in the right place.
+
+*This article is available in the webinar format as well*
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/1be8d4229cb74ed7b0526cc2acbca8ad" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+## Why E2E Testing?
+
+End-to-End testing is a critical phase in the software development lifecycle. It validates that your application works cohesively from start to finish, mimicking real-world scenarios.
+
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/e2e-testing-pyramid.png" alt="E2E vs UI Tests vs Integration Tests vs Unit Tests - from SemaphoreCI" />
+</Frame>
+
+
+While unit tests and integration tests offer valuable insights, they do not replicate how multiple components interact in a live production environment. E2E testing fills that gap and ensures that your application performs as expected when it goes live.
+
+## The Importance of Ephemeral Environments
+
+In the world of DevOps and CI/CD, ephemeral environments (aka [Preview Environments](https://www.qovery.com/blog/why-preview-environments-are-the-new-thing-in-devops)) serve as temporary, isolated setups where you can test your applications. These environments are increasingly vital in agile development frameworks where frequent changes are the norm. They can be provisioned quickly, teared down when no longer needed, and replicated easily. This means you can push your changes more rapidly into production with confidence.
+
+## GitHub Actions and Qovery: A Perfect Match
+
+GitHub Actions offers a powerful platform for automating workflows, allowing you to build, test, and deploy your code right from GitHub. Qovery, on the other hand, simplifies the provisioning and management of cloud resources, making it incredibly straightforward to set up ephemeral environments. When used in tandem, these tools provide a seamless, automated pipeline for E2E testing.
+
+## What You'll Learn
+
+This guide is designed to walk you through the entire process of setting up an automated E2E testing pipeline. We'll start by setting up GitHub Actions, move on to configuring ephemeral environments with Qovery, and finally, integrate these components into a cohesive, automated testing solution.
+
+By the end of this guide, you'll have a fully operational E2E testing pipeline that will allow you to:
+
+1. Automate your testing process
+2. Quickly provision and de-provision environments
+3. Integrate closely with your GitHub repository
+4. Save both time and operational costs
+
+So, whether you are a developer, a DevOps engineer, a QA specialist, an engineering manager, or even a CTO, this guide offers valuable insights for anyone involved in the software development process.
+
+Let's dive in!
+
+## Prerequisites
+
+<Check>You have [sign in on Qovery](https://start.qovery.com)</Check>
+<Check>You have a GitHub account</Check>
+
+<Note>
+Contact us via [our forum](https://discuss.qovery.com/) if you have any questions concerning Qovery
+</Note>
+
+## Tools
+
+Here are the tools we will use in this guide:
+
+- [Qovery](https://www.qovery.com) for the infrastructure and the ephemeral environment
+- [GitHub Actions](https://github.com/features/actions) for the CI/CD pipeline
+- [K6](https://k6.io/) for the e2e tests
+
+## 7 Steps to build E2E testing ephemeral environments with GitHub Actions and Qovery
+
+Here is the big picture of what we will build:
+
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/workflow-architecture.png" alt="e2e testing Workflow with github actions and Qovery" />
+</Frame>
+
+We will focus on the most important parts of the workflow - from label number 2 to 11. I assume that you already know GitHub and how to create a Pull Request :)
+
+Let's go!
+
+### 1. Prepare Qovery blueprint environment
+
+If you are not already familiar with Qovery, I recommend you to [What's Qovery](/getting-started/introduction). In this guide, we will use Qovery to provision our ephemeral environments composed of a Java application ([TODO app](https://github.com/evoxmusic/todo-demo-app)) and a PostgreSQL database. For this, we will create a blueprint environment that will be used as a template to create ephemeral environments.
+
+<Info>
+You can skip this part if you already have an environment that you want to use as a base for your ephemeral environments.
+</Info>
+
+Here are the steps I did to create my blueprint environment:
+
+1. Connect to [Qovery](https://console.qovery.com).
+2. Create a new project.
+3. Create a new environment named `blueprint`.
+4. Add a [PostgreSQL database](/getting-started/guides/getting-started/connect-database) inside your `blueprint` environment.
+5. Add a [TODO app](/configuration/application) by using my ECR container registry where I push my image from GitHub Actions (cf next step).
+
+At the end of those steps, you should have something like this:
+
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/blueprint-environment.png" alt="Blueprint environment" />
+</Frame>
+
+If you want to use my `TODO app` as an example, you need to properly configure the environment variables of the application. Here is a table with the environment variables you need to set:
+
+<details>
+
+<summary>Environment Variables</summary>
+
+| Name                           | Is Alias?                                              | Scope   | Value                                                                      | Comment                                      |
+|--------------------------------|--------------------------------------------------------|---------|----------------------------------------------------------------------------|----------------------------------------------|
+| `POSTGRES_DB_NAME`             | Yes for `QOVERY_POSTGRESQL_Z..._DEFAULT_DATABASE_NAME` | Service | N/A                                                                        | Database name                                |
+| `POSTGRES_HOST`                | Yes for `QOVERY_POSTGRESQL_Z..._HOST_INTERNAL`         | Service | N/A                                                                        | Database host                                |
+| `POSTGRES_PORT`                | Yes for `QOVERY_POSTGRESQL_Z..._PORT`                  | Service | N/A                                                                        | Database port                                |
+| `POSTGRES_DATASOURCE_USERNAME` | Yes for `QOVERY_POSTGRESQL_Z..._LOGIN`                 | Service | N/A                                                                        | Database login                               |
+| `POSTGRES_DATASOURCE_PASSWORD` | Yes for `QOVERY_POSTGRESQL_Z..._PASSWORD`              | Service | N/A                                                                        | Database password                            |
+| `QUARKUS_DATASOURCE_JDBC_URL`  | No                                                     | Service | jdbc:postgresql://{{POSTGRES_HOST}}:{{POSTGRES_PORT}}/{{POSTGRES_DB_NAME}} | Connection string to the PostgreSQL database |
+
+</details>
+
+You're good to go! Now, let's move on to the next step.
+
+### 2. Build and push container image
+
+In this step, we will build and push the container image of our application to our ECR container registry. We will use GitHub Actions to do that.
+
+Create your GitHub Actions workflow inside `.github/workflows` folder. I named mine `build-and-push-image.yml`. Here is the content of the file:
+
+```yaml
+...
+  build-and-push-container:
+    runs-on: ubuntu-latest
+    needs: run-unit-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: 'true'
+
+      - name: Build, Tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: 687975725498.dkr.ecr.eu-west-3.amazonaws.com
+          ECR_REPOSITORY: todo-app
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+```
+
+> Find my complete file [here](https://github.com/evoxmusic/todo-demo-app/blob/master/.github/workflows/build-and-push-image.yml)
+
+`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are stored as [GitHub secrets](https://docs.github.com/en/actions/reference/encrypted-secrets).
+
+<Info>
+The ECR registry is also connected to my Qovery account - so I can pull the pushed image from Qovery as well.
+</Info>
+
+### 3. Create an Ephemeral Environment with GitHub Actions and Qovery
+
+In this step, we will create an ephemeral environment with GitHub Actions and Qovery. We will use the [Qovery CLI](/cli/overview) inside our GitHub Actions workflow to do that.
+
+Create your GitHub Actions workflow inside `.github/workflows` folder. I named mine `pull-request-run-e2e-tests.yml`. Here is the content of the file:
+
+```yaml
+...
+jobs:
+  create-e2e-environment:
+    if: ${{ github.event.label.name == 'e2e' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - id: create-environment
+        name: Create and deploy Qovery E2E environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          # Download and install Qovery CLI
+          curl -s https://get.qovery.com | bash
+
+          echo "Organization name: ${{ vars.QOVERY_ORGANIZATION_NAME }}"
+          echo "Project name: ${{ vars.QOVERY_PROJECT_NAME }}"
+          echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
+
+          new_environment_name="${GITHUB_HEAD_REF}"
+
+          echo "Let's clone '${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}' environment into '$new_environment_name' environment"
+
+          qovery environment clone \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            --new-environment-name "$new_environment_name"
+
+          qovery container update \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}" \
+            --container "${{ vars.QOVERY_APPLICATION_NAME }}" \
+            --tag ${{ github.sha }}
+
+          qovery environment deploy \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "$new_environment_name" \
+            -w
+
+          qovery_status_markdown_output=`qovery service list \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "$new_environment_name" \
+            --markdown`
+
+          echo "QOVERY_STATUS_MARKDOWN_OUTPUT<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$qovery_status_markdown_output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+```
+
+Basically, we use the `qovery environment clone` command to clone our blueprint environment into a new environment. Then, we use the `qovery container update` command to update the container tag of our application. Finally, we use the `qovery environment deploy` command to deploy our application. The option `-w` is used to wait for the deployment to be completed. We also use the `qovery service list` command to get the status of our environment and store it in a GitHub output variable. This variable will be used in the next step to display the status of the environment in the Pull Request.
+
+```yaml
+...
+      - name: PR Comment with URL
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: qovery-e2e-environment-status
+          message: |
+            ${'{{ steps.create-environment.outputs.QOVERY_STATUS_MARKDOWN_OUTPUT }}'}
+```
+
+> Find my complete file [here](https://github.com/evoxmusic/todo-demo-app/blob/master/.github/workflows/pull-request-run-e2e-tests.yml)
+
+You can see the result of this step in the Pull Request:
+
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/ephemeral-environment-pr-status.png" alt="Ephemeral environment status in Pull Request" />
+</Frame>
+
+
+### 4. Run E2E tests with K6
+
+In this step, we will run our E2E tests with [K6](https://k6.io). K6 is a modern load testing tool that allows you to write tests in JavaScript. It's a great tool to run E2E tests as well. Here is the script we will use:
+
+```javascript
+import http from 'k6/http';
+import {check, group, sleep, fail} from 'k6';
+import {uuidv4} from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+
+const api_host = `${__ENV.API_HOST}/api`;
+export const options = {
+  stages: [
+    {duration: '5m', target: 100}, // traffic ramp-up from 1 to 100 users over 5 minutes.
+    //{ duration: '30m', target: 100 }, // stay at 100 users for 30 minutes
+    {duration: '1m', target: 50}, // ramp-down to 50 users
+  ]
+}
+
+export function setup() {
+  // add some data
+  const params = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  for (let i = 0; i < 20; i++) {
+    const res = http.post(api_host, JSON.stringify({title: uuidv4()}), params);
+    check(res, {'item added': (r) => r.status === 201});
+  }
+}
+
+export default function () {
+  http.get(api_host);
+}
+```
+
+> The complete script is available [here](https://github.com/evoxmusic/todo-demo-app/blob/master/e2e/e2e.js)
+
+We will use the `setup` function to add some data to our database. Then, we will use the `default` function to get the list of items from our API. We will use the `options` variable to define the number of users we want to simulate. In this example, we will simulate 100 users for 5 minutes. You can find more information about the `options` variable [here](https://k6.io/docs/using-k6/options).
+
+To run our E2E tests, we will use the `k6 run` command inside our GitHub Actions workflow. Here is the content of the file:
+
+```yaml
+  run-e2e-tests:
+    if: ${{ github.event.label.name == 'e2e' }}
+    runs-on: ubuntu-latest
+    needs: create-e2e-environment
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - id: run-e2e
+        name: Run E2E tests
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          # Download and install Qovery CLI
+          curl -s https://get.qovery.com | bash
+
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+          new_environment_name="${GITHUB_HEAD_REF}"
+
+          api_domain=`qovery container domain list \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "$new_environment_name" \
+            --container "${{ vars.QOVERY_APPLICATION_NAME }}" | grep "BUILT_IN_DOMAIN" | head -1 | awk '{print $5}' | sed -e 's/\x1b\[[0-9;]*m//g'`
+
+          echo "api_domain: $api_domain"
+
+          api_host="https://$api_domain"
+          echo "API_HOST: $api_host"
+
+          e2e_report=`k6 --no-color -q -e API_HOST=$api_host run e2e/e2e.js`
+
+          echo "E2E_REPORT<<EOF" >> $GITHUB_OUTPUT
+          echo "$e2e_report" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+```
+
+> The complete file is available [here](https://github.com/evoxmusic/todo-demo-app/blob/master/.github/workflows/pull-request-run-e2e-tests.yml)
+
+We use the `qovery container domain list` command to get the domain of our application. Then, we use the `k6` command to run our E2E tests. We store the result of the tests in a GitHub output variable.
+
+<Info>
+The `qovery container domain list` command returns ANSI color codes. We use the `sed -e 's/\x1b\[[0-9;]*m//g'` command to remove them.
+</Info>
+
+
+### 5. Display test results in Pull Request
+
+In this step, we will display the result of our E2E tests in the Pull Request. We will use the [GitHub Actions output variables](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter) to do that. Here is the content of the file:
+
+```yaml
+      - name: Display E2E Report
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: e2e-report
+          message: |
+            E2E Tests Report
+
+            --
+
+            ```
+            ${'{{ steps.run-e2e.outputs.E2E_REPORT }}'}
+            ```
+```
+
+> The complete file is available [here](https://github.com/evoxmusic/todo-demo-app/blob/master/.github/workflows/pull-request-run-e2e-tests.yml#L109C1-L120C16)
+
+You can see the result of this step in the Pull Request:
+
+<Frame>
+  <img src="/images/e2e-with-github-actions-and-qovery/e2e-test-results.png" alt="E2E report in Pull Request" />
+</Frame>
+
+### 6. Destroy Ephemeral Environment and clean up resources
+
+Now we will destroy the ephemeral environment and clean up the resources when the Pull Request is closed or merged. Here is the yaml:
+
+```yaml
+name: Destroy and clean up E2E Tests Environment
+
+on:
+  pull_request:
+    types: [ closed ]
+
+jobs:
+  delete-e2e-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - id: delete-environment
+        name: Delete Qovery E2E environment
+        env:
+          QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
+        run: |
+          # Download and install Qovery CLI
+          curl -s https://get.qovery.com | bash
+
+          echo "Organization name: ${{ vars.QOVERY_ORGANIZATION_NAME }}"
+          echo "Project name: ${{ vars.QOVERY_PROJECT_NAME }}"
+          echo "Blueprint name: ${{ vars.QOVERY_BLUEPRINT_ENVIRONMENT_NAME }}"
+
+          new_environment_name="${GITHUB_HEAD_REF}"
+
+          echo "Let's delete '$new_environment_name' environment and release its resources"
+
+          qovery environment delete \
+            --organization "${{ vars.QOVERY_ORGANIZATION_NAME }}" \
+            --project "${{ vars.QOVERY_PROJECT_NAME }}" \
+            --environment "$new_environment_name" \
+            -w
+```
+
+> The complete file is available [here](https://github.com/evoxmusic/todo-demo-app/blob/master/.github/workflows/pull-request-destroy-e2e-environment.yml)
+
+We just use the `qovery environment delete` command to delete the ephemeral environment. The option `-w` is used to wait for the deletion to be completed. Qovery will automatically release the resources used by the environment.
+
+## Wrapping up
+
+Congratulations! You've successfully built an automated E2E testing pipeline with GitHub Actions and Qovery. You can now run your tests in a fully isolated environment, provisioned and de-provisioned automatically, and integrated with your GitHub repository.
+
+Some resources:
+
+- https://semaphoreci.com/blog/e2e-testing
+- [Webinar record](https://www.loom.com/share/1be8d4229cb74ed7b0526cc2acbca8ad)

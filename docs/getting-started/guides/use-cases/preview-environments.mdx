@@ -1,0 +1,158 @@
+---
+title: "Getting Started with Preview Environments"
+description: "Step-by-step guide to get started with the preview environment on AWS"
+---
+
+It is critical to have testing and staging environments accurately reflect production, but achieving this can be a major operational hassle. Most engineering teams use a single staging environment which makes it hard for developers to test their changes in isolation; the alternative is for DevOps teams to spin up new testing or staging environments manually and tear them down after testing is done.
+
+Qovery's Preview Environments solve this problem by automatically creating a clone of your production environment (including applications, databases and configuration) on every pull request, so you can test your changes with confidence without affecting your production.
+
+<Frame>
+  <img src="/images/preview-environment/preview_env_flow_schema.jpg" alt="Flow on how Qovery Preview Environment works" />
+</Frame>
+
+Qovery keeps your preview environments up to date on every commit and automatically destroys them when the original pull request is merged or closed. You can also set up an expiry time to automatically clean up preview environments after a period of inactivity.
+
+Preview Environments can be helpful in a lot of cases:
+- Share your changes live in code reviews: no more Git diffs for visual changes!
+- Get shareable links for upcoming features and collaborate more effectively with internal and external stakeholders.
+- Run CI tests against a high fidelity copy of your production environment before merging.
+
+In this step-by-step guide you will learn how to get started using the Preview Environments on AWS with Qovery.
+
+<Info>
+This guide also works with other cloud service providers supported by Qovery.
+</Info>
+
+<Note>
+Please contact us via [our forum](https://discuss.qovery.com/) if you have any questions concerning the Preview Environments
+</Note>
+
+## Prerequisites
+
+<Check>You have [sign in on Qovery](https://start.qovery.com)</Check>
+<Check>You have [installed Qovery on your AWS account](/getting-started/quickstart/cloud)</Check>
+<Check>You have at least already **deployed successfully** a first application</Check>
+
+## Steps
+
+1. [Create a "Blueprint" environment](#create-your-blueprint-environment)
+2. [Enable Preview Environment feature](#enable-preview-environment)
+3. [Create a Preview Environment](#create-a-preview-environment)
+4. [Delete a Preview Environment](#delete-a-preview-environment)
+5. [Seed your database](#seed-your-database)
+6. [Auto stop and start your Preview Environments](#auto-stop-and-start-your-preview-environments)
+7. [Integrate your CI (Continuous Deployment) platform](#integrate-your-ci-platform)
+
+## Create your Blueprint Environment
+
+Even if not required, we recommend creating an [environment](/configuration/environment) that will serve as a root to create your Preview Environments. The idea is to keep this environment as a template of a fully working environment. This environment should not be directly used. This is what we call "blueprint environment".
+
+I assume you already have a working environment, so to create a blueprint environment you need to:
+
+1. Go to your working environment
+2. Click on "Actions" > "Clone"
+3. Name your environment "blueprint"
+4. Click on "Create"
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/a282d6b832794671a3582550aa45f9ae" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+<Info>
+We recommend using a different cluster than your production for your Preview Environments.
+</Info>
+
+### Enable Preview Environment
+
+Now, you can go to turn on Preview Environments by:
+
+1. Click on your `Blueprint` environment "Settings".
+2. Click on the `Preview Env.` tab
+3. Turn on Preview Environment feature for all your applications by clicking on `Activate preview environment for all apps`.
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/55b9d99a59524e1cb7875f7db7691fbe" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+
+### Change your base branch
+
+Now that you have turned on the Preview Environment feature, you need to change the base branch from your applications inside your Blueprint Environment. Let's say, every new feature branch you create are coming from `staging`. Then you will need to change all your applications to target the `staging` branch.
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/67df458d340d484fa1e675cc20e36caf" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+Here is a flow example showing what happen when you create a new Pull Request from a `feat/xxx` branch that has been created from the base branch `staging`.
+
+<Frame>
+  <img src="/images/preview-environment/preview_env_branching.jpg" alt="Flow on how Qovery Preview Environment Branching works" />
+</Frame>
+
+1. A developer creates a git branch `feat/xxx` is created from `staging`.
+2. A developer creates a Pull Request for `feat/xxx`.
+3. Qovery creates a Preview Environment `feat/xxx` from the `blueprint` environment. **The frontend, backend, PostgreSQL and Redis instances are cloned!**
+4. The frontend app from the environment `feat/xxx` is accessible via a dedicated URL.
+
+## Validate your Blueprint Environment
+
+Before creating a Preview Environment, validate that your Blueprint environment works.
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/3dd4d9aee9ac44a9af0cb8eddee7735c" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+Once done, you need to:
+
+1. Stop your Blueprint environment by clicking on "Actions" > "Stop".
+2. Turn off "auto-deploy" by clicking on "Settings" > "Deployment" > "Auto-deploy off" > "Save".
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/36b0bb48346f40f6ac8569a7b8dbc5b3" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+We are now ready to try out our Preview Environment configuration.
+
+## Create a Preview Environment
+
+To create a Preview Environment, here are the steps:
+
+1. Checkout your `staging` branch.
+2. Create a branch `test_qovery_preview_environment` and push it.
+3. Create a Pull Request/Merge Request.
+
+<Check>
+Qovery take care of cloning all your services and the configuration as well (Environment Variables and Secrets included).
+</Check>
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/2266d0897c964635b37447ae9ef2acea" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+You must see a new environment appearing in your environment list on Qovery. Wait until it is fully deployed, then you will be able to connect to it. This environment is fully isolated from your base environment.
+
+## Delete a Preview Environment
+
+To delete you need to merge `test_qovery_preview_environment` into `staging`. You also have the ability to delete it manually on Qovery.
+
+<Warning>
+By merging into `staging`, Qovery will auto-redeploy the new version in your `staging` environment. Turn off `auto-deploy` from the `staging` environment settings if you want to manually deploy new version in staging.
+</Warning>
+
+<div className="video-container">
+  <iframe src="https://www.loom.com/embed/1feb31f4bbec4d54b0764dfa1271dd0d" width="100%" height="400px" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+</div>
+
+## Advanced
+
+Eager to know how to go integrate Qovery Preview Environments with your CI and much more? Check out our the following guides:
+
+* [Seed your Preview Environment database](https://github.com/qovery/lifecycle-job-examples/tree/main/examples/seed-postgres-database-with-sql-script)
+* [Integrate your CI platform](/configuration/integrations/ci-cd/github-actions)
+* [Auto-stop and start your Preview Environment](/configuration/deployment-rule)
+* [Set up a custom domain for your Preview Environment](https://hub.qovery.com/guides/tutorial/customizing-preview-url-with-qovery-cli/)
+
+## Wrapping up
+
+Congrats! You have set up your Preview Environments features. Feel free to check out our [forum](https://discuss.qovery.com/) and open a thread if you have any question. In the next guide, we will go deeper configuration to integrate the Preview Environment with your existing products and workflow.

@@ -120,7 +120,14 @@
             "pages": [
               "getting-started/guides/use-cases/production-environment-management",
               "getting-started/guides/use-cases/cloud-migration-and-scaling",
-              "getting-started/guides/use-cases/ephemeral-environment"
+              {
+                "group": "Ephemeral Environments",
+                "pages": [
+                  "getting-started/guides/use-cases/ephemeral-environment",
+                  "getting-started/guides/use-cases/preview-environments",
+                  "getting-started/guides/use-cases/e2e-testing"
+                ]
+              }
             ]
           },
           {
