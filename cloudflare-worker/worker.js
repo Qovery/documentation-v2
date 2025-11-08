@@ -10,7 +10,7 @@ export default {
 
       // If the request is to /docs or /docs/, redirect to /docs/introduction
       if (urlObject.pathname === '/docs' || urlObject.pathname === '/docs/') {
-        return Response.redirect(urlObject.origin + '/docs/introduction', 301);
+        return Response.redirect(urlObject.origin + '/docs/getting-started/introduction', 301);
       }
 
       // If the request is to the docs subdirectory
