@@ -7,12 +7,37 @@ description: "Essential Qovery terminology - Organizations, Clusters, Projects, 
 
 Qovery organizes your infrastructure in a simple hierarchy:
 
-```
-Organization (your company)
-└── Cluster (Kubernetes cluster)
-    └── Project (group of related apps)
-        └── Environment (dev/staging/production)
-            └── Services (apps, databases, jobs)
+```mermaid
+graph TD
+    A[Organization<br/><small>Your Company</small>]
+    B[Cluster<br/><small>Kubernetes Cluster</small>]
+    C[Project<br/><small>Group of Related Apps</small>]
+    D[Environment<br/><small>dev / staging / production</small>]
+    E1[Application]
+    E2[Database]
+    E3[Cron Job]
+    E4[Lifecycle Job]
+    E5[Helm Chart]
+
+    A --> B
+    A --> C
+    C --> D
+    D -.runs on.-> B
+    D --> E1
+    D --> E2
+    D --> E3
+    D --> E4
+    D --> E5
+
+    style A fill:#642DFF,stroke:#642DFF,color:#fff
+    style B fill:#8B5CF6,stroke:#8B5CF6,color:#fff
+    style C fill:#A78BFA,stroke:#A78BFA,color:#fff
+    style D fill:#C4B5FD,stroke:#C4B5FD,color:#fff
+    style E1 fill:#DDD6FE,stroke:#DDD6FE,color:#333
+    style E2 fill:#DDD6FE,stroke:#DDD6FE,color:#333
+    style E3 fill:#DDD6FE,stroke:#DDD6FE,color:#333
+    style E4 fill:#DDD6FE,stroke:#DDD6FE,color:#333
+    style E5 fill:#DDD6FE,stroke:#DDD6FE,color:#333
 ```
 
 Let's break down each level.

@@ -3,660 +3,460 @@ title: "Terraform"
 description: "Deploy and manage Terraform modules natively on Qovery"
 ---
 
-## Overview
+## Introduction
 
-<img src="/images/logos/terraform-icon.svg" alt="Terraform" class="terraform-icon" /> Qovery provides native support for deploying Terraform modules directly from your Git repositories. This allows you to manage infrastructure as code (IaC) alongside your applications, using the same deployment workflow.
+Terraform Native Service enables you to deploy and manage Terraform or OpenTofu infrastructure code directly within Qovery. This service type allows you to provision cloud resources, configure external services, and manage infrastructure as code (IaC) using the same environment structure as your applications. Terraform executes within Kubernetes pods on your cluster, with automatic state management, variable injection, and integrated deployment workflows.
 
-<Info>
-Terraform on Qovery enables you to provision cloud resources, manage external services, and configure infrastructure using the same GitOps workflow as your applications.
-</Info>
-
-**Key Benefits**:
-- **Native Integration**: Deploy Terraform modules directly from Git repositories
-- **Automatic State Management**: Qovery manages Terraform state automatically
-- **Environment Variables**: Inject secrets and configuration as Terraform variables
-- **GitOps Workflow**: Changes to Terraform code trigger automatic deployments
-- **Multi-Cloud**: Use any Terraform provider (AWS, GCP, Azure, Scaleway, etc.)
-
-## Use Cases
-
-<CardGroup cols={2}>
-  <Card title="External Resources" icon="cloud">
-    Provision cloud resources not natively supported by Qovery (S3 buckets, CloudFront, etc.)
-  </Card>
-
-  <Card title="Third-Party Services" icon="plug">
-    Configure external SaaS providers (Cloudflare, SendGrid, Auth0, etc.)
-  </Card>
-
-  <Card title="Custom Infrastructure" icon="wrench">
-    Deploy custom infrastructure configurations specific to your needs
-  </Card>
-
-  <Card title="Data Services" icon="database">
-    Provision managed databases, caches, or data warehouses with custom settings
-  </Card>
-</CardGroup>
-
-## How It Works
-
-Qovery runs your Terraform modules as part of your environment deployment:
-
-1. **Code Push**: Push Terraform code to your Git repository
-2. **Automatic Detection**: Qovery detects changes in your Terraform modules
-3. **Plan Execution**: Terraform plan runs to preview changes
-4. **Apply**: Terraform apply provisions or updates resources
-5. **State Management**: Terraform state is stored securely by Qovery
-
-<Info>
-Qovery runs `terraform plan` during the build phase and `terraform apply` during deployment, following Terraform best practices.
-</Info>
+---
 
 ## Creating a Terraform Service
 
 <Steps>
-  <Step title="Navigate to Environment">
-    Go to your environment where you want to add a Terraform service
+  <Step title="Open Environment Overview">
+    Navigate to the environment where you want to deploy your Terraform infrastructure.
   </Step>
 
-  <Step title="Create Terraform Service">
-    Click **New Service** → **Terraform**
+  <Step title="Create New Service">
+    Click **New Service** and select **Terraform** from the service type options.
   </Step>
 
-  <Step title="Configure Repository">
-    **Git Repository Settings**:
-    - **Repository**: Select your Git repository
-    - **Branch**: Choose the branch to deploy from
-    - **Root Path**: Path to your Terraform module (default: `/`)
+  <Step title="Configure Service Name">
+    Provide a **service name** that identifies this Terraform service (e.g., `aws-infrastructure`, `cloudflare-config`).
   </Step>
 
-  <Step title="Configure Terraform Settings">
-    **Terraform Configuration**:
-    - **Name**: Service identifier (e.g., `s3-buckets`, `cloudflare-dns`)
-    - **Description**: Optional description
-    - **Terraform Version**: Select version (e.g., 1.5.0, 1.6.0, 1.7.0)
+  <Step title="Select Git Repository">
+    Choose the **Git repository** containing your Terraform code. This repository must include your `.tf` configuration files.
+
+    Specify the **branch** and **root path** if your Terraform code is in a subdirectory.
   </Step>
 
-  <Step title="Configure Variables">
-    Add Terraform variables as environment variables:
-    - **TF_VAR_***: Terraform input variables
-    - **AWS_ACCESS_KEY_ID**, **AWS_SECRET_ACCESS_KEY**: Cloud credentials
-    - Custom provider credentials
+  <Step title="Select Engine">
+    Choose the execution engine:
+
+    - **Terraform** - Official HashiCorp Terraform
+    - **OpenTofu** - Open-source Terraform fork
   </Step>
 
-  <Step title="Deploy">
-    Click **Create** to provision the Terraform service
+  <Step title="Select Terraform Version">
+    Choose the **Terraform version** to use for execution. Supported versions depend on your selected engine.
   </Step>
-</Steps>
 
-## Terraform Module Structure
+  <Step title="State Management (Default)">
+    By default, Terraform **state is managed inside the Kubernetes cluster**. State files are stored securely within the cluster and managed automatically by Qovery.
 
-Your repository should follow standard Terraform structure:
+    This default configuration requires no additional setup.
+  </Step>
 
-```
-terraform/
-├── main.tf           # Main Terraform configuration
-├── variables.tf      # Input variables
-├── outputs.tf        # Output values
-├── providers.tf      # Provider configuration
-└── terraform.tfvars  # Variable values (optional)
-```
+  <Step title="Execution Timeout (Default)">
+    The default **timeout is set to 1 hour**. This can be customized if your Terraform operations require more time.
+  </Step>
 
-### Example: S3 Bucket Module
+  <Step title="Cloud Credentials (Default Behavior)">
+    By default, Terraform uses **cluster credentials** when provisioning resources on the same cloud provider as your cluster.
 
-<CodeGroup>
-```hcl main.tf
-# Create S3 bucket for application storage
-resource "aws_s3_bucket" "app_storage" {
-  bucket = var.bucket_name
+    If you need to use **custom credentials** (e.g., a different AWS account, GCP project, or Azure subscription), you will configure them in the Environment Variables step.
+  </Step>
 
-  tags = {
-    Environment = var.environment
-    ManagedBy   = "Qovery"
-  }
-}
+  <Step title="Compute Resources (Default)">
+    Terraform execution uses the following default compute resources:
 
-resource "aws_s3_bucket_versioning" "app_storage" {
-  bucket = aws_s3_bucket.app_storage.id
+    - **CPU**: 500,000 millicores (500 mCPU or 0.5 vCPU)
+    - **Memory**: 512 MB
+    - **Storage**: 1 GB
 
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
+    These resources can be updated later in the **Service Settings** if your Terraform operations require more capacity.
+  </Step>
 
-resource "aws_s3_bucket_public_access_block" "app_storage" {
-  bucket = aws_s3_bucket.app_storage.id
+  <Step title="Configure Terraform Variables">
+    Qovery provides comprehensive variable management for Terraform, automatically detecting variables from your code and allowing flexible configuration.
 
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-```
+    **Automatic Variable Detection**
 
-```hcl variables.tf
-variable "bucket_name" {
-  description = "Name of the S3 bucket"
-  type        = string
-}
+    Qovery automatically loads variables from:
+    - `main.tf`
+    - `variables.tf`
 
-variable "environment" {
-  description = "Environment name"
-  type        = string
-  default     = "production"
-}
+    Variables detected by Qovery will appear prefixed with `tf_var_`.
 
-variable "aws_region" {
-  description = "AWS region"
-  type        = string
-  default     = "us-east-1"
-}
-```
+    **Example:**
 
-```hcl outputs.tf
-output "bucket_name" {
-  description = "Name of the created S3 bucket"
-  value       = aws_s3_bucket.app_storage.id
-}
-
-output "bucket_arn" {
-  description = "ARN of the created S3 bucket"
-  value       = aws_s3_bucket.app_storage.arn
-}
-
-output "bucket_region" {
-  description = "Region of the created S3 bucket"
-  value       = aws_s3_bucket.app_storage.region
-}
-```
-
-```hcl providers.tf
-terraform {
-  required_version = ">= 1.5.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
+    If your `variables.tf` contains:
+    ```hcl
+    variable "bucket_name" {
+      type = string
     }
-  }
-}
 
-provider "aws" {
-  region = var.aws_region
-}
-```
-</CodeGroup>
+    variable "environment" {
+      type = string
+      default = "production"
+    }
+    ```
 
-## Environment Variables
+    Qovery will create:
+    - `tf_var_bucket_name`
+    - `tf_var_environment`
 
-### Terraform Input Variables
+    **Importing TFVAR Files**
 
-Qovery automatically passes environment variables prefixed with `TF_VAR_` to Terraform:
+    You can import `.tfvars` files to configure multiple variables at once:
+    1. Click **Import TFVAR**
+    2. Select the TFVAR file(s) to import
+    3. Choose which TFVAR files to apply
+    4. Reorder the TFVAR files as needed
 
-```bash
-# In Qovery Console
-TF_VAR_bucket_name=my-app-storage
-TF_VAR_environment=production
-TF_VAR_aws_region=us-east-1
-```
+    <Info>
+    **The last TFVAR file applied wins.** If multiple TFVAR files define the same variable, the value from the last file in the order takes precedence.
+    </Info>
 
-These become available in Terraform as:
-```hcl
-var.bucket_name
-var.environment
-var.aws_region
-```
+    **Manual Variable Override**
 
-### Provider Credentials
+    You can manually override any variable value in two ways:
 
-Configure cloud provider credentials as secrets:
+    1. **Direct Value Entry** - Enter a value directly:
+       ```
+       tf_var_bucket_name = "my-custom-bucket"
+       ```
 
-<Tabs>
-  <Tab title="AWS">
-    ```bash
+    2. **Reference Environment Variable** - Reference another environment variable:
+       ```
+       tf_var_bucket_name = ${MY_BUCKET_NAME}
+       ```
+
+    **Variables Not in main.tf or variables.tf**
+
+    If you have variables defined in other `.tf` files that are not in `main.tf` or `variables.tf`, Qovery will not automatically detect them. You can create these variables manually using the `tf_var_` prefix:
+    ```
+    tf_var_my_custom_variable = "value"
+    ```
+
+    <Frame>
+      <img src="/images/configuration/terraform/terraform-variables-configuration.png" alt="Configure Terraform Variables" />
+    </Frame>
+  </Step>
+
+  <Step title="Configure Environment Variables">
+    Add standard environment variables that will be available during Terraform execution. This is where you configure custom cloud provider credentials, provider-specific settings, and other configuration.
+
+    **Common use cases:**
+
+    **Custom Cloud Credentials**
+
+    Override the default cluster credentials with your own:
+
+    **AWS:**
+    ```
     AWS_ACCESS_KEY_ID=AKIA...
-    AWS_SECRET_ACCESS_KEY=secret...
+    AWS_SECRET_ACCESS_KEY=...
     AWS_DEFAULT_REGION=us-east-1
     ```
-  </Tab>
 
-  <Tab title="GCP">
-    ```bash
+    **GCP:**
+    ```
     GOOGLE_CREDENTIALS={"type":"service_account",...}
     GOOGLE_PROJECT=my-project-id
     GOOGLE_REGION=us-central1
     ```
-  </Tab>
 
-  <Tab title="Azure">
-    ```bash
-    ARM_CLIENT_ID=xxx
-    ARM_CLIENT_SECRET=xxx
-    ARM_SUBSCRIPTION_ID=xxx
-    ARM_TENANT_ID=xxx
+    **Azure:**
     ```
-  </Tab>
-
-  <Tab title="Cloudflare">
-    ```bash
-    CLOUDFLARE_API_TOKEN=xxx
-    CLOUDFLARE_ZONE_ID=xxx
+    ARM_CLIENT_ID=...
+    ARM_CLIENT_SECRET=...
+    ARM_SUBSCRIPTION_ID=...
+    ARM_TENANT_ID=...
     ```
-  </Tab>
-</Tabs>
 
-<Tip>
-Use Qovery **Secrets** for sensitive credentials to ensure they're encrypted and never exposed in logs.
-</Tip>
+    **Provider Configuration**
 
-## State Management
+    Add provider-specific environment variables:
 
-Qovery automatically manages Terraform state for you:
+    **Cloudflare:**
+    ```
+    CLOUDFLARE_API_TOKEN=...
+    CLOUDFLARE_ZONE_ID=...
+    ```
 
-**State Storage**:
-- State files are stored securely by Qovery
-- Encrypted at rest
-- Automatic state locking
-- State versioning and history
+    **Datadog:**
+    ```
+    DATADOG_API_KEY=...
+    DATADOG_APP_KEY=...
+    ```
 
-**State Operations**:
-- `terraform plan`: Preview changes without modifying state
-- `terraform apply`: Apply changes and update state
-- State is preserved across deployments
-- Rollback support via environment cloning
+    <Tip>
+    Use Qovery **Secrets** for sensitive credentials to ensure they are encrypted and never exposed in logs.
+    </Tip>
 
-<Warning>
-**Never** manually edit Terraform state files. Qovery handles state management automatically.
-</Warning>
+    **Terraform Environment Variables**
 
-## Deployment Workflow
-
-### GitOps Workflow
-
-Terraform deployments follow the same GitOps workflow as applications:
-
-1. **Commit Changes**: Push Terraform code changes to Git
-2. **Automatic Trigger**: Qovery detects changes and starts deployment
-3. **Plan Phase**: `terraform plan` runs to preview changes
-4. **Review**: Check plan output in deployment logs
-5. **Apply Phase**: `terraform apply` provisions resources
-6. **Outputs**: Terraform outputs are available as environment variables
-
-### Manual Deployment
-
-You can also trigger deployments manually:
-
-<Steps>
-  <Step title="Navigate to Terraform Service">
-    Go to your Terraform service in Qovery Console
+    You can also set Terraform-specific environment variables:
+    ```
+    TF_LOG=DEBUG
+    TF_WORKSPACE=production
+    ```
   </Step>
 
-  <Step title="Deploy">
-    Click **Deploy** to trigger a new deployment
-  </Step>
+  <Step title="Review and Create">
+    Review your configuration and click **Create** to provision the Terraform service.
 
-  <Step title="Monitor Logs">
-    View real-time logs showing `terraform plan` and `terraform apply` output
+    Optionally, you can select **Create & Run Plan** to execute `terraform plan` immediately and preview the execution plan before applying changes.
   </Step>
 </Steps>
 
-## Terraform Outputs
+---
 
-Terraform outputs are automatically exported as environment variables:
+## Running Terraform
 
-```hcl outputs.tf
-output "bucket_name" {
-  value = aws_s3_bucket.app_storage.id
-}
+After creating your Terraform service, you can execute Terraform commands using the **Action Toolbar**.
 
-output "cdn_url" {
-  value = aws_cloudfront_distribution.cdn.domain_name
-}
-```
+<Frame>
+  <img src="/images/configuration/terraform/terraform-action-menu.png" alt="Terraform Action Menu" />
+</Frame>
 
-These become available to other services as:
-```bash
-QOVERY_TERRAFORM_<SERVICE_NAME>_OUTPUT_BUCKET_NAME=my-app-storage
-QOVERY_TERRAFORM_<SERVICE_NAME>_OUTPUT_CDN_URL=d111111abcdef8.cloudfront.net
-```
+### Available Actions
+
+The following Terraform operations are available from the service's Action Toolbar:
+
+<AccordionGroup>
+  <Accordion title="Plan">
+    Executes `terraform plan` to preview infrastructure changes without applying them.
+
+    Use this to:
+    - Review what Terraform will create, modify, or destroy
+    - Validate your Terraform configuration
+    - Check for drift between your code and actual infrastructure
+  </Accordion>
+
+  <Accordion title="Plan & Apply">
+    Executes `terraform plan` followed by `terraform apply` to provision or update infrastructure.
+
+    This is the standard deployment action that:
+    - Generates an execution plan
+    - Applies changes to your infrastructure
+    - Updates the Terraform state
+  </Accordion>
+
+  <Accordion title="Destroy">
+    Executes `terraform destroy` to remove all resources managed by this Terraform service.
+
+    <Warning>
+    This action is **irreversible** and will delete all infrastructure resources defined in your Terraform code.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Force Unlock">
+    Releases a stuck Terraform state lock.
+
+    Use this if:
+    - A previous Terraform operation was interrupted
+    - State is locked and preventing new operations
+    - You see "state is locked" errors
+
+    <Warning>
+    Only use Force Unlock if you're certain no other Terraform operation is running.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Migrate State">
+    Migrates Terraform state between storage backends or updates state schema.
+
+    This operation runs `terraform init -migrate-state` to:
+    - Move state to a new backend
+    - Upgrade state file format
+    - Reconfigure state storage
+  </Accordion>
+</AccordionGroup>
+
+### Create & Run Plan
+
+During service creation, you can select **Create & Run Plan** to immediately execute `terraform plan` after the service is created.
+
+This allows you to:
+- Preview infrastructure changes before deployment
+- Validate your Terraform configuration
+- Review the execution plan before committing to apply
+
+---
+
+## Terraform Service Settings
+
+After creating your Terraform service, you can update all configuration options in the **Service Settings**.
+
+### General Configuration
+
+All parameters from the creation flow can be modified:
+
+<AccordionGroup>
+  <Accordion title="Git Repository">
+    - Change the Git repository source
+    - Update the branch to deploy from
+    - Modify the root path for Terraform code location
+  </Accordion>
+
+  <Accordion title="Engine">
+    - Switch between Terraform and OpenTofu
+    - This change will take effect on the next deployment
+  </Accordion>
+
+  <Accordion title="Version">
+    - Update the Terraform or OpenTofu version
+    - Useful for testing new versions or maintaining compatibility
+  </Accordion>
+
+  <Accordion title="State Management">
+    - Modify state storage configuration
+    - Update state backend settings if using custom backend
+  </Accordion>
+
+  <Accordion title="Timeout">
+    - Adjust the execution timeout (default: 1 hour)
+    - Increase for long-running Terraform operations
+    - Decrease to fail faster for quick validations
+  </Accordion>
+
+  <Accordion title="Execution Resources">
+    - Update CPU allocation (default: 500 mCPU)
+    - Modify memory allocation (default: 512 MB)
+    - Adjust storage allocation (default: 1 GB)
+
+    Increase these resources if your Terraform operations:
+    - Manage a large number of resources
+    - Require significant memory for state processing
+    - Need more CPU for provider operations
+  </Accordion>
+
+  <Accordion title="Environment Variables">
+    - Add or update cloud provider credentials
+    - Configure Terraform input variables (`TF_VAR_*`)
+    - Set provider-specific environment variables
+    - Reference secrets for sensitive values
+  </Accordion>
+</AccordionGroup>
+
+### Terraform Arguments
+
+The **Terraform Arguments** section allows you to specify additional CLI arguments for each Terraform command. These arguments override default behaviors and enable advanced customization.
+
+<Frame>
+  <img src="/images/configuration/terraform/terraform-arguments.png" alt="Terraform Arguments Configuration" />
+</Frame>
 
 <Info>
-Use Terraform outputs to share resource information with your applications, such as bucket names, URLs, or connection strings.
+Terraform Arguments provide fine-grained control over Terraform execution. Use these to customize init, validate, plan, apply, and destroy operations.
 </Info>
 
-## Advanced Configuration
-
-### Multiple Terraform Modules
-
-Deploy multiple Terraform services in the same environment:
-
-```
-Environment: Production
-├── App: web-app
-├── Database: postgres-db
-├── Terraform: s3-storage      # S3 buckets
-├── Terraform: cloudflare-dns  # DNS configuration
-└── Terraform: monitoring      # CloudWatch/metrics
-```
-
-Each Terraform service manages its own resources independently.
-
-### Terraform Workspaces
-
-Use Terraform workspaces for environment separation:
-
-```hcl
-variable "environment" {
-  description = "Environment name"
-  type        = string
-}
-
-resource "aws_s3_bucket" "app_storage" {
-  bucket = "${var.environment}-app-storage"
-
-  tags = {
-    Environment = var.environment
-    Workspace   = terraform.workspace
-  }
-}
-```
-
-Set `TF_WORKSPACE` environment variable in Qovery:
-```bash
-TF_WORKSPACE=production
-```
-
-### Backend Configuration
-
-Qovery manages the Terraform backend automatically. However, you can specify backend configuration for advanced use cases:
-
-```hcl backend.tf
-terraform {
-  backend "s3" {
-    # Qovery will inject backend config automatically
-    # No configuration needed here
-  }
-}
-```
-
-<Warning>
-Custom backend configuration is typically not needed. Qovery's automatic backend management is recommended for most use cases.
-</Warning>
-
-## Common Patterns
-
-### AWS S3 + CloudFront
-
-```hcl
-# S3 bucket for static assets
-resource "aws_s3_bucket" "static_assets" {
-  bucket = var.bucket_name
-}
-
-# CloudFront distribution
-resource "aws_cloudfront_distribution" "cdn" {
-  origin {
-    domain_name = aws_s3_bucket.static_assets.bucket_regional_domain_name
-    origin_id   = "S3-${aws_s3_bucket.static_assets.id}"
-  }
-
-  enabled = true
-
-  default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "S3-${aws_s3_bucket.static_assets.id}"
-    viewer_protocol_policy = "redirect-to-https"
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-}
-
-output "cdn_url" {
-  value = aws_cloudfront_distribution.cdn.domain_name
-}
-```
-
-### Cloudflare DNS Records
-
-```hcl
-# DNS record for application
-resource "cloudflare_record" "app" {
-  zone_id = var.cloudflare_zone_id
-  name    = var.subdomain
-  value   = var.app_endpoint
-  type    = "CNAME"
-  proxied = true
-}
-
-# SSL/TLS settings
-resource "cloudflare_zone_settings_override" "app" {
-  zone_id = var.cloudflare_zone_id
-
-  settings {
-    ssl = "strict"
-    always_use_https = "on"
-    min_tls_version = "1.2"
-  }
-}
-
-output "dns_record_name" {
-  value = cloudflare_record.app.hostname
-}
-```
-
-### RDS Database with Custom Configuration
-
-```hcl
-resource "aws_db_instance" "app_db" {
-  identifier = var.db_identifier
-
-  engine               = "postgres"
-  engine_version       = "15.4"
-  instance_class       = var.db_instance_class
-  allocated_storage    = var.db_storage
-  storage_encrypted    = true
-
-  db_name  = var.db_name
-  username = var.db_username
-  password = var.db_password
-
-  vpc_security_group_ids = [aws_security_group.db.id]
-  db_subnet_group_name   = aws_db_subnet_group.db.name
-
-  backup_retention_period = 7
-  backup_window          = "03:00-04:00"
-  maintenance_window     = "mon:04:00-mon:05:00"
-
-  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
-
-  tags = {
-    ManagedBy = "Qovery"
-  }
-}
-
-output "db_endpoint" {
-  value = aws_db_instance.app_db.endpoint
-}
-
-output "db_connection_string" {
-  value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.app_db.endpoint}/${var.db_name}"
-  sensitive = true
-}
-```
-
-## Best Practices
-
 <AccordionGroup>
-  <Accordion title="Use Version Control">
-    Always commit Terraform code to Git and use Qovery's GitOps workflow for deployments. Never apply changes manually outside Qovery.
-  </Accordion>
+  <Accordion title="Init Arguments">
+    Customize `terraform init` behavior.
 
-  <Accordion title="Organize with Modules">
-    Structure your Terraform code using modules for reusability:
+    **Common arguments:**
+    - `-upgrade` - Upgrade modules and providers to latest versions
+    - `-reconfigure` - Reconfigure backend ignoring existing configuration
+    - `-backend-config=...` - Override backend configuration
+
+    **Example:**
     ```
-    terraform/
-    ├── modules/
-    │   ├── s3-bucket/
-    │   ├── cloudfront/
-    │   └── rds-database/
-    └── environments/
-        ├── production/
-        └── staging/
+    -upgrade -backend-config="bucket=my-state-bucket"
     ```
   </Accordion>
 
-  <Accordion title="Manage Secrets Securely">
-    - Use Qovery **Secrets** for sensitive variables
-    - Never commit credentials to Git
-    - Use Terraform's `sensitive = true` for outputs containing secrets
-    - Rotate credentials regularly
-  </Accordion>
+  <Accordion title="Validate Arguments">
+    Customize `terraform validate` behavior.
 
-  <Accordion title="Pin Provider Versions">
-    Always specify provider versions to ensure consistent deployments:
-    ```hcl
-    terraform {
-      required_providers {
-        aws = {
-          source  = "hashicorp/aws"
-          version = "~> 5.0"  # Pin to major version
-        }
-      }
-    }
+    **Common arguments:**
+    - `-json` - Output validation results in JSON format
+    - `-no-color` - Disable colored output
+
+    **Example:**
+    ```
+    -json -no-color
     ```
   </Accordion>
 
-  <Accordion title="Use Terraform Outputs">
-    Export important resource information via outputs so other services can use them:
-    ```hcl
-    output "bucket_name" {
-      description = "S3 bucket for app storage"
-      value       = aws_s3_bucket.app.id
-    }
+  <Accordion title="Plan Arguments">
+    Customize `terraform plan` behavior.
+
+    **Common arguments:**
+    - `-target=resource.name` - Plan changes for specific resource only
+    - `-var="key=value"` - Set a variable value
+    - `-var-file=filename` - Load variables from file
+    - `-out=filename` - Save plan to a file
+    - `-refresh=false` - Skip state refresh
+    - `-parallelism=n` - Limit concurrent operations
+
+    **Example:**
+    ```
+    -target=aws_s3_bucket.main -parallelism=5
     ```
   </Accordion>
 
-  <Accordion title="Test in Staging First">
-    - Test Terraform changes in staging environment
-    - Use environment-specific variables
-    - Validate outputs before promoting to production
+  <Accordion title="Apply Arguments">
+    Customize `terraform apply` behavior.
+
+    **Common arguments:**
+    - `-target=resource.name` - Apply changes to specific resource only
+    - `-var="key=value"` - Set a variable value
+    - `-var-file=filename` - Load variables from file
+    - `-parallelism=n` - Limit concurrent operations
+    - `-refresh=false` - Skip state refresh
+
+    **Example:**
+    ```
+    -parallelism=10 -refresh=false
+    ```
   </Accordion>
 
-  <Accordion title="Review Plans Before Applying">
-    Always review `terraform plan` output in deployment logs before applying changes to understand what will be modified.
+  <Accordion title="Destroy Arguments">
+    Customize `terraform destroy` behavior.
+
+    **Common arguments:**
+    - `-target=resource.name` - Destroy specific resource only
+    - `-var="key=value"` - Set a variable value
+    - `-parallelism=n` - Limit concurrent operations
+    - `-refresh=false` - Skip state refresh
+
+    <Warning>
+    Use destroy arguments carefully. Targeting specific resources can lead to incomplete cleanup or resource dependencies issues.
+    </Warning>
+
+    **Example:**
+    ```
+    -target=aws_s3_bucket.temp -parallelism=2
+    ```
   </Accordion>
 </AccordionGroup>
 
-## Troubleshooting
+**Argument Format:**
 
-<AccordionGroup>
-  <Accordion title="Terraform Init Fails">
-    **Symptoms**: Deployment fails during initialization
+- Separate multiple arguments with spaces
+- Quote values containing spaces: `-var="name=my value"`
+- Use multiple `-var` flags for multiple variables: `-var="a=1" -var="b=2"`
 
-    **Common Causes**:
-    - Invalid provider version
-    - Missing provider credentials
-    - Terraform version incompatibility
+**Example Full Configuration:**
 
-    **Solutions**:
-    1. Check Terraform version compatibility
-    2. Verify provider credentials are set correctly
-    3. Review provider version constraints
-    4. Check deployment logs for specific error
-  </Accordion>
+```
+Init: -upgrade
+Plan: -parallelism=10 -var="environment=production"
+Apply: -parallelism=10 -var="environment=production"
+Destroy: -parallelism=5 -refresh=false
+```
 
-  <Accordion title="Plan Shows Unexpected Changes">
-    **Symptoms**: `terraform plan` shows changes you didn't make
-
-    **Possible Causes**:
-    - Manual changes in cloud console
-    - Terraform state drift
-    - Variable changes
-
-    **Solutions**:
-    1. Review deployment logs to see what changed
-    2. Check if resources were modified outside Terraform
-    3. Verify environment variables are correct
-    4. Consider using `terraform refresh` to sync state
-  </Accordion>
-
-  <Accordion title="Apply Fails with Resource Already Exists">
-    **Symptoms**: Error saying resource already exists
-
-    **Solutions**:
-    1. Import existing resource into Terraform state:
-       ```bash
-       terraform import aws_s3_bucket.example bucket-name
-       ```
-    2. Or delete the existing resource and let Terraform recreate it
-    3. Check for resource naming conflicts
-  </Accordion>
-
-  <Accordion title="Outputs Not Available">
-    **Symptoms**: Terraform outputs not appearing as environment variables
-
-    **Solutions**:
-    1. Verify outputs are defined in `outputs.tf`
-    2. Check that Terraform apply completed successfully
-    3. Redeploy dependent services to refresh variables
-    4. Check output naming follows conventions
-  </Accordion>
-
-  <Accordion title="Permission Denied Errors">
-    **Symptoms**: AWS/GCP/Azure permission errors
-
-    **Solutions**:
-    1. Verify cloud credentials have sufficient permissions
-    2. Check IAM policies for required actions
-    3. Ensure credentials are not expired
-    4. Review provider-specific error messages
-  </Accordion>
-</AccordionGroup>
-
-## Limitations
-
-<Warning>
-Be aware of these limitations when using Terraform on Qovery:
-</Warning>
-
-- **No Interactive Approval**: `terraform apply` runs automatically without interactive approval
-- **State Access**: Direct access to Terraform state files is not provided (managed by Qovery)
-- **Terraform Commands**: Only `plan` and `apply` commands are executed automatically
-- **Execution Time**: Long-running Terraform operations may timeout (default: 30 minutes)
+---
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Terraform Provider" icon="code" href="/terraform-provider/overview">
-    Use Qovery Terraform Provider to manage Qovery resources
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Learn how to manage variables and secrets
   </Card>
 
-  <Card title="Terraform Examples" icon="book" href="/terraform-provider/basic-application">
-    Browse example Terraform configurations
+  <Card title="Terraform Provider" icon="code" href="/terraform-provider/overview">
+    Use Qovery Terraform Provider to manage Qovery resources
   </Card>
 
   <Card title="Lifecycle Jobs" icon="clock" href="/configuration/lifecycle-job">
     Run scripts during deployment lifecycle
   </Card>
 
-  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
-    Manage environment variables and secrets
+  <Card title="Deployment Overview" icon="rocket" href="/configuration/deployment/overview">
+    Understand deployment workflows
   </Card>
 </CardGroup>
