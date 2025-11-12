@@ -357,23 +357,18 @@
             ]
           },
           {
-            "group": "Secrets & Monitoring",
+            "group": "Secrets Management",
             "pages": [
-              {
-                "group": "Secrets Management",
-                "pages": [
-                  "configuration/integrations/secret-managers/doppler",
-                  "configuration/integrations/secret-managers/aws-secrets-manager"
-                ]
-              },
-              {
-                "group": "Observability",
-                "pages": [
-                  "configuration/integrations/observability/qovery-observe",
-                  "configuration/integrations/observability/datadog",
-                  "configuration/integrations/observability/kubecost"
-                ]
-              }
+              "configuration/integrations/secret-managers/doppler",
+              "configuration/integrations/secret-managers/aws-secrets-manager"
+            ]
+          },
+          {
+            "group": "Observability",
+            "pages": [
+              "configuration/integrations/observability/qovery-observe",
+              "configuration/integrations/observability/datadog",
+              "configuration/integrations/observability/kubecost"
             ]
           },
           {
