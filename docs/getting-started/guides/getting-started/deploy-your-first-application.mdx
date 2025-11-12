@@ -131,8 +131,10 @@ Qovery supports multiple deployment sources. Choose the one that fits your workf
 
       <Step title="Configure Health Checks (Optional)">
         Improve reliability with health checks:
-        - **Liveness Probe**: Checks if container is alive
-        - **Readiness Probe**: Checks if container is ready for traffic
+        - **Liveness Probe**: Checks if container is alive (restarts container if failing)
+        - **Readiness Probe**: Checks if container is ready for traffic (prevents routing traffic until passing)
+
+        These probes ensure Kubernetes only routes traffic to healthy containers and automatically restarts failed ones.
 
         Recommended: Add `/health` or `/healthz` endpoint to your app.
       </Step>
@@ -223,8 +225,10 @@ Qovery supports multiple deployment sources. Choose the one that fits your workf
 
       <Step title="Configure Health Checks (Optional)">
         Set up health monitoring:
-        - **Liveness Probe**: HTTP, TCP, or exec checks
-        - **Readiness Probe**: When to route traffic
+        - **Liveness Probe**: HTTP, TCP, or exec checks (restarts container if failing)
+        - **Readiness Probe**: When to route traffic (prevents routing traffic until passing)
+
+        These probes ensure Kubernetes only routes traffic to healthy containers and automatically restarts failed ones.
       </Step>
 
       <Step title="Set Environment Variables (Optional)">
@@ -328,7 +332,7 @@ Watch your application come to life:
     - Check build logs for specific errors
     - Verify Dockerfile builds locally: `docker build .`
     - Ensure all dependencies are in package files
-    - Increase build resources if needed
+    - Contact Qovery support to increase build resources if needed
   </Accordion>
 
   <Accordion title="Image Pull Failed (Container Registry)">

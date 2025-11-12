@@ -33,33 +33,69 @@ Qovery operates as a control plane that only transfers metadata using gRPC/TLS. 
 
 ## How It Works
 
-```mermaid
-graph TB
-    Control[Qovery Control Plane<br/>metadata only via gRPC/TLS]
+<Tabs>
+  <Tab title="Managed Clusters">
+    For Managed Clusters, Qovery manages the engine infrastructure:
 
-    subgraph Your Infrastructure
-        Engine[Qovery Engine]
-        K8s[Kubernetes]
-        AWS[AWS / GCP / Azure / Scaleway]
+    ```mermaid
+    graph TB
+        Control[Qovery Control Plane<br/>metadata only via gRPC/TLS]
+        Engine[Qovery Engine<br/>Managed by Qovery]
 
+        subgraph Your Infrastructure
+            K8s[Kubernetes]
+            AWS[AWS / GCP / Azure / Scaleway]
+
+            K8s -->|Runs On| AWS
+        end
+
+        Control -.->|Metadata Only<br/>gRPC/TLS| Engine
         Engine -->|Manages| K8s
-        K8s -->|Runs On| AWS
-    end
 
-    Control -.->|Metadata Only<br/>gRPC/TLS| Engine
+        style Control fill:#642DFF,color:#fff
+        style Engine fill:#7D55FF,color:#fff
+        style K8s fill:#326CE5,color:#fff
+        style AWS fill:#FF9900,color:#000
+    ```
 
-    style Control fill:#642DFF,color:#fff
-    style Engine fill:#7D55FF,color:#fff
-    style K8s fill:#326CE5,color:#fff
-    style AWS fill:#FF9900,color:#000
-```
+    **Key Principles**:
+    - **Control Plane Separation** - Qovery's control plane is separate from your data plane
+    - **Metadata Only** - Only configuration and status metadata transits to Qovery
+    - **Encrypted Communication** - All communication uses gRPC over TLS
+    - **Your Cloud Account** - All resources provisioned in your cloud account
+  </Tab>
 
-**Key Principles**:
-- **Control Plane Separation** - Qovery's control plane is separate from your data plane
-- **Metadata Only** - Only configuration and status metadata transits to Qovery
-- **Encrypted Communication** - All communication uses gRPC over TLS
-- **Your Cloud Account** - All resources provisioned in your cloud account
-- **No Data Access** - Qovery never has access to your application data
+  <Tab title="BYOK Clusters">
+    For BYOK (Bring Your Own Kubernetes), the engine runs in your infrastructure:
+
+    ```mermaid
+    graph TB
+        Control[Qovery Control Plane<br/>metadata only via gRPC/TLS]
+
+        subgraph Your Infrastructure
+            Engine[Qovery Engine]
+            K8s[Kubernetes]
+            AWS[AWS / GCP / Azure / Scaleway]
+
+            Engine -->|Manages| K8s
+            K8s -->|Runs On| AWS
+        end
+
+        Control -.->|Metadata Only<br/>gRPC/TLS| Engine
+
+        style Control fill:#642DFF,color:#fff
+        style Engine fill:#7D55FF,color:#fff
+        style K8s fill:#326CE5,color:#fff
+        style AWS fill:#FF9900,color:#000
+    ```
+
+    **Key Principles**:
+    - **Full Control** - Engine runs entirely within your infrastructure
+    - **Metadata Only** - Only configuration and status metadata transits to Qovery
+    - **Encrypted Communication** - All communication uses gRPC over TLS
+    - **Your Cloud Account** - All resources provisioned in your cloud account
+  </Tab>
+</Tabs>
 
 ---
 
@@ -76,7 +112,6 @@ Qovery implements comprehensive encryption strategies to protect your data throu
     - **Management Console** - HTTPS-only access
     - **Documentation** - Served over HTTPS
     - **Landing Page** - Encrypted web traffic
-    - **Back Office** - Secure administrative access
 
     ### Customer Application Encryption
 
