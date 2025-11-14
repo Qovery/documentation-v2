@@ -1,0 +1,62 @@
+---
+title: "Deploy a DaemonSet in a Karpenter Context"
+description: "How to ensure your DaemonSet is well deployed when you are using Karpenter"
+---
+
+Karpenter is a great way to cut your AWS bill. However, there is some specificity when deploying DaemonSets.
+
+## What is a DaemonSet?
+
+A DaemonSet in Kubernetes is a specialized controller used to ensure that a copy of a particular pod runs on all nodes in a cluster.
+
+**Automatic Scheduling**: When new nodes are added to the cluster, the DaemonSet controller automatically schedules a pod on each of those nodes.
+
+**Cleanup**: When nodes are removed from the cluster, the pods are also automatically removed from those nodes.
+
+DaemonSets are particularly useful for deploying background tasks or system-level services that need to run on every node, such as log collectors, monitoring agents, or network-related components.
+
+## Priority Classes
+
+### What is a PriorityClass?
+
+A PriorityClass in Kubernetes is a resource used to assign priority levels to pods. When scheduling pods, Kubernetes uses these priorities to determine the order in which pods are scheduled. Here are the key features and uses of PriorityClasses:
+
+- **Priority Scheduling**: Pods with higher priority values are scheduled before pods with lower priority values. This helps ensure that critical workloads get the necessary resources first.
+- **Preemption**: If there are insufficient resources to schedule a high-priority pod, Kubernetes can preempt (evict) lower-priority pods to make room for the higher-priority one.
+- **Resource Allocation**: PriorityClasses help in managing resource allocation more effectively by ensuring that essential services and critical applications receive the resources they need, even during periods of high demand.
+
+### Use Qovery's dedicated PriorityClass
+
+There is a known issue with Karpenter and DaemonSets when scaling nodes. This is because DaemonSets consume resources that Karpenter doesn't fully account for, leading to potential under-provisioning of nodes. Using a PriorityClass attached to DaemonSets can help mitigate this issue.
+
+Many Helm charts include a built-in value for PriorityClass. For instance, have a look at our guides on how to deploy [Datadog](/configuration/integrations/observability/datadog) or [JupyterHub](/getting-started/guides/advanced-tutorials/deploy-jupyterhub).
+
+When you deploy Qovery, a PriorityClass named `qovery-standard-priority` is created. You can leverage it to deploy your Helm chart or DaemonSet with.
+
+## Targeting all nodes
+
+### Nodepool Default Taints
+
+When you deploy Qovery, two nodepools are deployed by default: `default` and `stable`. The `stable` nodepool includes a taint with the key `nodepool/stable` on it. This taint restricts pod scheduling to only those pods that have the corresponding toleration.
+
+### How to target every node
+
+To target all nodes and properly deploy your DaemonSet or Helm chart, add the following tolerations and affinity to your pods:
+
+```yaml
+tolerations:
+  - operator: Exists
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: eks.amazonaws.com/compute-type
+            operator: NotIn
+            values:
+              - fargate
+```
+
+- **Tolerations**: The `Exists` operator allows the pod to tolerate all taints. This ensures that the pod can be scheduled on nodes with any taint, including the `stable` nodepool.
+- **Affinity**: The node affinity rule ensures that the pod is not scheduled on Fargate nodes, which are not suitable for running DaemonSets.

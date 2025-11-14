@@ -136,7 +136,8 @@
                     "pages": [
                       "getting-started/guides/advanced-tutorials/aws-iam-roles",
                       "getting-started/guides/advanced-tutorials/certificate-management-multi-tenant",
-                      "getting-started/guides/advanced-tutorials/cloudwatch-integration"
+                      "getting-started/guides/advanced-tutorials/cloudwatch-integration",
+                      "getting-started/guides/advanced-tutorials/deploy-daemonset-karpenter"
                     ]
                   },
                   {
