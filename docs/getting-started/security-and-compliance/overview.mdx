@@ -75,7 +75,7 @@ Qovery operates as a control plane that only transfers metadata using gRPC/TLS. 
         subgraph Your Infrastructure
             Engine[Qovery Engine]
             K8s[Kubernetes]
-            AWS[AWS / GCP / Azure / Scaleway]
+            AWS[Any Cloud Provider]
 
             Engine -->|Manages| K8s
             K8s -->|Runs On| AWS

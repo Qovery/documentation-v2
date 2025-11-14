@@ -30,78 +30,32 @@ Qovery implements a role-based access control system to manage member permission
 
 ### Default Roles
 
-<AccordionGroup>
-  <Accordion title="Owner">
-    **Full administrative access**:
+Qovery provides 5 default roles with predefined permissions:
 
-    - Full organizational access
-    - Edit and delete organization
-    - Manage billing
-    - Invite/remove members
-    - Create/delete clusters
-    - Create/delete projects
-    - Deploy and stop services
-    - Shell access to applications
-    - View audit logs
-    - Manage API tokens
+| Action | Owner | Admin | DevOps | Billing Manager | Viewer |
+|--------|-------|-------|--------|-----------------|--------|
+| Read organization | yes | yes | yes | yes | yes |
+| Edit organization | yes | yes | no | no | no |
+| Delete organization | yes | no | no | no | no |
+| Manage billing | yes | yes | no | yes | no |
+| Manage members & roles | yes | yes | no | no | no |
+| Manage cluster & container registry | yes | yes | yes | no | no |
+| Manage organization setup | yes | yes | yes | no | no |
+| Read ANY project | yes | yes | yes | no | yes |
+| Edit/Delete ANY project | yes | yes | no | no | no |
+| Create project | yes | yes | no | no | no |
+| Read ANY environment | yes | yes | yes | no | yes |
+| Edit/Delete ANY environment or service | yes | yes | no | no | no |
+| Create environment or service | yes | yes | no | no | no |
+| Add/Edit/Delete environment variables and secrets | yes | yes | yes | no | no |
+| Deploy/Stop ANY environment or service | yes | yes | yes | no | no |
+| Connect via shell to ANY application | yes | yes | yes | no | no |
+| View audit logs | yes | yes | no | no | no |
+| Manage API tokens | yes | yes | no | no | no |
 
-    **Note**: Only one Owner per organization
-  </Accordion>
-
-  <Accordion title="Admin">
-    **Full permissions except organization deletion**:
-
-    - Edit organization settings
-    - Manage billing
-    - Invite/remove members
-    - Create/delete clusters
-    - Create/delete projects
-    - Deploy/manage all environments
-    - Shell access to applications
-    - View audit logs
-    - **Cannot**: Delete organization
-  </Accordion>
-
-  <Accordion title="DevOps">
-    **Infrastructure and deployment management**:
-
-    - Manage clusters, container registries, and webhooks
-    - Deploy and stop services
-    - Shell access to applications
-    - Manage environment variables
-    - View logs and metrics
-    - **Cannot**: Edit organization settings
-    - **Cannot**: Manage billing
-    - **Cannot**: Manage members
-  </Accordion>
-
-  <Accordion title="Billing Manager">
-    **Billing management only**:
-
-    - View organization information
-    - Manage billing
-    - Update payment methods
-    - View invoices
-    - **Cannot**: Edit organization settings
-    - **Cannot**: Manage members
-    - **Cannot**: Deploy or manage infrastructure
-    - **Cannot**: Shell access to applications
-  </Accordion>
-
-  <Accordion title="Viewer">
-    **Read-only access**:
-
-    - View organization information
-    - View projects and environments
-    - View logs and metrics
-    - View configurations
-    - **Cannot**: Edit organization settings
-    - **Cannot**: Manage billing
-    - **Cannot**: Manage members
-    - **Cannot**: Deploy or stop services
-    - **Cannot**: Shell access to applications
-  </Accordion>
-</AccordionGroup>
+<Note>
+Only one Owner per organization is allowed.
+</Note>
 
 ### Custom Roles
 
