@@ -13,24 +13,6 @@ export default {
         return Response.redirect(urlObject.origin + '/docs/getting-started/introduction', 301);
       }
 
-      // Serve raw shell scripts from GitHub
-      if (urlObject.pathname.startsWith('/docs/files/') && urlObject.pathname.endsWith('.sh')) {
-        const scriptName = urlObject.pathname.split('/').pop();
-        const githubRawUrl = `https://raw.githubusercontent.com/Qovery/documentation-v2/main/docs/files/${scriptName}`;
-
-        const response = await fetch(githubRawUrl);
-        if (response.ok) {
-          return new Response(response.body, {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/x-sh',
-              'Cache-Control': 'public, max-age=600',
-              'Access-Control-Allow-Origin': '*'
-            }
-          });
-        }
-      }
-
       // If the request is to the docs subdirectory
       if (urlObject.pathname.startsWith('/docs/')) {
         // Proxy to Mintlify
