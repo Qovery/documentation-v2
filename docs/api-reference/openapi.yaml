@@ -1474,7 +1474,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get the list and values of the advanced settings of the cluster.
-        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)
+        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)
       operationId: getClusterAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/organizationId'
@@ -5956,7 +5956,7 @@ paths:
     get:
       summary: List default application advanced settings
       operationId: getDefaultApplicationAdvancedSettings
-      description: 'Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)'
+      description: 'Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)'
       tags:
         - Applications
       responses:
@@ -5973,7 +5973,7 @@ paths:
   /defaultClusterAdvancedSettings:
     get:
       summary: List default cluster advanced settings
-      description: 'Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)'
+      description: 'Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)'
       operationId: getDefaultClusterAdvancedSettings
       tags:
         - Clusters
@@ -5991,7 +5991,7 @@ paths:
   /defaultContainerAdvancedSettings:
     get:
       summary: List default container advanced settings
-      description: 'Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)'
+      description: 'Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)'
       operationId: getDefaultContainerAdvancedSettings
       tags:
         - Containers
@@ -6009,7 +6009,7 @@ paths:
   /defaultJobAdvancedSettings:
     get:
       summary: List default job advanced settings
-      description: 'Default values for each setting is available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)'
+      description: 'Default values for each setting is available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)'
       operationId: getDefaultJobAdvancedSettings
       tags:
         - Jobs
@@ -7101,7 +7101,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get list and values of the advanced settings of the application.
-        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)
+        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)
       operationId: getAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/applicationId'
@@ -7334,7 +7334,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get list and values of the advanced settings of the container.
-        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)
+        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)
       operationId: getContainerAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/containerId'
@@ -9991,7 +9991,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get list and values of the advanced settings of the job.
-        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)
+        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)
       operationId: getJobAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/jobId'

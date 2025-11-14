@@ -31,7 +31,7 @@ When updating CLI installation instructions:
 
 ### `aws-credentials-sts.mdx`
 
-**Source:** [AWS Documentation Hub](https://hub.qovery.com/docs/getting-started/install-qovery/aws/cluster-managed-by-qovery/create-credentials/)
+**Source:** [AWS Documentation Hub](https://qovery.com/docs/getting-started/install-qovery/aws/cluster-managed-by-qovery/create-credentials/)
 
 Contains the AWS STS Assume Role credentials setup instructions with CloudFormation stack creation and IAM role configuration.
 
@@ -53,7 +53,7 @@ When updating AWS STS credentials instructions:
 
 ### `aws-credentials-static.mdx`
 
-**Source:** [AWS Documentation Hub](https://hub.qovery.com/docs/getting-started/install-qovery/aws/cluster-managed-by-qovery/create-credentials/)
+**Source:** [AWS Documentation Hub](https://qovery.com/docs/getting-started/install-qovery/aws/cluster-managed-by-qovery/create-credentials/)
 
 Contains the AWS Static Credentials (Access Keys) setup instructions with IAM user creation and access key generation.
 
@@ -83,7 +83,7 @@ When updating AWS static credentials instructions:
 
 ### `gcp-credentials.mdx`
 
-**Source:** [GCP Documentation Hub](https://hub.qovery.com/docs/getting-started/install-qovery/gcp/cluster-managed-by-qovery/create-credentials/)
+**Source:** [GCP Documentation Hub](https://qovery.com/docs/getting-started/install-qovery/gcp/cluster-managed-by-qovery/create-credentials/)
 
 Contains the GCP credentials setup instructions using service account and JSON key file generation through Cloud Shell.
 
@@ -113,7 +113,7 @@ When updating GCP credentials instructions:
 
 ### `scaleway-credentials.mdx`
 
-**Source:** [Scaleway Documentation Hub](https://hub.qovery.com/docs/getting-started/install-qovery/scaleway/cluster-managed-by-qovery/create-credentials/)
+**Source:** [Scaleway Documentation Hub](https://qovery.com/docs/getting-started/install-qovery/scaleway/cluster-managed-by-qovery/create-credentials/)
 
 Contains the Scaleway credentials setup instructions using IAM applications, API keys, and granular permission policies.
 
@@ -143,7 +143,7 @@ When updating Scaleway credentials instructions:
 
 ### `azure-credentials.mdx`
 
-**Source:** [Azure Documentation Hub](https://hub.qovery.com/docs/getting-started/install-qovery/azure/cluster-managed-by-qovery/create-credentials/)
+**Source:** [Azure Documentation Hub](https://qovery.com/docs/getting-started/install-qovery/azure/cluster-managed-by-qovery/create-credentials/)
 
 Contains the Azure credentials setup instructions using service principals, Tenant ID, Subscription ID, and automated script execution via Azure Cloud Shell.
 

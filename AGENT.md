@@ -86,7 +86,7 @@ This file documents the work completed by AI agents on the Qovery documentation 
 
 ### 5. VPC Peering Guide
 - **Created**: guides/others/aws-vpc-peering.mdx (357 lines)
-- **Content**: Imported from hub.qovery.com, adapted to Mintlify format
+- **Content**: Imported from qovery.com/docs, adapted to Mintlify format
 - **Sections**: Prerequisites, step-by-step setup, route tables, security groups, testing
 
 ### 6. CLI Commands Documentation
