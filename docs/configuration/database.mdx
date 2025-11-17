@@ -1,308 +1,250 @@
 ---
-title: "Database"
-description: "Configure and manage databases on Qovery"
+title: "Databases"
+description: "Learn how to configure Databases on Qovery"
 ---
 
-## Overview
-
-Qovery provides managed database services that you can deploy alongside your applications. Databases are automatically configured with connection credentials that are injected as environment variables into your applications.
-
-## Supported Databases
-
-Qovery natively supports four database types:
-
-### PostgreSQL
-
-PostgreSQL is a powerful, open-source object-relational database system with over 30 years of active development, known for reliability, feature robustness, and performance.
-
-**Cloud Provider Support**:
-- **AWS**: Container and Managed (RDS)
-- **Scaleway**: Container only
-- **GCP**: Container and Managed (Cloud SQL)
-- **Azure**: Container and Managed (Azure Database)
-
-**Supported Versions**: Check the Qovery Console for available versions (typically 11, 12, 13, 14, 15, 16)
-
-### MySQL
-
-MySQL is the world's most popular open-source database, suitable for fast-growing web properties, technology ISVs, and large enterprises requiring high-performance, scalable database applications.
-
-**Cloud Provider Support**:
-- **AWS**: Container and Managed (RDS)
-- **Scaleway**: Container only
-- **GCP**: Container and Managed (Cloud SQL)
-- **Azure**: Container and Managed (Azure Database)
-
-**Supported Versions**: Check the Qovery Console for available versions (typically 5.7, 8.0, 8.1)
-
-### MongoDB
-
-MongoDB is a cross-platform document-oriented database program. Classified as a NoSQL database, MongoDB uses JSON-like documents with schema.
-
-**Cloud Provider Support**:
-- **AWS**: Container and Managed (DocumentDB)
-- **Scaleway**: Container only
-
-**Supported Versions**: Check the Qovery Console for available versions (typically 4.4, 5.0, 6.0, 7.0)
-
-**TLS/SSL Requirements**: MongoDB deployments require proper certificate handling. Include the AWS RDS certificate bundle in your Docker image and configure your application to reference it during connection. Append SSL certificate path parameters to the connection URI when using environment variables.
-
-### Redis
-
-Redis is an open-source (BSD licensed), in-memory data structure store used as a database, cache, and message broker. Redis supports various data structures including strings, hashes, lists, sets, sorted sets, bitmaps, hyperloglogs, geospatial indexes, and streams.
-
-**Cloud Provider Support**:
-- **AWS**: Container and Managed (ElastiCache)
-- **Scaleway**: Container only
-- **GCP**: Managed (Memorystore)
-- **Azure**: Managed (Azure Cache for Redis)
-
-**Supported Versions**: Check the Qovery Console for available versions (typically 6.0, 6.2, 7.0, 7.2)
-
-## Database Modes
-
-### Container Mode
-
-**Best for**: Development, testing, and non-critical workloads
-
-**Characteristics**:
-- Runs as a container on your Kubernetes cluster
-- Single instance deployment
-- Lower cost (no cloud provider fees)
-- Quick to provision
-- Manual backup management
-
-**Limitations**:
-- Not highly available
-- Limited to single instance
-- Requires manual backup strategy
-
-### Managed Mode
-
-**Best for**: Production workloads requiring high availability
-
-**Characteristics**:
-- Fully managed by cloud provider (AWS RDS, GCP Cloud SQL, Azure Database, Scaleway Database)
-- High availability and reliability
-- Automatic backups and point-in-time recovery
-- Automatic updates and patches
-- Multi-AZ deployment options
-- Cloud provider SLA
-
-**Limitations**:
-- Higher cost
-- Limited configuration parameters
-- Provider-specific features
-
-<Warning>
-For production workloads, **Managed Mode is strongly recommended** to ensure data reliability and availability.
-</Warning>
-
 <Info>
-Changes to managed databases don't apply immediately. Consult your cloud provider documentation for update timelines.
+You need to have created an [Environment](/configuration/environment) first.
 </Info>
 
-## Creating a Database
+Qovery natively lets you deploy and access the most popular SQL and NoSQL databases available on the major cloud providers. Reliability and resiliency are at the heart of their services, so you don't have to worry about your data on Qovery.
+
+Qovery natively supports the following databases:
+- PostgreSQL
+- MySQL
+- MongoDB
+- Redis
+
+Qovery can natively operate a database in two different ways (called "Mode"):
+- Container mode: preferred for testing and development
+- Managed mode: preferred for production, limited configuration parameters (see the [Configuration](#configuration) section).
+
+If the natively supported databases or operation modes are not enough for you, depending on your use case you have the following alternative solutions:
+- Use an existing DB on a dedicated VPC: your applications can access this database via VPC peering. Have a look at [this guide](/configuration/integrations/aws/vpc-peering) for more information.
+- Create your custom database via Qovery: You will be able to deploy any kind of database through Qovery by using a [lifecycle jobs](/configuration/lifecycle-job). For example, you can use a terraform script to deploy your custom RDS instance on AWS via Terraform (have a look at [this example](https://github.com/Qovery/lifecycle-job-examples/tree/main/examples/aws-rds-with-terraform)).
+
+The following sections will show you how you can create and manage the databases natively supported by Qovery. For any other use case, please refer to the guides provided above.
+
+## Container mode
+
+The database is created as a container with attached persistent storage directly on your Kubernetes cluster (1 instance). They are perfect for development and testing, as they are significantly cheaper than services provided by cloud providers.
+
+## Managed mode
+
+Qovery creates and manages the lifecycle of a cloud provider managed database instance (for example an RDS instance on AWS). These are perfect for production since they guarantee the right level of resilience, performance and data security best practices.
+
+### Applying changes to a managed database
+
+<Info>
+Since Qovery manages the lifecycle of your database, DO NOT change the database settings directly from within the cloud provider console (to avoid configuration drifts).
+</Info>
+
+Once you request to change the version, instance type or disk size of your Managed database, the cloud provider applies the update based on its own internal rules and might cause downtime of your database.
+
+For example, by default AWS doesn't apply major updates immediately on the database and instead, it waits for a `maintenance window`. This means that your change will not be applied immediately but you can always force the change directly from your AWS console AFTER having applied the change on Qovery (to avoid configuration drifts).
+
+Have a look at your cloud provider documentation to know more about how version upgrades are managed:
+
+- AWS RDS DB engine upgrade: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.MySQL.html
+- AWS maintenance window: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.Maintenance.html
+
+## Create a database
+
+<Info>
+Check out [this video guide](/getting-started/guides/getting-started/connect-database) to create and deploy your first database
+</Info>
 
 <Steps>
-  <Step title="Navigate to Environment">
-    Go to your project and select the environment where you want to add a database
+  <Step title="Navigate to Console">
+    Navigate to [Console](https://console.qovery.com)
+  </Step>
+
+  <Step title="Select your project and environment">
+    Select your project and environment
   </Step>
 
   <Step title="Add Database">
-    Click **Create** → **Database**
+    Click `Add Database` button
   </Step>
 
-  <Step title="Select Database Type">
-    Choose from PostgreSQL, MySQL, MongoDB, or Redis
+  <Step title="Select database configuration">
+    Select database type, name, description (optional), version, mode and accessibility
+
+    <Info>
+    Please refer to the Configuration section below to know more about each of these parameters.
+    </Info>
+
+    **Extra labels/annotations (optional)**
+
+    Add your extra annotation/label groups. See the [Add annotation/label group](/configuration/organization#labels-and-annotations) section for more information. Annotation groups are not supported for managed databases.
   </Step>
 
-  <Step title="Configure Database">
-    **General Configuration**:
-    - **Name**: Database identifier
-    - **Description**: Optional description
-    - **Version**: Select database engine version
-    - **Mode**: Container or Managed
-
-    **Mode-Specific Settings**:
-
-    For **Container Mode**:
-    - CPU allocation (default: 250m)
-    - Memory allocation (default: 256 MB)
-    - Storage size (default: 10 GB)
-
-    For **Managed Mode**:
-    - Instance type (varies by cloud provider)
-    - Storage size and type
-    - Multi-AZ deployment (optional)
+  <Step title="Set Resources">
+    Within the "Resources" step you will find different configurations based on the selected `mode`:
+    - If you are using the database in `Container` mode, you can set the CPU, RAM and storage that will be assigned to the instance running the docker image of the database.
+    - If you are using the database in `Managed` mode, you can select the instance type and the storage that will be assigned to the instance running the database. Note, the instance selected instance type has a direct impact on your cloud provider cost.
   </Step>
 
-  <Step title="Configure Accessibility">
-    - **Private**: Only accessible within the environment (recommended)
-    - **Public**: Accessible from the internet (requires strong credentials)
-  </Step>
-
-  <Step title="Create">
-    Click **Create Database** to provision
+  <Step title="Create and Deploy">
+    At the end a recap will allow you to just create the database or create and deploy it
   </Step>
 </Steps>
 
-<Tip>
-For a step-by-step tutorial, see [Connect Your First Database](/guides/getting-started/connect-database).
-</Tip>
+## Configuration
 
-## Connection Credentials
+Once created, you can access the configuration of a database at any time via the Settings tab available on the database page.
 
-Qovery automatically generates and injects connection credentials as environment variables.
+You can find below the description of each of the tabs available in this section
 
-### Auto-Generated Variables
+### General
 
-For a database named `my-db`, Qovery creates:
+#### Modes
 
-```bash
-# Full connection URI
-QOVERY_DATABASE_MY_DB_CONNECTION_URI=postgresql://user:pass@host:5432/dbname
+As described at the beginning of this document, databases can operate in two modes:
 
-# Individual components
-QOVERY_DATABASE_MY_DB_HOST=xxx.xxx.xxx.xxx
-QOVERY_DATABASE_MY_DB_PORT=5432
-QOVERY_DATABASE_MY_DB_USERNAME=qovery
-QOVERY_DATABASE_MY_DB_PASSWORD=xxx
-QOVERY_DATABASE_MY_DB_DATABASE=my_db
-```
+- Managed
+- Container
 
-### Using Credentials in Your Application
+**Managed** databases are perfect for production - they are provided and managed by major cloud providers like AWS to make sure your production data is well managed.
 
-<CodeGroup>
-```javascript Node.js
-const { Pool } = require('pg');
+**Container** databases are managed by Qovery as Docker containers with attached persistent storage directly on your Kubernetes cluster (1 instance). They are perfect for development and testing, as they are significantly cheaper than services provided by cloud providers.
 
-// Using connection URI
-const pool = new Pool({
-  connectionString: process.env.QOVERY_DATABASE_MY_DB_CONNECTION_URI
-});
+Please refer to the dedicated database sub-pages to get more information on the supported mode for each cloud provider.
 
-// Using individual variables
-const pool = new Pool({
-  host: process.env.QOVERY_DATABASE_MY_DB_HOST,
-  port: process.env.QOVERY_DATABASE_MY_DB_PORT,
-  user: process.env.QOVERY_DATABASE_MY_DB_USERNAME,
-  password: process.env.QOVERY_DATABASE_MY_DB_PASSWORD,
-  database: process.env.QOVERY_DATABASE_MY_DB_DATABASE
-});
-```
+#### Versions
 
-```python Python
-import os
-import psycopg2
+We regularly update the version available for each database. Please refer to the dedicated database sub-pages to get more information on the supported version for each database types and cloud provider.
 
-# Using connection URI
-conn = psycopg2.connect(os.environ['QOVERY_DATABASE_MY_DB_CONNECTION_URI'])
+You can upgrade the version of your database directly from the Qovery interface.
 
-# Using individual variables
-conn = psycopg2.connect(
-    host=os.environ['QOVERY_DATABASE_MY_DB_HOST'],
-    port=os.environ['QOVERY_DATABASE_MY_DB_PORT'],
-    user=os.environ['QOVERY_DATABASE_MY_DB_USERNAME'],
-    password=os.environ['QOVERY_DATABASE_MY_DB_PASSWORD'],
-    database=os.environ['QOVERY_DATABASE_MY_DB_DATABASE']
-)
-```
-</CodeGroup>
+<Info>
+Any change on this field will not be applied immediately to your database, check the [managed mode](#applying-changes-to-a-managed-database) section.
+</Info>
 
-## Managing Databases
+#### Accessibility
 
-### Database Settings
+This parameter lets you decide whether to expose publicly or not your database.
 
-Access database settings to:
-- Update resource allocation
-- Change database version
-- Modify accessibility
-- Configure backups (managed mode)
-- View connection details
+- **Public** access will make your database accessible via the public network
+- **Private** access will make your database accessible only by applications in your environment
+
+#### Extra labels/annotations
+
+Add your extra annotation/label groups. See the [Add annotation/label group](/configuration/organization#labels-and-annotations) section for more information. Annotation groups are not supported for managed databases.
+
+### Resources
+
+#### CPU / Memory
+
+This configuration is available only for databases in **Container** mode
+
+You can select the CPU assigned to the Kubernetes pod running the database instance
+
+#### Instance Type
+
+This configuration is available only for databases in **Managed** mode
+
+You can modify the CPU assigned to the instance running your database (And thus, its resources).
+
+<Info>
+Any change on this field will not be applied immediately to your database, check the [managed mode](#applying-changes-to-a-managed-database) section.
+</Info>
+
+#### Storage
+
+You can select the size of the persistent storage attached to the container database.
+
+<Info>
+Any change on this field will not be applied immediately to your database, check the [managed mode](#applying-changes-to-a-managed-database) section.
+</Info>
+
+## Credentials and connectivity
+
+When a database is created in your environment, Qovery will automatically create and inject a set of BUILT_IN environment variables containing all the parameters necessary to your application to connect to the database.
+
+This is the list of environment variables and secrets that will be automatically created:
+
+| Name | Description | Example |
+|---------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_DEFAULT_DATABASE_NAME | Env Var containing the default database name | postgres |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_HOST | Env Var containing the external hostname of the database (if you need access from the outside and the DB is configured with visibility "PUBLIC") | zf5206c84-postgresql.oom.sh |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_HOST_INTERNAL | Env Var containing the internal hostname of the database (if you need access it from within the cluster network) | zf5206c84-postgresql |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_LOGIN | Env Var containing the username of the DB | superuser |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_PORT | Env Var containing the port to be used for connecting to the DB | 5432 |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_DATABASE_URL | Secret containing the external URI to be used for connecting to the DB (if you need access from the outside and the DB is configured with visibility "PUBLIC") | sql://root:xxxx@z4a58c1e2-postgresql.oom.sh:27017/admin |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_DATABASE_URL_INTERNAL | Secret containing the internal URI to be used for connecting to the DB (if you need access it from within the cluster network) | sql://root:xxxx@z4a58c1e2-postgresql:27017/admin |
+| QOVERY_`<DATABASE_TYPE>`_`<DBID>`_PASSWORD | Secret containing the password of the DB | dbsecret |
+
+Please note that the built-in variables follow the naming pattern: `QOVERY_DATABASETYPE` + `<your_db_name>` + `<type_of_variable>` where:
+
+- `<your_db_name>` is the name of your database
+- `<type_of_variable>` is the type of variable we inject, e.g. `PASSWORD`, `VERSION`, `CONNECTION_URI` and so on.
+
+To know how to access your database from your application, [have a look at the database section](/configuration/environment-variables#connecting-to-a-database).
+
+## Clone
+
+You can create a clone of the service via the clone feature. A new service with the same configuration (see below for exceptions) will be created into the target environment.
+
+The target environment can be the same as the current environment or even another one in a completely different project.
+
+**Important information**
+
+Not every configuration parameter will be copied within the new service for consistency reasons. The configuration is fully or partially copied depending on the target environment:
+- same environment:
+    - custom domain: this setup is not copied into the new service (to avoid collision)
+- another environment:
+    - custom domain: this setup is not copied into the new service (to avoid collision)
+    - environment variable: aliases defined on environment variables are not copied (since the aliased env var might not exist)
+    - deployment pipeline: stage setup is not copied (since the target stage might not exist)
+    - number of instances: if the target environment runs on a Qovery EC2 cluster, the max number of instances is set to 1 (Qovery EC2 constraint)
+
+Please check the configuration of the new service before deploying it.
+
+<Info>
+Note that only the instance configuration will be copied, not the data contained within the database.
+</Info>
+
+## Delete your database instance
 
 <Warning>
-**Never modify managed database settings directly in your cloud provider console**. Always use Qovery to manage database configuration to avoid configuration drift and deployment failures.
+Delete action drops the service and its data!
 </Warning>
 
-### Clone Database
-
-Create a copy of an existing database to the same or different environment.
-
-### Upgrade Database Version
+<Info>
+As Managed Services databases (like RDS) are mainly used for production, Qovery does not delete automated snapshots and backups on deletion. It is up to the user or Cloud provider Administrator to delete it manually.
+</Info>
 
 <Steps>
-  <Step title="Test in Non-Production">
-    Clone database to staging and test upgrade
+  <Step title="Navigate to Console">
+    Navigate to [Console](https://console.qovery.com)
   </Step>
 
-  <Step title="Schedule Maintenance">
-    Plan for potential downtime during upgrade
+  <Step title="Select your environment and database">
+    Select your environment and database
   </Step>
 
-  <Step title="Upgrade Version">
-    Go to database settings → Change version → Deploy
-  </Step>
-
-  <Step title="Verify Application">
-    Test application connectivity and functionality
+  <Step title="Delete Database">
+    In database overview, click on `Action` remove button
   </Step>
 </Steps>
 
-<Warning>
-Always backup your data before upgrading database versions.
-</Warning>
-
-### Delete Database
-
-<Warning>
-Deleting a database is **non-recoverable**. All data will be permanently deleted.
-</Warning>
-
-Before deleting:
-1. Backup your data
-2. Stop all applications using the database
-3. Verify you're deleting the correct database
-
-## Alternative Database Solutions
-
-If Qovery's built-in database options don't meet your requirements:
-
-### External Database on Dedicated VPC
-
-Connect to an existing database via VPC peering:
-1. Configure VPC peering between your cluster and database VPC
-2. Add connection details as environment variables
-3. Configure security groups
-
-Learn more: [AWS VPC Peering Guide](/integrations/aws/vpc-peering)
-
-### Custom Database via Lifecycle Jobs
-
-Use lifecycle jobs to provision custom database configurations or create cloud resources with specific settings.
-
-### Terraform Integration
-
-Use Terraform to create and manage databases with full control over configuration.
-
-Learn more: [Terraform Configuration](/configuration/terraform)
-
-## Related Resources
+## Available Databases
 
 <CardGroup cols={2}>
-  <Card title="Connect Database Guide" href="/getting-started/guides/getting-started/connect-database">
-    Step-by-step guide to connecting your first database
+  <Card title="MongoDB" icon="leaf" href="/configuration/database/mongodb">
+    NoSQL document database
   </Card>
 
-  <Card title="Environment Variables" href="/configuration/environment-variables">
-    Learn about environment variable management
+  <Card title="MySQL" icon="database" href="/configuration/database/mysql">
+    Popular relational database
   </Card>
 
-  <Card title="VPC Peering" href="/configuration/integrations/aws/vpc-peering">
-    Connect to external databases via VPC peering
+  <Card title="PostgreSQL" icon="elephant" href="/configuration/database/postgresql">
+    Advanced relational database
   </Card>
 
-  <Card title="Lifecycle Jobs" href="/configuration/lifecycle-job">
-    Use lifecycle jobs for custom database provisioning
+  <Card title="Redis" icon="bolt" href="/configuration/database/redis">
+    In-memory data store
   </Card>
 </CardGroup>
