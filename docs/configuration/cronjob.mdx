@@ -169,7 +169,7 @@ Force Run executions do not affect the regular schedule. The job will still run 
 
 ## Clone Service
 
-Duplicate a Cron Job configuration to the same or different environment:
+You can create a clone of the service via the clone feature. A new service with the same configuration will be created into the target environment.
 
 <Steps>
   <Step title="Select Job">
@@ -177,15 +177,17 @@ Duplicate a Cron Job configuration to the same or different environment:
   </Step>
 
   <Step title="Clone Job">
-    Click **Actions** → **Clone**
+    Click on the **three dots button** and select **Clone**
   </Step>
 
-  <Step title="Configure Clone">
-    - New name for cloned job
-    - Target environment
-    - Settings to copy
+  <Step title="Select Target Environment">
+    Choose the target environment where you want to clone the service
   </Step>
 </Steps>
+
+<Info>
+The target environment can be the same as the current environment or a different one in a completely different project.
+</Info>
 
 ## Delete Cron Job
 
