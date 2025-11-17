@@ -1,0 +1,179 @@
+---
+title: "AWS EKS"
+description: "Create and manage AWS EKS clusters with Qovery"
+---
+
+<Warning>
+**This mode is being deprecated**
+
+AWS EKS without Karpenter is currently being deprecated. This mode is only maintained for users who do not have Static IP enabled on their clusters. We strongly recommend using [AWS EKS with Karpenter](/configuration/integrations/kubernetes/eks/managed) for all new clusters.
+</Warning>
+
+By default, production clusters are deployed with the AWS default autoscaler. However, for non-production clusters, the AWS autoscaler is no longer available—Karpenter is now the default and only option.
+
+If you want to install Qovery on your AWS cluster using the Karpenter autoscaler to optimize resource utilization and enable spot instances, please refer to [this guide](/configuration/integrations/kubernetes/eks/managed).
+
+## Creating an AWS EKS Cluster
+
+<Steps>
+  <Step title="Select AWS as Hosting Mode">
+    Click on `AWS` as hosting mode and then `Qovery Managed` option.
+
+    In the `Create Cluster` window enter:
+
+    * **Cluster name**: enter the name of your choice for your cluster.
+    * **Description**: enter a description to identify better your cluster.
+    * **Production cluster**: select this option if your cluster will be used for production.
+    * **Region**: select the geographical area in which you want your cluster to be hosted.
+    * **Credentials**: select one of the existing cloud provider credentials or [create new credentials](/getting-started/installation/aws#connect-your-aws-account).
+
+    To confirm, click `Next`.
+  </Step>
+
+  <Step title="Set Resources">
+    In the `Set Resources` window, select:
+
+    * **Karpenter**: to activate Karpenter. If you are looking to install Qovery on your AWS with Karpenter, please refer to [this guide](/configuration/integrations/kubernetes/eks/managed)
+    * **Instance type**: select the type of [worker nodes](/configuration/clusters#what-is-a-cluster) you want to deploy to your cluster.
+    * **Node auto-scaling**: define the minimum and the maximum number of worker nodes that your cluster can run. The lowest number is the number of worker nodes running on your infrastructure at any time, while the highest number is the maximum number of worker nodes that can automatically be deployed as traffic grows. Please note that a minimum of 3 worker nodes is required to deploy your EKS cluster.
+
+    <Warning>
+    Instance type selection from your Qovery Console has direct consequences on your cloud provider's bill. While Qovery allows you to switch to a different instance type whenever you want, it is your sole responsibility to keep an eye on your infrastructure costs, especially when you want to upsize.
+
+    Please be aware that changing the instance type or disk size might cause a downtime for your service.
+
+    For more information on the instance types provided by each cloud provider and their associated pricing, see [What are the different instance types available when creating a cluster?](/configuration/clusters#what-are-the-different-instance-types-available-when-creating-a-cluster)
+
+    Also, before downsizing, you need to ensure that your applications will still have enough resources to run correctly.
+    </Warning>
+
+    To confirm, click `Next`.
+  </Step>
+
+  <Step title="Configure Features">
+    In the `Features` step, select the features you want to enable on your cluster.
+
+    If you want to manage the network layer of your cluster by yourself, you can switch VPC mode to `Deploy on my existing VPC` to use your own VPC instead of the one provided by Qovery.
+
+    <Warning>
+    These options can only be configured during cluster creation and cannot be modified later.
+    </Warning>
+
+    <Tabs>
+      <Tab title="VPC managed by Qovery">
+        ### Static IP
+
+        By default, when your cluster is created, its worker nodes are allocated public IP addresses, which are used for external communication. For improved security and control, the **Static IP** feature allows you to ensure that outbound traffic from your cluster uses specific IP addresses.
+
+        Here is what will be deployed on your cluster:
+        * Nat Gateways
+        * Elastic IPs
+        * Private subnets
+
+        Once set up, here is the procedure to find your static IP addresses on `AWS`:
+        - On your AWS account, select the VPC service.
+        - On the left menu, you'll find Elastic IP addresses. Once on it, in the Allocated IPv4 address column, you'll have your public IPs.
+
+        <Info>
+        If you work in a sensitive business area such as financial technology, enabling the **Static IP** feature can help fulfil the security requirements of some of the external services you use, therefore making it easier for you to get whitelisted by them.
+
+        This feature has been activated by default. Since February 1, 2024, AWS charge public IPv4 Addresses. Disabling it may cost you more, depending on the number of nodes in your cluster. Check this [link](https://aws.amazon.com/blogs/aws/new-aws-public-ipv4-address-charge-public-ip-insights/) for more information.
+        </Info>
+
+        ### Custom VPC Subnet
+
+        Virtual Private Cloud (VPC) peering allows you to set up a connection between your Qovery VPC and another VPC on your AWS account. This way, you can access resources stored on your AWS VPC directly from your Qovery applications.
+
+        A VPC can only be used if it has at least one range of IP addresses called a **subnet**. When you create a cluster, Qovery automatically picks a default subnet for it. However, to perform VPC peering, you may want to define which specific VPC subnet you want to use, so that you can avoid any conflicting settings. To do so, you can enable the **Custom VPC Subnet** feature on your cluster. For more information on how to set up VPC peering, [see our dedicated tutorial](/configuration/integrations/aws/vpc-peering).
+      </Tab>
+
+      <Tab title="Use your existing VPC">
+        Configure your cluster to use an existing VPC instead of creating a new one.
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Create and Install">
+    In the `Ready to install your cluster` window, check that the services needed to install your cluster are correct.
+
+    You can now press the `Create and Install` button.
+
+    Your cluster is now displayed in your organization settings, featuring the `Installing...` status (orange status). Once your cluster is properly installed, its status turns to green and you will be able to deploy your applications on it.
+
+    You can follow the execution of the action via the cluster status and/or by accessing the [Cluster Logs](/configuration/clusters#logs)
+  </Step>
+</Steps>
+
+## Managing your Cluster Settings
+
+To manage the settings of an existing cluster:
+
+<Steps>
+  <Step title="Open Qovery Console">
+    Open your [Qovery Console](https://console.qovery.com).
+  </Step>
+
+  <Step title="Navigate to Cluster Page">
+    On the left menu bar, click on the Cluster page.
+  </Step>
+
+  <Step title="Access Cluster Settings">
+    To access your cluster settings, click on the wheel button.
+  </Step>
+</Steps>
+
+Below you can find a description of each section
+
+### General
+
+The `General` tab allows you to define high-level information on your cluster:
+
+| Item | Description |
+|------|-------------|
+| Cluster Name | To edit the name of your cluster. |
+| Description | To enter or edit the description of your cluster. |
+| Production Cluster | To enter or edit the production flag of your cluster. |
+
+### Credentials
+
+Here you can manage here the cloud provider credentials associated with your cluster.
+
+If you need to change the credentials:
+- generate a new set of credentials on your cloud provider ([Procedure for AWS account](/getting-started/installation/aws#connect-your-aws-account))
+- create the new credential on the Qovery by opening the drop-down and selecting "New Credentials"
+
+Once created and associated, you need to [update your cluster](/configuration/clusters#updating-a-cluster) to apply the change.
+
+### Resources
+
+Qovery allows you to modify the resources allocated for your cluster:
+
+- In the `Instance type` dropdown menu, select the type of [worker node(s)](/configuration/clusters#what-is-a-cluster) you want to deploy to your cluster.
+- In the `Node disk size (GB)` field, enter the disk capacity you want to allocate to your worker node(s) (meaning how much data, in gigabytes, you want each worker node to be able to hold).
+- On the `Nodes auto-scaling`, define the range of worker nodes you want to deploy to your cluster.
+
+<Warning>
+Instance type selection from your Qovery Console has direct consequences on your cloud provider's bill. While Qovery allows you to switch to a different instance type whenever you want, it is your sole responsibility to keep an eye on your infrastructure costs, especially when you want to upsize.
+
+For more information on the instance types provided by each cloud provider and their associated pricing, see [What are the different instance types available when creating a cluster?](/configuration/clusters#what-are-the-different-instance-types-available-when-creating-a-cluster)
+</Warning>
+
+The lowest number is the number of worker nodes running on your infrastructure at any time, while the highest number is the maximum number of worker nodes that can automatically be deployed as traffic grows.
+
+Please note that a minimum of 3 worker nodes is required to deploy your EKS cluster.
+
+### Mirroring registry
+
+In this tab, you will see that a container registry already exist (called `registry-{$UIID}`). This is your cloud provider container registry used by Qovery to manage the deployment of your applications by mirroring the docker images.
+
+The credentials configured on this registry are the one used to create the cluster. But you can still update them if you prefer to manage them separately (dedicated pair of creds just to access the registry).
+
+Check [this link](/configuration/deployment/image-mirroring) for more information.
+
+### Features
+
+The `Features` tab in your cluster settings allows you to check if the **Static IP**, **Custom VPC subnet**, **Deploy on existing VPC** features are enabled on your cluster. The enabled features cannot be changed after the creation of the cluster.
+
+### Network
+
+The `Network` tab in your cluster settings allows you to update your Qovery VPC route table so that you can perform VPC peering. For step-by-step guidelines on how to set up VPC peering, [see our dedicated tutorial](/configuration/integrations/aws/vpc-peering).

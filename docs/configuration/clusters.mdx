@@ -19,10 +19,10 @@ To create a new cluster:
 4. Follow the provider-specific guide for your cloud platform:
 
 <CardGroup cols={2}>
-  <Card title="AWS EKS with Karpenter" icon="/images/logos/cloud-providers/aws-icon.svg" href="/configuration/integrations/kubernetes/eks/managed">
+  <Card title="AWS EKS with Karpenter" icon="/images/logos/cloud-providers/aws-icon.svg" href="/configuration/integrations/kubernetes/eks/managed" badge="Recommended">
     Create managed EKS cluster with Karpenter autoscaling
   </Card>
-  <Card title="AWS EKS" icon="/images/logos/cloud-providers/aws-icon.svg" href="/configuration/integrations/kubernetes/eks/managed">
+  <Card title="AWS EKS" icon="/images/logos/cloud-providers/aws-icon.svg" href="/configuration/integrations/kubernetes/eks/aws-eks">
     Create managed EKS cluster
   </Card>
   <Card title="Azure AKS" icon="/images/logos/cloud-providers/azure-icon.svg" href="/configuration/integrations/kubernetes/aks/managed">
@@ -35,6 +35,55 @@ To create a new cluster:
     Create managed Kapsule cluster
   </Card>
 </CardGroup>
+
+### Managed Cluster by Qovery vs Self-Managed
+
+Qovery offers two deployment models for your Kubernetes clusters:
+
+<CardGroup cols={2}>
+  <Card title="Qovery-Managed Cluster" icon="wand-magic-sparkles">
+    **Zero Configuration**
+
+    Qovery creates and manages your Kubernetes cluster in your cloud account. Automated setup, updates, and scaling.
+
+    ✅ Full automation
+    ✅ 15-30 minute setup
+    ✅ Best practices built-in
+    ✅ Auto-scaling (with Karpenter on AWS)
+    ✅ Automatic Kubernetes upgrades
+    ✅ Monitoring and alerting included
+  </Card>
+
+  <Card title="Self-Managed Cluster (BYOK)" icon="server" href="/configuration/integrations/kubernetes/byok">
+    **Full Control**
+
+    Connect your existing Kubernetes cluster to Qovery. You manage the cluster infrastructure, Qovery manages your application deployments.
+
+    ✅ Use existing clusters
+    ✅ Custom configurations
+    ✅ Compliance requirements
+    ✅ Multi-tenant setups
+    ✅ Your upgrade schedule
+    ✅ Bring your own tools
+  </Card>
+</CardGroup>
+
+#### Comparison
+
+| Feature | Qovery-Managed | Self-Managed (BYOK) |
+|---------|----------------|---------------------|
+| **Setup Time** | 15-30 minutes | 10-15 minutes (existing cluster) |
+| **Infrastructure Management** | Fully automated by Qovery | You manage infrastructure |
+| **Kubernetes Upgrades** | Automatic, tested by Qovery | You control timing and process |
+| **Auto-scaling** | Built-in (Karpenter on AWS) | You configure |
+| **Monitoring** | Included | You provide |
+| **Cost** | Infrastructure + Qovery platform | Infrastructure + Qovery platform |
+| **Customization** | Standard configurations | Full control |
+| **Best For** | Teams wanting automation | Teams with specific requirements |
+
+<Info>
+For production workloads, we recommend **Qovery-Managed clusters** for their automated updates, built-in best practices, and reduced operational overhead. Choose **BYOK** if you have specific compliance requirements or existing cluster investments.
+</Info>
 
 ### Overview
 

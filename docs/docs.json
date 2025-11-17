@@ -206,13 +206,14 @@
             "pages": [
               "configuration/clusters",
               "configuration/cluster-advanced-settings",
+              "configuration/connect-to-cluster",
               "configuration/organization/cloud-credentials",
               {
                 "group": "AWS EKS",
                 "pages": [
                   "configuration/integrations/kubernetes/eks/overview",
                   "configuration/integrations/kubernetes/eks/managed",
-                  "configuration/integrations/kubernetes/eks/kubectl-access"
+                  "configuration/integrations/kubernetes/eks/aws-eks"
                 ]
               },
               {

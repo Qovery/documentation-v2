@@ -1,41 +1,75 @@
 ---
-title: "Connect to EKS with kubectl"
-description: "Learn how to connect to your EKS cluster using kubectl with Qovery CLI or AWS CLI"
+title: "Connect to Your Cluster"
+description: "Learn how to connect to your Kubernetes cluster using kubectl with Qovery CLI or AWS CLI"
 ---
 
 ## Overview
 
-Connecting to your EKS cluster with kubectl gives you direct access to manage and debug your Kubernetes resources. Qovery provides two methods to connect to your EKS clusters:
+Connecting to your Kubernetes cluster with kubectl gives you direct access to manage and debug your Kubernetes resources. Qovery provides three methods to connect to your clusters:
 
-1. **Qovery CLI Method (Recommended)** - Quick and easy access with automated configuration
-2. **AWS CLI Method (Traditional)** - Manual setup for advanced users who need full control
+1. **Qovery Console Shell (Easiest)** - One-click access with k9s or kubectl directly in your browser
+2. **Qovery CLI Method (Recommended)** - Quick and easy access with automated configuration
+3. **AWS CLI Method (Traditional)** - Manual setup for advanced users who need full control
 
 <Warning>
 Any manual operations on your cluster could conflict with Qovery's management. Use with caution and understand the implications of direct cluster access.
 </Warning>
 
-## Prerequisites
+## Method 1: Using Qovery Console Shell (Easiest)
 
-Before connecting to your EKS cluster, ensure you have:
+The Qovery Console provides the fastest way to access your cluster - directly from your browser with no local setup required. No prerequisites needed - just your browser and Qovery Console access.
 
-<Tabs>
-  <Tab title="Qovery CLI Method">
-    - [Qovery CLI installed](/cli/overview)
-    - An existing EKS cluster managed by Qovery
-    - kubectl installed ([installation guide](https://kubernetes.io/docs/tasks/tools/))
-    - Access to the Qovery organization and cluster
-  </Tab>
+### Access Shell from Console
 
-  <Tab title="AWS CLI Method">
-    - [AWS CLI installed](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
-    - [kubectl installed](https://kubernetes.io/docs/tasks/tools/)
-    - [Qovery CLI installed](/cli/overview)
-    - IAM user with appropriate permissions
-    - An existing EKS cluster managed by Qovery
-  </Tab>
-</Tabs>
+<Steps>
+  <Step title="Navigate to Your Cluster">
+    Open your [Qovery Console](https://console.qovery.com) and navigate to your cluster page.
+  </Step>
 
-## Method 1: Using Qovery CLI (Recommended)
+  <Step title="Open Shell">
+    In the cluster toolbar, click on the shell icon (">") to open an embedded terminal.
+
+    <Frame>
+      <img src="/images/configuration/clusters/cluster-shell-access.png" alt="Cluster Shell Access" />
+    </Frame>
+  </Step>
+
+  <Step title="Use k9s or kubectl">
+    The shell opens with k9s by default, giving you a powerful terminal UI for Kubernetes. You can also use kubectl commands directly:
+
+    ```bash
+    # k9s is already running by default
+    # Press 'q' to exit k9s if needed
+
+    # Run kubectl commands
+    kubectl get nodes
+    kubectl get pods -A
+    kubectl get namespaces
+    ```
+  </Step>
+</Steps>
+
+<Info>
+The Console Shell comes pre-configured with:
+- **k9s** - Interactive Kubernetes cluster management
+- **kubectl** - Full kubectl access
+- Cluster credentials automatically configured
+- No local installation required
+</Info>
+
+<Tip>
+This method is perfect for quick debugging, viewing resources, or when you don't have local tools installed. The shell runs directly in your cluster with full access.
+</Tip>
+
+## Method 2: Using Qovery CLI (Recommended for Local Development)
+
+### Prerequisites
+
+Before using Qovery CLI, ensure you have:
+- [Qovery CLI installed](/cli/overview)
+- An existing cluster managed by Qovery
+- kubectl installed ([installation guide](https://kubernetes.io/docs/tasks/tools/))
+- Access to the Qovery organization and cluster
 
 The Qovery CLI provides the fastest and easiest way to connect to your EKS cluster. It handles authentication and kubeconfig setup automatically.
 
@@ -187,13 +221,22 @@ For quick troubleshooting without local setup, use the debug pod feature:
 The debug pod method is perfect for quick checks and doesn't require any local configuration. It's ideal for debugging connectivity issues or testing from within the cluster.
 </Tip>
 
-## Method 2: Using AWS CLI (Traditional)
+## Method 3: Using AWS CLI (Advanced)
 
 For users who need full control or want to use AWS IAM directly, you can configure kubectl using the AWS CLI. This method requires more manual setup but provides flexibility.
 
 <Info>
 This method is recommended for advanced users who need custom IAM configurations or want to integrate with existing AWS tooling.
 </Info>
+
+### Prerequisites
+
+Before using AWS CLI method, ensure you have:
+- [AWS CLI installed](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
+- [kubectl installed](https://kubernetes.io/docs/tasks/tools/)
+- [Qovery CLI installed](/cli/overview)
+- IAM user with appropriate permissions
+- An existing EKS cluster managed by Qovery
 
 ### Setup IAM Permissions
 
@@ -564,18 +607,20 @@ Direct cluster access bypasses Qovery's safety mechanisms. Follow these best pra
 - Enable AWS CloudTrail for audit logs
 - Consider using AWS SSO for temporary credentials
 
-## Comparison: Qovery CLI vs AWS CLI
+## Comparison of Methods
 
-| Feature | Qovery CLI | AWS CLI |
-|---------|-----------|---------|
-| Setup Complexity | Low (1-2 commands) | Medium (IAM setup required) |
-| Authentication | Qovery account | IAM credentials |
-| Best For | Quick access, debugging | Advanced users, automation |
-| Kubeconfig Management | Automatic | Manual |
-| Debug Pod Access | Built-in | Not available |
-| IAM Configuration | Not required | Required |
-| Learning Curve | Minimal | Moderate |
-| Flexibility | Standard access | Full AWS control |
+| Feature | Console Shell | Qovery CLI | AWS CLI |
+|---------|--------------|-----------|---------|
+| Setup Complexity | None (browser only) | Low (1-2 commands) | Medium (IAM setup required) |
+| Local Installation | Not required | Qovery CLI + kubectl | AWS CLI + kubectl |
+| Authentication | Automatic | Qovery account | IAM credentials |
+| Best For | Quick debugging | Local development | Advanced users, automation |
+| k9s Included | ✅ Yes | ❌ No | ❌ No |
+| kubectl Access | ✅ Yes | ✅ Yes | ✅ Yes |
+| Works Offline | ❌ No | ✅ Yes (once configured) | ✅ Yes (once configured) |
+| IAM Configuration | Not required | Not required | Required |
+| Learning Curve | Minimal | Minimal | Moderate |
+| Flexibility | Standard access | Standard access | Full AWS control |
 
 ## Next Steps
 
