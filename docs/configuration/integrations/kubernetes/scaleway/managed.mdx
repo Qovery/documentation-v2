@@ -1,108 +1,107 @@
 ---
 title: "Qovery-Managed Scaleway Kapsule"
-description: "Fully automated Scaleway Kapsule cluster provisioning and management"
+description: "Learn how to configure your Scaleway Kubernetes clusters on Qovery"
 ---
 
-## Overview
+## Creating a Scaleway Kapsule Cluster
 
-Qovery-managed Scaleway Kapsule provides zero-configuration Kubernetes clusters on Scaleway. Qovery creates, configures, and maintains your Kapsule cluster with best practices built-in.
+### Connect Your Scaleway Account
 
-## Quick Start
+<Snippet file="scaleway-credentials.mdx" />
+
+### Create the Cluster
 
 <Steps>
-  <Step title="Connect Scaleway Account">
-    Organization Settings → Cloud Providers → Add Scaleway Account
-    - Provide Scaleway access key and secret key
-    - Select region for cluster
+  <Step title="Select Scaleway as Hosting Mode">
+    Click on `Scaleway` as hosting mode and then `Qovery Managed` option.
+
+    In the `Create Cluster` window enter:
+
+    * **Cluster name**: enter the name of your choice for your cluster.
+    * **Description**: enter a description to identify better your cluster.
+    * **Production cluster**: select this option if your cluster will be used for production.
+    * **Region**: select the geographical area in which you want your cluster to be hosted.
+    * **Credentials**: select one of the existing cloud provider credentials or [create new credentials](/getting-started/installation/scaleway#connect-your-scaleway-account).
+
+    To confirm, click `Next`.
   </Step>
 
-  <Step title="Create Cluster">
-    Settings → Clusters → Create Cluster
-    - Name: `production-kapsule`
-    - Provider: Scaleway
-    - Region: `fr-par` (Paris) or `nl-ams` (Amsterdam) or `pl-waw` (Warsaw)
-    - Click **Create**
+  <Step title="Set Resources">
+    In the `Set Resources` window, select:
+
+    * **Instance type**: select the type of [worker nodes](/configuration/clusters#what-is-a-cluster) you want to deploy to your cluster.
+    * **Node auto-scaling**: define the minimum and the maximum number of worker nodes that your cluster can run. The lowest number is the number of worker nodes running on your infrastructure at any time, while the highest number is the maximum number of worker nodes that can automatically be deployed as traffic grows. Please note that a minimum of 3 worker nodes is required to deploy your Kapsule cluster.
+    * **Control plane type**: select the type of control plane managing your cluster. [Click here to know more](https://www.scaleway.com/en/docs/kubernetes/reference-content/kubernetes-control-plane-offers/)
+
+    <Warning>
+    Instance type selection from your Qovery Console has direct consequences on your cloud provider's bill. While Qovery allows you to switch to a different instance type whenever you want, it is your sole responsibility to keep an eye on your infrastructure costs, especially when you want to upsize.
+
+    Please be aware that changing the instance type or disk size might cause a downtime for your service.
+
+    For more information on the instance types provided by each cloud provider and their associated pricing, see [What are the different instance types available when creating a cluster?](/configuration/clusters#what-are-the-different-instance-types-available-when-creating-a-cluster)
+
+    Also, before downsizing, you need to ensure that your applications will still have enough resources to run correctly.
+    </Warning>
+
+    To confirm, click `Next`.
   </Step>
 
-  <Step title="Wait for Provisioning">
-    Cluster creation takes 15-20 minutes:
-    - VPC creation
-    - Kapsule cluster creation
-    - Node pool provisioning
-    - Load balancer setup
-    - Qovery components installation
-  </Step>
+  <Step title="Create and Install">
+    In the `Ready to install your cluster` window, check that the services needed to install your cluster are correct.
 
-  <Step title="Deploy Applications">
-    Once cluster is ready, start deploying applications
+    You can now press the `Create and Install` button.
+
+    Your cluster is now displayed in your organization settings, featuring the `Installing...` status (orange status). Once your cluster is properly installed, its status turns to green and you will be able to deploy your applications on it.
+
+    You can follow the execution of the action via the cluster status and/or by accessing the [Cluster Logs](/configuration/clusters#logs)
   </Step>
 </Steps>
 
-## What Qovery Creates
+## Managing your Cluster Settings
 
-- ✅ Scaleway Kapsule cluster (latest stable Kubernetes)
-- ✅ VPC with private networking
-- ✅ Multiple node pools across availability zones
-- ✅ Cluster autoscaler
-- ✅ Scaleway Load Balancer
-- ✅ Block Storage CSI driver
-- ✅ Metrics server
-- ✅ Qovery agent and observability stack
+To manage the settings of an existing cluster:
 
-## Configuration Options
+<Steps>
+  <Step title="Open Qovery Console">
+    Open your [Qovery Console](https://console.qovery.com).
+  </Step>
 
-### Cluster Settings
+  <Step title="Navigate to Cluster Page">
+    On the left menu bar, click on the Cluster page.
+  </Step>
 
-**Instance Types**:
-- Development: DEV1-S, DEV1-M, DEV1-L, DEV1-XL
-- General Purpose: GP1-XS, GP1-S, GP1-M, GP1-L, GP1-XL
-- Production: PRO2-XXS to PRO2-XXL
-- Enterprise: ENT1 series
+  <Step title="Access Cluster Settings">
+    To access your cluster settings, click on the wheel button.
+  </Step>
+</Steps>
 
-**Auto-Scaling**:
-- Min nodes: 1
-- Max nodes: 100
-- Cluster autoscaler automatically provisions optimal instances
-- Node pools per availability zone
+Below you can find a description of each section
 
-**Cost Optimization**:
-- Competitive pricing (up to 50% less than major cloud providers)
-- No NAT Gateway costs
-- Free internal traffic
-- Predictable billing
+### General
 
-### Network Settings
+The `General` tab allows you to define high-level information on your cluster:
 
-**VPC Configuration**:
-- Private VPC with /22 CIDR (1,024 IPs)
-- Multi-AZ deployment (up to 3 zones)
-- Private network for pod communication
-- Public IPs for load balancers only
+|Item|Description|
+|--------------|---------------------------|
+|Cluster Name|To edit the name of your cluster.|
+|Description|To enter or edit the description of your cluster.|
+|Production Cluster|To enter or edit the production flag of your cluster.|
 
-**Access**:
-- Public endpoint (default)
-- Private endpoint available
-- IP restrictions for API access
-- VPN integration support
+### Credentials
 
-For detailed Scaleway installation guide, see [Scaleway Installation](/installation/scaleway).
+Here you can manage here the cloud provider credentials associated with your cluster.
 
-## Why Choose Scaleway?
+If you need to change the credentials:
+- generate a new set of credentials on your cloud provider ([Procedure for Scaleway account](/installation/scaleway#connect-scaleway-account))
+- create the new credential on the Qovery by opening the drop-down and selecting "New Credentials"
 
-<CardGroup cols={2}>
-  <Card title="Cost-Effective" icon="dollar-sign">
-    Competitive pricing with transparent billing and no hidden costs
-  </Card>
+Once created and associated, you need to [update your cluster](/configuration/clusters#updating-a-cluster) to apply the change.
 
-  <Card title="European Data Centers" icon="location-dot">
-    100% European infrastructure, GDPR-compliant by default
-  </Card>
+### Mirroring registry
 
-  <Card title="Fast Provisioning" icon="bolt">
-    Quick cluster creation (15-20 minutes)
-  </Card>
+In this tab, you will see that a container registry already exist (called `registry-{$UIID}`).
+This is your cloud provider container registry used by Qovery to manage the deployment of your applications by mirroring the docker images.
 
-  <Card title="Eco-Friendly" icon="leaf">
-    Powered by renewable energy with carbon-neutral commitment
-  </Card>
-</CardGroup>
+The credentials configured on this registry are the one used to create the cluster. But you can still update them if you prefer to manage them separately (dedicated pair of creds just to access the registry).
+
+Check [this link](/configuration/deployment/image-mirroring) for more information.

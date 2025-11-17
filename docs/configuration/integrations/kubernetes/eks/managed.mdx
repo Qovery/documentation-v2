@@ -1,229 +1,331 @@
 ---
-title: "Qovery-Managed EKS"
-description: "Fully automated Amazon EKS cluster provisioning and management"
+title: "AWS EKS with Karpenter"
+description: "Learn how to configure your AWS Kubernetes clusters with Karpenter on Qovery"
 ---
 
-## Overview
+Karpenter automatically launches just the right compute resources to handle your cluster's applications. It is designed to let you take full advantage of the cloud with fast and simple compute provisioning for Kubernetes clusters.
+You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-costs-with-eks-and-karpenter/) for more information.
 
-Qovery-managed EKS provides production-ready Kubernetes clusters on AWS with zero configuration. Qovery handles everything: cluster creation, networking, scaling, monitoring, and ongoing maintenance.
+## Creating an AWS EKS Cluster with Karpenter
 
-**Perfect for**: Teams who want AWS but don't want to manage Kubernetes infrastructure.
-
-### Karpenter-Powered Auto-Scaling
-
-All Qovery-managed EKS clusters use [Karpenter](https://karpenter.sh/) for intelligent node provisioning:
-
-- **60-90% cost savings** through spot instances and consolidation
-- **Fast scaling** in seconds (not minutes)
-- **Smart instance selection** from your chosen instance types
-- **Automatic workload optimization** to minimize costs
-
-<Info>
-You **select multiple instance types** during setup (e.g., t3.medium, t3.large, m5.xlarge). Karpenter then automatically picks the best option based on your workload requirements, spot availability, and cost.
-</Info>
-
-## Create Your First Cluster
+### Create the Cluster
 
 <Steps>
-  <Step title="Open Qovery Console">
-    1. Go to **Organization Settings** → **Clusters**
-    2. Click **Create Cluster**
-    3. Select **AWS**
+  <Step title="Select AWS as Hosting Mode">
+    Click on `AWS` as hosting mode and then `Qovery Managed` option.
+
+    In the `Create Cluster` window enter:
+
+    * **Cluster name**: enter the name of your choice for your cluster.
+    * **Description**: enter a description to identify better your cluster.
+    * **Production cluster**: select this option if your cluster will be used for production. Note: Karpenter is currently only available for non-production clusters.
+    * **Region**: select the geographical area in which you want your cluster to be hosted.
+    * **Credentials**: select one of the existing cloud provider credentials or [create new credentials](/getting-started/installation/aws#connect-your-aws-account).
+
+    To confirm, click `Next`.
+
   </Step>
 
-  <Step title="Configure Cluster">
-    - **Name**: e.g., `production-eks`
-    - **Region**: Choose closest to your users (e.g., `us-east-1`)
+  <Step title="Set Resources">
+    In the `Set Resources` window, select:
+
+    * **Karpenter**: Toggle the switch to enable Karpenter on your AWS EKS cluster
+    * **Node disk size (GB)**: Specify the disk capacity allocated per worker node, determining the amount of data each node can store. The minimum value is 20GB.
+    * **Instance types scopes**: By editing it, you can apply different filters to the node architectures, categories, families, and sizes. On the right, you can view all the instance types that match the applied filters. This means Karpenter will be able to spawn nodes on any of the listed instance types.
+      * **Architectures**: by default both `AMD64` and `ARM64` architectures are selected.
+      * **Default build architecture**: by default `AMD64`. If you build your application with the Qovery CI, your application will be built using this architecture by default.
+      * **Families**: by default all families are selected.
+      * **Sizes**: by default all sizes are selected.
+    * **Spot instances**: In order to reduce even more your costs, you can also enable the spot instances on your clusters. Spot instances cost up to 90% less compared to On-Demand prices. But keep in mind that spot instances can be terminated by the cloud provider at any time. Check this [documentation](https://aws.amazon.com/ec2/spot/) for more information. Even if this flag is enabled, the statefulsets and Nginx controller won't run on spot instances.
+    * **Enable GPU Nodepool configuration**: If you want to run GPU workloads on your cluster, you can enable this option to create a dedicated nodepool for GPU instances. You will then be able to select the GPU instance types you want to use on this nodepool. To enable spot instances, toggle the spot instance flag.
+
+    <Warning>
+    Instance type selection from your Qovery Console has direct consequences on your cloud provider's bill. While Qovery allows you to switch to a different instance type whenever you want, it is your sole responsibility to keep an eye on your infrastructure costs, especially when you want to upsize.
+
+    Please be aware that changing the instance type or disk size might cause a downtime for your service.
+
+    For more information on the instance types provided by each cloud provider and their associated pricing, see [What are the different instance types available when creating a cluster?](/configuration/clusters#what-are-the-different-instance-types-available-when-creating-a-cluster)
+
+    Also, before downsizing, you need to ensure that your applications will still have enough resources to run correctly.
+    </Warning>
+
+    To confirm, click `Next`.
+
   </Step>
 
-  <Step title="Connect AWS Account">
-    Choose how to connect your AWS account:
+  <Step title="Configure Features">
+    In the `Features` step, select the features you want to enable on your cluster.
+
+    If you want to manage the network layer of your cluster by yourself, you can switch VPC mode to `Deploy on my existing VPC` to use your own VPC instead of the one provided by Qovery.
+
+    <Warning>
+    These options can only be configured during cluster creation and cannot be modified later.
+    </Warning>
 
     <Tabs>
-      <Tab title="STS Assume Role (Recommended)">
-        **Most secure** - Temporary credentials that auto-rotate automatically.
+      <Tab title="VPC managed by Qovery">
+        ### Static IP
 
-        1. Click the **CloudFormation link** in Qovery
-        2. In AWS CloudFormation Console:
-           - Click **Next** → **Next** → **Next**
-           - ✅ Check **"I acknowledge that AWS CloudFormation might create IAM resources"**
-           - Click **Create stack**
-        3. Wait 1 minute for `CREATE_COMPLETE` status
-        4. Go to **Outputs** tab
-        5. Copy the **RoleArn** value (starts with `arn:aws:iam::`)
-        6. Paste back in Qovery and click **Save**
+        By default, when your cluster is created, its worker nodes are allocated public IP addresses, which are used for external communication. For improved security and control, the **Static IP** feature allows you to ensure that outbound traffic from your cluster uses specific IP addresses.
 
-        <Tip>
-        CloudFormation creates an IAM role that uses AWS STS for temporary credentials. More secure than static access keys.
-        </Tip>
+        Here is what will be deployed on your cluster:
+        * Nat Gateways
+        * Elastic IPs
+        * Private subnets
+
+        Once set up, here is the procedure to find your static IP addresses on `AWS`:
+        - On your AWS account, select the VPC service.
+        - On the left menu, you'll find Elastic IP addresses. Once on it, in the Allocated IPv4 address column, you'll have your public IPs.
+
+        <Info>
+        If you work in a sensitive business area such as financial technology, enabling the **Static IP** feature can help fulfil the security requirements of some of the external services you use, therefore making it easier for you to get whitelisted by them.
+
+        This feature has been activated by default. Since February 1, 2024, AWS charge public IPv4 Addresses. Disabling it may cost you more, depending on the number of nodes in your cluster. Check this [link](https://aws.amazon.com/blogs/aws/new-aws-public-ipv4-address-charge-public-ip-insights/) for more information.
+        </Info>
+
+        ### Custom VPC Subnet
+
+        Virtual Private Cloud (VPC) peering allows you to set up a connection between your Qovery VPC and another VPC on your AWS account. This way, you can access resources stored on your AWS VPC directly from your Qovery applications.
+
+        A VPC can only be used if it has at least one range of IP addresses called a **subnet**. When you create a cluster, Qovery automatically picks a default subnet for it. However, to perform VPC peering, you may want to define which specific VPC subnet you want to use, so that you can avoid any conflicting settings. To do so, you can enable the **Custom VPC Subnet** feature on your cluster. For more information on how to set up VPC peering, [see our dedicated tutorial](/configuration/integrations/aws/vpc-peering).
       </Tab>
 
-      <Tab title="Static Credentials">
-        **Alternative** - AWS Access Keys (manual rotation required every 90 days).
+      <Tab title="Use your existing VPC">
+        You have to specify the `VPC id` and ensure that in your VPC settings you have enabled the `DNS hostnames`.
 
-        1. In AWS IAM Console, go to **Users** → **Create user**
-        2. User name: `qovery-admin`
-        3. Select **Attach policies directly** → Choose **AdministratorAccess**
-        4. Click **Create user**
-        5. Open user → **Security credentials** → **Create access key**
-        6. Select **Third-party service** → **Create access key**
-        7. Copy **Access Key ID** and **Secret Access Key**
-        8. In Qovery, select **Static Credentials**
-        9. Paste your keys and click **Save**
+        Then you have to specify the different subnets ids:
 
-        <Warning>
-        Static credentials require manual rotation every 90 days. STS Assume Role recommended for production environments.
-        </Warning>
+        **EKS**:
+
+        The EKS subnets are mandatory, you have to specify at least **one subnet id per zone** and ensure you have enabled the **auto-assign public IPv4 address** setting on your subnets.
+
+        You'll also need to set up the following labels on your subnets:
+
+        * On public subnets: add a label `kubernetes.io/role/elb` with the value `1` to allow the ALB controller to run on this subnet.
+        * On private subnets: add a label `kubernetes.io/role/internal-elb` with the value `1` to allow the ALB controller to run on this subnet.
+        * On all subnets: add a label `kubernetes.io/cluster/<cluster-name>` with the value `shared` to allow the ALB controller to run on this subnet.
+
+        **Managed databases**:
+
+        This section is exclusively for enabling managed databases (container databases will be enabled by default).
+
+        Depending on the managed databases you want to you use (**MongoDB**, **RDS:MySQL/PostgreSQL** and **Redis**), specify at least one subnet id per zone.
       </Tab>
     </Tabs>
 
-    For detailed instructions with policy information, see [AWS Installation Guide](/installation/aws#connect-aws-account).
   </Step>
 
-  <Step title="Select Instance Types">
-    **Select ALL instance types** you want Karpenter to choose from:
+  <Step title="Create and Install">
+    In the `Ready to install your cluster` window, check that the services needed to install your cluster are correct.
 
-    Recommended selections:
-    - ✅ **t3.medium** (2 vCPU, 4GB)
-    - ✅ **t3.large** (2 vCPU, 8GB)
-    - ✅ **t3.xlarge** (4 vCPU, 16GB)
-    - ✅ **t3.2xlarge** (8 vCPU, 32GB)
-    - ✅ **m5.large** (2 vCPU, 8GB)
-    - ✅ **m5.xlarge** (4 vCPU, 16GB)
-    - ✅ **m6i.large** (2 vCPU, 8GB)
-    - ✅ **m6i.xlarge** (4 vCPU, 16GB)
+    You can now press the `Create and Install` button.
 
-    <Info>
-    Karpenter will automatically select the **best instance type** from your list based on:
-    - Current workload requirements
-    - Spot instance availability
-    - Cost optimization
+    Your cluster is now displayed in your organization settings, featuring the `Installing...` status (orange status). Once your cluster is properly installed, its status turns to green and you will be able to deploy your applications on it.
 
-    More instance types = better optimization and availability!
-    </Info>
+    You can follow the execution of the action via the cluster status and/or by accessing the [Cluster Logs](/configuration/clusters#logs)
 
-    <Tip>
-    Enable **spot instances** for 60-90% cost savings. Karpenter automatically falls back to on-demand if spot is unavailable.
-    </Tip>
-  </Step>
-
-  <Step title="Create">
-    Click **Create and Deploy** - your cluster will be ready in 20-30 minutes!
   </Step>
 </Steps>
 
-<Card title="Need detailed instructions?" icon="book" href="/configuration/integrations/kubernetes/eks/overview">
-  See the complete AWS installation guide with screenshots and troubleshooting
-</Card>
+## Migrating from AWS with auto-scaler to AWS with Karpenter
 
-## What Qovery Creates
+### Requirements
 
-- ✅ **EKS Cluster** - Latest stable Kubernetes
-- ✅ **VPC & Networking** - Public/private subnets across 3 AZs
-- ✅ **NAT Gateways** - Secure internet access
-- ✅ **Security Groups & IAM Roles** - Pre-configured best practices
-- ✅ **Karpenter** - Intelligent auto-scaling (save up to 60% on costs)
-- ✅ **AWS Load Balancer Controller** - Automatic ingress management
-- ✅ **EBS CSI Driver** - Persistent volume support
-- ✅ **Metrics Server** - Resource monitoring
-- ✅ **Qovery Agent** - Observability and management
-
-### Karpenter Auto-Scaling
-
-Qovery uses [Karpenter](https://karpenter.sh/) to automatically provision optimal EC2 instances:
-
-- Scales nodes within seconds based on workload demands
-- Consolidates workloads to reduce costs
-- Handles spot instance interruptions gracefully
-- Supports wide range of instance types (t3, m5, m6i, c5, r5, GPU)
-- Mix of on-demand and spot instances for reliability
-
-<Tip>
-Configure Karpenter node pools and instance types in **Cluster Settings** after creation. Learn more in [Cluster Configuration](/configuration/clusters).
-</Tip>
-
-## Configuration Options
-
-### Cluster Settings
-
-**Instance Types**:
-- General Purpose: t3, m5, m6i, m6g (Graviton)
-- Compute Optimized: c5, c6i, c6g (Graviton)
-- Memory Optimized: r5, r6i, r6g (Graviton)
-- GPU Instances: g4dn, g5, p3, p4 (for AI/ML workloads)
-
-**Auto-Scaling**:
-- Min nodes: 1
-- Max nodes: 100
-- Karpenter automatically provisions optimal instances
-
-**Spot Instances**:
-- Enable Spot instances for cost savings (60-90% off)
-- Qovery handles interruptions gracefully
-- Mix of Spot and On-Demand for reliability
-
-### GPU Support
-
-Karpenter clusters support GPU-enabled instances for AI/ML workloads, scientific computing, and graphics-intensive applications.
-
-**Available GPU Instance Types**:
-
-| Instance Type | GPU | vCPU | Memory | Use Case |
-|--------------|-----|------|--------|----------|
-| g4dn.xlarge | 1x NVIDIA T4 | 4 | 16 GB | ML inference, video processing |
-| g4dn.2xlarge | 1x NVIDIA T4 | 8 | 32 GB | ML training, rendering |
-| g5.xlarge | 1x NVIDIA A10G | 4 | 16 GB | High-performance ML inference |
-| g5.2xlarge | 1x NVIDIA A10G | 8 | 32 GB | ML training, graphics workloads |
-| p3.2xlarge | 1x NVIDIA V100 | 8 | 61 GB | Deep learning training |
-| p4d.24xlarge | 8x NVIDIA A100 | 96 | 1152 GB | Large-scale ML training |
-
-**Setup Steps**:
+<Warning>
+  Please check carefully the following requirements to ensure a successful
+  migration with the minimum downtime.
+</Warning>
 
 <Steps>
-  <Step title="Include GPU Instance Types">
-    When creating your cluster, select GPU instance types (g4dn, g5, p3, p4) in addition to your standard instances.
+  <Step title="Update IAM Permissions">
+    A SQS queue will be created. Update the IAM permissions of the Qovery user: make sure to use the [latest version here](https://hub.qovery.com/files/qovery-iam-aws.json) to add the permission on SQS.
   </Step>
 
-  <Step title="Configure Application">
-    In your application settings, configure the GPU resource requirement:
+  <Step title="Enable Instance Metadata Service Version 2">
+    Your cluster should use the [Instance Metadata Service Version 2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html): make sure to set the `aws.eks.ec2.metadata_imds` cluster advanced settings to `required` if not already set (more details [here](/configuration/cluster-advanced-settings#awseksec2metadata_imds)).
+    Redeploy your cluster before enabling Karpenter to apply the advanced setting change.
 
-    ```yaml
-    resources:
-      gpu: 1  # Number of GPUs needed
-    ```
+    <Warning>
+    If some of your services are using the Instance Metadata Service Version 1, you must first update them to support the Version 2.
+    </Warning>
 
-    See [Application GPU Configuration](/configuration/application#gpu-configuration) for details.
   </Step>
 
-  <Step title="Karpenter Auto-Provisioning">
-    Karpenter will automatically provision GPU instances when your application requests GPU resources, and deprovision them when not needed.
+  <Step title="Configure Additional Subnets (Existing VPC Only)">
+    If you have configured an existing vpc for your cluster, you'll need to indicate some additional subnets dedicated to fargate:
+    * those subnets must be **private**
+    * they must all have access to internet through a NAT gateway
+  </Step>
+
+  <Step title="Update Daemonsets">
+    If you have deployed some daemonsets, you must update their definitions to enable them to run on every node of the future nodepools (stable & default). Everything is explained in [our guide](/getting-started/guides/advanced-tutorials/deploy-daemonset-karpenter)
   </Step>
 </Steps>
 
-<Info>
-**GPU Instance Costs**: GPU instances are significantly more expensive than standard instances. Ensure your workload actually utilizes GPU acceleration before enabling.
+### Enable Karpenter
 
-**Example Pricing** (us-east-1):
-- g4dn.xlarge: ~$0.526/hour
-- g5.xlarge: ~$1.006/hour
-- p3.2xlarge: ~$3.06/hour
+You can easily activate Karpenter on your non-production existing cluster by following this process:
+
+<Steps>
+  <Step title="Open Qovery Console">
+    Open your [Qovery Console](https://console.qovery.com).
+  </Step>
+
+  <Step title="Navigate to Cluster Page">
+    On the left menu bar, click on the Cluster page.
+  </Step>
+
+  <Step title="Access Cluster Settings">
+    To access your cluster settings, click on the wheel button.
+  </Step>
+
+  <Step title="Activate Karpenter">
+    Access to `Resources` section and switch on the toggle `Activate Karpenter`
+  </Step>
+
+  <Step title="Update Your Cluster">
+    Update your cluster by selecting the action `Update` from the drop-down menu.
+  </Step>
+
+  <Step title="Verify and Add Instance Types">
+    Once the update is complete, your cluster will be running on Karpenter. By default, only the instance types selected when you created your AWS cluster with the auto-scaler will be configured. You can add additional instance types by editing the instance types in the resources section.
+  </Step>
+
+  <Step title="Redeploy Environments">
+    Please redeploy all your environments of your cluster: this will automatically update your services configuration to run them on the appropriate nodepool.
+  </Step>
+</Steps>
+
+## Managing your Cluster Settings
+
+To manage the settings of an existing cluster:
+
+<Steps>
+  <Step title="Open Qovery Console">
+    Open your [Qovery Console](https://console.qovery.com).
+  </Step>
+
+  <Step title="Navigate to Cluster Page">
+    On the left menu bar, click on the Cluster page.
+  </Step>
+
+  <Step title="Access Cluster Settings">
+    To access your cluster settings, click on the wheel button.
+  </Step>
+</Steps>
+
+Below you can find a description of each section
+
+### General
+
+The `General` tab allows you to define high-level information on your cluster:
+
+| Item               | Description                                           |
+| ------------------ | ----------------------------------------------------- |
+| Cluster Name       | To edit the name of your cluster.                     |
+| Description        | To enter or edit the description of your cluster.     |
+| Production Cluster | To enter or edit the production flag of your cluster. |
+
+### Credentials
+
+Here you can manage here the cloud provider credentials associated with your cluster.
+
+If you need to change the credentials:
+
+- generate a new set of credentials on your cloud provider ([Procedure for AWS account](/installation/aws#connect-aws-account))
+- create the new credential on the Qovery by opening the drop-down and selecting "New Credentials"
+
+Once created and associated, you need to [update your cluster](/configuration/clusters#updating-a-cluster) to apply the change.
+
+### Resources
+
+Qovery deploys two node pools by default:
+
+- **Stable node pool**: Used for single instances and internal Qovery applications. For example, any containerized databases or application having the number of minimum instances set to 1, will be deployed on this nodepool. On this nodepool the consolidation is deactivated by default.
+- **Default node pool**: Designed to handle general workloads and serves as the foundation for deploying most applications.
+
+An additional GPU node pool can be present if you have enabled the GPU node pool configuration when creating your cluster (can be enabled afterwards).
+
+#### Settings for nodepools:
+
+- **Instance types**: Define the list of instance types that can be used. (Shared for Stable and Default nodepools)
+- **Spot instances**: Enable or disable spot instances. (Shared across the three nodepools)
+- **Node disk size (GB)**: Specify the disk capacity allocated per worker node, determining the amount of data each node can store. (Shared for Stable and Default nodepools)
+- **Consolidation schedule** _(Stable nodepool only)_: Optimizes resource usage by consolidating workloads onto fewer nodes. This feature is not available for the default nodepool, as consolidation can happen at any time. We recommend enabling this option; otherwise, nodes will never be consolidated, leading to unnecessary infrastructure costs.
+- **Node pool limits**: Configure CPU and memory limits to ensure nodes stay within defined resource constraints, preventing excessive costs.
+
+<Warning>
+Instance type selection from your Qovery Console has direct consequences on your cloud provider's bill. While Qovery allows you to switch to a different instance type whenever you want, it is your sole responsibility to keep an eye on your infrastructure costs, especially when you want to upsize.
+
+For more information on the instance types provided by each cloud provider and their associated pricing, see [What are the different instance types available when creating a cluster?](/configuration/clusters#what-are-the-different-instance-types-available-when-creating-a-cluster)
+
+</Warning>
+
+### Mirroring registry
+
+In this tab, you will see that a container registry already exist (called `registry-{$UIID}`).
+This is your cloud provider container registry used by Qovery to manage the deployment of your applications by mirroring the docker images.
+
+The credentials configured on this registry are the one used to create the cluster. But you can still update them if you prefer to manage them separately (dedicated pair of creds just to access the registry).
+
+Check [this link](/configuration/deployment/image-mirroring) for more information.
+
+### Features
+
+The `Features` tab in your cluster settings allows you to check if the [**Static IP**](#static-ip), [**Custom VPC subnet**](#custom-vpc-subnet), [**Deploy on existing VPC**](#use-your-existing-vpc) features are enabled on your cluster. The enabled features cannot be changed after the creation of the cluster.
+
+### Network
+
+The `Network` tab in your cluster settings allows you to update your Qovery VPC route table so that you can perform VPC peering. For step-by-step guidelines on how to set up VPC peering, [see our dedicated tutorial](/configuration/integrations/aws/vpc-peering).
+
+## Defining cluster node constraints to run your Services
+
+### Define if your service can run on an on-demand instance
+
+When using spot instances in your cluster, you may want to ensure that certain critical services, such as databases or essential applications, are always deployed on on-demand instances.
+
+To specify that a service should be deployed on an `on-demand` instance, manually set the `deployment.affinity.node.required` advanced setting to:
+
+```json
+{ "karpenter.sh/capacity-type": "on-demand" }
+```
+
+### Define the instance type to run your service
+
+In some cases, you may need to ensure that a specific service runs on a particular instance type to meet performance, compliance, or cost requirements.
+
+For example, to assign a service to the t3a.xlarge instance type, manually set the `deployment.affinity.node.required` advanced setting to:
+
+```json
+{ "node.kubernetes.io/instance-type": "t3a.xlarge" }
+```
+
+<Info>
+  The specified instance type must be included in the list of instance types
+  defined in the [NodePool configuration](#resources).
 </Info>
 
-<Tip>
-Use Spot instances for GPU workloads to save 60-90% on costs. Karpenter handles spot interruptions gracefully, making them suitable for batch processing and training workloads.
-</Tip>
+### Change the node pool of your service when using Helm
 
-### Network Settings
+When using Helm, you can update the `affinity` field in your `values.yaml` file to target a specific node pool for your service. For example you can switch from the `default` to `stable` nodepool:
 
-**VPC Configuration**:
-- CIDR: /16 (65,536 IPs)
-- 3 public subnets (load balancers)
-- 3 private subnets (pods)
-- NAT Gateways per AZ
+```yaml
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: karpenter.sh/nodepool
+              operator: In
+              values:
+                - stable
+```
 
-**Access**:
-- Public endpoint (default)
-- Private endpoint (enterprise feature)
-- VPN access for private endpoints
+And you also have to add tolerations:
 
-For detailed AWS installation guide, see [AWS Installation](/installation/aws).
+```yaml
+tolerations:
+  - effect: NoSchedule
+    key: nodepool/stable
+    operator: Exists
+```

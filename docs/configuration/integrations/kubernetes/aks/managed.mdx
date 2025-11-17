@@ -1,89 +1,84 @@
 ---
 title: "Qovery-Managed AKS"
-description: "Fully automated Azure AKS cluster provisioning and management"
+description: "Learn how to configure your AKS Kubernetes clusters on Qovery"
 ---
 
-## Overview
+## Creating an Azure AKS Cluster
 
-Qovery-managed AKS provides zero-configuration Kubernetes clusters on Microsoft Azure. Qovery creates, configures, and maintains your AKS cluster with best practices built-in.
+### Connect Your Azure Account
 
-## Quick Start
+<Snippet file="azure-credentials.mdx" />
+
+### Create the Cluster
 
 <Steps>
-  <Step title="Connect Azure Subscription">
-    Organization Settings → Cloud Providers → Add Azure Subscription
-    - Provide service principal credentials
-    - Subscription ID, Client ID, Client Secret, Tenant ID
-    - Select region for cluster
+  <Step title="Select Azure as Hosting Mode">
+    Click on `AKS` as hosting mode and then `Qovery Managed` option.
+
+    In the `Create Cluster` window enter:
+
+    * **Cluster name**: enter the name of your choice for your cluster.
+    * **Description**: enter a description to identify better your cluster.
+    * **Production cluster**: select this option if your cluster will be used for production.
+    * **Region**: select the geographical area in which you want your cluster to be hosted.
+    * **Credentials**: select one of the existing cloud provider credentials or [create new credentials](/getting-started/installation/azure#connect-your-azure-account).
+
+    To confirm, click `Next`.
   </Step>
 
-  <Step title="Create Cluster">
-    Settings → Clusters → Create Cluster
-    - Name: `production-aks`
-    - Provider: Azure
-    - Region: `eastus`
-    - Click **Create**
-  </Step>
+  <Step title="Set Resources">
+    In the `Set Resources` window, select:
 
-  <Step title="Wait for Provisioning">
-    Cluster creation takes 20-25 minutes:
-    - Resource group creation
-    - VNet and networking setup
-    - AKS control plane creation
-    - Node pool provisioning
-    - Qovery components installation
-  </Step>
-
-  <Step title="Deploy Applications">
-    Once cluster is ready, start deploying applications
+    * **Instance type**: select the type of [worker nodes](/configuration/clusters#what-is-a-cluster) you want to deploy to your cluster.
+    * **Node auto-scaling**: define the minimum and the maximum number of worker nodes that your cluster can run. The lowest number is the number of worker nodes running on your infrastructure at any time, while the highest number is the maximum number of worker nodes that can automatically be deployed as traffic grows. Please note that a minimum of 3 worker nodes is required to deploy your AKS cluster.
   </Step>
 </Steps>
 
-## What Qovery Creates
+## Managing your Cluster Settings
 
-- ✅ AKS cluster (latest stable Kubernetes)
-- ✅ VNet with subnets across availability zones
-- ✅ NAT Gateway for outbound connectivity
-- ✅ Azure AD integration and RBAC
-- ✅ Cluster autoscaler
-- ✅ Azure Load Balancer or Application Gateway
-- ✅ Azure Disk CSI driver
-- ✅ Metrics server
-- ✅ Qovery agent and observability stack
+To manage the settings of an existing cluster:
 
-## Configuration Options
+<Steps>
+  <Step title="Open Qovery Console">
+    Open your [Qovery Console](https://console.qovery.com).
+  </Step>
 
-### Cluster Settings
+  <Step title="Navigate to Cluster Page">
+    On the left menu bar, click on the Cluster page.
+  </Step>
 
-**VM Sizes**:
-- General Purpose: Standard_D, Standard_DS, Standard_B
-- Compute Optimized: Standard_F, Standard_FX
-- Memory Optimized: Standard_E, Standard_M
-- GPU: Standard_NC, Standard_ND, Standard_NV
+  <Step title="Access Cluster Settings">
+    To access your cluster settings, click on the wheel button.
+  </Step>
+</Steps>
 
-**Auto-Scaling**:
-- Min nodes: 1
-- Max nodes: 100
-- Cluster autoscaler automatically provisions optimal VMs
-- Multiple node pools for different workload types
+Below you can find a description of each section
 
-**Spot VMs**:
-- Enable Spot VMs for cost savings (up to 80% off)
-- Qovery handles evictions gracefully
-- Mix of Spot and regular VMs for reliability
+### General
 
-### Network Settings
+The `General` tab allows you to define high-level information on your cluster:
 
-**VNet Configuration**:
-- VNet with /16 CIDR (65,536 IPs)
-- Subnet for nodes with /20 CIDR
-- Subnet for pods with /16 CIDR (Azure CNI)
-- NAT Gateway for outbound traffic
+|Item|Description|
+|--------------|---------------------------|
+|Cluster Name|To edit the name of your cluster.|
+|Description|To enter or edit the description of your cluster.|
+|Production Cluster|To enter or edit the production flag of your cluster.|
 
-**Access**:
-- Public endpoint (default)
-- Private cluster (enterprise feature)
-- Authorized IP ranges for API server
-- Azure AD integration
+### Credentials
 
-For detailed Azure installation guide, see [Azure Installation](/installation/azure).
+Here you can manage here the cloud provider credentials associated with your cluster.
+
+If you need to change the credentials:
+- generate a new set of credentials on your cloud provider ([Procedure for Azure account](/installation/azure#connect-azure-account))
+- create the new credential on the Qovery by opening the drop-down and selecting "New Credentials"
+
+Once created and associated, you need to [update your cluster](/configuration/clusters#updating-a-cluster) to apply the change.
+
+### Mirroring registry
+
+In this tab, you will see that a container registry already exist (called `registry-{$UIID}`).
+This is your cloud provider container registry used by Qovery to manage the deployment of your applications by mirroring the docker images.
+
+The credentials configured on this registry are the one used to create the cluster. But you can still update them if you prefer to manage them separately (dedicated pair of creds just to access the registry).
+
+Check [this link](/configuration/deployment/image-mirroring) for more information.

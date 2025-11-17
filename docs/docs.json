@@ -212,7 +212,6 @@
                 "pages": [
                   "configuration/integrations/kubernetes/eks/overview",
                   "configuration/integrations/kubernetes/eks/managed",
-                  "configuration/integrations/kubernetes/eks/byok",
                   "configuration/integrations/kubernetes/eks/kubectl-access"
                 ]
               },
@@ -220,24 +219,21 @@
                 "group": "Google GKE",
                 "pages": [
                   "configuration/integrations/kubernetes/gke/overview",
-                  "configuration/integrations/kubernetes/gke/managed",
-                  "configuration/integrations/kubernetes/gke/byok"
+                  "configuration/integrations/kubernetes/gke/managed"
                 ]
               },
               {
                 "group": "Azure AKS",
                 "pages": [
                   "configuration/integrations/kubernetes/aks/overview",
-                  "configuration/integrations/kubernetes/aks/managed",
-                  "configuration/integrations/kubernetes/aks/byok"
+                  "configuration/integrations/kubernetes/aks/managed"
                 ]
               },
               {
                 "group": "Scaleway Kapsule",
                 "pages": [
                   "configuration/integrations/kubernetes/scaleway/overview",
-                  "configuration/integrations/kubernetes/scaleway/managed",
-                  "configuration/integrations/kubernetes/scaleway/byok"
+                  "configuration/integrations/kubernetes/scaleway/managed"
                 ]
               },
               {
