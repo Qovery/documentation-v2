@@ -30,113 +30,6 @@ Settings are tagged with their supported cloud providers:
   </Card>
 </CardGroup>
 
-## Quick Reference
-
-### Settings by Category
-
-<AccordionGroup>
-  <Accordion title="Logs (7 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `aws.cloudwatch.eks_logs_retention_days` | AWS | 90 | CloudWatch EKS logs retention |
-    | `aws.vpc.enable_s3_flow_logs` | AWS | false | Enable VPC flow logs to S3 |
-    | `aws.vpc.flow_logs_retention_days` | AWS | 365 | VPC flow logs retention days |
-    | `loki.log_retention_in_week` | All | 12 | Kubernetes pods logs retention |
-    | `gcp.vpc.enable_flow_logs` | GCP | false | Enable VPC flow logs |
-    | `gcp.vpc.flow_logs_sampling` | GCP | 0.0 | VPC flow logs sampling rate |
-    | `object_storage.enable_logging` | AWS, GCP, Azure | false | Enable bucket logging |
-  </Accordion>
-
-  <Accordion title="NGINX Ingress (17 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `nginx.vcpu.request_in_milli_cpu` | All | 200 | NGINX CPU request (millicores) |
-    | `nginx.vcpu.limit_in_milli_cpu` | All | 700 | NGINX CPU limit (millicores) |
-    | `nginx.memory.request_in_mib` | All | 768 | NGINX memory request (MiB) |
-    | `nginx.memory.limit_in_mib` | All | 768 | NGINX memory limit (MiB) |
-    | `nginx.hpa.cpu_utilization_percentage_threshold` | All | 50 | HPA CPU threshold (%) |
-    | `nginx.hpa.min_number_instances` | All | 2 | Minimum NGINX replicas |
-    | `nginx.hpa.max_number_instances` | All | 25 | Maximum NGINX replicas |
-    | `nginx.controller.enable_client_ip` | All | false | Enable real IP module |
-    | `nginx.controller.enable_compression` | All | true | Enable Brotli compression |
-    | `nginx.controller.use_forwarded_headers` | All | false | Use X-Forwarded-For headers |
-    | `nginx.controller.compute_full_forwarded_for` | All | false | Append to X-Forwarded-For |
-    | `nginx.controller.log_format_upstream` | All | null | Custom log format |
-    | `nginx.controller.log_format_escaping` | All | Default | Log format escaping |
-    | `nginx.controller.http_snippet` | All | null | HTTP-level NGINX config |
-    | `nginx.controller.server_snippet` | All | null | Server-level NGINX config |
-    | `nginx.controller.limit_request_status_code` | All | null | Rate limit HTTP status |
-    | `nginx.controller.custom_http_errors` | All | null | Custom error pages |
-  </Accordion>
-
-  <Accordion title="Load Balancer (9 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `aws.eks.enable_alb_controller` | AWS | true | Enable AWS ALB controller |
-    | `aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu` | AWS | 250 | ALB controller min CPU |
-    | `aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu` | AWS | 250 | ALB controller max CPU |
-    | `aws.eks.alb_controller.vpa.memory.min_in_mib` | AWS | 128 | ALB controller min memory |
-    | `aws.eks.alb_controller.vpa.memory.max_in_mib` | AWS | 128 | ALB controller max memory |
-    | `load_balancer.size` | Scaleway | lb-s | Load balancer size |
-    | `nginx.default_backend.enabled` | All | false | Enable default backend |
-    | `nginx.default_backend.image_repository` | All | null | Default backend image |
-    | `nginx.default_backend.image_tag` | All | null | Default backend image tag |
-  </Accordion>
-
-  <Accordion title="Database Access Control (12 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `database.postgresql.deny_any_access` | AWS | false | Block all PostgreSQL access |
-    | `database.postgresql.allowed_cidrs` | AWS | 0.0.0.0/0 | PostgreSQL allowed CIDRs |
-    | `database.mysql.deny_any_access` | AWS | false | Block all MySQL access |
-    | `database.mysql.allowed_cidrs` | AWS | 0.0.0.0/0 | MySQL allowed CIDRs |
-    | `database.mongodb.deny_any_access` | AWS | false | Block all MongoDB access |
-    | `database.mongodb.allowed_cidrs` | AWS | 0.0.0.0/0 | MongoDB allowed CIDRs |
-    | `database.redis.deny_any_access` | AWS | false | Block all Redis access |
-    | `database.redis.allowed_cidrs` | AWS | 0.0.0.0/0 | Redis allowed CIDRs |
-  </Accordion>
-
-  <Accordion title="Image Registry (3 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `registry.image_retention_time` | AWS | 31536000 | Image retention (seconds) |
-    | `registry.mirroring_mode` | AWS | Service | Image mirroring mode |
-    | `cloud_provider.container_registry.tags` | All | {} | Registry tags |
-  </Accordion>
-
-  <Accordion title="IAM & Security (6 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `aws.iam.enable_admin_group_sync` | AWS | true | Enable admin group sync |
-    | `aws.iam.admin_group` | AWS | Admins | IAM admin group name |
-    | `aws.iam.enable_sso` | AWS | false | Enable SSO support |
-    | `aws.iam.sso_role_arn` | AWS | "" | SSO role ARN |
-    | `aws.eks.encrypt_secrets_kms_key_arn` | AWS | null | KMS key for secrets encryption |
-    | `k8s.api.allowed_public_access_cidrs` | AWS, GCP, Azure | [] | Kubernetes API CIDR whitelist |
-  </Accordion>
-
-  <Accordion title="Service Resources (2 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `allow_service_cpu_overcommit` | All | false | Allow CPU overcommit |
-    | `allow_service_ram_overcommit` | All | false | Allow memory overcommit |
-  </Accordion>
-
-  <Accordion title="Miscellaneous (5 settings)">
-    | Setting | Cloud Providers | Default | Description |
-    |---------|----------------|---------|-------------|
-    | `dns.coredns.extra_config` | AWS, Scaleway, Azure | null | CoreDNS custom config |
-    | `aws.eks.ec2.metadata_imds` | AWS | required | IMDS version |
-    | `aws.eks.ec2.ami` | AWS | AmazonLinux2023 | EC2 AMI type |
-    | `qovery.static_ip_mode` | AWS, GCP | false | Static IP for control plane |
-    | `storageclass.fast_ssd` | All | varies | Fast SSD storage class |
-  </Accordion>
-</AccordionGroup>
-
-<Tip>
-Use the **Settings by Category** tables above to quickly find settings. The **Cloud Providers** column shows which cloud platforms support each setting.
-</Tip>
-
 ---
 
 ## Configuring Cluster Advanced Settings
@@ -184,1119 +77,828 @@ After updating cluster advanced settings, you must **redeploy the cluster** for 
 
 ---
 
-## Detailed Settings Reference
+## Logs
 
-### Logs
+<a id="aws-cloudwatch-eks-logs-retention-days"></a>
 
-<AccordionGroup>
-  <Accordion title="aws.cloudwatch.eks_logs_retention_days">
-    **Cloud Provider:** AWS
-    **Type:** Integer
-    **Default:** `90`
+### aws.cloudwatch.eks_logs_retention_days
 
-    Maximum retention days in CloudWatch for EKS logs.
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
-    **Valid values:** 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2192, 2557, 2922, 3288, 3653
+**Type:** `integer`
 
-    **Example:**
-    ```json
-    {
-      "aws.cloudwatch.eks_logs_retention_days": 30
-    }
-    ```
-  </Accordion>
+**Description:** Maximum retention days in CloudWatch for EKS logs.
 
-  <Accordion title="aws.vpc.enable_s3_flow_logs">
-    **Cloud Provider:** AWS
-    **Type:** Boolean
-    **Default:** `false`
+**Valid values:** 0, 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 2192, 2557, 2922, 3288, 3653
 
-    Enable flow logs on the cluster VPC and store them in an S3 bucket.
+**Default Value:** `90`
 
-    **Example:**
-    ```json
-    {
-      "aws.vpc.enable_s3_flow_logs": true
-    }
-    ```
-  </Accordion>
+<a id="aws-vpc-enable-s3-flow-logs"></a>
 
-  <Accordion title="aws.vpc.flow_logs_retention_days">
-    **Cloud Provider:** AWS
-    **Type:** Integer
-    **Default:** `365`
+### aws.vpc.enable_s3_flow_logs
 
-    Set the number of retention days for flow logs. Set to `0` for unlimited retention.
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
-    **Example:**
-    ```json
-    {
-      "aws.vpc.flow_logs_retention_days": 90
-    }
-    ```
-  </Accordion>
+**Type:** `boolean`
 
-  <Accordion title="loki.log_retention_in_week">
-    **Cloud Provider:** All
-    **Type:** Integer
-    **Default:** `12` (84 days)
+**Description:** Enable flow logs on the cluster VPC and store them in an S3 bucket.
 
-    Maximum Kubernetes pods (containers/applications/jobs/cronjobs) retention logs in weeks.
+**Default Value:** `false`
 
-    **Example:**
-    ```json
-    {
-      "loki.log_retention_in_week": 24
-    }
-    ```
-  </Accordion>
+<a id="aws-vpc-flow-logs-retention-days"></a>
 
-  <Accordion title="gcp.vpc.enable_flow_logs">
-    **Cloud Provider:** GCP
-    **Type:** Boolean
-    **Default:** `false`
+### aws.vpc.flow_logs_retention_days
 
-    Enable VPC flow logs on the cluster VPC (on each VPC subnetwork). See [GCP VPC logs flow documentation](https://cloud.google.com/vpc/docs/flow-logs).
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
-    **Example:**
-    ```json
-    {
-      "gcp.vpc.enable_flow_logs": true
-    }
-    ```
-  </Accordion>
+**Type:** `integer`
 
-  <Accordion title="gcp.vpc.flow_logs_sampling">
-    **Cloud Provider:** GCP
-    **Type:** Float
-    **Default:** `0.0`
+**Description:** Set the number of retention days for flow logs. Set to `0` for unlimited retention.
 
-    Set VPC logs flow sampling percentage. Value should be within `0.0` (no sampling) to `1.0` (all logs) range.
+**Default Value:** `365`
 
-    **Example:**
-    ```json
-    {
-      "gcp.vpc.flow_logs_sampling": 0.5
-    }
-    ```
-  </Accordion>
+<a id="loki-log-retention-in-week"></a>
 
-  <Accordion title="object_storage.enable_logging">
-    **Cloud Provider:** AWS, GCP, Azure
-    **Type:** Boolean
-    **Default:** `false`
+### loki.log_retention_in_week
 
-    Activate cluster buckets logging into a `<bucket>-log` bucket.
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
-    See documentation for [AWS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html) and [GCP](https://cloud.google.com/logging/docs/buckets).
+**Type:** `integer`
 
-    **Example:**
-    ```json
-    {
-      "object_storage.enable_logging": true
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
+**Description:** Maximum Kubernetes pods (containers/applications/jobs/cronjobs) retention logs in weeks.
+
+**Default Value:** `12` (84 days)
+
+<a id="gcp-vpc-enable-flow-logs"></a>
+
+### gcp.vpc.enable_flow_logs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable VPC flow logs on the cluster VPC (on each VPC subnetwork). See [GCP VPC logs flow documentation](https://cloud.google.com/vpc/docs/flow-logs).
+
+**Default Value:** `false`
+
+<a id="gcp-vpc-flow-logs-sampling"></a>
+
+### gcp.vpc.flow_logs_sampling
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `float`
+
+**Description:** Set VPC logs flow sampling percentage. Value should be within `0.0` (no sampling) to `1.0` (all logs) range.
+
+**Default Value:** `0.0`
+
+<a id="object-storage-enable-logging"></a>
+
+### object_storage.enable_logging
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Activate cluster buckets logging into a `<bucket>-log` bucket. See documentation for [AWS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html) and [GCP](https://cloud.google.com/logging/docs/buckets).
+
+**Default Value:** `false`
 
 ---
 
-### DNS
+## DNS
 
-<AccordionGroup>
-  <Accordion title="dns.coredns.extra_config">
-    **Cloud Provider:** AWS, Scaleway, Azure
-    **Type:** String
-    **Default:** `null`
+<a id="dns-coredns-extra-config"></a>
 
-    Additional configuration to add to CoreDNS. This can be used to customize DNS resolution rules on the cluster.
+### dns.coredns.extra_config
 
-    **Example:**
-    ```json
-    {
-      "dns.coredns.extra_config": "example.com:53 {\n    errors\n    cache 30\n    forward . 8.8.8.8 8.8.4.4\n}"
-    }
-    ```
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
-    **CoreDNS format:**
-    ```corefile
-    example.com:53 {
-        errors
-        cache 30
-        forward . 8.8.8.8 8.8.4.4
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
+**Type:** `string`
 
----
+**Description:** Additional configuration to add to CoreDNS. This can be used to customize DNS resolution rules on the cluster.
 
-### Image Registry
+**Default Value:** `null`
 
-<AccordionGroup>
-  <Accordion title="registry.image_retention_time">
-    **Cloud Provider:** AWS
-    **Type:** Integer
-    **Default:** `31536000` (1 year)
-
-    Allows you to specify an amount in seconds after which images in the default registry are deleted.
-
-    <Info>
-    Changing this setting will only affect new ECR repositories created after the change. Existing repositories will not be affected.
-    </Info>
-
-    **Example:**
-    ```json
-    {
-      "registry.image_retention_time": 15768000
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="registry.mirroring_mode">
-    **Cloud Provider:** AWS
-    **Type:** String
-    **Default:** `Service`
-
-    Allows you to specify the [image mirroring mode](/configuration/deployment/image-mirroring) to be used for each image deployed on this cluster.
-
-    **Valid values:** `Service`, `Cluster`
-
-    **Example:**
-    ```json
-    {
-      "registry.mirroring_mode": "Cluster"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="cloud_provider.container_registry.tags">
-    **Cloud Provider:** All
-    **Type:** `Map<String, String>`
-    **Default:** `{}`
-
-    Add additional tags on the cluster dedicated registry.
-
-    **Example:**
-    ```json
-    {
-      "cloud_provider.container_registry.tags": {
-        "Environment": "Production",
-        "Team": "Platform"
-      }
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
----
-
-### Network - Load Balancer
-
-<AccordionGroup>
-  <Accordion title="aws.eks.enable_alb_controller">
-    **Cloud Provider:** AWS
-    **Type:** Boolean
-    **Default:** `true`
-
-    Enable the AWS ALB controller to manage the load balancer for the cluster.
-
-    <Warning>
-    Enabling this feature will create a 10 min max downtime on your application's public access (time to delete, replace and propagate DNS of the new load balancer).
-    </Warning>
-
-    **Requirements for custom VPCs** (Qovery Managed VPC does not require these):
-    - On public subnets: add label `kubernetes.io/role/elb=1`
-    - On private subnets: add label `kubernetes.io/role/internal-elb=1`
-    - On all subnets: add label `kubernetes.io/cluster/<cluster-name>=shared`
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.enable_alb_controller": true
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu">
-    **Cloud Provider:** AWS
-    **Type:** Integer
-    **Default:** `250`
-
-    Sets AWS ALB controller VPA (vertical pod autoscaling) vCPU minimum value in milli CPU.
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu": 500
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu">
-    **Cloud Provider:** AWS
-    **Type:** Integer
-    **Default:** `250`
-
-    Sets AWS ALB controller VPA (vertical pod autoscaling) vCPU maximum value in milli CPU.
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu": 1000
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="aws.eks.alb_controller.vpa.memory.min_in_mib">
-    **Cloud Provider:** AWS
-    **Type:** Integer
-    **Default:** `128`
-
-    Sets AWS ALB controller VPA (vertical pod autoscaling) memory minimum value in mebibyte.
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.alb_controller.vpa.memory.min_in_mib": 256
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="aws.eks.alb_controller.vpa.memory.max_in_mib">
-    **Cloud Provider:** AWS
-    **Type:** Integer
-    **Default:** `128`
-
-    Sets AWS ALB controller VPA (vertical pod autoscaling) memory maximum value in mebibyte.
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.alb_controller.vpa.memory.max_in_mib": 512
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="load_balancer.size">
-    **Cloud Provider:** Scaleway
-    **Type:** String
-    **Default:** `lb-s`
-
-    Allows you to specify the load balancer size in front of your cluster.
-
-    **Valid values:**
-    - `lb-s`: 200 Mbps
-    - `lb-gp-m`: 500 Mbps
-    - `lb-gp-l`: 1 Gbps
-    - `lb-gp-xl`: 4 Gbps
-
-    **Example:**
-    ```json
-    {
-      "load_balancer.size": "lb-gp-l"
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
----
-
-### Network - NGINX Ingress
-
-<AccordionGroup>
-  <Accordion title="NGINX Resources">
-    **Cloud Provider:** All
-
-    Configure CPU and memory resources for NGINX ingress controller pods:
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `nginx.vcpu.request_in_milli_cpu` | Integer | 200 | CPU request (millicores) |
-    | `nginx.vcpu.limit_in_milli_cpu` | Integer | 700 | CPU limit (millicores) |
-    | `nginx.memory.request_in_mib` | Integer | 768 | Memory request (MiB) |
-    | `nginx.memory.limit_in_mib` | Integer | 768 | Memory limit (MiB) |
-
-    **Example:**
-    ```json
-    {
-      "nginx.vcpu.request_in_milli_cpu": 500,
-      "nginx.vcpu.limit_in_milli_cpu": 1000,
-      "nginx.memory.request_in_mib": 1024,
-      "nginx.memory.limit_in_mib": 2048
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="NGINX Horizontal Pod Autoscaling (HPA)">
-    **Cloud Provider:** All
-
-    Configure horizontal pod autoscaling for NGINX ingress controller:
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `nginx.hpa.cpu_utilization_percentage_threshold` | Integer | 50 | CPU threshold (%) |
-    | `nginx.hpa.min_number_instances` | Integer | 2 | Minimum replicas |
-    | `nginx.hpa.max_number_instances` | Integer | 25 | Maximum replicas |
-
-    **Example:**
-    ```json
-    {
-      "nginx.hpa.cpu_utilization_percentage_threshold": 70,
-      "nginx.hpa.min_number_instances": 3,
-      "nginx.hpa.max_number_instances": 50
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.enable_client_ip">
-    **Cloud Provider:** All
-    **Type:** Boolean
-    **Default:** `false`
-
-    Enables [ngx_http_realip_module](https://nginx.org/en/docs/http/ngx_http_realip_module.html) module to get the real client IP address.
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.enable_client_ip": true
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.enable_compression">
-    **Cloud Provider:** All
-    **Type:** Boolean
-    **Default:** `true`
-
-    Enables compression (Brotli) for HTTP responses. When disabled, content will not be compressed, which may increase bandwidth usage but reduce CPU load.
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.enable_compression": false
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.use_forwarded_headers">
-    **Cloud Provider:** All
-    **Type:** Boolean
-    **Default:** `false`
-
-    Passes incoming `X-Forwarded-For` header upstream. See [documentation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#use-forwarded-headers).
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.use_forwarded_headers": true
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.compute_full_forwarded_for">
-    **Cloud Provider:** All
-    **Type:** Boolean
-    **Default:** `false`
-
-    Append the remote address to the X-Forwarded-For header instead of replacing it. See [documentation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#compute-full-forwarded-for).
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.compute_full_forwarded_for": true
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.log_format_upstream">
-    **Cloud Provider:** All
-    **Type:** String
-    **Default:** `null`
-
-    Allows to customize NGINX [log-format](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#log-format-upstream).
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.log_format_upstream": "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.log_format_escaping">
-    **Cloud Provider:** All
-    **Type:** String
-    **Default:** `Default`
-
-    Allows to customize NGINX log-format-escaping setting.
-
-    **Valid values:** `Default`, `JSON`, `None`
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.log_format_escaping": "JSON"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.http_snippet">
-    **Cloud Provider:** All
-    **Type:** String
-    **Default:** `null`
-
-    Allows to customize NGINX [http-snippet](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#http-snippet) configuration.
-
-    Used for cluster-level NGINX configuration that applies to all services.
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.http_snippet": "limit_req_zone \"$server_name\" zone=global:10m rate=10r/s;"
-    }
-    ```
-
-    See [Rate Limiting Guide](/getting-started/guides/advanced-tutorials/rate-limiting) for practical examples.
-  </Accordion>
-
-  <Accordion title="nginx.controller.server_snippet">
-    **Cloud Provider:** All
-    **Type:** String
-    **Default:** `null`
-
-    Allows to customize NGINX [server-snippet](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#server-snippet) configuration.
-
-    Used for server-level NGINX configuration.
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.server_snippet": "location / {\n    limit_req zone=global;\n}"
-    }
-    ```
-
-    See [Rate Limiting Guide](/getting-started/guides/advanced-tutorials/rate-limiting) for practical examples.
-  </Accordion>
-
-  <Accordion title="nginx.controller.limit_request_status_code">
-    **Cloud Provider:** All
-    **Type:** Integer
-    **Default:** `null` (defaults to 503)
-
-    Allows to customize NGINX [limit-req-status-code](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#limit-req-status-code).
-
-    Commonly set to `429` (Too Many Requests) for rate limiting.
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.limit_request_status_code": 429
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="nginx.controller.custom_http_errors">
-    **Cloud Provider:** All
-    **Type:** String
-    **Default:** `null`
-
-    Allows to customize NGINX [custom-http-errors](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#custom-http-errors).
-
-    **Example:**
-    ```json
-    {
-      "nginx.controller.custom_http_errors": "404,503"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="NGINX Default Backend">
-    **Cloud Provider:** All
-
-    Configure a custom default backend for NGINX:
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `nginx.default_backend.enabled` | Boolean | false | Enable default backend |
-    | `nginx.default_backend.image_repository` | String | null | Docker image repository |
-    | `nginx.default_backend.image_tag` | String | null | Docker image tag |
-
-    <Warning>
-    If you don't specify custom image repository and tag, ensure your cluster includes nodes with amd64 architecture.
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "nginx.default_backend.enabled": true,
-      "nginx.default_backend.image_repository": "myregistry/custom-backend",
-      "nginx.default_backend.image_tag": "1.0.0"
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
----
-
-### Network - Database Access Control
-
-<AccordionGroup>
-  <Accordion title="PostgreSQL Access Control">
-    **Cloud Provider:** AWS
-    **Applies to:** Container and Managed Databases
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `database.postgresql.deny_any_access` | Boolean | false | Deny all PostgreSQL access |
-    | `database.postgresql.allowed_cidrs` | Array | ["0.0.0.0/0"] | Allowed CIDR ranges |
-
-    <Warning>
-    - Managed databases: Access is removed instantly
-    - Container databases: Access is removed only after redeployment
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "database.postgresql.deny_any_access": false,
-      "database.postgresql.allowed_cidrs": ["10.0.0.0/16", "10.1.0.0/16"]
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="MySQL Access Control">
-    **Cloud Provider:** AWS
-    **Applies to:** Container and Managed Databases
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `database.mysql.deny_any_access` | Boolean | false | Deny all MySQL access |
-    | `database.mysql.allowed_cidrs` | Array | ["0.0.0.0/0"] | Allowed CIDR ranges |
-
-    <Warning>
-    - Managed databases: Access is removed instantly
-    - Container databases: Access is removed only after redeployment
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "database.mysql.deny_any_access": false,
-      "database.mysql.allowed_cidrs": ["10.0.0.0/16"]
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="MongoDB Access Control">
-    **Cloud Provider:** AWS
-    **Applies to:** Container and Managed Databases
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `database.mongodb.deny_any_access` | Boolean | false | Deny all MongoDB access |
-    | `database.mongodb.allowed_cidrs` | Array | ["0.0.0.0/0"] | Allowed CIDR ranges |
-
-    <Warning>
-    - Managed databases: Access is removed instantly
-    - Container databases: Access is removed only after redeployment
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "database.mongodb.deny_any_access": false,
-      "database.mongodb.allowed_cidrs": ["10.0.0.0/16"]
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="Redis Access Control">
-    **Cloud Provider:** AWS
-    **Applies to:** Container and Managed Databases
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `database.redis.deny_any_access` | Boolean | false | Deny all Redis access |
-    | `database.redis.allowed_cidrs` | Array | ["0.0.0.0/0"] | Allowed CIDR ranges |
-
-    <Warning>
-    - Managed databases: Access is removed instantly
-    - Container databases: Access is removed only after redeployment
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "database.redis.deny_any_access": false,
-      "database.redis.allowed_cidrs": ["10.0.0.0/16"]
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
----
-
-### Service Resources
-
-<AccordionGroup>
-  <Accordion title="allow_service_cpu_overcommit">
-    **Cloud Provider:** All
-    **Type:** Boolean
-    **Default:** `false`
-
-    Authorize CPU overcommit (limit > request) for services deployed within this cluster.
-
-    <Warning>
-    Using overcommit on pod resources can lead to instability on your cluster and we strongly discourage it. Be careful when using this feature.
-    </Warning>
-
-    Once enabled, you can update the service advanced setting `resources.override.limit.cpu_in_mib`.
-
-    **Example:**
-    ```json
-    {
-      "allow_service_cpu_overcommit": true
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="allow_service_ram_overcommit">
-    **Cloud Provider:** All
-    **Type:** Boolean
-    **Default:** `false`
-
-    Authorize memory overcommit (limit > request) for services deployed within this cluster.
-
-    <Warning>
-    Using overcommit on pod resources can lead to instability on your cluster and we strongly discourage it. Be careful when using this feature.
-    </Warning>
-
-    Once enabled, you can update the service advanced setting `resources.override.limit.ram_in_mib`.
-
-    **Example:**
-    ```json
-    {
-      "allow_service_ram_overcommit": true
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
----
-
-### IAM & Security
-
-<AccordionGroup>
-  <Accordion title="AWS IAM Admin Group">
-    **Cloud Provider:** AWS
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `aws.iam.enable_admin_group_sync` | Boolean | true | Enable IAM admin group sync |
-    | `aws.iam.admin_group` | String | Admins | IAM admin group name |
-
-    Configure IAM group permissions for cluster access. See [IAM permissions setup](/installation/aws/cluster-managed-by-qovery/quickstart#attach-aws-credentials).
-
-    <Warning>
-    `aws.iam.admin_group` must be set when `enable_admin_group_sync` is true.
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "aws.iam.enable_admin_group_sync": true,
-      "aws.iam.admin_group": "QoveryAdmins"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="AWS IAM SSO">
-    **Cloud Provider:** AWS
-
-    | Setting | Type | Default | Description |
-    |---------|------|---------|-------------|
-    | `aws.iam.enable_sso` | Boolean | false | Enable SSO support |
-    | `aws.iam.sso_role_arn` | String | "" | SSO role ARN |
-
-    Enable SSO sync allowing IAM users to connect to cluster using SSO.
-
-    <Warning>
-    `aws.iam.sso_role_arn` must be set when `enable_sso` is true.
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "aws.iam.enable_sso": true,
-      "aws.iam.sso_role_arn": "arn:aws:iam::123456789012:role/QoverySSO"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="aws.eks.encrypt_secrets_kms_key_arn">
-    **Cloud Provider:** AWS
-    **Type:** String
-    **Default:** `null`
-
-    Allows you to activate KMS encryption of your Kubernetes secrets. Specify the [key ARN](https://docs.aws.amazon.com/kms/latest/developerguide/find-cmk-id-arn.html) of your AWS KMS key.
-
-    <Warning>
-    It won't be possible to go back once this feature is activated.
-    </Warning>
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.encrypt_secrets_kms_key_arn": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="k8s.api.allowed_public_access_cidrs">
-    **Cloud Provider:** AWS, GCP, Azure
-    **Type:** Array
-    **Default:** `[]`
-
-    Contains additional CIDRs that should be whitelisted to access the Kubernetes API.
-
-    <Info>
-    `qovery.static_ip_mode` should be set to `true` to make this setting effective.
-    </Info>
-
-    **Example:**
-    ```json
-    {
-      "k8s.api.allowed_public_access_cidrs": ["100.100.100.0/32", "200.200.200.0/24"]
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
----
-
-### Miscellaneous
-
-<AccordionGroup>
-  <Accordion title="aws.eks.ec2.metadata_imds">
-    **Cloud Provider:** AWS
-    **Type:** String
-    **Default:** `required`
-
-    Specify the [IMDS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) version you want to use.
-
-    **Valid values:**
-    - `required`: IMDS v2 only
-    - `optional`: IMDS v1 and v2
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.ec2.metadata_imds": "optional"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="aws.eks.ec2.ami">
-    **Cloud Provider:** AWS
-    **Type:** String
-    **Default:** `AmazonLinux2023`
-
-    Specify the AMI you want to use for EKS nodes.
-
-    **Valid values:**
-    - `AmazonLinux2`: Deprecated, not working after Kubernetes 1.32
-    - `AmazonLinux2023`: Default Amazon AMI (recommended)
-    - `Bottlerocket`: Focuses on security and maintainability
-
-    **Example:**
-    ```json
-    {
-      "aws.eks.ec2.ami": "Bottlerocket"
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="qovery.static_ip_mode">
-    **Cloud Provider:** AWS, GCP
-    **Type:** Boolean
-    **Default:** `false`
-
-    Enable the static IP mode for the Qovery control plane and automatically:
-    1. Activate the private endpoint on the Kubernetes API
-    2. Add the Qovery IP to the CIDR whitelist
-
-    <Warning>
-    If you need to connect to the Kubernetes cluster from your network, make sure to add your CIDR to `k8s.api.allowed_public_access_cidrs`.
-    </Warning>
-
-    <Info>
-    **DockerHub credentials are required** to activate this feature. Configure them in [Organization settings > Container registry](/configuration/organization/container-registry).
-
-    Why? DockerHub has a [rate limit by IP](https://docs.docker.com/docker-hub/download-rate-limit/). Since the Qovery control plane will be seen as a single IP, you need authenticated access to increase the limit.
-    </Info>
-
-    **Example:**
-    ```json
-    {
-      "qovery.static_ip_mode": true
-    }
-    ```
-  </Accordion>
-
-  <Accordion title="storageclass.fast_ssd">
-    **Type:** String
-    **Default:** Cloud provider specific
-
-    Specify the Kubernetes storageClass to be used for storage attached to your container databases and applications.
-
-    **Example:**
-    ```json
-    {
-      "storageclass.fast_ssd": "gp3"
-    }
-    ```
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Start with Defaults">
-    Begin with Qovery's default cluster settings and only modify when you have a specific infrastructure requirement. Defaults are optimized for most use cases.
-  </Accordion>
-
-  <Accordion title="Test in Non-Production First">
-    Always test cluster advanced settings changes in development or staging clusters before applying to production.
-  </Accordion>
-
-  <Accordion title="Document Your Changes">
-    Keep track of why you changed specific cluster settings. This helps with troubleshooting and knowledge sharing across your infrastructure team.
-  </Accordion>
-
-  <Accordion title="Monitor After Changes">
-    After modifying cluster advanced settings, closely monitor cluster health, resource usage, and service performance for 24-48 hours.
-  </Accordion>
-
-  <Accordion title="Use Infrastructure as Code">
-    Manage cluster advanced settings through Terraform to maintain consistency and enable version control.
-  </Accordion>
-
-  <Accordion title="Security First - Database Access">
-    - Always configure `allowed_cidrs` for database access instead of allowing `0.0.0.0/0`
-    - Use VPC CIDR ranges for internal database access
-    - Enable database access logs with `object_storage.enable_logging`
-  </Accordion>
-
-  <Accordion title="Security First - Network">
-    - Use `k8s.api.allowed_public_access_cidrs` to restrict Kubernetes API access
-    - Enable `nginx.controller.enable_client_ip` for accurate IP-based security
-    - Configure appropriate rate limiting with NGINX snippets
-    - Enable VPC flow logs for audit trails
-  </Accordion>
-
-  <Accordion title="Cost Optimization">
-    - Set appropriate log retention periods to balance cost and compliance
-    - Use image retention policies to clean up old container images
-    - Configure NGINX HPA based on actual traffic patterns
-    - Monitor VPC flow logs sampling to avoid excessive storage costs
-  </Accordion>
-
-  <Accordion title="High Availability">
-    - Set `nginx.hpa.min_number_instances` to at least 2 (default)
-    - Configure appropriate NGINX resource limits for your traffic
-    - Enable ALB controller on AWS for better load distribution
-    - Use proper load balancer sizing on Scaleway
-  </Accordion>
-
-  <Accordion title="Observability">
-    - Enable VPC flow logs in production for network troubleshooting
-    - Configure appropriate log retention for compliance requirements
-    - Use custom NGINX log formats for better insights
-    - Enable object storage logging for audit trails
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Cluster Not Starting After Settings Change">
-    **Symptoms**: Cluster deployment fails or becomes unavailable after modifying advanced settings.
-
-    **Common Causes**:
-    - Invalid NGINX snippet syntax
-    - Incompatible resource allocations
-    - Incorrect CIDR formatting in allowed_cidrs
-    - Missing required settings (e.g., admin_group when sync enabled)
-
-    **Resolution**:
-    1. Check cluster deployment logs for specific error messages
-    2. Verify NGINX snippet syntax using [NGINX documentation](https://nginx.org/en/docs/)
-    3. Validate CIDR notation (e.g., `10.0.0.0/16`)
-    4. Revert to default settings and apply changes incrementally
-    5. Contact Qovery support with cluster ID and settings applied
-  </Accordion>
-
-  <Accordion title="Database Access Denied After CIDR Change">
-    **Symptoms**: Applications can't connect to databases after changing allowed_cidrs.
-
-    **Troubleshooting**:
-    1. For managed databases: Changes apply immediately, verify CIDR includes your application VPC
-    2. For container databases: Requires database redeployment to take effect
-    3. Verify CIDR format is correct (e.g., `["10.0.0.0/16"]` not `"10.0.0.0/16"`)
-    4. Check that `deny_any_access` is set to `false`
-    5. Verify database security groups in cloud provider console
-
-    **Resolution**:
-    - Ensure application subnet is included in `allowed_cidrs`
-    - For container databases, redeploy the database service
-    - Check VPC peering configuration if using cross-VPC access
-  </Accordion>
-
-  <Accordion title="NGINX Ingress Not Working">
-    **Symptoms**: Services not accessible, 502/503 errors, or NGINX pods not starting.
-
-    **Check**:
-    1. NGINX pod status: `kubectl get pods -n qovery`
-    2. NGINX logs: Check cluster logs in Qovery Console
-    3. HPA status: `kubectl get hpa -n qovery`
-    4. Resource limits: Verify NGINX isn't resource-constrained
-
-    **Common Issues**:
-    - Invalid `http_snippet` or `server_snippet` syntax
-    - Resource limits too low for traffic volume
-    - HPA min/max instances misconfigured
-    - Custom default backend image not accessible
-
-    **Resolution**:
-    1. Remove custom snippets and redeploy to isolate issue
-    2. Increase NGINX resource limits if pods are OOMKilled
-    3. Verify custom default backend image is publicly accessible
-    4. Check NGINX configuration: `kubectl exec -n qovery nginx-pod -- nginx -T`
-  </Accordion>
-
-  <Accordion title="Rate Limiting Not Working">
-    **Symptoms**: Rate limits not enforced, all requests get through.
-
-    **Verify**:
-    1. NGINX snippet syntax is correct in `http_snippet` and `server_snippet`
-    2. Cluster has been redeployed after settings change
-    3. Rate limit zone names match between declaration and usage
-    4. Using correct variable (e.g., `$server_name` vs `$remote_addr`)
-
-    **Testing**:
-    ```bash
-    # Test rate limit with curl
-    for i in {1..20}; do curl -w "%{http_code}\n" https://your-app.com; done
-    ```
-
-    See [Rate Limiting Guide](/getting-started/guides/advanced-tutorials/rate-limiting) for detailed examples.
-  </Accordion>
-
-  <Accordion title="Static IP Mode Issues">
-    **Symptoms**: Qovery control plane can't connect to cluster after enabling static IP mode.
-
-    **Check**:
-    1. DockerHub credentials configured in Organization settings
-    2. Private Kubernetes API endpoint is accessible
-    3. `k8s.api.allowed_public_access_cidrs` includes your IP if needed
-    4. No network policies blocking Qovery IP
-
-    **Resolution**:
-    1. Verify DockerHub credentials are valid
-    2. Add Qovery support IP to allowed CIDRs if provided
-    3. Check VPC routing and security groups
-    4. Contact Qovery support for static IP whitelist
-  </Accordion>
-
-  <Accordion title="IAM/SSO Connection Issues">
-    **Symptoms**: Can't connect to cluster using AWS SSO or IAM group.
-
-    **Verify**:
-    1. `aws.iam.admin_group` matches your IAM group name exactly
-    2. IAM user is member of specified admin group
-    3. `aws.iam.sso_role_arn` is correct if using SSO
-    4. Cluster has been redeployed after IAM settings change
-
-    **Test Connection**:
-    ```bash
-    # Download kubeconfig from Qovery Console
-    export KUBECONFIG=./kubeconfig.yaml
-    kubectl get nodes
-    ```
-
-    **Resolution**:
-    1. Verify IAM group membership in AWS Console
-    2. Check IAM policy permissions include necessary Kubernetes access
-    3. Redeploy cluster to apply IAM configuration changes
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Use Cases & Examples
-
-### Example 1: Production Cluster with Enhanced Security
-
-```json
-{
-  "loki.log_retention_in_week": 52,
-  "aws.vpc.enable_s3_flow_logs": true,
-  "aws.vpc.flow_logs_retention_days": 365,
-  "object_storage.enable_logging": true,
-  "database.postgresql.deny_any_access": false,
-  "database.postgresql.allowed_cidrs": ["10.0.0.0/16"],
-  "database.mysql.deny_any_access": false,
-  "database.mysql.allowed_cidrs": ["10.0.0.0/16"],
-  "k8s.api.allowed_public_access_cidrs": ["203.0.113.0/24"],
-  "qovery.static_ip_mode": true,
-  "aws.eks.encrypt_secrets_kms_key_arn": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+**Example:**
+```corefile
+example.com:53 {
+    errors
+    cache 30
+    forward . 8.8.8.8 8.8.4.4
 }
 ```
 
-### Example 2: High-Traffic Cluster with Scaled NGINX
+---
 
+## Image Registry
+
+<a id="registry-image-retention-time"></a>
+
+### registry.image_retention_time
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Allows you to specify an amount in seconds after which images in the default registry are deleted.
+
+<Info>
+Changing this setting will only affect new ECR repositories created after the change. Existing repositories will not be affected.
+</Info>
+
+**Default Value:** `31536000` (1 year)
+
+<a id="registry-mirroring-mode"></a>
+
+### registry.mirroring_mode
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows you to specify the [image mirroring mode](/configuration/deployment/image-mirroring) to be used for each image deployed on this cluster.
+
+**Valid values:** `Service`, `Cluster`
+
+**Default Value:** `Service`
+
+<a id="cloud-provider-container-registry-tags"></a>
+
+### cloud_provider.container_registry.tags
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `Map<String, String>`
+
+**Description:** Add additional tags on the cluster dedicated registry.
+
+**Default Value:** `{}`
+
+**Example:**
 ```json
 {
-  "nginx.hpa.min_number_instances": 5,
-  "nginx.hpa.max_number_instances": 50,
-  "nginx.hpa.cpu_utilization_percentage_threshold": 60,
-  "nginx.vcpu.request_in_milli_cpu": 500,
-  "nginx.vcpu.limit_in_milli_cpu": 2000,
-  "nginx.memory.request_in_mib": 1024,
-  "nginx.memory.limit_in_mib": 2048,
-  "nginx.controller.enable_compression": true
+  "cloud_provider.container_registry.tags": {
+    "Environment": "Production",
+    "Team": "Platform"
+  }
 }
 ```
 
-### Example 3: Development Cluster with Relaxed Settings
+---
 
-```json
-{
-  "loki.log_retention_in_week": 4,
-  "registry.image_retention_time": 2592000,
-  "nginx.hpa.min_number_instances": 2,
-  "nginx.hpa.max_number_instances": 10,
-  "database.postgresql.deny_any_access": false,
-  "database.postgresql.allowed_cidrs": ["0.0.0.0/0"]
-}
-```
+## Network - Load Balancer
 
-### Example 4: Cluster with Custom Rate Limiting
+<a id="aws-eks-enable-alb-controller"></a>
 
-```json
-{
-  "nginx.controller.http_snippet": "limit_req_zone \"$server_name\" zone=global:10m rate=100r/s;",
-  "nginx.controller.server_snippet": "location / {\n    limit_req zone=global burst=200 nodelay;\n}",
-  "nginx.controller.limit_request_status_code": 429
-}
-```
+### aws.eks.enable_alb_controller
 
-See [Rate Limiting Guide](/getting-started/guides/advanced-tutorials/rate-limiting) and [IP Authorization Guide](/getting-started/guides/advanced-tutorials/ip-header-authorization) for more examples.
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable the AWS ALB controller to manage the load balancer for the cluster.
+
+<Warning>
+Enabling this feature will create a 10 min max downtime on your application's public access (time to delete, replace and propagate DNS of the new load balancer).
+</Warning>
+
+**Use Case:** For custom VPCs (Qovery Managed VPC does not require these), you need to add labels to subnets: `kubernetes.io/role/elb=1` on public subnets, `kubernetes.io/role/internal-elb=1` on private subnets, and `kubernetes.io/cluster/<cluster-name>=shared` on all subnets.
+
+**Default Value:** `true`
+
+<a id="aws-eks-alb-controller-vpa-vcpu-min-in-milli-cpu"></a>
+
+### aws.eks.alb_controller.vpa.vcpu.min_in_milli_cpu
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Sets AWS ALB controller VPA (vertical pod autoscaling) vCPU minimum value in milli CPU.
+
+**Default Value:** `250`
+
+<a id="aws-eks-alb-controller-vpa-vcpu-max-in-milli-cpu"></a>
+
+### aws.eks.alb_controller.vpa.vcpu.max_in_milli_cpu
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Sets AWS ALB controller VPA (vertical pod autoscaling) vCPU maximum value in milli CPU.
+
+**Default Value:** `250`
+
+<a id="aws-eks-alb-controller-vpa-memory-min-in-mib"></a>
+
+### aws.eks.alb_controller.vpa.memory.min_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Sets AWS ALB controller VPA (vertical pod autoscaling) memory minimum value in mebibyte.
+
+**Default Value:** `128`
+
+<a id="aws-eks-alb-controller-vpa-memory-max-in-mib"></a>
+
+### aws.eks.alb_controller.vpa.memory.max_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Sets AWS ALB controller VPA (vertical pod autoscaling) memory maximum value in mebibyte.
+
+**Default Value:** `128`
+
+<a id="load-balancer-size"></a>
+
+### load_balancer.size
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows you to specify the load balancer size in front of your cluster.
+
+**Valid values:** `lb-s` (200 Mbps), `lb-gp-m` (500 Mbps), `lb-gp-l` (1 Gbps), `lb-gp-xl` (4 Gbps)
+
+**Default Value:** `lb-s`
+
+---
+
+## Network - NGINX Ingress
+
+<a id="nginx-vcpu-request-in-milli-cpu"></a>
+
+### nginx.vcpu.request_in_milli_cpu
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** vCPU request value in millicores assigned to NGINX pods.
+
+**Default Value:** `200`
+
+<a id="nginx-vcpu-limit-in-milli-cpu"></a>
+
+### nginx.vcpu.limit_in_milli_cpu
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** vCPU limit value in millicores assigned to NGINX pods.
+
+**Default Value:** `700`
+
+<a id="nginx-memory-request-in-mib"></a>
+
+### nginx.memory.request_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Memory request value in MiB assigned to NGINX pods.
+
+**Default Value:** `768`
+
+<a id="nginx-memory-limit-in-mib"></a>
+
+### nginx.memory.limit_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Memory limit value in MiB assigned to NGINX pods.
+
+**Default Value:** `768`
+
+<a id="nginx-hpa-cpu-utilization-percentage-threshold"></a>
+
+### nginx.hpa.cpu_utilization_percentage_threshold
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** HPA CPU threshold in percentage assigned to NGINX deployment.
+
+**Default Value:** `50`
+
+<a id="nginx-hpa-min-number-instances"></a>
+
+### nginx.hpa.min_number_instances
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Minimum number of NGINX replicas for horizontal pod autoscaling.
+
+**Default Value:** `2`
+
+<a id="nginx-hpa-max-number-instances"></a>
+
+### nginx.hpa.max_number_instances
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Maximum number of NGINX replicas for horizontal pod autoscaling.
+
+**Default Value:** `25`
+
+<a id="nginx-controller-enable-client-ip"></a>
+
+### nginx.controller.enable_client_ip
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enables [ngx_http_realip_module](https://nginx.org/en/docs/http/ngx_http_realip_module.html) module to get the real client IP address.
+
+**Default Value:** `false`
+
+<a id="nginx-controller-enable-compression"></a>
+
+### nginx.controller.enable_compression
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enables compression (Brotli) for HTTP responses. When disabled, content will not be compressed, which may increase bandwidth usage but reduce CPU load.
+
+**Default Value:** `true`
+
+<a id="nginx-controller-use-forwarded-headers"></a>
+
+### nginx.controller.use_forwarded_headers
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Passes incoming `X-Forwarded-For` header upstream. See [documentation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#use-forwarded-headers).
+
+**Default Value:** `false`
+
+<a id="nginx-controller-compute-full-forwarded-for"></a>
+
+### nginx.controller.compute_full_forwarded_for
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Append the remote address to the X-Forwarded-For header instead of replacing it. See [documentation](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#compute-full-forwarded-for).
+
+**Default Value:** `false`
+
+<a id="nginx-controller-log-format-upstream"></a>
+
+### nginx.controller.log_format_upstream
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows to customize NGINX [log-format](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#log-format-upstream).
+
+**Default Value:** `null`
+
+<a id="nginx-controller-log-format-escaping"></a>
+
+### nginx.controller.log_format_escaping
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows to customize NGINX log-format-escaping setting.
+
+**Valid values:** `Default`, `JSON`, `None`
+
+**Default Value:** `Default`
+
+<a id="nginx-controller-http-snippet"></a>
+
+### nginx.controller.http_snippet
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows to customize NGINX [http-snippet](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#http-snippet) configuration. Used for cluster-level NGINX configuration that applies to all services.
+
+**Use Case:** See [Rate Limiting Guide](/getting-started/guides/advanced-tutorials/rate-limiting) for practical examples.
+
+**Default Value:** `null`
+
+<a id="nginx-controller-server-snippet"></a>
+
+### nginx.controller.server_snippet
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows to customize NGINX [server-snippet](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#server-snippet) configuration. Used for server-level NGINX configuration.
+
+**Use Case:** See [Rate Limiting Guide](/getting-started/guides/advanced-tutorials/rate-limiting) for practical examples.
+
+**Default Value:** `null`
+
+<a id="nginx-controller-limit-request-status-code"></a>
+
+### nginx.controller.limit_request_status_code
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Allows to customize NGINX [limit-req-status-code](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#limit-req-status-code). Commonly set to `429` (Too Many Requests) for rate limiting.
+
+**Default Value:** `null` (defaults to 503)
+
+<a id="nginx-controller-custom-http-errors"></a>
+
+### nginx.controller.custom_http_errors
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows to customize NGINX [custom-http-errors](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#custom-http-errors).
+
+**Default Value:** `null`
+
+**Example:** `"404,503"`
+
+<a id="nginx-default-backend-enabled"></a>
+
+### nginx.default_backend.enabled
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Allows enabling the default_backend for NGINX.
+
+<Warning>
+If you don't specify custom image repository and tag, ensure your cluster includes nodes with amd64 architecture.
+</Warning>
+
+**Default Value:** `false`
+
+<a id="nginx-default-backend-image-repository"></a>
+
+### nginx.default_backend.image_repository
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Specifies the Docker image repository used for the default_backend.
+
+**Default Value:** `null`
+
+<a id="nginx-default-backend-image-tag"></a>
+
+### nginx.default_backend.image_tag
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Defines the image tag used by default_backend.
+
+**Default Value:** `null`
+
+---
+
+## Network - Database Access Control
+
+<a id="database-postgresql-deny-any-access"></a>
+
+### database.postgresql.deny_any_access
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Deny any access to all PostgreSQL databases.
+
+<Warning>
+- Managed databases: Access is removed instantly
+- Container databases: Access is removed only after redeployment
+</Warning>
+
+**Default Value:** `false`
+
+<a id="database-postgresql-allowed-cidrs"></a>
+
+### database.postgresql.allowed_cidrs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** List of allowed CIDR ranges for PostgreSQL database access.
+
+**Default Value:** `["0.0.0.0/0"]`
+
+<a id="database-mysql-deny-any-access"></a>
+
+### database.mysql.deny_any_access
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Deny any access to all MySQL databases.
+
+<Warning>
+- Managed databases: Access is removed instantly
+- Container databases: Access is removed only after redeployment
+</Warning>
+
+**Default Value:** `false`
+
+<a id="database-mysql-allowed-cidrs"></a>
+
+### database.mysql.allowed_cidrs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** List of allowed CIDR ranges for MySQL database access.
+
+**Default Value:** `["0.0.0.0/0"]`
+
+<a id="database-mongodb-deny-any-access"></a>
+
+### database.mongodb.deny_any_access
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Deny any access to all MongoDB databases.
+
+<Warning>
+- Managed databases: Access is removed instantly
+- Container databases: Access is removed only after redeployment
+</Warning>
+
+**Default Value:** `false`
+
+<a id="database-mongodb-allowed-cidrs"></a>
+
+### database.mongodb.allowed_cidrs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** List of allowed CIDR ranges for MongoDB database access.
+
+**Default Value:** `["0.0.0.0/0"]`
+
+<a id="database-redis-deny-any-access"></a>
+
+### database.redis.deny_any_access
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Deny any access to all Redis databases.
+
+<Warning>
+- Managed databases: Access is removed instantly
+- Container databases: Access is removed only after redeployment
+</Warning>
+
+**Default Value:** `false`
+
+<a id="database-redis-allowed-cidrs"></a>
+
+### database.redis.allowed_cidrs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** List of allowed CIDR ranges for Redis database access.
+
+**Default Value:** `["0.0.0.0/0"]`
+
+---
+
+## Service Resources
+
+<a id="allow-service-cpu-overcommit"></a>
+
+### allow_service_cpu_overcommit
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Authorize CPU overcommit (limit > request) for services deployed within this cluster.
+
+<Warning>
+Using overcommit on pod resources can lead to instability on your cluster and we strongly discourage it. Be careful when using this feature.
+</Warning>
+
+**Use Case:** Once enabled, you can update the service advanced setting `resources.override.limit.cpu_in_mib`.
+
+**Default Value:** `false`
+
+<a id="allow-service-ram-overcommit"></a>
+
+### allow_service_ram_overcommit
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Authorize memory overcommit (limit > request) for services deployed within this cluster.
+
+<Warning>
+Using overcommit on pod resources can lead to instability on your cluster and we strongly discourage it. Be careful when using this feature.
+</Warning>
+
+**Use Case:** Once enabled, you can update the service advanced setting `resources.override.limit.ram_in_mib`.
+
+**Default Value:** `false`
+
+---
+
+## IAM & Security
+
+<a id="aws-iam-enable-admin-group-sync"></a>
+
+### aws.iam.enable_admin_group_sync
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable IAM admin group sync. See [IAM permissions setup](/installation/aws/cluster-managed-by-qovery/quickstart#attach-aws-credentials).
+
+<Warning>
+`aws.iam.admin_group` must be set when `enable_admin_group_sync` is true.
+</Warning>
+
+**Default Value:** `true`
+
+<a id="aws-iam-admin-group"></a>
+
+### aws.iam.admin_group
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows you to specify the IAM group name associated with the Qovery user. Configure IAM group permissions for cluster access.
+
+**Default Value:** `Admins`
+
+<a id="aws-iam-enable-sso"></a>
+
+### aws.iam.enable_sso
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable SSO sync allowing IAM users to connect to cluster using SSO.
+
+<Warning>
+`aws.iam.sso_role_arn` must be set when `enable_sso` is true.
+</Warning>
+
+**Default Value:** `false`
+
+<a id="aws-iam-sso-role-arn"></a>
+
+### aws.iam.sso_role_arn
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows you to specify the SSO role ARN to be used to connect to your cluster.
+
+**Default Value:** `""`
+
+<a id="aws-eks-encrypt-secrets-kms-key-arn"></a>
+
+### aws.eks.encrypt_secrets_kms_key_arn
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Allows you to activate KMS encryption of your Kubernetes secrets. Specify the [key ARN](https://docs.aws.amazon.com/kms/latest/developerguide/find-cmk-id-arn.html) of your AWS KMS key.
+
+<Warning>
+It won't be possible to go back once this feature is activated.
+</Warning>
+
+**Default Value:** `null`
+
+<a id="k8s-api-allowed-public-access-cidrs"></a>
+
+### k8s.api.allowed_public_access_cidrs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Contains additional CIDRs that should be whitelisted to access the Kubernetes API.
+
+<Info>
+`qovery.static_ip_mode` should be set to `true` to make this setting effective.
+</Info>
+
+**Default Value:** `[]`
+
+---
+
+## Miscellaneous
+
+<a id="aws-eks-ec2-metadata-imds"></a>
+
+### aws.eks.ec2.metadata_imds
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Specify the [IMDS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) version you want to use.
+
+**Valid values:** `required` (IMDS v2 only), `optional` (IMDS v1 and v2)
+
+**Default Value:** `required`
+
+<a id="aws-eks-ec2-ami"></a>
+
+### aws.eks.ec2.ami
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Specify the AMI you want to use for EKS nodes.
+
+**Valid values:** `AmazonLinux2` (Deprecated, not working after Kubernetes 1.32), `AmazonLinux2023` (Default Amazon AMI, recommended), `Bottlerocket` (Focuses on security and maintainability)
+
+**Default Value:** `AmazonLinux2023`
+
+<a id="qovery-static-ip-mode"></a>
+
+### qovery.static_ip_mode
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable the static IP mode for the Qovery control plane and automatically activate the private endpoint on the Kubernetes API and add the Qovery IP to the CIDR whitelist.
+
+<Warning>
+If you need to connect to the Kubernetes cluster from your network, make sure to add your CIDR to `k8s.api.allowed_public_access_cidrs`.
+</Warning>
+
+<Info>
+**DockerHub credentials are required** to activate this feature. Configure them in [Organization settings > Container registry](/configuration/organization/container-registry). Why? DockerHub has a [rate limit by IP](https://docs.docker.com/docker-hub/download-rate-limit/). Since the Qovery control plane will be seen as a single IP, you need authenticated access to increase the limit.
+</Info>
+
+**Default Value:** `false`
+
+<a id="storageclass-fast-ssd"></a>
+
+### storageclass.fast_ssd
+
+**Type:** `string`
+
+**Description:** Specify the Kubernetes storageClass to be used for storage attached to your container databases and applications.
+
+**Default Value:** Cloud provider specific
 
 ---
 
