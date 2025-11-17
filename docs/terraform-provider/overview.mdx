@@ -5,10 +5,12 @@ description: "Manage your Qovery infrastructure as code with Terraform"
 
 ## Overview
 
-<img src="/images/logos/terraform-icon.svg" alt="Terraform" class="terraform-icon" /> The Qovery Terraform Provider allows you to manage your Qovery infrastructure using Infrastructure as Code (IaC). Define, provision, and manage your applications, databases, environments, and entire stacks declaratively with Terraform.
+The Qovery Terraform Provider allows you to manage your Qovery infrastructure using Infrastructure as Code (IaC). Define, provision, and manage your applications, databases, environments, and entire stacks declaratively with Terraform.
 
 <Info>
-**Complete Documentation**: For detailed resource schemas, arguments, and attributes, visit the [Qovery Terraform Provider on Terraform Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs).
+  **Complete Documentation**: For detailed resource schemas, arguments, and
+  attributes, visit the [Qovery Terraform Provider on Terraform
+  Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs).
 </Info>
 
 ## Why Use Terraform with Qovery?
@@ -17,15 +19,12 @@ description: "Manage your Qovery infrastructure as code with Terraform"
   <Card title="Infrastructure as Code" icon="file-code">
     Version control your infrastructure alongside your application code
   </Card>
-
   <Card title="Reproducible Deployments" icon="copy">
     Deploy identical environments across dev, staging, and production
   </Card>
-
   <Card title="Team Collaboration" icon="users">
     Review infrastructure changes through pull requests
   </Card>
-
   <Card title="Automation" icon="robot">
     Integrate with CI/CD pipelines for automated deployments
   </Card>
@@ -34,7 +33,11 @@ description: "Manage your Qovery infrastructure as code with Terraform"
 ## Getting Started
 
 <Note>
-This guide provides a quick overview of the Qovery Terraform Provider. For comprehensive documentation including all resources, data sources, and configuration options, please refer to the [official provider documentation on Terraform Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs).
+  This guide provides a quick overview of the Qovery Terraform Provider. For
+  comprehensive documentation including all resources, data sources, and
+  configuration options, please refer to the [official provider documentation on
+  Terraform
+  Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs).
 </Note>
 
 ### Installation
@@ -75,7 +78,8 @@ provider "qovery" {
 ```
 
 <Warning>
-Never commit API tokens to version control. Use environment variables or a secure secrets management solution.
+  Never commit API tokens to version control. Use environment variables or a
+  secure secrets management solution.
 </Warning>
 
 ## Quick Start
@@ -88,13 +92,11 @@ Never commit API tokens to version control. Use environment variables or a secur
     terraform version
     ```
   </Step>
-
   <Step title="Generate API Token">
     1. Go to [Qovery Console](https://console.qovery.com)
     2. Navigate to Organization Settings → API Tokens
     3. Click "Generate Token" and copy it
   </Step>
-
   <Step title="Create Terraform Configuration">
     Create a `main.tf` file:
     ```hcl
@@ -121,6 +123,7 @@ Never commit API tokens to version control. Use environment variables or a secur
       name = "My Project"
     }
     ```
+
   </Step>
 
   <Step title="Initialize and Apply">
@@ -137,6 +140,7 @@ Never commit API tokens to version control. Use environment variables or a secur
     # Apply changes
     terraform apply
     ```
+
   </Step>
 </Steps>
 
@@ -157,6 +161,7 @@ You'll need various IDs from Qovery for your Terraform configuration:
     **Cluster ID**:
     - Go to Settings → Clusters
     - Copy Cluster ID from cluster details
+
   </Tab>
 
   <Tab title="Via Terraform Data Sources">
@@ -187,6 +192,7 @@ You'll need various IDs from Qovery for your Terraform configuration:
       mode = "PRODUCTION"
     }
     ```
+
   </Tab>
 
   <Tab title="Via CLI">
@@ -216,6 +222,7 @@ You'll need various IDs from Qovery for your Terraform configuration:
     <Note>
     The CLI uses a context-based approach. Use `qovery context set` to interactively select your organization, then run list commands to get IDs of resources within that context. See [CLI documentation](/cli/overview) for more details.
     </Note>
+
   </Tab>
 </Tabs>
 
@@ -230,34 +237,29 @@ The Qovery Terraform provider supports managing:
     - `qovery_environment` - Development, staging, production environments
     - `qovery_labels_group` - Organize resources with labels
   </Accordion>
-
   <Accordion title="Applications & Services" icon="rocket">
     - `qovery_application` - Containerized applications
     - `qovery_container` - Custom container deployments
     - `qovery_job` - Cron jobs and lifecycle jobs
     - `qovery_helm` - Helm chart deployments
   </Accordion>
-
   <Accordion title="Databases" icon="database">
     - `qovery_database` - Managed databases (PostgreSQL, MySQL, MongoDB, Redis)
     - Container mode or cloud-managed mode
     - Automatic connection string injection
   </Accordion>
-
   <Accordion title="Configuration" icon="sliders">
     - `qovery_environment_variable` - Environment-level variables
     - `qovery_environment_variable_alias` - Variable aliases
     - `qovery_environment_variable_override` - Override variables
     - `qovery_deployment_stage` - Control deployment order
   </Accordion>
-
   <Accordion title="Infrastructure" icon="server">
     - `qovery_cluster` - Kubernetes cluster configuration
     - `qovery_aws_credentials` - AWS cloud credentials
     - `qovery_scaleway_credentials` - Scaleway cloud credentials
     - `qovery_gcp_credentials` - GCP cloud credentials
   </Accordion>
-
   <Accordion title="Integrations" icon="plug">
     - `qovery_container_registry` - Connect container registries
     - `qovery_git_token` - Git provider authentication
@@ -347,6 +349,7 @@ terraform import qovery_database.postgres <database-id>
 - Latest provider updates
 
 Please visit the **[Qovery Terraform Provider on Terraform Registry](https://registry.terraform.io/providers/Qovery/qovery/latest/docs)**.
+
 </Warning>
 
 ## Next Steps
@@ -355,15 +358,12 @@ Please visit the **[Qovery Terraform Provider on Terraform Registry](https://reg
   <Card title="Basic Application" icon="rocket" href="/terraform-provider/basic-application">
     Deploy your first application with Terraform
   </Card>
-
   <Card title="Application with Database" icon="database" href="/terraform-provider/application-with-database">
     Deploy an application connected to a database
   </Card>
-
   <Card title="Multi-Environment Setup" icon="layer-group" href="/terraform-provider/multi-environment">
     Create dev, staging, and production environments
   </Card>
-
   <Card title="Advanced Patterns" icon="code" href="/terraform-provider/advanced-patterns">
     Deployment pipelines, modules, and advanced configurations
   </Card>
@@ -375,15 +375,12 @@ Please visit the **[Qovery Terraform Provider on Terraform Registry](https://reg
   <Card title="Terraform Registry" icon="book-open" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
     Complete provider documentation and reference
   </Card>
-
   <Card title="GitHub Repository" icon="/images/logos/github-icon.svg" href="https://github.com/Qovery/terraform-provider-qovery">
     Provider source code and issue tracking
   </Card>
-
   <Card title="Example Templates" icon="file-code" href="https://github.com/Qovery/terraform-examples">
     Ready-to-use Terraform templates
   </Card>
-
   <Card title="API Documentation" icon="brackets-curly" href="/api-reference/introduction">
     Qovery API reference
   </Card>
