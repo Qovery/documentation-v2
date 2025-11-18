@@ -7,10 +7,6 @@ description: "Fine-tune your Kubernetes cluster infrastructure with advanced con
 
 Cluster Advanced Settings allow you to fine-tune infrastructure-level parameters for your Qovery-managed Kubernetes clusters. These settings provide granular control over networking, logging, security, resource allocation, and cloud provider-specific features.
 
-<Info>
-Cluster advanced settings are currently configured via the [Qovery API](https://api-doc.qovery.com/#tag/Clusters/operation/editClusterAdvancedSettings). Console support is coming soon.
-</Info>
-
 ## Cloud Provider Availability
 
 Settings are tagged with their supported cloud providers:
@@ -34,9 +30,43 @@ Settings are tagged with their supported cloud providers:
 
 ## Configuring Cluster Advanced Settings
 
+### Via Qovery Console (Recommended)
+
+The easiest way to configure cluster advanced settings is directly from the Qovery Console:
+
+<Steps>
+  <Step title="Navigate to Cluster Settings">
+    Go to your cluster page and click on **Settings**
+  </Step>
+
+  <Step title="Open Advanced Settings">
+    In the settings menu, select **Advanced Settings**
+  </Step>
+
+  <Step title="Configure Settings">
+    Browse and configure the advanced settings you need. Settings are organized by category for easy navigation.
+  </Step>
+
+  <Step title="Save and Redeploy">
+    Click **Save** and redeploy your cluster for changes to take effect
+  </Step>
+</Steps>
+
+<Frame>
+  <img src="/images/configuration/clusters/cluster-advanced-settings-console.png" alt="Cluster Advanced Settings in Console" />
+</Frame>
+
+<Tip>
+Use the **"Show only overridden settings"** toggle to filter and view only the settings you've customized from their default values.
+</Tip>
+
+<Warning>
+After updating cluster advanced settings, you must **redeploy the cluster** for changes to take effect.
+</Warning>
+
 ### Via Qovery API
 
-Advanced settings are configured using the Qovery API:
+You can also configure advanced settings using the Qovery API:
 
 ```bash
 curl -X PATCH "https://api.qovery.com/cluster/{cluster_id}/advancedSettings" \
@@ -70,10 +100,6 @@ resource "qovery_cluster" "my_cluster" {
   })
 }
 ```
-
-<Warning>
-After updating cluster advanced settings, you must **redeploy the cluster** for changes to take effect.
-</Warning>
 
 ---
 
