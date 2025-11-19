@@ -1,0 +1,27 @@
+---
+title: "qovery terraform"
+description: "Manage terraform services"
+---
+
+## Overview
+
+Manage Terraform services deployed on Qovery.
+
+## Commands
+
+### setup-backend
+
+Generate a Terraform backend configuration file that can be used to access your tf-state.
+
+**Usage:**
+```bash
+qovery terraform setup-backend [flags]
+```
+
+**Flags:**
+- `-t, --terraform` (string) - Terraform service name or ID
+
+**Example:**
+```bash
+qovery terraform setup-backend --terraform "my-terraform-service"
+```

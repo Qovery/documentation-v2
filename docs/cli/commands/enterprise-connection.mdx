@@ -1,0 +1,84 @@
+---
+title: "qovery enterprise-connection"
+description: "Manage enterprise connections"
+---
+
+## Overview
+
+Manage enterprise connections and group mappings for SSO integration.
+
+## Commands
+
+### get
+
+Get enterprise connection information.
+
+**Usage:**
+```bash
+qovery enterprise-connection get [flags]
+```
+
+**Flags:**
+- `-c, --connection` (string) - Enterprise connection name or ID
+- `-o, --organization` (string) - Organization ID or name
+
+### update
+
+Update enterprise connection information.
+
+**Usage:**
+```bash
+qovery enterprise-connection update [flags]
+```
+
+**Flags:**
+- `-c, --connection` (string) - Enterprise connection name or ID
+- `-r, --default-role` (string) - Default role for new users
+- `-e, --enforce-group-sync` (bool) - Enforce group synchronization (default: false)
+- `-o, --organization` (string) - Organization ID or name
+
+## Group Mappings
+
+Manage mappings between IdP groups and Qovery roles.
+
+### group-mappings get
+
+Get enterprise connection group mappings.
+
+**Usage:**
+```bash
+qovery enterprise-connection group-mappings get [flags]
+```
+
+**Flags:**
+- `-c, --connection` (string) - Enterprise connection name or ID
+- `-o, --organization` (string) - Organization ID or name
+
+### group-mappings add
+
+Add or modify an enterprise connection group mapping.
+
+**Usage:**
+```bash
+qovery enterprise-connection group-mappings add [flags]
+```
+
+**Flags:**
+- `-c, --connection` (string) - Enterprise connection name or ID
+- `-i, --idp-group-names` (string) - IdP group names (comma-separated)
+- `-o, --organization` (string) - Organization ID or name
+- `-q, --qovery-role` (string) - Qovery role to map to
+
+### group-mappings delete
+
+Delete enterprise connection group mapping.
+
+**Usage:**
+```bash
+qovery enterprise-connection group-mappings delete [flags]
+```
+
+**Flags:**
+- `-c, --connection` (string) - Enterprise connection name or ID
+- `-o, --organization` (string) - Organization ID or name
+- `-q, --qovery-role` (string) - Qovery role to remove mapping for

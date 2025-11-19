@@ -1,0 +1,32 @@
+---
+title: "qovery audit-log"
+description: "Interact with audit logs"
+---
+
+## Overview
+
+Interact with audit logs from your Qovery organization.
+
+## Commands
+
+### export
+
+Export audit logs for a specified date range.
+
+**Usage:**
+```bash
+qovery audit-log export [flags]
+```
+
+**Flags:**
+- `-f, --from-date` (string) - Start date for audit log export
+- `-o, --organization` (string) - Organization ID or name
+- `-t, --to-date` (string) - End date for audit log export
+
+**Example:**
+```bash
+qovery audit-log export \
+  --organization "my-org" \
+  --from-date "2024-01-01" \
+  --to-date "2024-01-31"
+```

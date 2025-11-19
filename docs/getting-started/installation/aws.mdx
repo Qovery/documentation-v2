@@ -105,29 +105,79 @@ Follow these steps to create your first Qovery cluster on AWS:
 
         ```json
         {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "ec2:*",
-                "eks:*",
-                "iam:*",
-                "elasticloadbalancing:*",
-                "autoscaling:*",
-                "logs:*",
-                "s3:*"
-              ],
-              "Resource": "*"
-            }
-          ]
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "iam:*",
+                        "s3:ListAllMyBuckets",
+                        "cloudwatch:*",
+                        "autoscaling:*",
+                        "application-autoscaling:*",
+                        "elasticloadbalancing:*",
+                        "organizations:DescribeAccount",
+                        "organizations:DescribeOrganization",
+                        "organizations:DescribeOrganizationalUnit",
+                        "organizations:DescribePolicy",
+                        "organizations:ListChildren",
+                        "organizations:ListParents",
+                        "organizations:ListPoliciesForTarget",
+                        "organizations:ListRoots",
+                        "organizations:ListPolicies",
+                        "organizations:ListTargetsForPolicy",
+                        "dynamodb:*",
+                        "ecr:*",
+                        "ec2:*",
+                        "elasticache:*",
+                        "cloudtrail:LookupEvents",
+                        "dynamodb:*",
+                        "tag:GetResources",
+                        "rds:*",
+                        "ecs:*",
+                        "eks:*",
+                        "logs:*",
+                        "events:DescribeRule",
+                        "events:DeleteRule",
+                        "events:ListRuleNamesByTarget",
+                        "events:ListTargetsByRule",
+                        "events:PutRule",
+                        "events:PutTargets",
+                        "es:AddTags",
+                        "es:RemoveTags",
+                        "es:ListTags",
+                        "es:DeleteElasticsearchDomain",
+                        "es:DescribeElasticsearchDomain",
+                        "es:CreateElasticsearchDomain",
+                        "events:RemoveTargets",
+                        "kms:*",
+                        "events:TagResource",
+                        "events:ListTagsForResource"
+                    ],
+                    "Resource": "*"
+                },
+                {
+                    "Action": [
+                        "s3:*",
+                        "sqs:*"
+                    ],
+                    "Effect": "Allow",
+                    "Resource": [
+                        "arn:aws:s3:::qovery*",
+                        "arn:aws:s3:::qovery*/*",
+                        "arn:aws:sqs:*:*:qovery*",
+                        "arn:aws:sqs:*:*:qovery*/*"
+                    ]
+                }
+            ]
         }
         ```
 
         **Setup Steps**:
 
-        1. **In Qovery Console**: Click the **CloudFormation link** shown
-           - This opens AWS CloudFormation in a new tab (you're logged in automatically)
+        1. **Open CloudFormation**: Click this link to create the IAM role
+           - [Launch CloudFormation Stack](https://console.aws.amazon.com/cloudformation/home?#/stacks/quickcreate?templateURL=https%3A%2F%2Fcloudformation-qovery-role-creation.s3.amazonaws.com%2Ftemplate.json&stackName=qovery-role-creation)
+           - This opens AWS CloudFormation in a new tab (login to AWS if needed)
 
         2. **In AWS CloudFormation Console**:
            - Click **Next** (template is pre-filled with Qovery's requirements)

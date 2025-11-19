@@ -1,0 +1,94 @@
+---
+title: "qovery completion"
+description: "Generate autocompletion scripts for your shell"
+---
+
+## Overview
+
+Generate the autocompletion script for the specified shell to enable command and flag completion.
+
+## Supported Shells
+
+### bash
+
+Generate the autocompletion script for bash.
+
+**Usage:**
+```bash
+qovery completion bash [flags]
+```
+
+**Flags:**
+- `--no-descriptions` (bool) - Disable completion descriptions (default: false)
+
+**Setup:**
+```bash
+# Load completions in current session
+source <(qovery completion bash)
+
+# Load completions for every new session
+qovery completion bash > /etc/bash_completion.d/qovery
+```
+
+### zsh
+
+Generate the autocompletion script for zsh.
+
+**Usage:**
+```bash
+qovery completion zsh [flags]
+```
+
+**Flags:**
+- `--no-descriptions` (bool) - Disable completion descriptions (default: false)
+
+**Setup:**
+```bash
+# Load completions in current session
+source <(qovery completion zsh)
+
+# Load completions for every new session (Oh-My-Zsh)
+qovery completion zsh > ~/.oh-my-zsh/completions/_qovery
+```
+
+### fish
+
+Generate the autocompletion script for fish.
+
+**Usage:**
+```bash
+qovery completion fish [flags]
+```
+
+**Flags:**
+- `--no-descriptions` (bool) - Disable completion descriptions (default: false)
+
+**Setup:**
+```bash
+# Load completions in current session
+qovery completion fish | source
+
+# Load completions for every new session
+qovery completion fish > ~/.config/fish/completions/qovery.fish
+```
+
+### powershell
+
+Generate the autocompletion script for powershell.
+
+**Usage:**
+```bash
+qovery completion powershell [flags]
+```
+
+**Flags:**
+- `--no-descriptions` (bool) - Disable completion descriptions (default: false)
+
+**Setup:**
+```powershell
+# Load completions in current session
+qovery completion powershell | Out-String | Invoke-Expression
+
+# Add to PowerShell profile for every new session
+qovery completion powershell >> $PROFILE
+```
