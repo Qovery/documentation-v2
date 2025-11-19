@@ -10,11 +10,13 @@ info:
     url: 'https://www.qovery.com'
     email: support+api+documentation@qovery.com
   x-logo:
-    url: 'https://raw.githubusercontent.com/Qovery/public-resources/master/qovery_new_logo_white.svg'
+    url: 'https://console.qovery.com/assets/logos/logo-white.svg'
     altText: Qovery
 tags:
   - name: Account
   - name: Account Info
+  - name: Alert Receivers
+  - name: Alert Rules
   - name: Admin
   - name: Application
   - name: Application Actions
@@ -247,6 +249,10 @@ x-tagGroups:
   - name: Admin
     tags:
       - User Sign Up
+  - name: Alerting
+    tags:
+      - Alert Receivers
+      - Alert Rules
 servers:
   - url: 'https://api.qovery.com'
 paths:
@@ -1474,7 +1480,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get the list and values of the advanced settings of the cluster.
-        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)
+        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)
       operationId: getClusterAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/organizationId'
@@ -3093,6 +3099,17 @@ paths:
             type: boolean
           in: query
           name: with_gpu
+          description: 'deprecated field, use `gpu` instead'
+          deprecated: true
+        - schema:
+            type: string
+            enum:
+              - ONLY
+              - INCLUDE
+              - EXCLUDE
+            default: INCLUDE
+          in: query
+          name: gpu
       tags:
         - Cloud Provider
       responses:
@@ -3122,6 +3139,18 @@ paths:
             type: boolean
           in: query
           name: with_gpu
+          description: 'deprecated field, use `gpu` instead'
+          deprecated: true
+        - schema:
+            type: string
+            enum:
+              - INCLUDE
+              - EXCLUDE
+              - ONLY
+            default: INCLUDE
+          in: query
+          name: gpu
+          deprecated: true
       tags:
         - Cloud Provider
       responses:
@@ -5956,7 +5985,7 @@ paths:
     get:
       summary: List default application advanced settings
       operationId: getDefaultApplicationAdvancedSettings
-      description: 'Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)'
+      description: 'Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)'
       tags:
         - Applications
       responses:
@@ -5973,7 +6002,7 @@ paths:
   /defaultClusterAdvancedSettings:
     get:
       summary: List default cluster advanced settings
-      description: 'Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)'
+      description: 'Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/cluster-advanced-settings/)'
       operationId: getDefaultClusterAdvancedSettings
       tags:
         - Clusters
@@ -5991,7 +6020,7 @@ paths:
   /defaultContainerAdvancedSettings:
     get:
       summary: List default container advanced settings
-      description: 'Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)'
+      description: 'Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)'
       operationId: getDefaultContainerAdvancedSettings
       tags:
         - Containers
@@ -6009,7 +6038,7 @@ paths:
   /defaultJobAdvancedSettings:
     get:
       summary: List default job advanced settings
-      description: 'Default values for each setting is available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)'
+      description: 'Default values for each setting is available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)'
       operationId: getDefaultJobAdvancedSettings
       tags:
         - Jobs
@@ -7101,7 +7130,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get list and values of the advanced settings of the application.
-        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)
+        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)
       operationId: getAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/applicationId'
@@ -7334,7 +7363,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get list and values of the advanced settings of the container.
-        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)
+        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)
       operationId: getContainerAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/containerId'
@@ -9991,7 +10020,7 @@ paths:
       summary: Get advanced settings
       description: |
         Get list and values of the advanced settings of the job.
-        Default values for each setting are available in [our documentation](https://qovery.com/docs/using-qovery/configuration/advanced-settings/)
+        Default values for each setting are available in [our documentation](https://hub.qovery.com/docs/using-qovery/configuration/advanced-settings/)
       operationId: getJobAdvancedSettings
       parameters:
         - $ref: '#/components/parameters/jobId'
@@ -11780,6 +11809,40 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+  '/organization/{organizationId}/listTfVarsFilesFromGitRepo':
+    post:
+      summary: List Terraform tfvars files from Git repository
+      operationId: listTfVarsFilesFromGitRepo
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+      tags:
+        - Organization Main Calls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TfVarsListRequest'
+      responses:
+        '200':
+          description: List of Terraform tfvars files with their variables
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TfVarsFileResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
   '/environment/{environmentId}/deploymentQueue':
     parameters:
       - schema:
@@ -12180,10 +12243,18 @@ paths:
         '404':
           $ref: '#/components/responses/404'
       parameters:
-        - schema:
+        - in: query
+          name: resources_only
+          schema:
             type: boolean
-          in: query
-          name: delete_resources_only
+            default: false
+          description: 'When true, only resources are deleted and Qovery configuration is kept.'
+        - in: query
+          name: force_terraform_action
+          required: false
+          schema:
+            $ref: '#/components/schemas/DeleteTerraformAction'
+          description: Force a specific action to be executed by Terraform during deletion.
   '/terraform/{terraformId}/advancedSettings':
     get:
       summary: Get Advanced settings
@@ -12277,6 +12348,12 @@ paths:
       operationId: uninstallTerraform
       parameters:
         - $ref: '#/components/parameters/terraformId'
+        - in: query
+          name: force_terraform_action
+          required: false
+          schema:
+            $ref: '#/components/schemas/DeleteTerraformAction'
+          description: Force a specific action to be executed by Terraform during uninstall.
       tags:
         - Terraform Actions
       requestBody:
@@ -12331,6 +12408,25 @@ paths:
       operationId: getDefaultTerraformAdvancedSettings
       x-stoplight:
         id: 5qcyy764ewhk3
+  /terraform/availableVersion:
+    get:
+      summary: List available Terraform versions
+      tags:
+        - Terraform Main Calls
+      operationId: listTerraformVersions
+      responses:
+        '200':
+          description: List available Terraform versions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerraformVersionResponseList'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
   '/terraform/{terraformId}/clone':
     post:
       summary: Clone terraform
@@ -12534,6 +12630,84 @@ paths:
       operationId: deleteTerraformDeploymentRestriction
       x-stoplight:
         id: d896flm9ibi54
+  '/terraform/{terraformId}/variables':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: terraformId
+        in: path
+        required: true
+        description: Terraform ID
+    get:
+      summary: Get terraform variables
+      operationId: getTerraformVariables
+      tags:
+        - Terraform Configuration
+      responses:
+        '200':
+          description: Get terraform variables
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerraformVariablesResponse'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    put:
+      summary: Replace all terraform variables
+      operationId: replaceAllTerraformVariables
+      tags:
+        - Terraform Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerraformVariablesReplaceRequest'
+      responses:
+        '200':
+          description: Variables replaced successfully
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  '/terraform/{terraformId}/variables/{key}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: terraformId
+        in: path
+        required: true
+        description: Terraform ID
+      - schema:
+          type: string
+        name: key
+        in: path
+        required: true
+        description: Variable key to delete
+    delete:
+      summary: Delete a terraform variable
+      operationId: deleteTerraformVariable
+      tags:
+        - Terraform Configuration
+      responses:
+        '204':
+          $ref: '#/components/responses/204-deletion'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
   '/organization/{organizationId}/credentials':
     parameters:
       - schema:
@@ -12619,6 +12793,61 @@ paths:
             type: string
           in: query
           name: direction
+        - schema:
+            type: string
+          in: query
+          name: time
+  '/organization/{organizationId}/enterpriseconnection':
+    get:
+      summary: List enterprise connections
+      operationId: listOrganizationEnterpriseConnections
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+      tags:
+        - Organization Enterprise Connection
+      responses:
+        '200':
+          description: List enterprise connections
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnterpriseConnectionResponseList'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  '/organization/{organizationId}/alert-receivers':
+    get:
+      summary: List alert receivers
+      tags:
+        - Alert Receivers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertReceiverList'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: getAlertReceivers
+      x-stoplight:
+        id: 3cqb2xpmir9n8
+      description: Retrieve all alert receivers for a specific organization
+    parameters:
+      - name: organizationId
+        in: path
+        description: Organization ID
+        required: true
+        schema:
+          type: string
+          format: uuid
   '/organization/{organizationId}/enterpriseconnection/{connectionName}':
     get:
       summary: Get enterprise connection
@@ -12667,8 +12896,240 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+  /api/alert-receivers:
+    post:
+      summary: Create alert receiver
+      tags:
+        - Alert Receivers
+      responses:
+        '201':
+          description: ' Alert receiver successfully created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertReceiverResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+      operationId: createAlertReceiver
+      x-stoplight:
+        id: 56wdp3pyd4jfy
+      description: Create a new alert receiver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertReceiverCreationRequest'
+  '/api/alert-receivers/{alertReceiverId}':
+    parameters:
+      - $ref: '#/components/parameters/alertReceiverId'
+    get:
+      summary: Get alert receiver
+      tags:
+        - Alert Receivers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertReceiverResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: getAlertReceiver
+      x-stoplight:
+        id: z0qs6btegz9c3
+      description: Retrieve a specific alert receiver by its ID
+    put:
+      summary: Update alert receiver
+      tags:
+        - Alert Receivers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertReceiverResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: editAlertReceiver
+      x-stoplight:
+        id: lcy99zdslr1cb
+      description: Update an existing alert receiver
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertReceiverEditRequest'
+    delete:
+      summary: Delete alert receiver
+      tags:
+        - Alert Receivers
+      responses:
+        '204':
+          description: Alert receiver successfully deleted
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: deleteAlertReceiver
+      x-stoplight:
+        id: vwt0mube2wcb6
+      description: Delete an alert receiver
+  /alert-rules:
+    post:
+      summary: Create alert rule
+      tags:
+        - Alert Rules
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertRuleResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+      operationId: createAlertRule
+      x-stoplight:
+        id: htbtqo7s45dzg
+      description: Create a new alert rule with PromQL expression
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRuleCreationRequest'
+  '/alert-rules/{alertRuleId}':
+    parameters:
+      - $ref: '#/components/parameters/alertRuleId'
+    get:
+      summary: Get alert rule
+      tags:
+        - Alert Rules
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertRuleResponse'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: getAlertRule
+      x-stoplight:
+        id: qfitd78wejspk
+      description: Retrieve a specific alert rule by its ID
+    put:
+      summary: Update alert rule
+      tags:
+        - Alert Rules
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertRuleResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: editAlertRule
+      x-stoplight:
+        id: cj5a3t08qw1aj
+      description: Update an existing alert rule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRuleEditRequest'
+    delete:
+      summary: Delete alert rule
+      tags:
+        - Alert Rules
+      responses:
+        '204':
+          description: Alert rule successfully deleted
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: deleteAlertRule
+      x-stoplight:
+        id: 812453spx2l0f
+      description: Delete an alert rule
+  '/organization/{organizationId}/alert-rules':
+    parameters:
+      - $ref: '#/components/parameters/organizationId'
+    get:
+      summary: List alert rules
+      tags:
+        - Alert Rules
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertRuleList'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: getAlertRules
+      x-stoplight:
+        id: xkza3tt52gwse
+      description: Retrieve all alert rules for a specific organization
 components:
   parameters:
+    alertReceiverId:
+      name: alertReceiverId
+      in: path
+      description: Alert Receiver ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+    alertRuleId:
+      name: alertRuleId
+      in: path
+      description: Alert Rule ID
+      required: true
+      schema:
+        type: string
+        format: uuid
     applicationId:
       name: applicationId
       in: path
@@ -13020,6 +13481,11 @@ components:
     TerraformBackendUserProvided:
       type: object
       description: User-provided backend configuration
+    DeleteTerraformAction:
+      type: string
+      description: Action to force a specific Terraform behavior during deletion/uninstall.
+      enum:
+        - SKIP_DESTROY
     AccountInfo:
       type: object
       properties:
@@ -13393,6 +13859,13 @@ components:
               description: unit is MB. 1024 MB = 1GB
               default: 512
               example: 1024
+            gpu:
+              type: integer
+              x-stoplight:
+                id: tkd7it621esyj
+              minimum: 0
+              default: 0
+              example: 1
             min_running_instances:
               type: integer
               minimum: 0
@@ -13426,8 +13899,8 @@ components:
               description: optional entrypoint when launching container
             auto_deploy:
               type: boolean
-              nullable: true
               description: Specify if the application will be automatically updated after receiving a new commit.
+              nullable: true
             annotations_groups:
               $ref: '#/components/schemas/ServiceAnnotationsRequestList'
             labels_groups:
@@ -13568,14 +14041,14 @@ components:
           description: |-
             Indicate the path or regex that must match for traffic to be accepted on your service
             i.e: /api/ will only accept http calls that start with /api/ 
-            Only valid for publicly_accessible HTTP or GRPC ports. 
+            Only valid for publicly_accessible HTTP or GRPC ports.
         public_path_rewrite:
           type: string
           description: |-
             Indicate the new path that will be used to reach your service after replacement
             i.e: public_path -> /(.*)  public_path_rewrite -> /api/$1 will append /api/ on all externaly requested url when reaching the service 
             external/use url -> example.com/foobar  -> url seen by the service -> example.com/api/foobar
-            Only valid for publicly_accessible HTTP or GRPC ports. 
+            Only valid for publicly_accessible HTTP or GRPC ports.
     ServicePortResponseList:
       type: array
       items:
@@ -13617,14 +14090,14 @@ components:
                 description: |-
                   Indicate the path or regex that must match for traffic to be accepted on your service
                   i.e: /api/ will only accept http calls that start with /api/ 
-                  Only valid for publicly_accessible HTTP or GRPC ports. 
+                  Only valid for publicly_accessible HTTP or GRPC ports.
               public_path_rewrite:
                 type: string
                 description: |-
                   Indicate the new path that will be used to reach your service after replacement
                   i.e: public_path -> /(.*)  public_path_rewrite -> /api/$1 will append /api/ on all externaly requested url when reaching the service 
                   external/use url -> example.com/foobar  -> url seen by the service -> example.com/api/foobar
-                  Only valid for publicly_accessible HTTP or GRPC ports. 
+                  Only valid for publicly_accessible HTTP or GRPC ports.
     ServiceAnnotationsRequestList:
       type: array
       items:
@@ -15631,6 +16104,9 @@ components:
               x-stoplight:
                 id: rboo4bgsvgfco
               description: Required if kind is `AZURE_CR`.
+            role_arn:
+              type: string
+              description: 'For ECR, you can either set a static access_key or use a role arn that we are going to assume'
     HelmVersionResponseList:
       type: object
       properties:
@@ -15986,6 +16462,7 @@ components:
         - cvv
         - expiry_month
         - expiry_year
+        - token
       properties:
         number:
           type: string
@@ -15997,6 +16474,10 @@ components:
         expiry_year:
           type: integer
           example: 2025
+        token:
+          type: string
+          description: Token generated by payment solution platform.
+          nullable: true
     CreditCardResponseList:
       type: object
       properties:
@@ -16376,6 +16857,10 @@ components:
         - DELETE
         - RESTART
         - STOP
+        - DEPLOY_DRY_RUN
+        - TERRAFORM_FORCE_UNLOCK
+        - TERRAFORM_MIGRATE_STATE
+        - DELETE_RESOURCES_ONLY
         - UNKNOWN
         - UNINSTALL
     DeploymentHistoryApplication:
@@ -16603,6 +17088,7 @@ components:
         - auditing_data
         - details
         - icon_uri
+        - status_details
       properties:
         identifier:
           type: object
@@ -17095,6 +17581,14 @@ components:
             $ref: '#/components/schemas/EnvironmentStats'
     EnvironmentStatuses:
       type: object
+      required:
+        - environment
+        - containers
+        - applications
+        - jobs
+        - databases
+        - helms
+        - terraforms
       properties:
         environment:
           $ref: '#/components/schemas/EnvironmentStatus'
@@ -19276,6 +19770,9 @@ components:
         user_agent:
           type: string
           nullable: true
+        original_change:
+          type: string
+          nullable: true
       description: ''
       title: ''
     OrganizationEventResponseList:
@@ -19399,7 +19896,8 @@ components:
         - TRIGGER_DELETE
         - TRIGGER_UNINSTALL
         - TRIGGER_DEPLOY_DRY_RUN
-        - TRIGGER_FORCE_UNLOCK_STATE
+        - TRIGGER_TERRAFORM_FORCE_UNLOCK
+        - TRIGGER_TERRAFORM_MIGRATE_STATE
         - TRIGGER_FORCE_RUN
         - TRIGGER_FORCE_RUN_DEPLOY
         - TRIGGER_FORCE_RUN_STOP
@@ -19411,7 +19909,8 @@ components:
         - RESTARTED
         - DEPLOYED_DRY_RUN
         - FORCE_RUN_SUCCEEDED
-        - FORCE_UNLOCK_STATE_SUCCEEDED
+        - TERRAFORM_FORCE_UNLOCK_SUCCEEDED
+        - TERRAFORM_MIGRATE_STATE_SUCCEEDED
         - DEPLOY_FAILED
         - STOP_FAILED
         - DELETE_FAILED
@@ -19419,7 +19918,8 @@ components:
         - RESTART_FAILED
         - DEPLOYED_DRY_RUN_FAILED
         - FORCE_RUN_FAILED
-        - FORCE_UNLOCK_STATE_FAILED
+        - TERRAFORM_FORCE_UNLOCK_FAILED
+        - TERRAFORM_MIGRATE_STATE_FAILED
         - SHELL
         - SSO
         - PORT_FORWARD
@@ -19818,7 +20318,7 @@ components:
           example: 20
     PlanEnum:
       type: string
-      description: BUSINESS & PROFESSIONAL are deprecated
+      description: 'FREE, BUSINESS & PROFESSIONAL are deprecated. 2025 plans are the new plans available.'
       enum:
         - FREE
         - TEAM
@@ -19827,6 +20327,10 @@ components:
         - ENTERPRISE_YEARLY
         - PROFESSIONAL
         - BUSINESS
+        - USER_2025
+        - TEAM_2025
+        - BUSINESS_2025
+        - ENTERPRISE_2025
     PortProtocolEnum:
       type: string
       default: HTTP
@@ -20348,6 +20852,16 @@ components:
         - RESTART
         - STOP
         - UNKNOWN
+    ServiceSubActionEnum:
+      type: string
+      default: NONE
+      enum:
+        - NONE
+        - TERRAFORM_PLAN_ONLY
+        - TERRAFORM_PLAN_AND_APPLY
+        - TERRAFORM_DESTROY
+        - TERRAFORM_FORCE_UNLOCK_STATE
+        - TERRAFORM_MIGRATE_STATE
     ServiceActionStatusEnum:
       type: string
       enum:
@@ -20404,6 +20918,9 @@ components:
         - state
         - service_deployment_status
         - status_details
+        - is_part_last_deployment
+        - deployment_requests_count
+        - deployment_request_id
       properties:
         id:
           type: string
@@ -20440,11 +20957,14 @@ components:
       required:
         - action
         - status
+        - sub_action
       properties:
         action:
           $ref: '#/components/schemas/ServiceActionEnum'
         status:
           $ref: '#/components/schemas/ServiceActionStatusEnum'
+        sub_action:
+          $ref: '#/components/schemas/ServiceSubActionEnum'
     Stage:
       type: object
       required:
@@ -20884,6 +21404,10 @@ components:
             $ref: '#/components/schemas/StageStepMetric'
     ServiceStepMetrics:
       type: object
+      required:
+        - total_duration_sec
+        - total_computing_duration_sec
+        - details
       properties:
         total_duration_sec:
           description: The total duration in seconds of the service deployment or null if the deployment is not completed.
@@ -21168,12 +21692,13 @@ components:
                   properties:
                     image:
                       $ref: '#/components/schemas/ContainerSource'
+                  type: object
                 - required:
                     - docker
                   properties:
                     docker:
                       $ref: '#/components/schemas/JobSourceDockerResponse'
-              type: object
+                  type: object
             healthchecks:
               $ref: '#/components/schemas/Healthcheck'
             auto_deploy:
@@ -22019,6 +22544,18 @@ components:
             id: 38pdri17ozql9
           items:
             $ref: '#/components/schemas/KarpenterNodePoolRequirement'
+        disk_size_in_gib:
+          type: integer
+          x-stoplight:
+            id: xq5ycmme7o025
+          minimum: 0
+          default: 100
+          example: 150
+        spot_enabled:
+          type: boolean
+          x-stoplight:
+            id: rjzxs0e2rn0ij
+          default: false
     KarpenterDefaultNodePoolOverride:
       title: KarpenterDefaultNodePoolOverride
       type: object
@@ -22072,6 +22609,7 @@ components:
         - enabled
         - max_cpu_in_vcpu
         - max_memory_in_gibibytes
+        - max_gpu
       properties:
         enabled:
           type: boolean
@@ -22083,6 +22621,14 @@ components:
         max_memory_in_gibibytes:
           type: integer
           description: 'Memory limit that will be applied for the node pool (in Gibibytes unit: 1Gi = 1024 mebibytes)'
+        max_gpu:
+          type: integer
+          x-stoplight:
+            id: fn3k34ck5abe4
+          default: 0
+          example: 10
+          minimum: 0
+          description: GPU limit that will be applied for the node pool
     ClusterLockRequest:
       title: ClusterLockRequest
       x-stoplight:
@@ -22441,6 +22987,18 @@ components:
             id: i8z3rzufjt5uk
           enum:
             - MANAGED_BY_QOVERY
+        resource_profile:
+          $ref: '#/components/schemas/ObservabilityResourceProfile'
+        cloud_watch_export_config:
+          $ref: '#/components/schemas/CloudWatchExportConfig'
+        high_availability:
+          type: boolean
+          x-stoplight:
+            id: zs2zhdd1p5e6q
+        internal_network_monitoring:
+          $ref: '#/components/schemas/InternalNetworkMonitoring'
+        alerting:
+          $ref: '#/components/schemas/AlertingConfig'
     InfrastructureOutputs:
       type: object
       required:
@@ -22613,6 +23171,10 @@ components:
           type: string
           x-stoplight:
             id: u776tz269mjb0
+    TerraformEngineEnum:
+      enum:
+        - TERRAFORM
+        - OPEN_TOFU
     TerraformRequest:
       title: TerraformRequest
       x-stoplight:
@@ -22621,12 +23183,11 @@ components:
       required:
         - name
         - description
-        - auto_approve
         - auto_deploy
         - terraform_files_source
         - terraform_variables_source
         - backend
-        - provider
+        - engine
         - provider_version
         - job_resources
       properties:
@@ -22638,10 +23199,6 @@ components:
           type: string
           x-stoplight:
             id: ltvpnbhjz1oho
-        auto_approve:
-          type: boolean
-          x-stoplight:
-            id: zxy6gcsq4q6bc
         auto_deploy:
           type: boolean
           x-stoplight:
@@ -22656,11 +23213,8 @@ components:
           $ref: '#/components/schemas/TerraformVariablesSourceRequest'
         backend:
           $ref: '#/components/schemas/TerraformBackend'
-        provider:
-          x-stoplight:
-            id: w8o05dpbvcxp1
-          enum:
-            - TERRAFORM
+        engine:
+          $ref: '#/components/schemas/TerraformEngineEnum'
         provider_version:
           $ref: '#/components/schemas/TerraformProviderVersion'
         timeout_sec:
@@ -22702,12 +23256,11 @@ components:
           required:
             - name
             - timeout_sec
-            - auto_approve
             - auto_deploy
             - icon_uri
             - service_type
             - terraform_variables_source
-            - provider
+            - engine
             - backend
             - provider_version
             - job_resources
@@ -22724,8 +23277,6 @@ components:
               type: integer
               minimum: 0
               default: 600
-            auto_approve:
-              type: boolean
             auto_deploy:
               type: boolean
             terraform_files_source:
@@ -22744,11 +23295,8 @@ components:
               $ref: '#/components/schemas/ServiceTypeEnum'
             terraform_variables_source:
               $ref: '#/components/schemas/TerraformVariablesSourceResponse'
-            provider:
-              x-stoplight:
-                id: d2ykapq57se4s
-              enum:
-                - TERRAFORM
+            engine:
+              $ref: '#/components/schemas/TerraformEngineEnum'
             backend:
               $ref: '#/components/schemas/TerraformBackend'
             provider_version:
@@ -22870,6 +23418,47 @@ components:
           type: boolean
           x-stoplight:
             id: df80p2az3whjg
+    TerraformVariablesResponse:
+      title: TerraformVariablesResponse
+      type: object
+      description: Response containing list of Terraform variables
+      required:
+        - variables
+      properties:
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/TerraformVariableResponse'
+    TerraformVariablesReplaceRequest:
+      title: TerraformVariablesReplaceRequest
+      type: object
+      description: 'Request to atomically replace all Terraform variables. Note: For secret variables, use value "SECRET_VALUE_UNCHANGED" to preserve the existing secret value.'
+      required:
+        - variables
+      properties:
+        variables:
+          type: array
+          description: Complete list of variables to set (replaces all existing variables)
+          items:
+            $ref: '#/components/schemas/TerraformVarKeyValue'
+    TerraformVariableResponse:
+      title: TerraformVariableResponse
+      type: object
+      description: A Terraform variable with its configuration
+      required:
+        - key
+        - secret
+      properties:
+        key:
+          type: string
+          description: The variable key/name
+        value:
+          type: string
+          nullable: true
+          description: The variable value (null if secret and not exposed)
+        secret:
+          type: boolean
+          description: Whether the variable is secret
     TerraformVariableDefinition:
       title: TerraformVariableDefinition
       type: object
@@ -22877,6 +23466,7 @@ components:
       required:
         - key
         - sensitive
+        - source
       properties:
         key:
           type: string
@@ -22888,6 +23478,9 @@ components:
           type: string
           nullable: true
           description: 'The default value of the variable, or null if no default is provided'
+        source:
+          type: string
+          description: The path inside your git repository where the variable is defined
     TerraformFilesSourceRequest:
       title: TerraformFilesSourceRequest
       x-stoplight:
@@ -22929,6 +23522,7 @@ components:
       type: object
       required:
         - tf_var_file_paths
+        - tf_vars
       properties:
         tf_var_file_paths:
           type: array
@@ -22938,6 +23532,86 @@ components:
             x-stoplight:
               id: qsy17gz9fl3n3
             type: string
+        tf_vars:
+          type: array
+          items:
+            $ref: '#/components/schemas/TerraformVarKeyValue'
+    TfVarsListRequest:
+      title: TfVarsListRequest
+      type: object
+      description: Request to list Terraform tfvars files from a Git repository
+      required:
+        - git_repository
+        - mode
+      properties:
+        git_repository:
+          $ref: '#/components/schemas/ApplicationGitRepositoryRequest'
+        mode:
+          $ref: '#/components/schemas/TfVarsDiscoveryMode'
+    TfVarsDiscoveryMode:
+      title: TfVarsDiscoveryMode
+      description: Discovery mode for Terraform tfvars files - either auto-discover or specify paths
+      oneOf:
+        - $ref: '#/components/schemas/TfVarsDiscoveryModeAutoDiscover'
+        - $ref: '#/components/schemas/TfVarsDiscoveryModeSpecificPaths'
+      discriminator:
+        propertyName: type
+        mapping:
+          AutoDiscover: '#/components/schemas/TfVarsDiscoveryModeAutoDiscover'
+          SpecificPaths: '#/components/schemas/TfVarsDiscoveryModeSpecificPaths'
+    TfVarsDiscoveryModeAutoDiscover:
+      title: TfVarsDiscoveryModeAutoDiscover
+      type: object
+      description: Automatically discover all tfvars files in the repository
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - AutoDiscover
+          description: Discriminator for auto-discovery mode
+    TfVarsDiscoveryModeSpecificPaths:
+      title: TfVarsDiscoveryModeSpecificPaths
+      type: object
+      description: Discover tfvars files at specific paths only
+      required:
+        - type
+        - paths
+      properties:
+        type:
+          type: string
+          enum:
+            - SpecificPaths
+          description: Discriminator for specific paths mode
+        paths:
+          type: array
+          items:
+            type: string
+          description: List of specific paths to tfvars files
+          example:
+            - /environments/prod.tfvars
+            - /environments/staging.tfvars
+    TfVarsFileResponse:
+      title: TfVarsFileResponse
+      type: object
+      description: Represents a Terraform tfvars file with its variables
+      required:
+        - source
+        - variables
+      properties:
+        source:
+          type: string
+          description: The path to the tfvars file within the Git repository
+          example: environments/prod.tfvars
+        variables:
+          type: object
+          additionalProperties:
+            type: string
+          description: Map of variable names to their values from the tfvars file
+          example:
+            environment: production
+            region: us-east-1
     TerraformJobResourcesResponse:
       title: TerraformJobResourcesResponse
       x-stoplight:
@@ -22980,6 +23654,24 @@ components:
             id: mkzx2zfzysbnp
           items:
             $ref: '#/components/schemas/TerraformResponse'
+    TerraformVersionResponse:
+      type: object
+      required:
+        - engine
+        - version
+      properties:
+        engine:
+          $ref: '#/components/schemas/TerraformEngineEnum'
+        version:
+          type: string
+          description: Terraform version string
+    TerraformVersionResponseList:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TerraformVersionResponse'
     TerraformAdvancedSettings:
       title: TerraformAdvancedSettings
       x-stoplight:
@@ -23037,9 +23729,8 @@ components:
           description: Terraform action to execute.
           enum:
             - PLAN
-            - PLAN_AND_APPLY
             - FORCE_UNLOCK
-            - DESTROY
+            - MIGRATE_STATE
     TerraformDeploymentRestrictionRequest:
       title: TerraformDeploymentRestrictionRequest
       x-stoplight:
@@ -23201,14 +23892,26 @@ components:
             x-stoplight:
               id: lstjwwfo9ys6i
             type: string
+    EnterpriseConnectionResponseList:
+      title: EnterpriseConnectionResponseList
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnterpriseConnectionDto'
     EnterpriseConnectionDto:
       title: EnterpriseConnectionDto
       type: object
       required:
+        - connection_name
         - default_role
         - enforce_group_sync
         - group_mappings
       properties:
+        connection_name:
+          type: string
+          description: The connection name
         default_role:
           type: string
           description: |
@@ -23236,6 +23939,535 @@ components:
             items:
               type: string
               nullable: false
+    AlertReceiverCreationRequest:
+      title: AlertReceiverCreationRequest
+      x-stoplight:
+        id: q1oj36zhkhmvp
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          SLACK: '#/components/schemas/SlackAlertReceiverCreationRequest'
+      x-internal: false
+      required:
+        - organization_id
+        - name
+        - description
+        - type
+        - send_resolved
+      properties:
+        organization_id:
+          type: string
+          x-stoplight:
+            id: bojx2ynimjvnr
+          format: uuid
+        name:
+          type: string
+          x-stoplight:
+            id: vhcpsitoy9mm1
+        description:
+          type: string
+          x-stoplight:
+            id: lrlxf8a34veta
+        type:
+          $ref: '#/components/schemas/AlertReceiverType'
+        send_resolved:
+          type: boolean
+          x-stoplight:
+            id: ucf1p0q2vpohv
+    SlackAlertReceiverCreationRequest:
+      title: SlackAlertReceiverCreationRequest
+      x-stoplight:
+        id: awuv9zidg4qxx
+      allOf:
+        - $ref: '#/components/schemas/AlertReceiverCreationRequest'
+        - type: object
+          x-stoplight:
+            id: jw3lis4cbm2nf
+          required:
+            - webhook_url
+          properties:
+            webhook_url:
+              type: string
+              x-stoplight:
+                id: dre0gsq0bs0xv
+              format: uri
+    AlertReceiverType:
+      title: AlertReceiverType
+      x-stoplight:
+        id: 79fodqa89swh7
+      enum:
+        - SLACK
+    AlertReceiverEditRequest:
+      title: AlertReceiverEditRequest
+      x-stoplight:
+        id: y2od6vkbmt7yr
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          SLACK: '#/components/schemas/SlackAlertReceiverEditRequest'
+      required:
+        - name
+        - description
+        - type
+        - send_resolved
+      properties:
+        name:
+          type: string
+          x-stoplight:
+            id: x7yi5mef1y2le
+        description:
+          type: string
+          x-stoplight:
+            id: 0l6xifjl3s4e2
+        type:
+          $ref: '#/components/schemas/AlertReceiverType'
+        send_resolved:
+          type: boolean
+          x-stoplight:
+            id: hk2x1t8ixk5sf
+    SlackAlertReceiverEditRequest:
+      title: SlackAlertReceiverEditRequest
+      x-stoplight:
+        id: hcxf6sxx1jrv9
+      allOf:
+        - $ref: '#/components/schemas/AlertReceiverEditRequest'
+        - type: object
+          x-stoplight:
+            id: 0nkbeafo42gqk
+          properties:
+            webhook_url:
+              type: string
+              x-stoplight:
+                id: 8c5ze7hwv90q2
+              nullable: true
+    AlertReceiverResponse:
+      title: AlertReceiverResponse
+      x-stoplight:
+        id: qyrx61cvx84cz
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          required:
+            - name
+            - description
+            - type
+            - send_resolved
+          properties:
+            name:
+              type: string
+              x-stoplight:
+                id: 5zeqm4fc5c8bf
+            description:
+              type: string
+              x-stoplight:
+                id: aja5apvg882lo
+            type:
+              $ref: '#/components/schemas/AlertReceiverType'
+            send_resolved:
+              type: boolean
+              x-stoplight:
+                id: xpyx1p6hna34g
+    AlertReceiverList:
+      title: AlertReceiverList
+      x-stoplight:
+        id: adq5zt8oqtve1
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          x-stoplight:
+            id: e8a6xqrax75d5
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertReceiverResponse'
+    AlertPresentation:
+      title: AlertPresentation
+      x-stoplight:
+        id: csg2krsbv2i40
+      type: object
+      properties:
+        summary:
+          type: string
+          x-stoplight:
+            id: 4q8s7z1uu8kvm
+          nullable: true
+        runbook_url:
+          type: string
+          x-stoplight:
+            id: fe7wk13airhnu
+          description: URL to runbook with remediation steps
+          format: uri
+          nullable: true
+    AlertRuleCreationRequest:
+      title: AlertRuleCreationRequest
+      x-stoplight:
+        id: mcgiquvv7m2vp
+      type: object
+      required:
+        - organization_id
+        - cluster_id
+        - name
+        - description
+        - promql_expr
+        - for_duration
+        - severity
+        - presentation
+        - enabled
+        - alert_receiver_ids
+        - target
+      properties:
+        organization_id:
+          type: string
+          x-stoplight:
+            id: qe8mxuqf5rerq
+          format: uuid
+          description: Organization identifier
+        cluster_id:
+          type: string
+          x-stoplight:
+            id: luojx47y8mgl1
+          format: uuid
+          description: ' Cluster identifier where the rule will be deployed'
+        name:
+          type: string
+          x-stoplight:
+            id: 7ih1egmfghew9
+          description: Name of the alert rule
+        description:
+          type: string
+          x-stoplight:
+            id: jhc5u599bha5a
+          description: |
+            Description of what the alert monitors
+        promql_expr:
+          type: string
+          x-stoplight:
+            id: 2ojznqgimdacq
+          description: PromQL expression to evaluate
+        for_duration:
+          type: string
+          x-stoplight:
+            id: 8jk0kcca7whc6
+          description: Duration the condition must be true before firing (ISO-8601 duration format)
+          format: duration
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+        presentation:
+          $ref: '#/components/schemas/AlertPresentation'
+        enabled:
+          type: boolean
+          x-stoplight:
+            id: 0ksuq2b0flii5
+          description: Whether the alert rule is enabled
+        alert_receiver_ids:
+          type: array
+          x-stoplight:
+            id: oy3dbybxgmvs5
+          description: List of alert receiver IDs to send notifications to
+          minItems: 1
+          items:
+            x-stoplight:
+              id: cc3sm9sjduuqf
+            type: string
+            format: uuid
+        target:
+          $ref: '#/components/schemas/AlertTarget'
+    AlertSeverity:
+      title: AlertSeverity
+      x-stoplight:
+        id: 74rrc7nvxpc30
+      description: |-
+        Alert severity level:
+                - LOW: Minor issues or informational alerts that don't require immediate attention. Can be addressed during normal business hours.
+                - MEDIUM: Moderate issues that should be investigated soon but don't impact critical services. May cause degraded performance or minor service disruption.
+                - HIGH: Serious issues affecting service quality or availability. Requires prompt attention and resolution within hours.
+                - CRITICAL: Critical issue requiring immediate action. Service outage, data loss risk, or severe performance degradation affecting users.
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+        - CRITICAL
+    AlertRuleEditRequest:
+      title: AlertRuleEditRequest
+      x-stoplight:
+        id: 6914x54u4sgg0
+      type: object
+      required:
+        - name
+        - description
+        - promql_expr
+        - for_duration
+        - severity
+        - enabled
+        - alert_receiver_ids
+        - presentation
+      properties:
+        name:
+          type: string
+          x-stoplight:
+            id: 7zbib93n861tt
+          description: Name of the alert rule
+        description:
+          type: string
+          x-stoplight:
+            id: 2xpgzz03za6jo
+          description: Description of what the alert monitors
+        promql_expr:
+          type: string
+          x-stoplight:
+            id: 6smsj3iavzowc
+          description: PromQL expression to evaluate
+        for_duration:
+          type: string
+          x-stoplight:
+            id: auoq20czr9ouh
+          format: duration
+          description: Duration the condition must be true before firing (ISO-8601 duration format)
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+        enabled:
+          type: boolean
+          x-stoplight:
+            id: uayodiines5vd
+          description: Whether the alert rule is enabled
+        alert_receiver_ids:
+          type: array
+          x-stoplight:
+            id: n42yd3ffbfzdq
+          description: List of alert receiver IDs to send notifications to
+          minItems: 1
+          items:
+            x-stoplight:
+              id: xt3qvn76g9znl
+            type: string
+            format: uuid
+        presentation:
+          $ref: '#/components/schemas/AlertPresentation'
+    AlertPresentationResponse:
+      title: AlertPresentationResponse
+      x-stoplight:
+        id: dx514vxebudw0
+      type: object
+      properties:
+        summary:
+          type: string
+          x-stoplight:
+            id: z5t89ub093022
+          description: ' Alert summary template'
+          nullable: true
+        runbook_url:
+          type: string
+          x-stoplight:
+            id: kf94o17fes7zl
+          description: URL to runbook with remediation steps
+          format: uri
+          nullable: true
+    AlertRuleResponse:
+      title: AlertRuleResponse
+      x-stoplight:
+        id: jsi9jy70651hv
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          required:
+            - organization_id
+            - cluster_id
+            - name
+            - description
+            - promql_expr
+            - for_duration
+            - severity
+            - enabled
+            - alert_receiver_ids
+            - presentation
+            - target
+            - state
+            - is_up_to_date
+          properties:
+            organization_id:
+              type: string
+              x-stoplight:
+                id: 40agisyi9s6no
+              format: uuid
+              description: Organization identifier
+            cluster_id:
+              type: string
+              x-stoplight:
+                id: nd3oz9h1qpa6w
+              description: ' Cluster identifier'
+              format: uuid
+            name:
+              type: string
+              x-stoplight:
+                id: 866jtxgaipphh
+              description: |
+                Name of the alert rule
+            description:
+              type: string
+              x-stoplight:
+                id: r728dl0e8ef6x
+              description: Description of what the alert monitors
+            promql_expr:
+              type: string
+              x-stoplight:
+                id: 5e2ku0srk67e7
+              description: PromQL expression to evaluate
+            for_duration:
+              type: string
+              x-stoplight:
+                id: 3aceb4kbdv4pz
+              format: duration
+              description: Duration the condition must be true before firing (ISO-8601 duration format)
+            severity:
+              $ref: '#/components/schemas/AlertSeverity'
+            enabled:
+              type: boolean
+              x-stoplight:
+                id: du2v3ss6fb66f
+              description: Whether the alert rule is enabled
+            alert_receiver_ids:
+              type: array
+              x-stoplight:
+                id: 7lerayyele2ss
+              description: List of alert receiver IDs to send notifications to
+              items:
+                x-stoplight:
+                  id: xdka1kakao7s0
+                type: string
+                format: uuid
+            presentation:
+              $ref: '#/components/schemas/AlertPresentationResponse'
+            target:
+              $ref: '#/components/schemas/AlertTarget'
+            state:
+              $ref: '#/components/schemas/AlertRuleState'
+            is_up_to_date:
+              type: boolean
+              x-stoplight:
+                id: 4nfaupf2l1668
+              description: |-
+                Indicates whether the current version of the alert has been synced with the alerting system.
+                If false, an outdated version is currently deployed.
+    AlertTargetType:
+      title: AlertTargetType
+      x-stoplight:
+        id: y45ivkwhr7wb4
+      enum:
+        - ' CLUSTER'
+        - ENVIRONMENT
+        - APPLICATION
+        - CONTAINER
+        - JOB
+        - CRONJOB
+        - HELM
+        - TERRAFORM
+      description: The target of an alert
+    AlertTarget:
+      title: AlertTarget
+      x-stoplight:
+        id: rv11vyq7cy4dn
+      type: object
+      required:
+        - target_type
+        - target_id
+      properties:
+        target_type:
+          $ref: '#/components/schemas/AlertTargetType'
+        target_id:
+          type: string
+          x-stoplight:
+            id: 8begp36fsknxq
+          format: uuid
+    AlertRuleState:
+      title: AlertRuleState
+      x-stoplight:
+        id: 05u4rv9rrfvcp
+      enum:
+        - UNDEPLOYED
+        - OK
+        - TRIGGERED
+        - PENDING_NOTIFICATION
+        - NOTIFIED
+        - SUPPRESSED
+        - UNROUTED
+    AlertRuleList:
+      title: AlertRuleList
+      x-stoplight:
+        id: hawsqfl98nqlz
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          x-stoplight:
+            id: nsk4tfkil7yuf
+          items:
+            $ref: '#/components/schemas/AlertRuleResponse'
+    ObservabilityResourceProfile:
+      title: ObservabilityResourceProfile
+      x-stoplight:
+        id: 3a3rea0t85miz
+      enum:
+        - LOW
+        - NORMAL
+        - HIGH
+    CloudWatchExportConfig:
+      title: CloudWatchExportConfig
+      x-stoplight:
+        id: 69hi4weirghk5
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          description: To enable the cloudwatch exporter.
+          type: boolean
+          x-stoplight:
+            id: zxwl3n47xffu4
+    InternalNetworkMonitoring:
+      title: InternalNetworkMonitoring
+      x-stoplight:
+        id: d9zr14swvmont
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          x-stoplight:
+            id: 8fvsh62tnjurc
+    AlertingConfig:
+      title: AlertingConfig
+      x-stoplight:
+        id: 079kamufdt1pm
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          x-stoplight:
+            id: spv3usiee6mc9
+        default_rule_labels:
+          type: string
+          x-stoplight:
+            id: tsp767d421sed
+        spec_config_secret:
+          type: string
+          x-stoplight:
+            id: vhloqa7s6ta17
+        spec_external_url:
+          type: string
+          x-stoplight:
+            id: 53c0p049mktbg
+        config_name:
+          type: string
+          x-stoplight:
+            id: 6ueyhx8jelz3f
   responses:
     '204':
       description: no content
@@ -23259,7 +24491,7 @@ components:
       type: apiKey
       in: header
       name: Authorization
-      description: 'Token API are generated by Qovery to manage machine to machine interaction and do not have a TTL. Prefix your token with "Token ". Curl Example: curl https://console.qovery.com/organization -H "Authorization: Token $qovery_token"'
+      description: 'Token API are generated by Qovery to manage machine to machine interaction and do not have a TTL. Curl Example '' curl https://console.qovery.com/organization -H "Authorization: Token $qovery_token" '''
 security:
-  - ApiKeyAuth: []
   - bearerAuth: []
+  - ApiKeyAuth: []
