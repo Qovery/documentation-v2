@@ -1,2 +1,2 @@
 # documentation-v2
-Qovery Documentation v3
+Qovery Documentation v2
