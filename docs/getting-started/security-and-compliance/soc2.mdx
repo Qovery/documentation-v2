@@ -16,15 +16,21 @@ This documentation outlines configuration settings for achieving SOC2 compliance
 
 In the [Cluster Advanced Settings](/configuration/clusters#advanced-settings), you will find several configurable options to enhance compliance with SOC2. Here are the key settings:
 
-### AWS CloudWatch <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" />
+### AWS CloudWatch
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 To meet SOC2 retention requirements, set the `aws.cloudwatch.eks_logs_retention_days` to at least 365 days.
 
-### Application Logs Retention <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### Application Logs Retention
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 To meet SOC2 retention requirements, and store applications/containers logs in the object storage used by Loki, set the `loki.log_retention_in_week` to at least 365 days.
 
-### VPC flow logs <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### VPC flow logs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 Enable VPC flow logs to monitor and maintain network traffic visibility:
 
@@ -36,14 +42,18 @@ On GCP:
 * Set `gcp.vpc.enable_flow_logs` to `true`.
 * Set `gcp.vpc.flow_logs_sampling` to `1.0` to capture all network traffic.
 
-### Databases access <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### Databases access
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 Qovery allows databases to be publicly accessible for convenience; however, to comply with SOC2, it's recommended to [restrict this access](/configuration/clusters#advanced-settings) to secure your databases by changing the value of those settings:
 
 * `database.<database type>.deny_public_access`: set the CIDR ranges permitted to access the database.
 * `database.<database type>.allowed_cidrs`: limit access to only your VPC CIDR or other specified IP ranges.
 
-### Kubernetes API access <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### Kubernetes API access
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 By default, cloud providers allow public access to the Kubernetes API, which is secured by TLS certificates. AWS and GCP provide an added layer of security by requiring account-based dual authentication.
 
@@ -55,11 +65,15 @@ SOC2 compliance, however, mandates restricted access to the Kubernetes API. To a
 Please refer to the [dedicated documentation section](/configuration/clusters#advanced-settings), you have to create a Dockerhub account and link it to Qovery to avoid rate limit.
 </Info>
 
-### Container images retention time <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" class="badge-icon-scaleway-light" /><img src="/images/logos/cloud-providers/scaleway-icon-dark.svg" alt="Scaleway" class="badge-icon-scaleway-dark" /> <img src="/images/logos/cloud-providers/gcp-icon-new.svg" alt="GCP" class="badge-icon" />
+### Container images retention time
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 SOC2 requires that images be retained for a minimum of 365 days. To meet this requirement, set the `registry.image_retention_time` to at least 365 days.
 
-### AWS EC2 metadata access <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" />
+### AWS EC2 metadata access
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 To comply with SOC2, restrict access to the AWS EC2 metadata service.
 
@@ -67,7 +81,9 @@ Set `aws.eks.ec2.metadata_imds` to `required` to prevent unauthorized access to 
 
 ## Additional Actions
 
-### AWS S3 <img src="/images/logos/cloud-providers/aws-icon-light.svg" alt="AWS" class="badge-icon-aws-light" /><img src="/images/logos/cloud-providers/aws-icon-dark.svg" alt="AWS" class="badge-icon-aws-dark" />
+### AWS S3
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 To comply with SOC2 requirements for data integrity and protection:
 - S3 versioning is automatically enabled by Qovery to maintain object history
