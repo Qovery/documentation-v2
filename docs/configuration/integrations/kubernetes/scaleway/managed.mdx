@@ -46,6 +46,23 @@ description: "Learn how to configure your Scaleway Kubernetes clusters on Qovery
     To confirm, click `Next`.
   </Step>
 
+  <Step title="Configure Network">
+    In the `Configure Network` window, configure your cluster networking options:
+
+    * **Static IP for egress traffic**: Enable this option if your applications need to connect to external services that require IP allowlisting. When enabled, your cluster will use a fixed public IP address for all outbound traffic.
+    * **NAT Gateway type**: Select the appropriate gateway size based on your expected outbound traffic requirements:
+      - **VPC-GW-S** (Up to 100 Mbps): Small development environments, low traffic
+      - **VPC-GW-M** (Up to 1 Gbps): Standard production workloads
+      - **VPC-GW-L** (Up to 3 Gbps): High-traffic applications
+      - **VPC-GW-XL** (Up to 10 Gbps): Very high-traffic, enterprise workloads
+
+    <Info>
+    The Static IP feature is useful when connecting to external databases, third-party APIs, or enterprise services that require IP allowlisting. See [Scaleway Public Gateway documentation](https://www.scaleway.com/en/docs/network/vpc/concepts/#public-gateways) for more details.
+    </Info>
+
+    To confirm, click `Next`.
+  </Step>
+
   <Step title="Create and Install">
     In the `Ready to install your cluster` window, check that the services needed to install your cluster are correct.
 
@@ -105,3 +122,36 @@ This is your cloud provider container registry used by Qovery to manage the depl
 The credentials configured on this registry are the one used to create the cluster. But you can still update them if you prefer to manage them separately (dedicated pair of creds just to access the registry).
 
 Check [this link](/configuration/deployment/image-mirroring) for more information.
+
+### Network
+
+In the **Network** tab, you can configure advanced networking options for your Scaleway Kapsule cluster.
+
+#### Static IP for Egress Traffic
+
+By default, Scaleway clusters use random public IPs for outbound traffic. Enable the **Static IP for egress traffic** option if your applications need to connect to external services that require IP allowlisting.
+
+**When to use:**
+- External databases with IP-based authentication
+- Third-party APIs requiring IP allowlisting
+- Enterprise services with strict security policies
+- Partner integrations that need stable source IPs
+
+**To enable:**
+1. Navigate to the **Network** tab in your cluster settings
+2. Enable **Static IP for egress traffic**
+3. Select the appropriate NAT Gateway type based on your traffic requirements
+4. Click **Update** to apply the changes
+
+**NAT Gateway Types:**
+
+| Gateway Type | Bandwidth | Use Case |
+|--------------|-----------|----------|
+| **VPC-GW-S** | Up to 100 Mbps | Small development environments, low traffic |
+| **VPC-GW-M** | Up to 1 Gbps | Standard production workloads |
+| **VPC-GW-L** | Up to 3 Gbps | High-traffic applications |
+| **VPC-GW-XL** | Up to 10 Gbps | Very high-traffic, enterprise workloads |
+
+<Info>
+Once enabled, all outbound traffic from your cluster will use the assigned static IP address instead of random IPs. Choose the gateway size that matches your expected outbound traffic volume. For detailed specifications and pricing, see [Scaleway Public Gateway documentation](https://www.scaleway.com/en/docs/network/vpc/concepts/#public-gateways) and [pricing](https://www.scaleway.com/en/pricing/network/).
+</Info>
