@@ -204,7 +204,6 @@ Qovery implements comprehensive encryption strategies to protect your data throu
         - EBS volumes are encrypted with AWS KMS
         - RDS databases and snapshots are encrypted at rest with KMS
         - S3 bucket for VPC flow logs use server-side encryption (SSE-S3 or SSE-KMS)
-
       </Tab>
 
       <Tab title="GCP">
@@ -215,32 +214,7 @@ Qovery implements comprehensive encryption strategies to protect your data throu
 
       <Tab title="Azure">
         **Encryption Features:**
-        - Managed disk encryption with Azure Disk Encryption
-        - Azure Database encryption at rest
-        - Azure Storage encryption (SSE)
-        - Azure Key Vault for certificates
-        - Key Vault for secret management
-
-        **Key Management:**
-        - Azure Key Vault for keys
-        - Customer-managed keys available
-        - Automatic rotation support
-        - Azure Monitor for key activity
-      </Tab>
-
-      <Tab title="Scaleway">
-        **Encryption Features:**
-        - Block storage encryption
-        - Database encryption at rest
-        - Object Storage encryption
-        - Managed certificates
-        - Secret management
-
-        **Key Management:**
-        - Scaleway KMS
-        - Automatic encryption for all storage
-        - Backup encryption included
-        - Activity logging available
+        - Server-side Encryption of disk storage using AES 256. See [Azure's Documentation →](https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption)
       </Tab>
     </Tabs>
   </Accordion>
