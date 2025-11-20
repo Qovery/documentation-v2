@@ -8,14 +8,14 @@ description: "How Qovery keeps your data secure"
 **Qovery is designed so your data always stays within your own infrastructure.** This core design principle ensures maximum security and control.
 
 <Info>
-Qovery operates as a control plane that only transfers metadata using gRPC/TLS. All your application data, databases, and workloads remain exclusively within your cloud infrastructure.
+Qovery operates as a control plane that only transfers metadata using gRPC or TLS. All your application data, databases, and workloads remain exclusively within your cloud infrastructure.
 </Info>
 
 ## Security Architecture
 
 <CardGroup cols={2}>
   <Card title="Your Infrastructure Not Exposed" icon="shield">
-    Your infrastructure is never exposed. Qovery control plane only receives metadata via encrypted gRPC/TLS.
+    Your infrastructure is never exposed. Qovery control plane only receives metadata via encrypted gRPC or TLS.
   </Card>
 
   <Card title="Data On Your Infrastructure" icon="server">
@@ -108,26 +108,18 @@ Qovery implements comprehensive encryption strategies to protect your data throu
     Qovery ensures all communications are encrypted using industry-standard protocols.
 
     ### Qovery Services
-    - **Qovery CLI** - All API communications encrypted with TLS
-    - **Management Console** - HTTPS-only access
-    - **Documentation** - Served over HTTPS
-    - **Landing Page** - Encrypted web traffic
+    - **Qovery Client to Backend** - HTTPS and WebSocket Secure enforced.
+    - **Qovery Backend to Backend** - HTTPS or gRPC with TLS
+    - **Documentation and public website** - Served over HTTPS
+    - **TLS 1.2** - On all endpoints, all rated A+ by [Qualys' SSL Labs tools](https://www.ssllabs.com/ssltest/)
 
     ### Customer Application Encryption
 
     Your applications deployed on Qovery benefit from automatic HTTPS protection:
     - **Automatic SSL/TLS Certificates** - Powered by [Let's Encrypt](https://letsencrypt.org/)
-    - **Free certificates** - No additional cost
-    - **Auto-renewal** - Certificates automatically renewed before expiration
-    - **Custom TLS Certificates** - Available for enterprise users
-
-    ### Internal Network Encryption
-
-    Data in transit on Qovery-controlled networks uses:
-    - **End-to-end encryption** - Data encrypted throughout the entire transmission
-    - **Private networking rules** - Traffic isolated within your VPC
-    - **TLS 1.2+** - Modern encryption protocols only
-    - **Perfect Forward Secrecy** - Each session uses unique encryption keys
+    - **Free, auto-renewed certificates** - No additional cost, automatically renewed before expiration
+    - **Custom TLS Certificates** - [Available](/configuration/clusters#custom-domain-and-wildcard-tls-beta) for enterprise users
+    - **Secure by default** - All your public endpoints are covered by default
 
     <Tip>
     Internal traffic never leaves your cloud provider's network, adding an extra layer of security through network isolation.
@@ -157,7 +149,7 @@ Qovery implements comprehensive encryption strategies to protect your data throu
     | **Logs** | AES-256 | Cloud provider KMS |
 
     <Info>
-    AES-256 is approved for top-secret information by the NSA and is the industry standard for data encryption.
+    AES-256 is the industry standard for data encryption, recommended by NIST, ANSSI, and BSI.
     </Info>
   </Accordion>
 
@@ -167,8 +159,8 @@ Qovery implements comprehensive encryption strategies to protect your data throu
     ### What Qualifies as a Secret?
 
     - **Environment Variables** marked as "Secret"
-    - **API Keys and Tokens**
-    - **Database Passwords**
+    - **API Keys and Tokens** incl. GitHub access tokens.
+    - **Cloud Service Provider credentials**
     - **TLS/SSL Private Keys**
     - **OAuth Client Secrets**
     - **Encryption Keys**
@@ -177,27 +169,23 @@ Qovery implements comprehensive encryption strategies to protect your data throu
     ### Secret Encryption Details
 
     **Encryption Method:**
-    - Algorithm: **Salted AES-256**
-    - Salt: Unique per secret (prevents rainbow table attacks)
-    - Key derivation: PBKDF2 or similar
+    - Algorithm: **AES-256**
+    - Key derivation: **PBKDF2**
+    - Salt: Unique per customer
     - Storage: Encrypted in Qovery database
 
     **Access Control:**
     - Secrets encrypted at rest in Qovery's infrastructure
-    - Decrypted only when deployed to your environment
+    - Decrypted only when required
     - Transmitted over encrypted channels only
-    - Never logged or exposed in plain text
-
-    <Warning>
-    Once a secret is created, it cannot be retrieved in plain text through the Qovery Console. You can only update or delete it.
-    </Warning>
 
     ### Secret Injection
 
     Secrets are securely injected into your applications:
 
     1. **At Build Time** (if needed)
-       - Decrypted on secure build node
+       - Only the secrets specified
+       - Used by disposable, transient build node
        - Available as environment variables during build
        - Not stored in container image
 
@@ -207,87 +195,27 @@ Qovery implements comprehensive encryption strategies to protect your data throu
        - Stored in container memory only (not on disk)
   </Accordion>
 
-  <Accordion title="Key Management" icon="lock">
-    Encryption keys are managed by your cloud provider's Key Management Service (KMS):
-
-    - **AWS** - AWS Key Management Service (KMS)
-    - **GCP** - Cloud Key Management Service
-    - **Azure** - Azure Key Vault
-    - **Scaleway** - Scaleway KMS
-
-    **Key Rotation:**
-    - Keys are automatically rotated according to cloud provider policies
-    - No manual intervention required
-    - Zero downtime during key rotation
-
-    **Customer-Managed Keys:**
-    - Enterprise customers can use customer-managed keys (CMK)
-    - Bring your own keys (BYOK) supported
-    - Contact Qovery support to configure
-  </Accordion>
-
   <Accordion title="Encryption by Cloud Provider" icon="cloud">
     Different cloud providers offer varying levels of encryption capabilities:
 
     <Tabs>
       <Tab title="AWS">
         **Encryption Features:**
-        - EBS volumes encrypted with AWS KMS
-        - RDS encryption at rest with KMS
-        - S3 server-side encryption (SSE-S3 or SSE-KMS)
-        - Certificate Manager for TLS certificates
-        - Secrets Manager for secret storage
-
-        **Key Management:**
-        - AWS KMS for key management
-        - Customer-managed keys (CMK) available
-        - Automatic key rotation
-        - CloudTrail logging of key usage
+        - EBS volumes are encrypted with AWS KMS
+        - RDS databases and snapshots are encrypted at rest with KMS
+        - S3 bucket for VPC flow logs use server-side encryption (SSE-S3 or SSE-KMS)
       </Tab>
 
       <Tab title="GCP">
         **Encryption Features:**
-        - Persistent disk encryption by default
-        - Cloud SQL encryption with Cloud KMS
-        - Cloud Storage encryption at rest
-        - Certificate Manager for TLS
-        - Secret Manager for secrets
-
-        **Key Management:**
-        - Cloud KMS for key management
-        - Customer-managed encryption keys (CMEK)
-        - Automatic key rotation
-        - Cloud Audit Logs for key access
+        - All data-at-rest is encrypted by default using AES-GCM 256
+        - See [Google Cloud's Documentation →](https://docs.cloud.google.com/docs/security/encryption/default-encryption)
       </Tab>
 
       <Tab title="Azure">
         **Encryption Features:**
-        - Managed disk encryption with Azure Disk Encryption
-        - Azure Database encryption at rest
-        - Azure Storage encryption (SSE)
-        - Azure Key Vault for certificates
-        - Key Vault for secret management
-
-        **Key Management:**
-        - Azure Key Vault for keys
-        - Customer-managed keys available
-        - Automatic rotation support
-        - Azure Monitor for key activity
-      </Tab>
-
-      <Tab title="Scaleway">
-        **Encryption Features:**
-        - Block storage encryption
-        - Database encryption at rest
-        - Object Storage encryption
-        - Managed certificates
-        - Secret management
-
-        **Key Management:**
-        - Scaleway KMS
-        - Automatic encryption for all storage
-        - Backup encryption included
-        - Activity logging available
+        - Server-side Encryption of disk storage using AES 256.
+        - See [Azure's Documentation →](https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption)
       </Tab>
     </Tabs>
   </Accordion>
@@ -300,8 +228,8 @@ Qovery implements comprehensive encryption strategies to protect your data throu
 Backups and restore are frequently a nightmare to setup, especially for databases. Qovery helps you get this part **always automatically managed by the Cloud provider**.
 
 <AccordionGroup>
-  <Accordion title="Application Backups" icon="container-storage">
-    Container applications maintain backup capabilities through **container image retention**:
+  <Accordion title="Application Rollback" icon="container-storage">
+    Container applications maintain rollback capabilities through **container image retention**:
 
     - All successfully built container images are retained
     - Images are stored in your container registry
@@ -320,12 +248,11 @@ Backups and restore are frequently a nightmare to setup, especially for database
   </Accordion>
 
   <Accordion title="Database Backups" icon="database">
-    Databases have automatic daily backups managed by your cloud provider:
+    Managed databases have automatic daily backups managed by your cloud provider:
 
     - **Automated daily backups** - No manual configuration required
-    - **Point-in-time recovery** - Restore to specific timestamps
+    - **Point-in-time recovery** - Restore to specific timestamps, when available
     - **Encrypted backups** - All backups encrypted at rest
-    - **Geographic redundancy** - Backups stored across multiple availability zones
 
     ### Backup Retention
 
@@ -355,6 +282,10 @@ Backups and restore are frequently a nightmare to setup, especially for database
         Daily snapshots of persistent data
       </Card>
     </CardGroup>
+
+    <Tip>
+    This applies to cloud-provider-managed databases. Container-based databases are not recommended for production usage, and provide no automatic backup feature.
+    </Tip>
   </Accordion>
 
   <Accordion title="Application Restore" icon="rotate-left">
@@ -364,10 +295,10 @@ Backups and restore are frequently a nightmare to setup, especially for database
 
     <Tabs>
       <Tab title="Via Qovery Console">
-        1. Go to your application in the Qovery Console
-        2. Navigate to **Deployments** → **History**
-        3. Select the version you want to restore
-        4. Click **Redeploy this version**
+        1. Go to your environment in the Qovery Console
+        2. Find your application in the list of **Services**
+        3. Select the version you want to restore using the **Deploy another version** button
+        4. Click **Deploy**
 
         <Info>
         This redeploys the exact container image from the previous build - no rebuild required!
@@ -401,11 +332,8 @@ Backups and restore are frequently a nightmare to setup, especially for database
         Use the Qovery CLI to redeploy a specific version:
 
         ```bash
-        # List deployment history
-        qovery application list-deployment
-
         # Redeploy specific version
-        qovery application deploy --version <version-id>
+        qovery application deploy -n <app-name> -c <commit-id>
         ```
       </Tab>
     </Tabs>
@@ -520,21 +448,19 @@ Backups and restore are frequently a nightmare to setup, especially for database
 
 ## Compliance Certifications
 
+Qovery adheres to applicable cybersecurity regulations and holds certifications for relevant security frameworks, including:
+
 <CardGroup cols={3}>
   <Card title="SOC 2 Type II" icon="shield-check" href="/getting-started/security-and-compliance/soc2">
     Security controls audited annually
   </Card>
 
   <Card title="GDPR" icon="gavel" href="/getting-started/security-and-compliance/gdpr">
-    European data protection compliance
+    European data protection laws
   </Card>
 
   <Card title="HIPAA" icon="hospital" href="/getting-started/security-and-compliance/hipaa">
-    Healthcare data protection
-  </Card>
-
-  <Card title="HDS" icon="briefcase-medical" href="/getting-started/security-and-compliance/hds">
-    French health data hosting
+    US Healthcare data protection laws
   </Card>
 
   <Card title="DORA" icon="landmark" href="/getting-started/security-and-compliance/dora">
@@ -577,13 +503,14 @@ Backups and restore are frequently a nightmare to setup, especially for database
 ## Access Control
 
 **Authentication**:
-- Email/password with 2FA
-- SSO via SAML 2.0
-- OAuth 2.0 (Google, GitHub, GitLab)
+Access to the Qovery service requires the use of an external identity provider, and relies on an industry-standard solution to offer state-of-the-art authentication security.
+- SSO via SAML 2.0 or OIDC
+- OAuth 2.0 "Social Login" providers: Google, GitHub, GitLab, BitBucket, Microsoft
 
 **Authorization**:
-- Role-based access control (RBAC)
+- Role-based access control (RBAC) system
 - Predefined roles: Owner, Admin, Developer, Viewer
+- Custom roles to manage scope of access (clusters, environments)
 - Organization, project, and environment-level permissions
 
 [Configure organization access →](/configuration/organization/members-rbac)
@@ -600,7 +527,8 @@ All actions in Qovery are logged for security and compliance:
 - Deployment activities
 - API access
 
-Audit logs are immutable, retained for 30+ days, and can be exported to SIEM systems.
+Audit logs are immutable, and can be exported as JSON files.
+Logs retention duration depends on your plan. Custom settings possible.
 
 [View audit logs documentation →](/security-and-compliance/audit-logs)
 
@@ -610,7 +538,6 @@ Audit logs are immutable, retained for 30+ days, and can be exported to SIEM sys
 
 For security issues or vulnerabilities:
 - Email: **security@qovery.com**
-- [Responsible Disclosure Policy](https://www.qovery.com/security)
 
 ---
 
