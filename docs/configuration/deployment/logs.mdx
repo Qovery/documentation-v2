@@ -75,6 +75,25 @@ You can filter logs using:
 - **Filter by time range**: Isolate specific periods
 - **Filter by log level**: Prioritize by severity
 - **Filter by pod**: View logs from specific instances
+- **Filter by deployment ID**: Isolate logs from a specific deployment
+
+#### Filter by Deployment ID
+
+When troubleshooting a failed deployment, you can filter logs using the `deployment_id` to see only the logs produced during that specific deployment. This removes noise from other deployments and helps you get to the root cause faster.
+
+To use this feature:
+1. Navigate to the deployment history and find the deployment ID you want to investigate
+2. Apply the deployment ID filter in the logs view
+3. Review only the logs generated during that specific deployment's bootstrap process
+
+<Tip>
+When viewing deployment logs, clicking "Go to service logs" automatically applies the deployment ID filter, seamlessly transitioning you from deployment logs to the filtered service logs for that specific deployment.
+</Tip>
+
+This is especially useful when:
+- A deployment fails during application startup
+- You need to isolate issues from a specific deployment attempt
+- Multiple deployments have occurred and you want to focus on one particular execution
 
 ## Log Retention
 

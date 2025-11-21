@@ -306,6 +306,53 @@ Qovery automatically configures Scaleway networking:
   Configure Private Network routes after deployment to connect to databases or other services.
 </Accordion>
 
+#### Static IP for Egress Traffic
+
+By default, Scaleway clusters use random public IPs for outbound traffic. If you need a stable egress IP for IP allowlisting with external services, Qovery provides a Static IP feature.
+
+**Benefits:**
+- **Predictable outbound IP**: Your cluster uses a fixed IP address for all egress traffic
+- **IP allowlist compatibility**: External services can whitelist your static IP
+- **Stable connections**: Maintain consistent identity for outbound API calls and integrations
+
+**How to Enable:**
+
+<Steps>
+  <Step title="During Cluster Creation">
+    In the networking configuration step, enable the **Static IP for egress traffic** option.
+  </Step>
+
+  <Step title="For Existing Clusters">
+    1. Navigate to your cluster settings in the Qovery Console
+    2. Go to the **Network** section
+    3. Enable **Static IP for egress traffic**
+    4. Update your cluster to apply the changes
+  </Step>
+</Steps>
+
+**NAT Gateway Types:**
+
+When you enable Static IP for egress traffic, Qovery deploys a Scaleway Public Gateway with NAT functionality. Choose the gateway size based on your expected outbound traffic:
+
+| Gateway Type | Bandwidth | Use Case |
+|--------------|-----------|----------|
+| **VPC-GW-S** | Up to 100 Mbps | Small development environments, low traffic |
+| **VPC-GW-M** | Up to 1 Gbps | Standard production workloads |
+| **VPC-GW-L** | Up to 3 Gbps | High-traffic applications |
+| **VPC-GW-XL** | Up to 10 Gbps | Very high-traffic, enterprise workloads |
+
+<Info>
+For detailed specifications and pricing, see [Scaleway Public Gateway documentation](https://www.scaleway.com/en/docs/network/vpc/concepts/#public-gateways) and [pricing](https://www.scaleway.com/en/pricing/network/).
+</Info>
+
+<Info>
+The Static IP feature is particularly useful when connecting to:
+- External databases with IP-based authentication
+- Third-party APIs requiring IP allowlisting
+- Enterprise services with strict security policies
+- Partner integrations that need stable source IPs
+</Info>
+
 ### Control Plane Options
 
 <Accordion title="Control Plane Tiers">
