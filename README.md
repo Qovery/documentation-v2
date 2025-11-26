@@ -5,10 +5,6 @@ Qovery Documentation v2
 
 ### **How to Contribute**
 
-You can contribute directly by accessing the documentation repository:
-
-👉 **Repository:** https://github.com/Qovery/documentation-v2
-
 To work on the documentation locally:
 
 1. Install [**Mintlify**](https://www.mintlify.com/docs/quickstart)
