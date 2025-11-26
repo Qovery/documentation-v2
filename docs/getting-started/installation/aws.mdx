@@ -6,7 +6,7 @@ description: "Create your first Kubernetes cluster on AWS in under 30 minutes"
 Get your first production-ready Kubernetes cluster running on AWS. This guide walks you through the entire setup from connecting AWS to deploying your cluster.
 
 <Info>
-Already have a Kubernetes cluster? See the [BYOK guide](/integrations/kubernetes/byok) instead.
+  Already have a Kubernetes cluster? See the [BYOK guide](/getting-started/installation/kubernetes) instead.
 </Info>
 
 ## What You'll Get
@@ -23,6 +23,7 @@ Already have a Kubernetes cluster? See the [BYOK guide](/integrations/kubernetes
 Qovery uses [Karpenter](https://karpenter.sh/) for intelligent node provisioning, which automatically selects the most cost-effective EC2 instances for your workloads:
 
 **Key Benefits**:
+
 - **Cost optimization** through spot instances and consolidation
 - **Fast scaling** - Provisions nodes in seconds (vs minutes with traditional auto-scaling)
 - **Smart instance selection** - Picks the best from your allowed instance types
@@ -30,13 +31,16 @@ Qovery uses [Karpenter](https://karpenter.sh/) for intelligent node provisioning
 
 **How It Works**:
 During setup, you **select multiple instance types** (e.g., t3.medium, t3.large, m5.xlarge, m6i.large). Karpenter then automatically chooses the best option based on:
+
 - Your application resource requirements
 - Spot vs on-demand availability
 - Cost optimization across your selected instance types
 - Current capacity and pricing
 
 <Info>
-**More instance types = better optimization!** Select a variety of instance types (t3, m5, m6i families) to give Karpenter maximum flexibility for cost and availability optimization.
+  **More instance types = better optimization!** Select a variety of instance
+  types (t3, m5, m6i families) to give Karpenter maximum flexibility for cost
+  and availability optimization.
 </Info>
 
 ## Prerequisites
@@ -53,7 +57,16 @@ No AWS expertise required - we'll guide you through everything!
 
 Watch this walkthrough to see the entire cluster creation process:
 
-<div style={{position: 'relative', boxSizing: 'content-box', maxHeight: '80vh', width: '100%', aspectRatio: '1.80028129395218', padding: '40px 0'}}>
+<div
+  style={{
+    position: "relative",
+    boxSizing: "content-box",
+    maxHeight: "80vh",
+    width: "100%",
+    aspectRatio: "1.80028129395218",
+    padding: "40px 0",
+  }}
+>
   <iframe
     src="https://app.supademo.com/embed/cmhklq6m21nv2u1hm1ggy4q2r?embed_v=2&utm_source=embed"
     loading="lazy"
@@ -63,7 +76,13 @@ Watch this walkthrough to see the entire cluster creation process:
     webkitallowfullscreen="true"
     mozallowfullscreen="true"
     allowFullScreen
-    style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}}
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+    }}
   />
 </div>
 
@@ -83,12 +102,13 @@ Follow these steps to create your first Qovery cluster on AWS:
     <Frame>
       <img src="/images/install-qovery/common/add-cluster.png" alt="Create cluster in Qovery Console" />
     </Frame>
+
   </Step>
 
   <Step title="Name Your Cluster">
-    - **Cluster name**: Choose a name like `production` or `my-first-cluster`
-    - **Region**: Select the AWS region closest to your users (e.g., `us-east-1`)
-  </Step>
+  - **Cluster name**: Choose a name like `production` or `my-first-cluster` -
+  **Region**: Select the AWS region closest to your users (e.g., `us-east-1`)
+</Step>
 
   <Step title="Connect AWS Account">
     Choose how to connect your AWS account to Qovery:
@@ -235,109 +255,224 @@ Follow these steps to create your first Qovery cluster on AWS:
       <Tab title="Static Credentials">
         **Alternative method** - Uses AWS Access Keys (requires manual rotation every 90 days).
 
-        **What gets created**: An IAM user with AdministratorAccess policy and programmatic access keys.
-
         <Warning>
-        **Security Note**: Static credentials don't expire and must be manually rotated. Only use this method if CloudFormation is not available in your AWS environment. For production, we strongly recommend STS Assume Role.
+        **Security Note**: Static credentials are long-lived and more exposed to leaks. For production, we strongly recommend STS Assume Role which provides short-lived, automatically refreshed credentials with granular access control.
         </Warning>
 
         **Setup Steps**:
 
-        1. **Open AWS IAM Console**:
-           - Go to [IAM Users Console](https://console.aws.amazon.com/iam/home#/users)
-           - Click **Create user**
+        1. **Connect to AWS Console**:
+           - Go to [AWS Console](https://console.aws.amazon.com)
 
-        2. **Create User**:
-           - User name: `qovery-admin` (or your preferred name)
-           - ⚠️ **Don't** check "Provide user access to AWS Management Console"
-           - Click **Next**
+        2. **Navigate to IAM**:
+           - Go to **IAM** service
 
            <Frame>
-             <img src="/images/aws-credentials/create-user-1.png" alt="Create IAM user - step 1" />
+             <img src="/images/aws-credentials/aws-my-security-credentials.png" alt="Navigate to IAM" />
            </Frame>
 
-        3. **Attach Permissions**:
-           - Select **Attach policies directly**
-           - Search for **AdministratorAccess**
-           - ✅ Check the **AdministratorAccess** policy
-           - Click **Next**
+        3. **Create IAM User**:
+           - Create one IAM user called `qovery`
 
            <Frame>
-             <img src="/images/aws-credentials/create-user-2.png" alt="Attach AdministratorAccess policy" />
+             <img src="/images/aws-credentials/create-user-1.png" alt="Create user - step 1" />
            </Frame>
-
-        4. **Review and Create**:
-           - Review settings
-           - Click **Create user**
 
            <Frame>
-             <img src="/images/aws-credentials/create-user-3.png" alt="Review and create IAM user" />
+             <img src="/images/aws-credentials/create-user-2.png" alt="Create user - step 2" />
            </Frame>
 
-        5. **Generate Access Keys**:
-           - Click on the newly created **qovery-admin** user
-           - Go to **Security credentials** tab
-           - Scroll to **Access keys** section
+           <Frame>
+             <img src="/images/aws-credentials/create-user-3.png" alt="Create user - step 3" />
+           </Frame>
+
+        4. **Setup IAM Permissions**:
+           - Apply the required [IAM permissions](https://www.qovery.com/docs/files/qovery-iam-aws.json) to the `qovery` user
+
+           <Warning>
+           **Download**: [IAM permissions JSON](https://www.qovery.com/docs/files/qovery-iam-aws.json)
+
+           Or copy the policy from below:
+
+           ```json
+           {
+               "Version": "2012-10-17",
+               "Statement": [
+                   {
+                       "Effect": "Allow",
+                       "Action": [
+                           "iam:*",
+                           "s3:ListAllMyBuckets",
+                           "cloudwatch:*",
+                           "autoscaling:*",
+                           "application-autoscaling:*",
+                           "elasticloadbalancing:*",
+                           "organizations:DescribeAccount",
+                           "organizations:DescribeOrganization",
+                           "organizations:DescribeOrganizationalUnit",
+                           "organizations:DescribePolicy",
+                           "organizations:ListChildren",
+                           "organizations:ListParents",
+                           "organizations:ListPoliciesForTarget",
+                           "organizations:ListRoots",
+                           "organizations:ListPolicies",
+                           "organizations:ListTargetsForPolicy",
+                           "dynamodb:*",
+                           "ecr:*",
+                           "ec2:*",
+                           "elasticache:*",
+                           "cloudtrail:LookupEvents",
+                           "dynamodb:*",
+                           "tag:GetResources",
+                           "rds:*",
+                           "ecs:*",
+                           "eks:*",
+                           "logs:*",
+                           "events:DescribeRule",
+                           "events:DeleteRule",
+                           "events:ListRuleNamesByTarget",
+                           "events:ListTargetsByRule",
+                           "events:PutRule",
+                           "events:PutTargets",
+                           "es:AddTags",
+                           "es:RemoveTags",
+                           "es:ListTags",
+                           "es:DeleteElasticsearchDomain",
+                           "es:DescribeElasticsearchDomain",
+                           "es:CreateElasticsearchDomain",
+                           "events:RemoveTargets",
+                           "kms:*",
+                           "events:TagResource",
+                           "events:ListTagsForResource"
+                       ],
+                       "Resource": "*"
+                   },
+                   {
+                       "Action": [
+                           "s3:*",
+                           "sqs:*"
+                       ],
+                       "Effect": "Allow",
+                       "Resource": [
+                           "arn:aws:s3:::qovery*",
+                           "arn:aws:s3:::qovery*/*",
+                           "arn:aws:sqs:*:*:qovery*",
+                           "arn:aws:sqs:*:*:qovery*/*"
+                       ]
+                   }
+               ]
+           }
+           ```
+           </Warning>
+
+           **Follow the steps in AWS console to create AWS credentials with required IAM permissions:**
+
+           <Frame>
+             <img src="/images/aws-credentials/aws-add-policy-1.jpg" alt="Add policy - step 1" />
+           </Frame>
+
+           <Frame>
+             <img src="/images/aws-credentials/aws-add-policy-2.png" alt="Add policy - step 2" />
+           </Frame>
+
+           <Frame>
+             <img src="/images/aws-credentials/aws-add-policy-3.jpg" alt="Add policy - step 3" />
+           </Frame>
+
+           <Frame>
+             <img src="/images/aws-credentials/aws-add-policy-4.jpg" alt="Add policy - step 4" />
+           </Frame>
+
+        5. **Create Access Keys**:
+           - Go to the **Security Credentials** tab of the `qovery` user
            - Click **Create access key**
 
            <Frame>
-             <img src="/images/aws-credentials/aws-create-credentials-1.png" alt="Navigate to access keys section" />
+             <img src="/images/aws-credentials/aws-create-credentials-1.png" alt="Create access key - step 1" />
            </Frame>
-
-        6. **Select Use Case**:
-           - Choose **Third-party service**
-           - Check confirmation checkbox
-           - Click **Next**
-           - (Optional) Add description: "Qovery Production Access"
-           - Click **Create access key**
 
            <Frame>
-             <img src="/images/aws-credentials/aws-create-credentials-2.png" alt="Select third-party service use case" />
+             <img src="/images/aws-credentials/aws-create-credentials-2.png" alt="Create access key - step 2" />
            </Frame>
-
-        7. **Save Your Credentials** ⚠️:
-           - Copy **Access Key ID** (looks like: `AKIAIOSFODNN7EXAMPLE`)
-           - Copy **Secret Access Key** (looks like: `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`)
-           - **Download .csv file** as backup
-           - ⚠️ **Important**: You can't view the secret key again after closing this page!
 
            <Frame>
-             <img src="/images/aws-credentials/aws-create-credentials-3.png" alt="Copy access keys" />
+             <img src="/images/aws-credentials/aws-create-credentials-3.png" alt="Create access key - step 3" />
            </Frame>
 
-        8. **Complete in Qovery**:
-           - Back in Qovery, select **Static Credentials** option
-           - Paste **Access Key ID** in first field
-           - Paste **Secret Access Key** in second field
-           - Give it a name like `AWS Production`
-           - Click **Save**
+           - Save the **Access Key ID** and **Secret Access Key**
 
            <Frame>
-             <img src="/images/aws-credentials/aws-create-credentials-4.png" alt="Enter credentials in Qovery Console" />
+             <img src="/images/aws-credentials/aws-create-credentials-4.png" alt="Save credentials" />
            </Frame>
 
-        <AccordionGroup>
-          <Accordion title="How to rotate access keys (every 90 days)">
-            1. Create a new access key for the same IAM user
-            2. Update credentials in Qovery with new keys
-            3. Wait 24 hours to ensure all systems use new keys
-            4. Delete old access key in AWS IAM console
-            5. Set calendar reminder for next rotation
-          </Accordion>
-
-          <Accordion title="What if I lost my secret access key?">
-            AWS doesn't allow retrieving secret keys after creation. You must:
-            1. Create a new access key pair
-            2. Update Qovery with new credentials
-            3. Delete the old access key
-          </Accordion>
-
-          <Accordion title="Can I use a less privileged IAM user?">
-            Yes, but the user needs extensive permissions to manage EKS, EC2, VPC, IAM, and other AWS services. Contact support for a minimal IAM policy template. Note that restrictive policies may cause deployment failures.
-          </Accordion>
-        </AccordionGroup>
+        **Well done!** You now have your AWS `access key id` and `secret access key` and your permissions are set up.
       </Tab>
     </Tabs>
+
+  </Step>
+
+  <Step title="Configure Network">
+    In the `Features` step, select the features you want to enable on your cluster.
+
+    If you want to manage the network layer of your cluster by yourself, you can switch VPC mode to `Deploy on my existing VPC` to use your own VPC instead of the one provided by Qovery.
+
+    <Warning>
+    These options can only be configured during cluster creation and cannot be modified later.
+    </Warning>
+
+    <Tabs>
+      <Tab title="VPC managed by Qovery">
+        ### Static IP
+
+        By default, when your cluster is created, its worker nodes are allocated public IP addresses, which are used for external communication. For improved security and control, the **Static IP** feature allows you to ensure that outbound traffic from your cluster uses specific IP addresses.
+
+        Here is what will be deployed on your cluster:
+        * Nat Gateways
+        * Elastic IPs
+        * Private subnets
+
+        Once set up, here is the procedure to find your static IP addresses on `AWS`:
+        - On your AWS account, select the VPC service.
+        - On the left menu, you'll find Elastic IP addresses. Once on it, in the Allocated IPv4 address column, you'll have your public IPs.
+
+        <Info>
+        If you work in a sensitive business area such as financial technology, enabling the **Static IP** feature can help fulfil the security requirements of some of the external services you use, therefore making it easier for you to get whitelisted by them.
+
+        This feature has been activated by default. Since February 1, 2024, AWS charge public IPv4 Addresses. Disabling it may cost you more, depending on the number of nodes in your cluster. Check this [link](https://aws.amazon.com/blogs/aws/new-aws-public-ipv4-address-charge-public-ip-insights/) for more information.
+        </Info>
+
+        ### Custom VPC Subnet
+
+        Virtual Private Cloud (VPC) peering allows you to set up a connection between your Qovery VPC and another VPC on your AWS account. This way, you can access resources stored on your AWS VPC directly from your Qovery applications.
+
+        A VPC can only be used if it has at least one range of IP addresses called a **subnet**. When you create a cluster, Qovery automatically picks a default subnet for it. However, to perform VPC peering, you may want to define which specific VPC subnet you want to use, so that you can avoid any conflicting settings. To do so, you can enable the **Custom VPC Subnet** feature on your cluster. For more information on how to set up VPC peering, [see our dedicated tutorial](/configuration/integrations/aws/vpc-peering).
+      </Tab>
+
+      <Tab title="Use your existing VPC">
+        ### Use Existing VPC
+
+        You have to specify the `VPC id` and ensure that in your VPC settings you have enabled the `DNS hostnames`.
+
+        Then you have to specify the different subnets ids:
+
+        **EKS**:
+
+        The EKS subnets are mandatory, you have to specify at least **one subnet id per zone** and ensure you have enabled the **auto-assign public IPv4 address** setting on your subnets.
+
+        You'll also need to set up the following labels on your subnets:
+
+        * On public subnets: add a label `kubernetes.io/role/elb` with the value `1` to allow the ALB controller to run on this subnet.
+        * On private subnets: add a label `kubernetes.io/role/internal-elb` with the value `1` to allow the ALB controller to run on this subnet.
+        * On all subnets: add a label `kubernetes.io/cluster/<cluster-name>` with the value `shared` to allow the ALB controller to run on this subnet.
+
+        **Managed databases**:
+
+        This section is exclusively for enabling managed databases (container databases will be enabled by default).
+
+        Depending on the managed databases you want to you use (**MongoDB**, **RDS:MySQL/PostgreSQL** and **Redis**), specify at least one subnet id per zone.
+      </Tab>
+    </Tabs>
+
   </Step>
 
   <Step title="Select Instance Types">
@@ -375,12 +510,14 @@ Follow these steps to create your first Qovery cluster on AWS:
     </Warning>
 
     You can adjust these selections later in cluster settings!
+
   </Step>
 
   <Step title="Review and Create">
     Review your settings and click **Create and Deploy**
 
     Your cluster will now be created automatically!
+
   </Step>
 </Steps>
 
@@ -458,6 +595,7 @@ Follow these steps to create your first Qovery cluster on AWS:
     <Tip>
     You can configure Karpenter settings after cluster creation in **Cluster Settings** → **Node Pools**. Learn more in the [Cluster Configuration](/configuration/clusters) guide.
     </Tip>
+
   </Accordion>
 </AccordionGroup>
 
@@ -467,18 +605,20 @@ Follow these steps to create your first Qovery cluster on AWS:
 
 **Cluster creation takes 20-30 minutes.** Here's what's happening:
 
-| Step | Time | What's Being Created |
-|------|------|---------------------|
-| 1. Networking | 3-5 min | VPC, subnets, security groups |
-| 2. EKS Control Plane | 10-15 min | Kubernetes master nodes |
-| 3. Worker Nodes | 5-10 min | EC2 instances for your apps |
-| 4. Qovery Components | 3-5 min | Ingress, monitoring, logging |
+| Step                 | Time      | What's Being Created          |
+| -------------------- | --------- | ----------------------------- |
+| 1. Networking        | 3-5 min   | VPC, subnets, security groups |
+| 2. EKS Control Plane | 10-15 min | Kubernetes master nodes       |
+| 3. Worker Nodes      | 5-10 min  | EC2 instances for your apps   |
+| 4. Qovery Components | 3-5 min   | Ingress, monitoring, logging  |
 
 <Info>
-**You'll receive an email when your cluster is ready!** Feel free to close this page.
+  **You'll receive an email when your cluster is ready!** Feel free to close
+  this page.
 </Info>
 
 **While you wait:**
+
 - ☕ Grab a coffee
 - 📖 Learn about [deploying your first app](/guides/getting-started/deploy-your-first-application)
 - 👥 [Invite your team](/configuration/organization/members-rbac)
@@ -495,13 +635,21 @@ Once your cluster shows **Ready** status:
     Step-by-step guide to deploy from Git
   </Card>
 
-  <Card title="Connect Database" icon="database" href="/getting-started/guides/getting-started/connect-database">
+  <Card
+    title="Connect Database"
+    icon="database"
+    href="/getting-started/guides/getting-started/connect-database"
+  >
     Add PostgreSQL, MySQL, MongoDB, or Redis
   </Card>
 
-  <Card title="Configure Domain" icon="globe" href="/getting-started/guides/advanced-tutorials/cloudflare-custom-domain">
-    Use your own domain name
-  </Card>
+  <Card
+  title="Configure Domain"
+  icon="globe"
+  href="/getting-started/guides/advanced-tutorials/cloudflare-custom-domain"
+>
+  Use your own domain name
+</Card>
 
   <Card title="Invite Team" icon="users" href="/configuration/organization/members-rbac">
     Add team members with permissions
@@ -519,6 +667,7 @@ Once your cluster shows **Ready** status:
     - AWS region doesn't support EKS
 
     **Solution**: Make sure you're logged in as AWS admin or have IAM permissions.
+
   </Accordion>
 
   <Accordion title="Can't find the Role ARN">
@@ -545,6 +694,6 @@ Once your cluster shows **Ready** status:
     - Verify IAM user has AdministratorAccess policy
     - Check Access Key ID and Secret Access Key are correct
     - Ensure keys are not disabled or expired
+
   </Accordion>
 </AccordionGroup>
-
