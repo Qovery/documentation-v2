@@ -17,13 +17,13 @@ The Qovery MCP (Model Context Protocol) Server enables you to use Qovery AI Copi
 
 ## Operating Modes
 
-The MCP Server supports both operating modes:
+The MCP Server's operating mode is determined by your organization's AI Copilot settings and your API token's permissions:
 
 <Tabs>
-  <Tab title="Read-Only Mode (Default)">
-    **Default behavior** - Safe for exploration
+  <Tab title="Read-Only Mode">
+    **Safe exploration** - View-only access
 
-    The MCP Server starts in **read-only mode** by default, allowing you to:
+    In **read-only mode**, the Copilot allows you to:
     - View information and status
     - Get help and recommendations
     - Troubleshoot issues
@@ -32,12 +32,16 @@ The MCP Server supports both operating modes:
     - **No changes** to infrastructure
 
     This ensures safe exploration without risk of accidental modifications.
+    
+    <Info>
+    Read-only mode is active when your organization has disabled AI write permissions, or when your API token has viewer-level permissions.
+    </Info>
   </Tab>
 
   <Tab title="Read-Write Mode">
     **Full automation** - Maximum capabilities
 
-    When needed, the MCP Server can operate in **read-write mode** for complete automation:
+    In **read-write mode**, the Copilot can perform complete automation:
     - Deploy applications and services
     - Create new environments and resources
     - Update configurations and settings
@@ -49,53 +53,36 @@ The MCP Server supports both operating modes:
     <Warning>
     The Copilot will **ask for confirmation** before performing destructive operations like deletions.
     </Warning>
+    
+    <Info>
+    Read-write mode requires both:
+    1. AI write permissions enabled in your organization settings
+    2. An API token with sufficient permissions (Developer or Admin role)
+    </Info>
   </Tab>
 </Tabs>
+
+<Note>
+**Permission Hierarchy**: The MCP Server operates at the highest level of access available based on:
+- Your organization's AI Copilot authorization settings (read-only or read-write)
+- Your API token's role permissions
+
+The most restrictive setting takes precedence. For example, if your organization enables AI write access but your token has viewer permissions, the Copilot will operate in read-only mode.
+
+**Note**: The operating mode applies to all your conversations. If you have read-write access, your conversations will operate in read-write mode.
+</Note>
 
 ## Prerequisites
 
-Before installing the MCP Server:
+Before using the MCP Server:
 
-- **Claude Desktop**: Download from [claude.ai/download](https://claude.ai/download)
+- **MCP-Compatible Client**: Claude Desktop, or any other MCP-compatible application
 - **Qovery Account**: Active account with infrastructure
 - **API Token**: Generate from Qovery Console (Settings → API Tokens)
-- **Node.js 18+** or **Python 3.10+**
 
-## Installation
+## Setup
 
-<Tabs>
-  <Tab title="NPM (Node.js)">
-    Install via NPM:
-
-    ```bash
-    npm install -g @qovery/mcp-server
-    ```
-
-    Verify installation:
-
-    ```bash
-    qovery-mcp-server --version
-    ```
-  </Tab>
-
-  <Tab title="Python">
-    Install via pip:
-
-    ```bash
-    pip install qovery-mcp-server
-    ```
-
-    Verify installation:
-
-    ```bash
-    qovery-mcp-server --version
-    ```
-  </Tab>
-</Tabs>
-
-## Configuration
-
-### 1. Get Your Qovery API Token
+### 1. Generate Your Qovery API Token
 
 <Steps>
   <Step title="Open Qovery Console">
@@ -103,10 +90,14 @@ Before installing the MCP Server:
   </Step>
 
   <Step title="Navigate to Settings">
-    Click on your organization → Settings → API Tokens
+    Click on the settings icon in your organization
   </Step>
 
-  <Step title="Generate Token">
+  <Step title="Access API Tokens">
+    Go to **API Tokens** section
+  </Step>
+
+ <Step title="Generate Token">
     Click "Generate Token" and copy it
 
     <Warning>
@@ -115,98 +106,76 @@ Before installing the MCP Server:
   </Step>
 </Steps>
 
-### 2. Configure Claude Desktop
+### 2. Configure Your MCP Client
 
-Add the Qovery MCP Server to Claude Desktop configuration:
+The Qovery MCP Server is accessible via the following URL:
+
+```
+https://p8081-api-ai-dev.qovery.com/mcp
+```
+
+Add the Qovery MCP Server to your MCP client's configuration using:
+
+```
+Server URL: https://p8081-api-ai-dev.qovery.com/mcp
+```
+
+Refer to your specific MCP client's documentation for detailed setup instructions on how to add a custom MCP server.
+
+## Usage
+
+### Authentication with API Token
+
+The Qovery MCP Server requires authentication via your API token. There are two ways to provide it:
 
 <Tabs>
-  <Tab title="macOS">
-    Edit configuration file:
+  <Tab title="Method 1: Ask First">
+    Start your conversation naturally, and Claude will request the token when needed:
 
-    ```bash
-    nano ~/Library/Application\ Support/Claude/claude_desktop_config.json
+    **You:**
+    ```
+    Can you list my Qovery environments?
     ```
 
-    Add Qovery MCP Server:
-
-    ```json
-    {
-      "mcpServers": {
-        "qovery": {
-          "command": "qovery-mcp-server",
-          "env": {
-            "QOVERY_API_TOKEN": "your-api-token-here"
-          }
-        }
-      }
-    }
+    **Claude:**
     ```
-  </Tab>
-
-  <Tab title="Windows">
-    Edit configuration file:
-
-    ```powershell
-    notepad %APPDATA%\Claude\claude_desktop_config.json
+    I'll need your Qovery API token to access your infrastructure. 
+    Please provide your API token.
     ```
 
-    Add Qovery MCP Server:
+    **You:**
+    ```
+    Here's my token: qov_xxxxxxxxxxxxx
+    ```
 
-    ```json
-    {
-      "mcpServers": {
-        "qovery": {
-          "command": "qovery-mcp-server.exe",
-          "env": {
-            "QOVERY_API_TOKEN": "your-api-token-here"
-          }
-        }
-      }
-    }
+    **Claude:**
+    ```
+    [Returns your environments list]
     ```
   </Tab>
 
-  <Tab title="Linux">
-    Edit configuration file:
+  <Tab title="Method 2: Provide Immediately">
+    Include your token directly in your first message:
 
-    ```bash
-    nano ~/.config/Claude/claude_desktop_config.json
+    **You:**
+    ```
+    Using token qov_xxxxxxxxxxxxx, can you list my Qovery environments?
     ```
 
-    Add Qovery MCP Server:
-
-    ```json
-    {
-      "mcpServers": {
-        "qovery": {
-          "command": "qovery-mcp-server",
-          "env": {
-            "QOVERY_API_TOKEN": "your-api-token-here"
-          }
-        }
-      }
-    }
+    **Claude:**
+    ```
+    [Returns your environments list immediately]
     ```
   </Tab>
 </Tabs>
 
-### 3. Restart Claude Desktop
-
-Close and reopen Claude Desktop for changes to take effect.
-
-## Verify Setup
-
-In Claude Desktop, start a new conversation and ask:
-
-```
-"Can you list my Qovery environments?"
-```
-
-If configured correctly, Claude will use the Qovery MCP Server to retrieve and display your environments.
+<Info>
+**Token Persistence**: Once you provide your API token in a conversation, it will be remembered for the duration of that conversation. However, when you start a **new conversation**, you'll need to provide the token again.
+</Info>
 
 ## Usage Examples
 
-Once configured, you can interact with your infrastructure naturally:
+Once authenticated, you can interact with your infrastructure naturally:
 
 ### Check Status
 
@@ -240,96 +209,52 @@ Once configured, you can interact with your infrastructure naturally:
 "Stop all services in the dev environment"
 ```
 
-## Advanced Configuration
-
-### Multiple Organizations
-
-If you have multiple Qovery organizations:
-
-```json
-{
-  "mcpServers": {
-    "qovery-prod": {
-      "command": "qovery-mcp-server",
-      "env": {
-        "QOVERY_API_TOKEN": "production-token",
-        "QOVERY_ORG_ID": "org-id-1"
-      }
-    },
-    "qovery-staging": {
-      "command": "qovery-mcp-server",
-      "env": {
-        "QOVERY_API_TOKEN": "staging-token",
-        "QOVERY_ORG_ID": "org-id-2"
-      }
-    }
-  }
-}
-```
-
-### Custom Configuration
-
-Additional environment variables:
-
-```json
-{
-  "mcpServers": {
-    "qovery": {
-      "command": "qovery-mcp-server",
-      "env": {
-        "QOVERY_API_TOKEN": "your-token",
-        "QOVERY_API_URL": "https://api.qovery.com",
-        "LOG_LEVEL": "debug"
-      }
-    }
-  }
-}
-```
-
 ## Troubleshooting
 
 ### MCP Server Not Connecting
 
-**Issue**: Claude Desktop doesn't show Qovery tools
+**Issue**: Client doesn't show Qovery tools or cannot connect
 
 **Solutions**:
-1. Verify API token is correct
-2. Check configuration file syntax (valid JSON)
-3. Restart Claude Desktop
-4. Check Claude Desktop logs
+1. Verify the MCP Server URL is correct: `https://p8081-api-ai-dev.qovery.com/mcp`
+2. Check your internet connection
+3. Restart your MCP client
+4. Contact Qovery Support if the issue persists
 
 ### Authentication Errors
 
-**Issue**: "Authentication failed" errors
+**Issue**: "Authentication failed" or "Invalid token" errors
 
 **Solutions**:
-1. Verify API token hasn't expired
-2. Check token has correct permissions
-3. Generate a new API token if needed
+1. Verify your API token is correct (check for copy-paste errors)
+2. Ensure the token hasn't been revoked or expired
+3. Verify the token has the necessary permissions for the requested operation
+4. Generate a new API token if needed from Qovery Console
 
-### Command Not Found
+### Token Not Persisting
 
-**Issue**: `qovery-mcp-server: command not found`
+**Issue**: Need to re-enter token for each question
 
 **Solutions**:
-1. Verify installation: `npm list -g @qovery/mcp-server`
-2. Check PATH includes npm global bin directory
-3. Reinstall: `npm install -g @qovery/mcp-server`
+1. Ensure you're staying in the same conversation
+2. Provide the token at the beginning of new conversations
+3. Check if your client is maintaining the conversation context
 
 ## Security Best Practices
 
 <Warning>
 **API Token Security**:
-- Never commit configuration files with tokens to version control
-- Use environment variables for tokens in CI/CD
+- Never share your API tokens publicly
+- Don't commit tokens to version control
+- Revoke tokens you no longer need from Qovery Console
+- Use tokens with the minimum required permissions
 - Rotate tokens regularly
-- Revoke unused tokens in Qovery Console
 </Warning>
 
 ### Token Permissions
 
-The API token has the same permissions as your user account:
-- Can only access resources you have permission to
+The API token has the same permissions as the role you selected during creation:
+- Can only access resources within your organization
 - Respects organization RBAC policies
 - All actions are audited in Qovery Console
 
@@ -355,7 +280,6 @@ The API token has the same permissions as your user account:
 
 ## Resources
 
-- **GitHub Repository**: [qovery/qovery-mcp-server](https://github.com/Qovery/qovery-mcp-server)
 - **MCP Protocol**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
 - **Claude Desktop**: [claude.ai/download](https://claude.ai/download)
 - **Technical Blog**: [How We Built an Agentic DevOps Copilot](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond)
