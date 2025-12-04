@@ -121,6 +121,100 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Default Value:** `{}`
 
+<a id="deployment-antiaffinity-pod"></a>
+
+### deployment.antiaffinity.pod
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+
+**Type:** `string`
+
+**Description:** Allows you to define pod anti-affinity to control how pods are distributed across nodes. Options are `Preferred` or `Required`.
+
+**Use Case:** Use `Required` to ensure pods are never scheduled on the same node (hard requirement), or `Preferred` for a soft preference that can be overridden if necessary.
+
+**Default Value:** `Preferred`
+
+<a id="deployment-update-strategy-type"></a>
+
+### deployment.update_strategy.type
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+
+**Type:** `string`
+
+**Description:** Allows you to specify the deployment update strategy type. Options are `RollingUpdate` or `Recreate`.
+
+**Use Case:** `RollingUpdate` ensures zero-downtime deployments by gradually replacing pods. `Recreate` terminates all pods before creating new ones.
+
+**Default Value:** `RollingUpdate`
+
+<a id="deployment-update-strategy-rolling-update-max-unavailable-percent"></a>
+
+### deployment.update_strategy.rolling_update.max_unavailable_percent
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to specify the maximum percentage of pods that can be unavailable during a rolling update.
+
+**Use Case:** Lower values ensure more availability during updates but slower rollout speed. Higher values speed up deployments but reduce availability.
+
+**Default Value:** `25`
+
+<a id="deployment-update-strategy-rolling-update-max-surge-percent"></a>
+
+### deployment.update_strategy.rolling_update.max_surge_percent
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to specify the maximum percentage of pods that can be created above the desired number during a rolling update.
+
+**Use Case:** Higher values speed up deployments by creating more new pods at once, but require more cluster resources.
+
+**Default Value:** `25`
+
+<a id="deployment-lifecycle-post-start-exec-command"></a>
+
+### deployment.lifecycle.post_start_exec_command
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+
+**Type:** `string`
+
+**Description:** Allows you to specify a command to execute immediately after a container starts.
+
+**Use Case:** Use this for initialization tasks that must run after the container starts but before it receives traffic.
+
+**Default Value:** `""`
+
+**Example:**
+```json
+["/bin/sh", "-c", "echo 'Container started' > /tmp/started"]
+```
+
+<a id="deployment-lifecycle-pre-stop-exec-command"></a>
+
+### deployment.lifecycle.pre_stop_exec_command
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+
+**Type:** `string`
+
+**Description:** Allows you to specify a command to execute before a container is terminated.
+
+**Use Case:** Use this for graceful shutdown procedures, such as finishing in-flight requests or closing connections cleanly.
+
+**Default Value:** `["/bin/sh", "-c", "sleep 15"]`
+
+**Example:**
+```json
+["/bin/sh", "-c", "kill -SIGTERM 1 && sleep 30"]
+```
+
 ---
 
 ## Network Settings
@@ -173,6 +267,20 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Default Value:** `DNT, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Range, Authorization`
 
+<a id="network-ingress-force-ssl-redirect"></a>
+
+### network.ingress.force_ssl_redirect
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `boolean`
+
+**Description:** Allows you to enforce HTTPS by automatically redirecting HTTP requests to HTTPS.
+
+**Use Case:** Enable this to ensure all traffic to your service uses encrypted connections.
+
+**Default Value:** `true`
+
 <a id="network-ingress-proxy-body-size-mb"></a>
 
 ### network.ingress.proxy_body_size_mb
@@ -187,6 +295,86 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Default Value:** `100`
 
+<a id="network-ingress-proxy-buffer-size-kb"></a>
+
+### network.ingress.proxy_buffer_size_kb
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to set the size of the buffer used for reading the first part of the response received from the proxied server, in kilobytes.
+
+**Use Case:** Increase this if you have large response headers.
+
+**Default Value:** `4`
+
+<a id="network-ingress-proxy-connect-timeout-seconds"></a>
+
+### network.ingress.proxy_connect_timeout_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to set the timeout in seconds for establishing a connection with a proxied server.
+
+**Default Value:** `60`
+
+<a id="network-ingress-proxy-read-timeout-seconds"></a>
+
+### network.ingress.proxy_read_timeout_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to set the timeout in seconds for reading a response from the proxied server.
+
+**Use Case:** Increase this for long-running requests or slow backend responses.
+
+**Default Value:** `60`
+
+<a id="network-ingress-proxy-send-timeout-seconds"></a>
+
+### network.ingress.proxy_send_timeout_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to set the timeout in seconds for transmitting a request to the proxied server.
+
+**Default Value:** `60`
+
+<a id="network-ingress-proxy-buffering"></a>
+
+### network.ingress.proxy_buffering
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to enable or disable buffering of responses from the proxied server. Options are `on` or `off`.
+
+**Use Case:** Disable buffering for streaming responses or server-sent events.
+
+**Default Value:** `on`
+
+<a id="network-ingress-proxy-request-buffering"></a>
+
+### network.ingress.proxy_request_buffering
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to enable or disable buffering of client request bodies. Options are `on` or `off`.
+
+**Use Case:** Disable for streaming uploads or when handling large file uploads incrementally.
+
+**Default Value:** `on`
+
 <a id="network-ingress-proxy-set-headers"></a>
 
 ### network.ingress.proxy_set_headers
@@ -198,6 +386,25 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 **Description:** Allows you to define custom headers to add to requests forwarded to your service.
 
 **Default Value:** `{}`
+
+<a id="network-ingress-add-headers"></a>
+
+### network.ingress.add_headers
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to attach supplementary headers to outgoing responses from your service.
+
+**Use Case:** Use this to inject custom HTTP headers into responses, commonly useful for security headers like `X-Frame-Options`, `X-Content-Type-Options`, `Content-Security-Policy`, etc.
+
+**Default Value:** `{}`
+
+**Example:**
+```json
+{"X-Frame-Options":"DENY","X-Content-Type-Options":"nosniff"}
+```
 
 <a id="network-ingress-whitelist-source-range"></a>
 
@@ -253,29 +460,45 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Default Value:** `false`
 
-<a id="network-ingress-sticky-session-cookie-name"></a>
+<a id="network-ingress-keepalive-time-seconds"></a>
 
-### network.ingress.sticky_session_cookie_name
-
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
-
-**Type:** `string`
-
-**Description:** Allows you to specify the cookie name used for sticky sessions.
-
-**Default Value:** `QOVERY_COOKIE_ID`
-
-<a id="network-ingress-grpc"></a>
-
-### network.ingress.grpc
+### network.ingress.keepalive_time_seconds
 
 <span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
 
-**Type:** `boolean`
+**Type:** `integer`
 
-**Description:** Allows you to enable gRPC protocol support for your service.
+**Description:** Allows you to set the time in seconds during which a keep-alive client connection will stay open on the server side.
 
-**Default Value:** `false`
+**Use Case:** Adjust this to optimize connection reuse and reduce overhead of creating new connections.
+
+**Default Value:** `3600`
+
+<a id="network-ingress-keepalive-timeout-seconds"></a>
+
+### network.ingress.keepalive_timeout_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to set the timeout in seconds during which a keep-alive client connection will remain idle before being closed.
+
+**Default Value:** `60`
+
+<a id="network-ingress-send-timeout-seconds"></a>
+
+### network.ingress.send_timeout_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to set the timeout in seconds for transmitting a response to the client.
+
+**Use Case:** Increase this for slow clients or large response payloads.
+
+**Default Value:** `60`
 
 <a id="network-ingress-grpc-send-timeout-seconds"></a>
 
@@ -289,29 +512,116 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Default Value:** `60`
 
-<a id="network-ingress-add-rate-limit"></a>
+<a id="network-ingress-grpc-read-timeout-seconds"></a>
 
-### network.ingress.add_rate_limit
-
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
-
-**Type:** `boolean`
-
-**Description:** Allows you to enable rate limiting for your service.
-
-**Default Value:** `false`
-
-<a id="network-ingress-rate-limit-rpm"></a>
-
-### network.ingress.rate_limit_rpm
+### network.ingress.grpc_read_timeout_seconds
 
 <span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
-**Description:** Allows you to specify the maximum number of requests per minute allowed per IP address.
+**Description:** Allows you to specify the timeout in seconds for gRPC read operations.
 
-**Default Value:** `0`
+**Default Value:** `60`
+
+<a id="network-ingress-nginx-controller-configuration-snippet"></a>
+
+### network.ingress.nginx_controller_configuration_snippet
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to inject custom NGINX configuration snippets into the location block of the ingress controller.
+
+**Use Case:** Use this for advanced NGINX customization that isn't available through other settings.
+
+**Default Value:** `null`
+
+<a id="network-ingress-nginx-controller-server-snippet"></a>
+
+### network.ingress.nginx_controller_server_snippet
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to inject custom NGINX configuration snippets into the server block of the ingress controller.
+
+**Use Case:** Use this for server-level NGINX configuration that applies to all locations.
+
+**Default Value:** `null`
+
+<a id="network-ingress-nginx-limit-burst-multiplier"></a>
+
+### network.ingress.nginx_limit_burst_multiplier
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to set the burst multiplier for NGINX rate limiting.
+
+**Use Case:** Control how many requests can exceed the rate limit in short bursts.
+
+**Default Value:** `null`
+
+<a id="network-ingress-nginx-limit-connections"></a>
+
+### network.ingress.nginx_limit_connections
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to limit the number of concurrent connections from a single IP address.
+
+**Use Case:** Protect your service from connection-based attacks or excessive connection usage.
+
+**Default Value:** `null`
+
+<a id="network-ingress-nginx-limit-rpm"></a>
+
+### network.ingress.nginx_limit_rpm
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to set NGINX-specific rate limiting in requests per minute.
+
+**Default Value:** `null`
+
+<a id="network-ingress-nginx-limit-rps"></a>
+
+### network.ingress.nginx_limit_rps
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to set NGINX-specific rate limiting in requests per second.
+
+**Default Value:** `null`
+
+<a id="network-ingress-nginx-custom-http-errors"></a>
+
+### network.ingress.nginx_custom_http_errors
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Allows you to specify custom HTTP error codes that should be intercepted and handled by NGINX.
+
+**Use Case:** Define custom error pages for specific HTTP status codes.
+
+**Default Value:** `null`
+
+**Example:**
+```json
+"404,503"
+```
 
 ---
 
@@ -321,7 +631,7 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### hpa.cpu.average_utilization_percent
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
 
 **Type:** `integer`
 
@@ -335,7 +645,7 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### hpa.memory.average_utilization_percent
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
 
 **Type:** `integer`
 
@@ -344,30 +654,6 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 **Use Case:** Set this to scale your application based on memory usage.
 
 **Default Value:** `null`
-
-<a id="hpa-scale-down-policy-strategy"></a>
-
-### hpa.scale_down_policy_strategy
-
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
-
-**Type:** `string`
-
-**Description:** Allows you to define the strategy for scaling down pods. Options are `Max`, `Min`, or `Disabled`.
-
-**Default Value:** `Max`
-
-<a id="hpa-scale-up-policy-strategy"></a>
-
-### hpa.scale_up_policy_strategy
-
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
-
-**Type:** `string`
-
-**Description:** Allows you to define the strategy for scaling up pods. Options are `Max`, `Min`, or `Disabled`.
-
-**Default Value:** `Max`
 
 ---
 
@@ -399,51 +685,63 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Default Value:** `1`
 
+<a id="cronjob-success-job-history-limit"></a>
+
+### cronjob.success_job_history_limit
+
+<span class="badge-cronjob">Cronjob</span>
+
+**Type:** `string`
+
+**Description:** Allows you to specify the number of successful job executions to keep in history.
+
+**Default Value:** `1`
+
+<a id="cronjob-concurrency-policy"></a>
+
+### cronjob.concurrency_policy
+
+<span class="badge-cronjob">Cronjob</span>
+
+**Type:** `string`
+
+**Description:** Allows you to specify how concurrent executions of a job are handled. Options are `Forbidden` (do not allow concurrent runs), `Allow` (allow concurrent runs), or `Replace` (replace currently running job).
+
+**Use Case:** Use `Forbidden` to prevent overlapping executions, `Allow` for independent parallel runs, or `Replace` to cancel old runs when a new one starts.
+
+**Default Value:** `Forbidden`
+
 ---
 
 ## Resources
 
-<a id="resources-override"></a>
+<a id="resources-override-limit-cpu-in-milli"></a>
 
-### resources.override
+### resources.override.limit.cpu_in_milli
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> <span class="badge-helm">Helm</span>
-
-**Type:** `Map`
-
-**Description:** Allows you to override default resource requests and limits for your service pods.
-
-**Use Case:** Use this to fine-tune CPU and memory allocation beyond the standard Qovery instance sizes.
-
-**Default Value:** `{}`
-
-**Example:**
-```json
-{
-  "requests": {
-    "cpu": "500m",
-    "memory": "512Mi"
-  },
-  "limits": {
-    "cpu": "1000m",
-    "memory": "1Gi"
-  }
-}
-```
-
-<a id="readiness-probe-initial-delay-seconds"></a>
-
-### readiness_probe.initial_delay_seconds
-
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
-**Description:** Allows you to specify the initial delay in seconds before the first readiness probe check.
+**Description:** Allows you to override the CPU limit for your service pods in millicores (1000m = 1 vCPU).
 
-**Use Case:** Increase this value if your application takes longer to start up and become ready to serve traffic.
+**Use Case:** Use this to fine-tune CPU allocation beyond the standard Qovery instance sizes.
 
-**Default Value:** `30`
+**Default Value:** `null`
+
+<a id="resources-override-limit-ram-in-mib"></a>
+
+### resources.override.limit.ram_in_mib
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+
+**Type:** `integer`
+
+**Description:** Allows you to override the RAM limit for your service pods in mebibytes.
+
+**Use Case:** Use this to fine-tune memory allocation beyond the standard Qovery instance sizes.
+
+**Default Value:** `null`
 
 ---
 
@@ -453,7 +751,7 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### security.service_account_name
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `string`
 
@@ -462,6 +760,34 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 **Use Case:** Use this to assign specific IAM roles or permissions to your application via Kubernetes ServiceAccounts.
 
 **Default Value:** `null`
+
+<a id="security-automount-service-account-token"></a>
+
+### security.automount_service_account_token
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+
+**Type:** `boolean`
+
+**Description:** Allows you to control whether the service account token is automatically mounted into pods.
+
+**Use Case:** Set to `false` to improve security for pods that don't need to access the Kubernetes API.
+
+**Default Value:** `false`
+
+<a id="security-read-only-root-filesystem"></a>
+
+### security.read_only_root_filesystem
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+
+**Type:** `boolean`
+
+**Description:** Allows you to mount the container's root filesystem as read-only.
+
+**Use Case:** Enable this security best practice to prevent the container from writing to its filesystem, reducing attack surface. Requires your application to write only to mounted volumes.
+
+**Default Value:** `false`
 
 ---
 
