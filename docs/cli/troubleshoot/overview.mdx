@@ -1,0 +1,42 @@
+---
+title: "Troubleshooting"
+description: "Find solutions to common issues with Qovery CLI"
+---
+
+This troubleshooting guide helps you resolve common issues you may encounter while using Qovery CLI. Use the sections below to find solutions quickly.
+
+---
+
+## CLI Issues
+
+<AccordionGroup>
+  <Accordion title="Error: invalid character '}' after top-level value" icon="circle-xmark">
+  **Symptom:** Your CLI command fails with a "Error: invalid character '}' after top-level value" error message.
+
+  **Common Causes:** This message can occur when there is an error in your CLI authentication.
+
+  **Solutions:**
+    <Steps>
+      <Step title="Remove your current authentication context">
+        Delete the file `.qovery/context.json` from your home directory. 
+      </Step>
+
+      <Step title="Authenticate again">
+        Use the `qovery auth` command to recreate your authentication context.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Error: 400 Bad Request JSON parse error: Cannot coerce empty String" icon="gear">
+  **Symptom:** Your CLI command fails with a "Error: 400 Bad Request" error message. If ran with the `--verbose` flag, the error message tells you "JSON parse error: Cannot coerce empty String"
+
+  **Common Causes:** This message can occur when your CLI version is not up to date.
+
+  **Solutions:**
+    <Steps>
+      <Step title="Upgrade Qovery CLI">
+        Use the `qovery upgrade` command to perform the upgrade of the CLI. 
+      </Step>
+    </Steps>
+  </Accordion>  
+</AccordionGroup>

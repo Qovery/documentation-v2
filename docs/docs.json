@@ -508,6 +508,12 @@
               "cli/commands/upgrade",
               "cli/commands/version"
             ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "cli/troubleshoot/overview"
+            ]
           }
         ]
       },
