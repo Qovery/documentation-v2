@@ -4,7 +4,9 @@ description: "Manage your Kubernetes clusters with Qovery"
 ---
 
 <Info>
-For detailed cluster installation instructions, see [Kubernetes Installation Guide](/installation/kubernetes). For troubleshooting, check the [Troubleshooting Section](#troubleshooting).
+  For detailed cluster installation instructions, see [Kubernetes Installation
+  Guide](/installation/kubernetes). For troubleshooting, check the
+  [Troubleshooting Section](#troubleshooting).
 </Info>
 
 ## Managing your Clusters with Qovery
@@ -19,22 +21,41 @@ To create a new cluster:
 4. Follow the provider-specific guide for your cloud platform:
 
 <CardGroup cols={2}>
-  <Card title="AWS EKS with Karpenter" icon="/images/logos/cloud-providers/aws-icon.svg" href="/configuration/integrations/kubernetes/eks/managed" badge="Recommended">
-    Create managed EKS cluster with Karpenter autoscaling
-  </Card>
-  <Card title="AWS EKS" icon="/images/logos/cloud-providers/aws-icon.svg" href="/configuration/integrations/kubernetes/eks/aws-eks">
+  <Card
+    title="AWS EKS"
+    icon="/images/logos/cloud-providers/aws-icon.svg"
+    href="/configuration/integrations/kubernetes/eks/managed"
+    badge="Recommended"
+  >
     Create managed EKS cluster
   </Card>
-  <Card title="AWS EKS Anywhere" icon="/images/logos/cloud-providers/aws-icon.svg" href="/configuration/integrations/kubernetes/eks/eks-anywhere">
-    Create EKS Anywhere cluster directly from Qovery. Contact us to enable this integration.
+  <Card
+    title="AWS EKS Anywhere"
+    icon="/images/logos/cloud-providers/aws-icon.svg"
+    href="/configuration/integrations/kubernetes/eks/eks-anywhere"
+  >
+    Create EKS Anywhere cluster directly from Qovery. Contact us to enable this
+    integration.
   </Card>
-  <Card title="Azure AKS" icon="/images/logos/cloud-providers/azure-icon.svg" href="/configuration/integrations/kubernetes/aks/managed">
+  <Card
+    title="Azure AKS"
+    icon="/images/logos/cloud-providers/azure-icon.svg"
+    href="/configuration/integrations/kubernetes/aks/managed"
+  >
     Create managed AKS cluster
   </Card>
-  <Card title="GCP GKE" icon="/images/logos/cloud-providers/gcp-icon.svg" href="/configuration/integrations/kubernetes/gke/managed">
+  <Card
+    title="GCP GKE"
+    icon="/images/logos/cloud-providers/gcp-icon.svg"
+    href="/configuration/integrations/kubernetes/gke/managed"
+  >
     Create managed GKE cluster
   </Card>
-  <Card title="Scaleway Kapsule" icon="/images/logos/cloud-providers/scaleway-icon.svg" href="/configuration/integrations/kubernetes/scaleway/managed">
+  <Card
+    title="Scaleway Kapsule"
+    icon="/images/logos/cloud-providers/scaleway-icon.svg"
+    href="/configuration/integrations/kubernetes/scaleway/managed"
+  >
     Create managed Kapsule cluster
   </Card>
 </CardGroup>
@@ -55,6 +76,7 @@ Qovery offers two deployment models for your Kubernetes clusters:
     ✅ Auto-scaling (with Karpenter on AWS)
     ✅ Automatic Kubernetes upgrades
     ✅ Monitoring and alerting included
+
   </Card>
 
   <Card title="Self-Managed Cluster (BYOK)" icon="server" href="/configuration/integrations/kubernetes/byok">
@@ -68,24 +90,28 @@ Qovery offers two deployment models for your Kubernetes clusters:
     ✅ Multi-tenant setups
     ✅ Your upgrade schedule
     ✅ Bring your own tools
+
   </Card>
 </CardGroup>
 
 #### Comparison
 
-| Feature | Qovery-Managed | Self-Managed (BYOK) |
-|---------|----------------|---------------------|
-| **Setup Time** | 15-30 minutes | 10-15 minutes (existing cluster) |
-| **Infrastructure Management** | Fully automated by Qovery | You manage infrastructure |
-| **Kubernetes Upgrades** | Automatic, tested by Qovery | You control timing and process |
-| **Auto-scaling** | Built-in (Karpenter on AWS) | You configure |
-| **Monitoring** | Included | You provide |
-| **Cost** | Infrastructure + Qovery platform | Infrastructure + Qovery platform |
-| **Customization** | Standard configurations | Full control |
-| **Best For** | Teams wanting automation | Teams with specific requirements |
+| Feature                       | Qovery-Managed                   | Self-Managed (BYOK)              |
+| ----------------------------- | -------------------------------- | -------------------------------- |
+| **Setup Time**                | 15-30 minutes                    | 10-15 minutes (existing cluster) |
+| **Infrastructure Management** | Fully automated by Qovery        | You manage infrastructure        |
+| **Kubernetes Upgrades**       | Automatic, tested by Qovery      | You control timing and process   |
+| **Auto-scaling**              | Built-in (Karpenter on AWS)      | You configure                    |
+| **Monitoring**                | Included                         | You provide                      |
+| **Cost**                      | Infrastructure + Qovery platform | Infrastructure + Qovery platform |
+| **Customization**             | Standard configurations          | Full control                     |
+| **Best For**                  | Teams wanting automation         | Teams with specific requirements |
 
 <Info>
-For production workloads, we recommend **Qovery-Managed clusters** for their automated updates, built-in best practices, and reduced operational overhead. Choose **BYOK** if you have specific compliance requirements or existing cluster investments.
+  For production workloads, we recommend **Qovery-Managed clusters** for their
+  automated updates, built-in best practices, and reduced operational overhead.
+  Choose **BYOK** if you have specific compliance requirements or existing
+  cluster investments.
 </Info>
 
 ### Overview
@@ -93,6 +119,7 @@ For production workloads, we recommend **Qovery-Managed clusters** for their aut
 Once your cluster is created, the cluster card displays comprehensive information about your cluster's configuration and health:
 
 **Cluster Details:**
+
 - Deployed nodes and their current statuses
 - Instance type configuration (min/max instances)
 - Reserved resources: CPU, memory, and disk capacity
@@ -102,7 +129,10 @@ Once your cluster is created, the cluster card displays comprehensive informatio
 - Per-node resource allocation
 
 <Frame>
-  <img src="/images/configuration/clusters/cluster-overview.png" alt="Cluster Overview" />
+  <img
+    src="/images/configuration/clusters/cluster-overview.png"
+    alt="Cluster Overview"
+  />
 </Frame>
 
 ### Statuses
@@ -111,34 +141,35 @@ Qovery tracks cluster health using two status categories:
 
 #### Cluster Statuses
 
-| Status | Description |
-|--------|-------------|
-| <Icon icon="circle-check" iconType="solid" color="green" /> **Running** | Cluster is healthy and operational |
+| Status                                                                           | Description                               |
+| -------------------------------------------------------------------------------- | ----------------------------------------- |
+| <Icon icon="circle-check" iconType="solid" color="green" /> **Running**          | Cluster is healthy and operational        |
 | <Icon icon="triangle-exclamation" iconType="solid" color="yellow" /> **Warning** | Minor issues detected, requires attention |
-| <Icon icon="circle-xmark" iconType="solid" color="red" /> **Error** | Critical issues, intervention required |
-| <Icon icon="circle" iconType="regular" color="gray" /> **Status unavailable** | Cluster unreachable or offline |
+| <Icon icon="circle-xmark" iconType="solid" color="red" /> **Error**              | Critical issues, intervention required    |
+| <Icon icon="circle" iconType="regular" color="gray" /> **Status unavailable**    | Cluster unreachable or offline            |
 
 #### Deployment Statuses
 
-| Status | Description |
-|--------|-------------|
-| **Deployment Queued** | Deployment is waiting in the queue |
-| **Deploying** | Deployment is currently in progress |
-| **Last Deployment Failed** | The most recent deployment encountered errors |
+| Status                        | Description                                       |
+| ----------------------------- | ------------------------------------------------- |
+| **Deployment Queued**         | Deployment is waiting in the queue                |
+| **Deploying**                 | Deployment is currently in progress               |
+| **Last Deployment Failed**    | The most recent deployment encountered errors     |
 | **Last Deployment Succeeded** | The most recent deployment completed successfully |
 
 ### Performing Actions on Clusters
 
 Available cluster operations and their cloud provider compatibility:
 
-| Action | AWS | Azure | GCP | Scaleway | Description |
-|--------|-----|-------|-----|----------|-------------|
-| **Update** | ✅ | ✅ | ✅ | ✅ | Redeploy cluster after configuration changes |
-| **Stop** | ✅ | ✅ | ✅ | ✅ | Temporarily pause cluster (provider charges may still apply) |
-| **Restart** | ✅ | ✅ | ✅ | ✅ | Resume a stopped cluster |
-| **Delete** | ✅ | ✅ | ✅ | ✅ | Permanently remove cluster |
+| Action      | AWS | Azure | GCP | Scaleway | Description                                                  |
+| ----------- | --- | ----- | --- | -------- | ------------------------------------------------------------ |
+| **Update**  | ✅  | ✅    | ✅  | ✅       | Redeploy cluster after configuration changes                 |
+| **Stop**    | ✅  | ✅    | ✅  | ✅       | Temporarily pause cluster (provider charges may still apply) |
+| **Restart** | ✅  | ✅    | ✅  | ✅       | Resume a stopped cluster                                     |
+| **Delete**  | ✅  | ✅    | ✅  | ✅       | Permanently remove cluster                                   |
 
 To perform an action:
+
 1. Navigate to your cluster page
 2. Click the action dropdown menu
 3. Select the desired action
@@ -153,7 +184,8 @@ Redeploys your cluster after making configuration changes through the Qovery Con
 Temporarily pauses your cluster to reduce costs.
 
 <Warning>
-Some cloud provider charges may continue even when the cluster is stopped (e.g., storage, reserved IPs, load balancers).
+  Some cloud provider charges may continue even when the cluster is stopped
+  (e.g., storage, reserved IPs, load balancers).
 </Warning>
 
 #### Restarting a Cluster
@@ -165,11 +197,13 @@ Resumes a stopped cluster and redeploys all services.
 Permanently removes your cluster. You have three deletion options:
 
 1. **Default (Recommended)**: Complete cleanup
+
    - Deletes all Qovery-managed resources
    - Removes cloud provider infrastructure
    - No residual costs
 
 2. **Delete on cloud provider and Qovery configuration**: Manual database handling
+
    - Deletes cluster from cloud provider
    - Removes Qovery configuration
    - Requires manual database cleanup
@@ -180,27 +214,32 @@ Permanently removes your cluster. You have three deletion options:
    - Continue managing manually in cloud console
 
 <Warning>
-Cluster deletion is **permanent and irreversible**. Ensure you have backups before proceeding.
+  Cluster deletion is **permanent and irreversible**. Ensure you have backups
+  before proceeding.
 </Warning>
 
 #### Additional Actions
 
 **Audit Logs:**
+
 - Access complete cluster activity history
 - Track configuration changes and deployments
 - Available for compliance and troubleshooting
 
 **Cluster ID:**
+
 - Retrieve unique cluster identifier
 - Required for API operations and support tickets
 
 **Kubeconfig:**
+
 - Download Kubernetes configuration file
 - Enable direct kubectl access
 - Use for advanced debugging and management
 
 <Warning>
-**Security Best Practice**: Kubeconfig provides cluster-admin access. Store securely and never commit to version control.
+  **Security Best Practice**: Kubeconfig provides cluster-admin access. Store
+  securely and never commit to version control.
 </Warning>
 
 ## Logs
@@ -214,19 +253,28 @@ Access cluster logs for troubleshooting and monitoring:
    - **Error Details**: Specific error messages and stack traces
 
 <Frame>
-  <img src="/images/configuration/clusters/cluster_logs_access.png" alt="Access Cluster Logs" />
+  <img
+    src="/images/configuration/clusters/cluster_logs_access.png"
+    alt="Access Cluster Logs"
+  />
 </Frame>
 
 **Successful Operations:**
 
 <Frame>
-  <img src="/images/configuration/clusters/ok-infra-logs.jpg" alt="Successful Cluster Logs" />
+  <img
+    src="/images/configuration/clusters/ok-infra-logs.jpg"
+    alt="Successful Cluster Logs"
+  />
 </Frame>
 
 **Error Logs:**
 
 <Frame>
-  <img src="/images/configuration/clusters/error-infra-logs.jpg" alt="Cluster Error Logs" />
+  <img
+    src="/images/configuration/clusters/error-infra-logs.jpg"
+    alt="Cluster Error Logs"
+  />
 </Frame>
 
 ## Custom Domain and Wildcard TLS (Beta)
@@ -255,13 +303,12 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
     7. Create and copy the token
   </Step>
 
-  <Step title="Configure in Qovery">
-    1. Navigate to your cluster settings
-    2. Find the **Custom Domain** section
-    3. Enter your domain (e.g., `example.com`)
-    4. Paste your Cloudflare API token
-    5. Save configuration
-  </Step>
+{" "}
+<Step title="Configure in Qovery">
+  1. Navigate to your cluster settings 2. Find the **Custom Domain** section 3.
+  Enter your domain (e.g., `example.com`) 4. Paste your Cloudflare API token 5.
+  Save configuration
+</Step>
 
   <Step title="Update DNS">
     Qovery will provide DNS records to add to your Cloudflare account
@@ -269,7 +316,8 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
 </Steps>
 
 <Info>
-This feature is currently in **Beta**. Additional DNS providers will be supported in future releases.
+  This feature is currently in **Beta**. Additional DNS providers will be
+  supported in future releases.
 </Info>
 
 ## AWS Account Cleanup
@@ -283,11 +331,11 @@ If cluster deletion fails or leaves resources behind, you can manually clean up 
     Navigate to the [AWS Resource Groups & Tag Editor](https://console.aws.amazon.com/resource-groups/tag-editor)
   </Step>
 
-  <Step title="Search for Qovery Resources">
-    1. Select **All supported resource types**
-    2. Add tag filter: `ClusterId` or `QoveryCluster`
-    3. Search for resources
-  </Step>
+{" "}
+<Step title="Search for Qovery Resources">
+  1. Select **All supported resource types** 2. Add tag filter: `ClusterId` or
+  `QoveryCluster` 3. Search for resources
+</Step>
 
   <Step title="Review and Delete">
     1. Review the list of tagged resources
@@ -303,11 +351,15 @@ If cluster deletion fails or leaves resources behind, you can manually clean up 
 </Steps>
 
 <Frame>
-  <img src="/images/configuration/clusters/aws-console-cluster-cleanup.jpg" alt="AWS Console Cleanup" />
+  <img
+    src="/images/configuration/clusters/aws-console-cluster-cleanup.jpg"
+    alt="AWS Console Cleanup"
+  />
 </Frame>
 
 <Warning>
-Manual cleanup should only be performed if automatic Qovery deletion fails. Always verify resources before deletion to avoid data loss.
+  Manual cleanup should only be performed if automatic Qovery deletion fails.
+  Always verify resources before deletion to avoid data loss.
 </Warning>
 
 ## FAQ
@@ -325,6 +377,7 @@ Manual cleanup should only be performed if automatic Qovery deletion fails. Alwa
     - **Auto-scaling**: Automatically adjust resources based on demand
     - **Environment isolation**: Separate development, staging, and production workloads
     - **Multi-region deployment**: Deploy applications closer to your users
+
   </Accordion>
 
   <Accordion title="What instance types are available?">
@@ -350,6 +403,7 @@ Manual cleanup should only be performed if automatic Qovery deletion fails. Alwa
     <Info>
     Architecture compatibility: Ensure your container images support your chosen architecture (x86_64 or ARM).
     </Info>
+
   </Accordion>
 
   <Accordion title="How does Qovery handle Kubernetes upgrades?">
@@ -364,6 +418,7 @@ Manual cleanup should only be performed if automatic Qovery deletion fails. Alwa
     </Warning>
 
     You'll receive notifications when new versions are available for your clusters.
+
   </Accordion>
 
   <Accordion title="What happens when vulnerabilities are discovered?">
@@ -376,6 +431,7 @@ Manual cleanup should only be performed if automatic Qovery deletion fails. Alwa
     5. **Deployment assistance**: Guided remediation process
 
     Critical security patches may be applied automatically after customer notification.
+
   </Accordion>
 
   <Accordion title="What is a mirroring registry?">
@@ -387,6 +443,7 @@ Manual cleanup should only be performed if automatic Qovery deletion fails. Alwa
     - Better control over image versions
 
     Learn more in our [Image Mirroring documentation](/configuration/deployment/image-mirroring).
+
   </Accordion>
 
   <Accordion title="Why does my cluster show 'unavailable' status?">
@@ -409,22 +466,39 @@ Manual cleanup should only be performed if automatic Qovery deletion fails. Alwa
     <Warning>
     Always manage clusters through Qovery Console to avoid status inconsistencies. Manual changes in cloud provider consoles can cause unexpected behavior.
     </Warning>
+
   </Accordion>
 </AccordionGroup>
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Create Environment" icon="layer-group" href="/configuration/environment">
+  <Card
+    title="Create Environment"
+    icon="layer-group"
+    href="/configuration/environment"
+  >
     Set up your first environment on the cluster
   </Card>
-  <Card title="Deploy Application" icon="rocket" href="/getting-started/guides/getting-started/deploy-your-first-application">
+  <Card
+    title="Deploy Application"
+    icon="rocket"
+    href="/getting-started/guides/getting-started/deploy-your-first-application"
+  >
     Deploy your first application
   </Card>
-  <Card title="Configure Monitoring" icon="chart-line" href="/configuration/integrations/observability/qovery-observe">
+  <Card
+    title="Configure Monitoring"
+    icon="chart-line"
+    href="/configuration/integrations/observability/qovery-observe"
+  >
     Set up observability and monitoring
   </Card>
-  <Card title="Secure Your Cluster" icon="shield-check" href="/getting-started/guides/qovery-101/secure">
+  <Card
+    title="Secure Your Cluster"
+    icon="shield-check"
+    href="/getting-started/guides/qovery-101/secure"
+  >
     Implement security best practices
   </Card>
 </CardGroup>
