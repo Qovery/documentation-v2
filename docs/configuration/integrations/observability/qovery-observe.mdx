@@ -187,7 +187,7 @@ Create alerts based on these monitoring categories:
     Track memory consumption and prevent OOM issues
   </Card>
   <Card title="HTTP Errors" icon="triangle-exclamation">
-    Detect elevated error rates (4xx/5xx responses)
+    Detect elevated 5xx server error rates
   </Card>
   <Card title="HTTP Latency" icon="gauge-high">
     Alert on slow response times and performance degradation
@@ -276,7 +276,7 @@ Define when the alert should fire based on the comparison between your metric an
   <Card title="Above (>)" icon="greater-than">
     Triggers when metric **exceeds** the threshold
 
-    **Common use**: CPU usage, memory usage, error rates, latency
+    **Common use**: CPU usage, memory usage, 5xx error rates, latency
 
     **Example**: CPU > 80%
   </Card>
@@ -381,7 +381,7 @@ Shorter durations increase alert sensitivity but also increase false positives. 
     **Why**: Maximum captures tail latency affecting user experience, 1000ms is a common SLA threshold, 5 minutes confirms sustained issue.
   </Tab>
 
-  <Tab title="HTTP Errors">
+  <Tab title="HTTP 5xx Errors">
     **Recommended configuration:**
     - **Aggregation**: Average (across all requests)
     - **Trigger condition**: Above 5%
@@ -389,12 +389,12 @@ Shorter durations increase alert sensitivity but also increase false positives. 
 
     **Query example:**
     ```
-    SEND A NOTIFICATION WHEN THE AVERAGE OF ERROR RATE (5XX)
+    SEND A NOTIFICATION WHEN THE AVERAGE OF 5XX ERROR RATE
     FOR [SERVICE_NAME] IS ABOVE 5 %
     DURING THE LAST 3 MINUTES
     ```
 
-    **Why**: Average error rate shows overall service health, 5% indicates significant issues, 3 minutes for faster detection.
+    **Why**: Average 5xx error rate shows server-side issues, 5% indicates significant problems, 3 minutes for faster detection of service degradation.
   </Tab>
 </Tabs>
 
