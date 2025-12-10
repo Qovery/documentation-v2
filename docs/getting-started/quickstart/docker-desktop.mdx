@@ -83,24 +83,16 @@ Before starting, ensure you have:
         </Tabs>
       </Tab>
 
-      <Tab title="Windows">
-        <Tabs>
-          <Tab title="Scoop">
-            The classic way to install binaries on Windows is to use [Scoop](https://scoop.sh).
+      <Tab title="Windows (WSL)">
+        <Warning>
+        **WSL Required**: All Qovery commands must be run in a WSL (Windows Subsystem for Linux) terminal. If you haven't installed WSL yet, follow [Microsoft's WSL installation guide](https://learn.microsoft.com/en-us/windows/wsl/install).
+        </Warning>
 
-            ```bash
-            # Add Qovery bucket
-            scoop bucket add qovery https://github.com/Qovery/scoop-qovery-cli
+        To download and install Qovery CLI on Windows using WSL:
 
-            # Install the CLI
-            scoop install qovery-cli
-            ```
-          </Tab>
-
-          <Tab title="Manual">
-            Install the Qovery CLI on Windows manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to `C:\Windows`.
-          </Tab>
-        </Tabs>
+        ```bash
+        curl -s https://get.qovery.com | bash
+        ```
       </Tab>
 
       <Tab title="Docker">
