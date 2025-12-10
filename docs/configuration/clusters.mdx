@@ -348,26 +348,30 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
     5. Create and save the **Access Key ID** and **Secret Access Key**
   </Step>
 
-  <Step title="Get Hosted Zone ID">
+  <Step title="Get Hosted Zone ID (Optional)">
     1. In AWS Console, go to **Route53** → **Hosted zones**
     2. Select your domain
     3. Copy the **Hosted Zone ID** (format: `Z0123456789ABCDEFGHIJ`)
+
+    <Info>
+    The Hosted Zone ID is optional. If not provided, Qovery will auto-detect it.
+    </Info>
   </Step>
 
-  <Step title="Configure in Qovery">
-    1. Navigate to your cluster settings
-    2. Find the **Custom Domain** section
-    3. Select **AWS Route53** as the DNS provider
-    4. Enter your domain (e.g., `example.com`)
-    5. Paste your AWS Access Key ID
-    6. Paste your AWS Secret Access Key
-    7. Enter your AWS region (e.g., `us-east-1`)
-    8. Enter your Hosted Zone ID (optional, auto-detected if not provided)
-    9. Save configuration
+  <Step title="Contact Qovery Support">
+    Contact [Qovery Support](https://www.qovery.com/contact) with the following information:
+    - Your cluster ID
+    - Your domain name (e.g., `example.com`)
+    - Your AWS Access Key ID
+    - Your AWS Secret Access Key
+    - Your AWS region (e.g., `us-east-1`)
+    - Your Hosted Zone ID (optional)
+
+    The Qovery team will configure the integration for you.
   </Step>
 
   <Step title="Verify DNS">
-    Qovery will automatically create and manage DNS records in your Route53 hosted zone
+    Once configured, Qovery will automatically create and manage DNS records in your Route53 hosted zone
   </Step>
 </Steps>
 
