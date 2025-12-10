@@ -212,7 +212,6 @@
                 "pages": [
                   "configuration/integrations/kubernetes/eks/overview",
                   "configuration/integrations/kubernetes/eks/managed",
-                  "configuration/integrations/kubernetes/eks/aws-eks",
                   "configuration/integrations/kubernetes/eks/eks-anywhere"
                 ]
               },

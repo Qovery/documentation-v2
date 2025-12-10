@@ -1,18 +1,18 @@
 ---
-title: "AWS EKS with Karpenter"
-description: "Learn how to configure your AWS Kubernetes clusters with Karpenter on Qovery"
+title: "AWS EKS"
+description: "Learn how to configure your AWS Kubernetes clusters on Qovery"
 ---
 
 <Info>
-**Recommended Mode**
+**Default Autoscaling Mode**
 
-AWS EKS with Karpenter is the recommended mode for all new clusters. The mode without Karpenter is being deprecated and is only maintained for users who do not have Static IP enabled.
+All AWS EKS clusters on Qovery now use Karpenter for autoscaling, which automatically launches the right compute resources to handle your cluster's applications.
 </Info>
 
 Karpenter automatically launches just the right compute resources to handle your cluster's applications. It is designed to let you take full advantage of the cloud with fast and simple compute provisioning for Kubernetes clusters.
 You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-costs-with-eks-and-karpenter/) for more information.
 
-## Creating an AWS EKS Cluster with Karpenter
+## Creating an AWS EKS Cluster
 
 ### Create the Cluster
 
