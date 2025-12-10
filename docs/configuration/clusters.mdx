@@ -281,14 +281,9 @@ Access cluster logs for troubleshooting and monitoring:
 
 By default, Qovery assigns a subdomain under `qovery.io` to your cluster services. However, Let's Encrypt rate limits may affect certificate issuance.
 
-To use your own custom domain with wildcard TLS certificates, Qovery supports **Cloudflare** integration.
+To use your own custom domain with wildcard TLS certificates, Qovery supports **Cloudflare** and **AWS Route53** integration.
 
-### Requirements
-
-- A domain managed by Cloudflare
-- Cloudflare API token with specific permissions
-
-### Setup Steps
+### Cloudflare Setup
 
 <Steps>
   <Step title="Create Cloudflare API Token">
@@ -303,21 +298,81 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
     7. Create and copy the token
   </Step>
 
-{" "}
-<Step title="Configure in Qovery">
-  1. Navigate to your cluster settings 2. Find the **Custom Domain** section 3.
-  Enter your domain (e.g., `example.com`) 4. Paste your Cloudflare API token 5.
-  Save configuration
-</Step>
+  <Step title="Contact Qovery Support">
+    Contact Qovery Support via your usual channel (in-app chat, Slack, or email) with the following information:
+    - Your cluster ID
+    - Your domain name (e.g., `example.com`)
+    - Your Cloudflare API token
+    - Your Cloudflare account email
 
-  <Step title="Update DNS">
-    Qovery will provide DNS records to add to your Cloudflare account
+    The Qovery team will configure the integration for you.
+  </Step>
+
+  <Step title="Verify DNS">
+    Once configured, Qovery will automatically manage DNS records in your Cloudflare account
+  </Step>
+</Steps>
+
+### AWS Route53 Setup
+
+<Steps>
+  <Step title="Create AWS IAM Credentials">
+    1. Log into your AWS Console
+    2. Navigate to **IAM** → **Users**
+    3. Create a new user or select an existing one
+    4. Attach the policy with these permissions:
+       ```json
+       {
+         "Version": "2012-10-17",
+         "Statement": [
+           {
+             "Effect": "Allow",
+             "Action": [
+               "route53:GetChange",
+               "route53:ChangeResourceRecordSets",
+               "route53:ListResourceRecordSets"
+             ],
+             "Resource": [
+               "arn:aws:route53:::hostedzone/*",
+               "arn:aws:route53:::change/*"
+             ]
+           },
+           {
+             "Effect": "Allow",
+             "Action": "route53:ListHostedZonesByName",
+             "Resource": "*"
+           }
+         ]
+       }
+       ```
+    5. Create and save the **Access Key ID** and **Secret Access Key**
+  </Step>
+
+  <Step title="Get Hosted Zone ID">
+    1. In AWS Console, go to **Route53** → **Hosted zones**
+    2. Select your domain
+    3. Copy the **Hosted Zone ID** (format: `Z0123456789ABCDEFGHIJ`)
+  </Step>
+
+  <Step title="Configure in Qovery">
+    1. Navigate to your cluster settings
+    2. Find the **Custom Domain** section
+    3. Select **AWS Route53** as the DNS provider
+    4. Enter your domain (e.g., `example.com`)
+    5. Paste your AWS Access Key ID
+    6. Paste your AWS Secret Access Key
+    7. Enter your AWS region (e.g., `us-east-1`)
+    8. Enter your Hosted Zone ID (optional, auto-detected if not provided)
+    9. Save configuration
+  </Step>
+
+  <Step title="Verify DNS">
+    Qovery will automatically create and manage DNS records in your Route53 hosted zone
   </Step>
 </Steps>
 
 <Info>
-  This feature is currently in **Beta**. Additional DNS providers will be
-  supported in future releases.
+This feature is currently in **Beta**. Both **Cloudflare** and **AWS Route53** are supported. Additional DNS providers will be added in future releases.
 </Info>
 
 ## AWS Account Cleanup
