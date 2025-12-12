@@ -91,6 +91,20 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Default Value:** `null`
 
+<a id="build-disable-buildkit-cache"></a>
+
+### build.disable_buildkit_cache
+
+<span class="badge-app">Application</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+
+**Type:** `boolean`
+
+**Description:** Allows you to disable BuildKit registry cache (`--cache-from` and `--cache-to` flags) during Docker builds.
+
+**Default Value:** `false`
+
+**Use Case:** Enable this setting when your build tool (such as Turbo, Bazel, or Nx) has its own caching mechanism. In these cases, BuildKit's registry cache import/export operations add overhead without benefit, as the application-level cache is more effective. Disabling BuildKit cache can significantly reduce build times for projects using these tools.
+
 ---
 
 ## Deployment Settings
