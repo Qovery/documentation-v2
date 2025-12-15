@@ -32,6 +32,9 @@ Qovery Observe is not yet self-service. Contact Qovery via Slack or email to get
   <Card title="Events" icon="clock">
     Qovery and Kubernetes events (deployments, scaling, failures)
   </Card>
+  <Card title="Alerts" icon="bell">
+    Proactive monitoring with customizable alerts and notifications
+  </Card>
 </CardGroup>
 
 <img src="/images/observability/capabilities.png" alt="Observability Capabilities" />
@@ -149,9 +152,266 @@ Qovery collects and stores logs using **Loki + Promtail** with:
   </Card>
 </CardGroup>
 
+## Alerts
+
+Qovery provides a built-in alerting system that proactively monitors your services and notifies you when specific conditions are met. Access alerts through the **Monitoring** section at the service level or via the dedicated **Alerting** section in the navigation menu.
+
+### Alert Management
+
+Each service (Application or Container) has a **Monitoring** section that includes two tabs:
+
+- **Dashboard**: Real-time metrics visualization with graphs for CPU, memory, network, and latency
+- **Alerts**: View existing alerts and create new ones for this specific service
+
+The navigation menu also includes a dedicated **Alerting** section where you can manage all your alerts from a centralized location:
+
+- **Issues**: View all currently fired alerts with their severity, target service, and duration. Each issue shows which alert rule triggered it and how long it has been active.
+- **Alert rules**: Browse and manage all configured alert rules across your services
+- **Notification channel**: Configure and manage notification channels (Slack, and more integrations coming soon)
+
+<img src="/images/observability/issues-overview.png" alt="Alerting Section - Issues Overview" />
+
+<Tip>
+To receive alerts in Slack, you first need to configure a notification channel. See the [Slack Integration guide](/configuration/integrations/slack) to set up Slack webhooks and add notification channels.
+</Tip>
+
+### Alert Categories
+
+Create alerts based on these monitoring categories:
+
+<CardGroup cols={2}>
+  <Card title="CPU" icon="microchip">
+    Monitor CPU usage thresholds and spikes
+  </Card>
+  <Card title="Memory" icon="memory">
+    Track memory consumption and prevent OOM issues
+  </Card>
+  <Card title="HTTP Errors" icon="triangle-exclamation">
+    Detect elevated 5xx server error rates
+  </Card>
+  <Card title="HTTP Latency" icon="gauge-high">
+    Alert on slow response times and performance degradation
+  </Card>
+  <Card title="Missing Instances" icon="server">
+    Get notified when services can't reach minimum instance count
+  </Card>
+  <Card title="Instance Restarts" icon="rotate">
+    Track unexpected pod restarts and crashes
+  </Card>
+  <Card title="Auto-Scaling Limit" icon="arrow-up-to-line">
+    Alert when service reaches maximum instance limit
+  </Card>
+</CardGroup>
+
+### Creating an Alert
+
+<Steps>
+  <Step title="Select Alert Category">
+    Choose the type of alert you want to create (CPU, Memory, HTTP Errors, etc.)
+  </Step>
+
+  <Step title="Configure Conditions">
+    Define the trigger conditions for your alert:
+    - View the underlying query powering the alert
+    - Customize threshold values and duration
+    - Preview how the condition evaluates against your metrics
+  </Step>
+
+  <Step title="Configure Alert Details">
+    Set up the alert notification:
+    - **Alert name**: Descriptive name for easy identification
+    - **Notification message**: Custom text included in notifications
+    - **Notification channel**: Select a configured Slack channel (more integrations coming soon)
+  </Step>
+</Steps>
+
+<img src="/images/observability/create-alert.png" alt="Creating an Alert" />
+
+<Tip>
+Start with pre-configured alert templates and adjust thresholds based on your service's normal behavior.
+</Tip>
+
+### Alert Conditions Guide
+
+Understanding how to configure alert conditions is crucial for effective monitoring. Here's a detailed explanation of each configuration option.
+
+#### Aggregation Methods (Maximum, Minimum, Average)
+
+When monitoring metrics, you need to decide how to aggregate the data over the specified duration:
+
+<AccordionGroup>
+  <Accordion title="Maximum" icon="arrow-up">
+    **When to use**: Detect peak usage or spikes
+
+    - **CPU**: Alert when any instance hits high CPU, even briefly
+    - **Memory**: Catch memory spikes before OOM kills
+    - **Network Latency**: Detect worst-case response times (tail latency)
+
+    **Example**: Alert when maximum CPU usage exceeds 80% - triggers if any pod reaches 80%, even if others are idle.
+  </Accordion>
+
+  <Accordion title="Minimum" icon="arrow-down">
+    **When to use**: Detect drops or missing resources
+
+    - **CPU**: Identify underutilized services (cost optimization)
+    - **Memory**: Detect memory leaks causing gradual drops in available memory
+    - **Network Latency**: Ensure baseline performance (rarely used for latency)
+
+    **Example**: Alert when minimum running instances drops below 2 - triggers when you have fewer than 2 healthy pods.
+  </Accordion>
+
+  <Accordion title="Average" icon="minus">
+    **When to use**: Monitor overall service health
+
+    - **CPU**: Track average load across all instances
+    - **Memory**: Monitor typical memory consumption
+    - **Network Latency**: Measure average response time across requests
+
+    **Example**: Alert when average CPU usage exceeds 70% - triggers based on the mean CPU across all pods.
+  </Accordion>
+</AccordionGroup>
+
+#### Trigger Conditions
+
+Define when the alert should fire based on the comparison between your metric and threshold:
+
+<CardGroup cols={2}>
+  <Card title="Above (>)" icon="greater-than">
+    Triggers when metric **exceeds** the threshold
+
+    **Common use**: CPU usage, memory usage, 5xx error rates, latency
+
+    **Example**: CPU > 80%
+  </Card>
+
+  <Card title="Below (<)" icon="less-than">
+    Triggers when metric **falls below** the threshold
+
+    **Common use**: Available instances, request rate drops
+
+    **Example**: Running instances < 2
+  </Card>
+
+  <Card title="Equal (=)" icon="equals">
+    Triggers when metric **exactly matches** the threshold
+
+    **Common use**: Specific status codes, exact counts
+
+    **Example**: Failed deployments = 3
+  </Card>
+
+  <Card title="Above or Equal (≥)" icon="greater-than-equal">
+    Triggers when metric is **greater than or equal to** the threshold
+
+    **Common use**: Cumulative thresholds
+
+    **Example**: Error count ≥ 100
+  </Card>
+
+  <Card title="Below or Equal (≤)" icon="less-than-equal">
+    Triggers when metric is **less than or equal to** the threshold
+
+    **Common use**: Resource availability, uptime percentage
+
+    **Example**: Available memory ≤ 20%
+  </Card>
+</CardGroup>
+
+#### Duration
+
+The duration specifies how long the condition must be true before the alert fires. This prevents false positives from temporary spikes.
+
+**Duration options:**
+- **Last 1 minute**: Very sensitive, catches issues immediately but may have false positives
+- **Last 5 minutes**: Balanced approach, good for most alerts
+- **Last 10 minutes**: Conservative, reduces noise but may delay critical alerts
+- **Last 15 minutes**: Best for informational alerts or gradual trends
+
+<Warning>
+Shorter durations increase alert sensitivity but also increase false positives. Longer durations reduce noise but may delay critical notifications.
+</Warning>
+
+<img src="/images/observability/alert-conditions-configuration.png" alt="Alert Conditions Configuration" />
+
+#### Practical Examples by Metric Type
+
+<Tabs>
+  <Tab title="CPU">
+    **Recommended configuration:**
+    - **Aggregation**: Maximum (catches any pod spiking)
+    - **Trigger condition**: Above 80%
+    - **Duration**: Last 5 minutes
+
+    **Query example:**
+    ```
+    SEND A NOTIFICATION WHEN THE MAXIMUM OF CPU
+    FOR [SERVICE_NAME] IS ABOVE 80 %
+    DURING THE LAST 5 MINUTES
+    ```
+
+    **Why**: Maximum catches any pod hitting high CPU, 80% leaves headroom before throttling, 5 minutes filters temporary spikes.
+  </Tab>
+
+  <Tab title="Memory">
+    **Recommended configuration:**
+    - **Aggregation**: Maximum (prevents OOM kills)
+    - **Trigger condition**: Above 85%
+    - **Duration**: Last 5 minutes
+
+    **Query example:**
+    ```
+    SEND A NOTIFICATION WHEN THE MAXIMUM OF MEMORY
+    FOR [SERVICE_NAME] IS ABOVE 85 %
+    DURING THE LAST 5 MINUTES
+    ```
+
+    **Why**: Maximum ensures no pod approaches OOM threshold, 85% provides buffer, 5 minutes allows time to investigate before critical.
+  </Tab>
+
+  <Tab title="Network Latency">
+    **Recommended configuration:**
+    - **Aggregation**: Maximum (P99 latency)
+    - **Trigger condition**: Above 1000 ms
+    - **Duration**: Last 5 minutes
+
+    **Query example:**
+    ```
+    SEND A NOTIFICATION WHEN THE MAXIMUM OF LATENCY (P99)
+    FOR [SERVICE_NAME] IS ABOVE 1000 MS
+    DURING THE LAST 5 MINUTES
+    ```
+
+    **Why**: Maximum captures tail latency affecting user experience, 1000ms is a common SLA threshold, 5 minutes confirms sustained issue.
+  </Tab>
+
+  <Tab title="HTTP 5xx Errors">
+    **Recommended configuration:**
+    - **Aggregation**: Average (across all requests)
+    - **Trigger condition**: Above 5%
+    - **Duration**: Last 3 minutes
+
+    **Query example:**
+    ```
+    SEND A NOTIFICATION WHEN THE AVERAGE OF 5XX ERROR RATE
+    FOR [SERVICE_NAME] IS ABOVE 5 %
+    DURING THE LAST 3 MINUTES
+    ```
+
+    **Why**: Average 5xx error rate shows server-side issues, 5% indicates significant problems, 3 minutes for faster detection of service degradation.
+  </Tab>
+</Tabs>
+
+<Tip>
+Use the **Main condition query** preview to verify your alert configuration before saving. The query shows exactly what condition will trigger notifications.
+</Tip>
+
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Slack Notifications" icon="slack" href="/configuration/integrations/slack">
+    Set up Slack notification channels for alerts
+  </Card>
+
   <Card title="Datadog" icon="dog" href="/configuration/integrations/observability/datadog">
     Add Datadog for advanced monitoring
   </Card>
