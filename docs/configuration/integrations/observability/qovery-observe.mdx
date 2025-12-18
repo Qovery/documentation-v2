@@ -118,6 +118,56 @@ Metrics represent ingress traffic for services with public ports or internal clu
 
 <img src="/images/observability/network.png" alt="Network Metrics" />
 
+### Managed Database Monitoring
+
+For managed databases (MySQL and PostgreSQL), Qovery Observe provides comprehensive monitoring of database performance and health metrics.
+
+<Note>
+To enable managed database monitoring, the CloudWatch exporter must be activated on your cluster. This is not currently self-service - contact Qovery via Slack or email to enable this feature.
+</Note>
+
+#### Overview Metrics
+
+Monitor critical database health indicators:
+
+<CardGroup cols={3}>
+  <Card title="CPU Usage" icon="microchip">
+    Track average CPU utilization across your database instances
+  </Card>
+  <Card title="Memory" icon="memory">
+    Monitor available RAM and memory consumption patterns
+  </Card>
+  <Card title="Database Connections" icon="plug">
+    Track active database connections in real-time
+  </Card>
+  <Card title="Swap Usage" icon="arrows-rotate">
+    Monitor swap memory usage (healthy databases should minimize swap)
+  </Card>
+  <Card title="Disk Queue Depth" icon="layer-group">
+    Track outstanding disk I/O operations for performance insights
+  </Card>
+  <Card title="Unvacuumed Transactions" icon="broom">
+    (PostgreSQL only) Monitor transactions pending cleanup operations
+  </Card>
+</CardGroup>
+
+#### Query Performance
+
+Track database query performance metrics:
+
+- **Write Latency**: Monitor write operation response times
+- **Read Latency**: Track read operation response times
+
+#### Storage & I/O
+
+Monitor disk performance and capacity:
+
+- **Write IOPS**: Operations per second for write operations
+- **Read IOPS**: Operations per second for read operations
+- **Storage Available**: Track remaining storage capacity percentage
+
+These metrics help you identify performance bottlenecks, optimize query performance, and ensure your database has adequate resources.
+
 ### Controls
 
 - **Live update toggle**: Continuous chart refresh
