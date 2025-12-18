@@ -617,5 +617,11 @@
   },
   "css": [
     "/custom.css"
-  ]
+  ],
+  "search": {
+    "prompt": "Search documentation..."
+  },
+  "api": {
+    "maintainOrder": true
+  }
 }
