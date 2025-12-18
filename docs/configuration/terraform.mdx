@@ -461,6 +461,146 @@ Destroy: -parallelism=5 -refresh=false
 
 ---
 
+## Custom Build Image
+
+By default, Terraform services run using a base Docker image (Debian-based) containing Terraform (or OpenTofu), `dumb-init`, `rsync`, `bash`, and `ca-certificates`. If your Terraform code requires additional binaries or tools (e.g., AWS CLI, `kubectl`, `jq`, custom scripts), you can customize the build image using a **Dockerfile fragment**.
+
+### Configuring a Dockerfile Fragment
+
+Qovery provides two ways to inject custom Dockerfile commands during the build:
+
+1. **File-based**: Reference a Dockerfile fragment file stored in your Git repository
+2. **Inline**: Provide Dockerfile commands directly in the service configuration
+
+<Tabs>
+  <Tab title="File-based Fragment">
+    Reference a Dockerfile fragment file from your repository.
+
+    <Steps>
+      <Step title="Create Fragment File">
+        In your Git repository, create a Dockerfile fragment file in your Terraform code directory or a custom location.
+
+        **Example directory structure:**
+        ```
+        my-repo/
+        ├── terraform/
+        │   ├── main.tf
+        │   ├── variables.tf
+        │   └── custom-build.dockerfile   # Your fragment file
+        └── README.md
+        ```
+      </Step>
+
+      <Step title="Add Dockerfile Instructions">
+        Add valid Dockerfile instructions to install the tools you need. The fragment is injected into the build **after** your Terraform files are copied and **before** the final user switch.
+
+        See the **Fragment Examples** section below for common use cases.
+      </Step>
+
+      <Step title="Configure Service">
+        In the Terraform service settings, configure the Dockerfile fragment:
+
+        - Navigate to **Service Settings** → **Dockerfile Fragment**
+        - Select **Custom file path**
+        - Enter the absolute path to your fragment file (e.g., `/terraform/custom-build.dockerfile`)
+
+        <Info>
+        The path must be absolute (starting with `/`) and located within your service's `root_path`.
+        </Info>
+      </Step>
+
+      <Step title="Deploy">
+        Save your changes and deploy. Qovery will inject the fragment contents during the Docker build.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Inline Fragment">
+    Define Dockerfile commands directly in the service configuration without creating a file in your repository.
+
+    <Steps>
+      <Step title="Configure Service">
+        In the Terraform service settings:
+
+        - Navigate to **Service Settings** → **Dockerfile Fragment**
+        - Select **Inline content**
+        - Enter your Dockerfile commands in the text area
+
+        **Example:**
+        ```dockerfile
+        # Install AWS CLI and common utilities
+        RUN apt-get update && \
+            apt-get install -y --no-install-recommends awscli jq curl && \
+            rm -rf /var/lib/apt/lists/*
+        ```
+      </Step>
+
+      <Step title="Deploy">
+        Save your changes and deploy. Qovery will inject the inline content during the Docker build.
+      </Step>
+    </Steps>
+
+    <Info>
+    Inline fragments are limited to 8KB of content. For larger customizations, use a file-based fragment.
+    </Info>
+  </Tab>
+</Tabs>
+
+### Fragment Examples
+
+**Installing AWS CLI and common tools:**
+```dockerfile
+# Install AWS CLI and common utilities
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends awscli jq curl && \
+    rm -rf /var/lib/apt/lists/*
+```
+
+**Installing kubectl:**
+```dockerfile
+# Install kubectl (curl is already available in the base image)
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/
+```
+
+**Installing a custom binary from your repository:**
+```dockerfile
+# Install a custom tool already present in the repository
+# (repository files are already copied to /data)
+RUN cp /data/bin/my-custom-tool /usr/local/bin/my-custom-tool && \
+    chmod +x /usr/local/bin/my-custom-tool
+```
+
+**Downloading and extracting a remote archive:**
+```dockerfile
+# Download and extract a tool from the internet
+ADD https://releases.example.com/tool-v1.2.3.tar.gz /tmp/tool.tar.gz
+RUN tar -xzf /tmp/tool.tar.gz -C /usr/local/bin/ && \
+    rm /tmp/tool.tar.gz
+```
+
+### Supported Dockerfile Instructions
+
+The fragment supports the following Dockerfile instructions:
+
+- `RUN` - Execute commands during build (install packages, configure tools, etc.)
+- `ADD` - Add files with URL/archive support (download and extract remote archives)
+
+<Info>
+Repository files are already present in `/data` before the fragment executes, so you can reference them in `RUN` commands without needing `COPY`.
+</Info>
+
+<Warning>
+The fragment runs as `root` during the build. The container switches to a non-root user (`app`) after your fragment executes. Make sure any binaries you install are accessible to all users.
+</Warning>
+
+<Info>
+This feature is specific to Terraform and OpenTofu services. Applications and Jobs use different build mechanisms.
+</Info>
+
+---
+
 ## Clone Service
 
 You can create a clone of the service via the clone feature. A new service with the same configuration will be created into the target environment.
