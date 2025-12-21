@@ -617,5 +617,11 @@
   },
   "css": [
     "/custom.css"
-  ]
+  ],
+  "integrations": {
+    "posthog": {
+      "apiKey": "phc_IgdG1K2GveDUte1gJ6hlwNbFHCv9nViWETUyLMU7ciq",
+      "sessionRecording": true
+    }
+  }
 }
