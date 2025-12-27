@@ -620,6 +620,7 @@
   ],
   "integrations": {
     "posthog": {
+      "apiHost": "https://phprox.qovery.com",
       "apiKey": "phc_IgdG1K2GveDUte1gJ6hlwNbFHCv9nViWETUyLMU7ciq",
       "sessionRecording": true
     }
