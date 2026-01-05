@@ -46,46 +46,118 @@ Bring Your Own Kubernetes (BYOK) allows you to connect any Kubernetes cluster to
 ## Quick Start
 
 <Steps>
-  <Step title="Prepare Cluster">
-    Ensure requirements are met:
-    ```bash
-    # Check Kubernetes version
-    kubectl version --short
+  <Step title="Install Qovery CLI">
+    Download and install the Qovery CLI (or update to the latest version):
 
-    # Check storage class
-    kubectl get storageclass
+    <Tabs>
+      <Tab title="Linux">
+        <Tabs>
+          <Tab title="*nix">
+            To download and install Qovery CLI on any Linux distribution:
 
-    # Check metrics server
-    kubectl top nodes
-    ```
+            ```bash
+            curl -s https://get.qovery.com | bash
+            ```
+          </Tab>
+
+          <Tab title="Arch Linux">
+            Qovery is part of [AUR](https://aur.archlinux.org/packages) packages, so you can install it with [yay](https://github.com/Jguer/yay):
+
+            ```bash
+            yay qovery-cli
+            ```
+          </Tab>
+
+          <Tab title="Manual">
+            Install the Qovery CLI on Linux manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+          </Tab>
+        </Tabs>
+      </Tab>
+
+      <Tab title="MacOS">
+        <Tabs>
+          <Tab title="Homebrew">
+            The common solution to install a command line binary on the MacOS is to use [Homebrew](https://brew.sh).
+
+            ```bash
+            # Add Qovery brew repository
+            brew tap Qovery/qovery-cli
+
+            # Install the CLI
+            brew install qovery-cli
+            ```
+          </Tab>
+
+          <Tab title="Script">
+            To download and install Qovery CLI from the command line:
+
+            ```bash
+            curl -s https://get.qovery.com | bash
+            ```
+          </Tab>
+
+          <Tab title="Manual">
+            Install the Qovery CLI on Mac OS manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+          </Tab>
+        </Tabs>
+      </Tab>
+
+      <Tab title="Windows">
+        <Tabs>
+          <Tab title="Scoop">
+            The classic way to install binaries on Windows is to use [Scoop](https://scoop.sh).
+
+            ```bash
+            # Add Qovery bucket
+            scoop bucket add qovery https://github.com/Qovery/scoop-qovery-cli
+
+            # Install the CLI
+            scoop install qovery-cli
+            ```
+          </Tab>
+
+          <Tab title="Manual">
+            Install the Qovery CLI on Windows manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to `C:\Windows`.
+          </Tab>
+        </Tabs>
+      </Tab>
+
+      <Tab title="Docker">
+        Install Docker on your local machine and run the following command:
+
+        ```bash
+        # Pull and Run the latest Qovery CLI
+        docker run ghcr.io/qovery/qovery-cli:latest help
+        ```
+
+        Change `latest` by the version you want to use. For example, to use the version 0.58.4, run:
+
+        ```bash
+        docker run ghcr.io/qovery/qovery-cli:0.58.4 help
+        ```
+
+        <Info>
+        `ghcr.io` is the [GitHub Container Registry](https://github.com/Qovery/qovery-cli/pkgs/container/qovery-cli).
+        </Info>
+      </Tab>
+    </Tabs>
   </Step>
 
-  <Step title="Get Qovery Agent">
-    In Qovery Console:
-    1. Settings → Clusters → Add Cluster
-    2. Select "Bring Your Own Kubernetes"
-    3. Download Helm values or kubectl manifests
-  </Step>
-
-  <Step title="Install Qovery Agent">
-    Using Helm (recommended):
+  <Step title="Install Qovery on your cluster">
+    Run the following command from your terminal and follow the instructions:
     ```bash
-    helm repo add qovery https://helm.qovery.com
-    helm repo update
-
-    helm install qovery-agent qovery/qovery-agent \
-      --namespace qovery \
-      --create-namespace \
-      --values qovery-values.yaml
+    qovery cluster install
     ```
+
+    This interactive command will guide you through the installation process and configure the Qovery agent on your cluster.
   </Step>
 
   <Step title="Verify Connection">
     ```bash
     kubectl get pods -n qovery
     ```
-    
-    Cluster should show as "Connected" in Qovery Console
+
+    Cluster should show as "Running" in Qovery Console
   </Step>
 </Steps>
 
