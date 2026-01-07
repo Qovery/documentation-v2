@@ -152,12 +152,15 @@ Bring Your Own Kubernetes (BYOK) allows you to connect any Kubernetes cluster to
     This interactive command will guide you through the installation process and configure the Qovery agent on your cluster.
   </Step>
 
-  <Step title="Verify Connection">
+  <Step title="Verify Qovery Pods">
+    Check that all Qovery pods are running in your cluster:
     ```bash
     kubectl get pods -n qovery
     ```
+  </Step>
 
-    Cluster should show as "Running" in Qovery Console
+  <Step title="Verify in Qovery Console">
+    Your cluster should now show as "Running" in the Qovery Console.
   </Step>
 </Steps>
 
@@ -296,9 +299,5 @@ For on-premise, consider:
 
   <Card title="Generic Kubernetes" icon="dharmachakra" href="/configuration/integrations/kubernetes/byok">
     Detailed BYOK installation guide
-  </Card>
-
-  <Card title="Local Development" icon="docker" href="/configuration/integrations/kubernetes/docker">
-    Use Docker Desktop for development
   </Card>
 </CardGroup>
