@@ -3,6 +3,8 @@ title: "Bring Your Own Kubernetes (BYOK)"
 description: "Connect any Kubernetes cluster to Qovery"
 ---
 
+import InstallQoveryCLI from '/snippets/install-qovery-cli.mdx';
+
 ## Overview
 
 Bring Your Own Kubernetes (BYOK) allows you to connect any Kubernetes cluster to Qovery. You maintain control over your cluster infrastructure while Qovery manages application deployments.
@@ -46,46 +48,30 @@ Bring Your Own Kubernetes (BYOK) allows you to connect any Kubernetes cluster to
 ## Quick Start
 
 <Steps>
-  <Step title="Prepare Cluster">
-    Ensure requirements are met:
+  <Step title="Install Qovery CLI">
+    Download and install the Qovery CLI (or update to the latest version):
+
+    <InstallQoveryCLI />
+  </Step>
+
+  <Step title="Install Qovery on your cluster">
+    Run the following command from your terminal and follow the instructions:
     ```bash
-    # Check Kubernetes version
-    kubectl version --short
-
-    # Check storage class
-    kubectl get storageclass
-
-    # Check metrics server
-    kubectl top nodes
+    qovery cluster install
     ```
+
+    This interactive command will guide you through the installation process and configure the Qovery agent on your cluster.
   </Step>
 
-  <Step title="Get Qovery Agent">
-    In Qovery Console:
-    1. Settings → Clusters → Add Cluster
-    2. Select "Bring Your Own Kubernetes"
-    3. Download Helm values or kubectl manifests
-  </Step>
-
-  <Step title="Install Qovery Agent">
-    Using Helm (recommended):
-    ```bash
-    helm repo add qovery https://helm.qovery.com
-    helm repo update
-
-    helm install qovery-agent qovery/qovery-agent \
-      --namespace qovery \
-      --create-namespace \
-      --values qovery-values.yaml
-    ```
-  </Step>
-
-  <Step title="Verify Connection">
+  <Step title="Verify Qovery Pods">
+    Check that all Qovery pods are running in your cluster:
     ```bash
     kubectl get pods -n qovery
     ```
-    
-    Cluster should show as "Connected" in Qovery Console
+  </Step>
+
+  <Step title="Verify in Qovery Console">
+    Your cluster should now show as "Running" in the Qovery Console.
   </Step>
 </Steps>
 
@@ -224,9 +210,5 @@ For on-premise, consider:
 
   <Card title="Generic Kubernetes" icon="dharmachakra" href="/configuration/integrations/kubernetes/byok">
     Detailed BYOK installation guide
-  </Card>
-
-  <Card title="Local Development" icon="docker" href="/configuration/integrations/kubernetes/docker">
-    Use Docker Desktop for development
   </Card>
 </CardGroup>
