@@ -103,6 +103,44 @@ resource "qovery_cluster" "my_cluster" {
 
 ---
 
+## Cluster sizing
+
+<a id="aws-cloudwatch-eks-logs-retention-days"></a>
+
+### cluster.profile
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Defines the cluster sizing profile, which determines the default resource allocation and performance characteristics of the cluster.
+
+<Info>
+  Choosing a larger profile may incur higher costs but provides better performance and capacity for workloads.
+  Here are detailed insights to help you choose the right profile:
+  - `Small`: Suitable for development, testing, or small-scale applications with low resource demands.
+    * 3-5 nodes | 12-20 vCPUs | 24-40 GB RAM | ~50-100 pods
+    * Node size: 2-4 vCPUs, 4-8 GB RAM per node
+    * Use cases: Development, staging, small internal tools
+  - `Medium`: A balanced option for moderate workloads, suitable for most production applications.
+    * 6-10 nodes | 48-80 vCPUs | 96-160 GB RAM | ~200-400 pods
+    * Node size: 4-8 vCPUs, 8-16 GB RAM per node
+    * Use cases: Small to medium production apps, multi-tenant dev environments
+  - `Large`: Designed for high-traffic applications or workloads requiring significant resources.
+    * 11-20 nodes | 176-320 vCPUs | 352-640 GB RAM | ~500-1000 pods
+    * Node size: 8-16 vCPUs, 16-32 GB RAM per node
+    * Use cases: Enterprise production applications, microservices architectures
+  - `ExtraLarge`: Ideal for enterprise-level applications with intensive resource needs and 
+    high availability requirements.
+    * 20+ nodes | 400+ vCPUs | 800+ GB RAM | 1000+ pods
+    * Node size: 16-32+ vCPUs, 32-64+ GB RAM per node
+    * Use cases: Large-scale production, ML/AI workloads, intensive data processing
+</Info>
+
+**Valid values:** `Small`, `Medium`, `Large`, `ExtraLarge`
+
+**Default Value:** `Medium`
+
 ## Logs
 
 <a id="aws-cloudwatch-eks-logs-retention-days"></a>
