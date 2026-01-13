@@ -819,13 +819,17 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `list of integers`
 
-**Description:** List of HTTP status codes for which Envoy Gateway should serve custom error pages. Each code must be a valid HTTP status code between 100 and 599.
+**Description:** List of HTTP status codes for which Envoy Gateway should serve custom error pages. When you specify a status code in this list, Envoy Gateway will intercept that error and serve a hardcoded HTML error page instead of passing through the upstream error response. Each HTTP error code has its own hardcoded HTML page built into Envoy Gateway.
+
+<Info>
+The hardcoded error pages cannot be customized at this time. If you need to customize error pages for your use case, please contact us and we can extend this feature.
+</Info>
 
 **Valid values:** HTTP status codes from `100` to `599`
 
 **Default Value:** `null`
 
-**Example:** `[404, 503, 502, 500]`
+**Example:** `[404, 503, 502, 500]` - This will serve custom hardcoded HTML pages for Not Found, Service Unavailable, Bad Gateway, and Internal Server Error responses.
 
 <a id="envoy-controller-enable-compression"></a>
 
