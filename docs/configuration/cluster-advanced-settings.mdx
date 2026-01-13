@@ -839,7 +839,18 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 **Type:** `boolean`
 
-**Description:** Enables HTTP response compression in Envoy Gateway. When enabled, Envoy compresses responses to reduce bandwidth usage and improve performance.
+**Description:** Enables HTTP response compression in Envoy Gateway. When enabled, Envoy Gateway automatically compresses HTTP responses using multiple compression algorithms to reduce bandwidth usage and improve performance.
+
+**Compression algorithms enabled:**
+- **Gzip** - Compression level 6 (widely supported, good compression ratio)
+- **Brotli** - Quality level 6 (better compression than Gzip, modern browsers)
+- **Zstd** - Compression level 6 (fastest compression, newest standard)
+
+Envoy Gateway automatically selects the best compression algorithm based on the client's `Accept-Encoding` header.
+
+<Info>
+**For customers migrating from NGINX:** This replaces NGINX's compression settings (`enable-brotli` and `use-gzip`). The main difference is that Envoy Gateway adds **Zstd** as a third compression algorithm alongside Gzip and Brotli. All compression levels match NGINX defaults (level 6).
+</Info>
 
 **Default Value:** `true`
 
