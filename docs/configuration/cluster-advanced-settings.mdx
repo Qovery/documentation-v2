@@ -790,6 +790,91 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `null` (uses Envoy default behavior)
 
+<a id="envoy-log-format"></a>
+
+### envoy.log_format
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Custom log format for Envoy Gateway access logs. Allows you to define the structure and content of log entries using Envoy's log formatting syntax. See [Envoy Gateway access logging documentation](https://gateway.envoyproxy.io/latest/tasks/observability/proxy-accesslog/#default-access-log) for available format variables and configuration options.
+
+<Info>
+**For customers migrating from NGINX:** This replaces the NGINX `log_format_upstream` setting. Envoy uses its own format string with command operators like `%REQ(X-HEADER)%`, `%RESP(X-HEADER)%`, and `%DURATION%` instead of NGINX's `$variable` syntax.
+</Info>
+
+**Default Value:** `null` (uses Envoy default log format)
+
+**Example:**
+```json
+"[%START_TIME%] %REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL% %RESPONSE_CODE% %DURATION% %RESP(X-REQUEST-ID)% %REQ(X-FORWARDED-FOR)%"
+```
+
+<a id="envoy-controller-custom-http-errors"></a>
+
+### envoy.controller.custom_http_errors
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `list of integers`
+
+**Description:** List of HTTP status codes for which Envoy Gateway should serve custom error pages. Each code must be a valid HTTP status code between 100 and 599.
+
+**Valid values:** HTTP status codes from `100` to `599`
+
+**Default Value:** `null`
+
+**Example:** `[404, 503, 502, 500]`
+
+<a id="envoy-controller-enable-compression"></a>
+
+### envoy.controller.enable_compression
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enables HTTP response compression in Envoy Gateway. When enabled, Envoy compresses responses to reduce bandwidth usage and improve performance.
+
+**Default Value:** `true`
+
+<a id="envoy-default-backend-enabled"></a>
+
+### envoy.default_backend.enabled
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enables the default backend for Envoy Gateway. The default backend serves a generic error page for requests that don't match any route.
+
+**Default Value:** `false`
+
+<a id="envoy-default-backend-image"></a>
+
+### envoy.default_backend.image
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Specifies the Docker image used for the default backend.
+
+**Default Value:** `null`
+
+<a id="envoy-default-backend-tag"></a>
+
+### envoy.default_backend.tag
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Defines the image tag used by the default backend.
+
+**Default Value:** `null`
+
 ---
 
 ## Network - Database Access Control
