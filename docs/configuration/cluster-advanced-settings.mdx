@@ -702,7 +702,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Minimum number of Envoy Gateway replicas for horizontal pod autoscaling. This ensures a baseline level of availability and load distribution.
+**Description:** Minimum number of Envoy Gateway replicas for horizontal pod autoscaling. This ensures a baseline level of availability and load distribution. Must be less than or equal to `envoy.hpa.max_number_instances`.
 
 **Default Value:** `2`
 
@@ -714,7 +714,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Maximum number of Envoy Gateway replicas for horizontal pod autoscaling. This sets an upper limit on scaling to control resource consumption.
+**Description:** Maximum number of Envoy Gateway replicas for horizontal pod autoscaling. This sets an upper limit on scaling to control resource consumption. Must be greater than or equal to `envoy.hpa.min_number_instances`.
 
 **Default Value:** `25`
 
@@ -726,7 +726,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** vCPU request value in millicores assigned to Envoy Gateway pods. This defines the minimum CPU resources guaranteed for each pod.
+**Description:** vCPU request value in millicores assigned to Envoy Gateway pods. This defines the minimum CPU resources guaranteed for each pod. Must be less than or equal to `envoy.vcpu.limit_in_milli_cpu`.
 
 **Default Value:** `100`
 
@@ -738,7 +738,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** vCPU limit value in millicores assigned to Envoy Gateway pods. This defines the maximum CPU resources that each pod can consume.
+**Description:** vCPU limit value in millicores assigned to Envoy Gateway pods. This defines the maximum CPU resources that each pod can consume. Must be greater than or equal to `envoy.vcpu.request_in_milli_cpu`.
 
 **Default Value:** `1000`
 
@@ -750,7 +750,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Memory request value in MiB assigned to Envoy Gateway pods. This defines the minimum memory resources guaranteed for each pod.
+**Description:** Memory request value in MiB assigned to Envoy Gateway pods. This defines the minimum memory resources guaranteed for each pod. Must be less than or equal to `envoy.memory.limit_in_mib`.
 
 **Default Value:** `256`
 
@@ -762,9 +762,33 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Memory limit value in MiB assigned to Envoy Gateway pods. This defines the maximum memory resources that each pod can consume.
+**Description:** Memory limit value in MiB assigned to Envoy Gateway pods. This defines the maximum memory resources that each pod can consume. Must be greater than or equal to `envoy.memory.request_in_mib`.
 
 **Default Value:** `1024`
+
+<a id="envoy-client-ip-detection-x-forwarded-for-number-trusted-hops"></a>
+
+### envoy.client_ip_detection.x_forwarded_for.number_trusted_hops
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Number of trusted hops in the X-Forwarded-For header for client IP detection. This setting determines how many proxy hops to trust when extracting the real client IP address from the X-Forwarded-For header. See [Envoy Gateway documentation](https://gateway.envoyproxy.io/latest/tasks/traffic/client-traffic-policy/#configure-client-ip-detection) for more details.
+
+<Info>
+**For customers migrating from NGINX:** This replaces the NGINX `use_forwarded_headers` and `compute_full_forwarded_for` settings. Instead of a boolean flag, Envoy uses a hop count to precisely control which IP addresses in the X-Forwarded-For chain to trust.
+</Info>
+
+**How to configure:**
+- Set to `1` if your traffic passes through 1 trusted proxy (e.g., AWS ALB only)
+- Set to `2` if your traffic passes through 2 trusted proxies (e.g., CloudFront → ALB)
+- Set to `0` to use only the direct connection IP (equivalent to NGINX `use_forwarded_headers: false`)
+- Leave as `null` to use Envoy's default behavior
+
+**Example:** If a request arrives with `X-Forwarded-For: client-ip, proxy1-ip, proxy2-ip` and you set `number_trusted_hops: 2`, Envoy will trust the last 2 hops (proxy1 and proxy2) and identify `client-ip` as the real client.
+
+**Default Value:** `null` (uses Envoy default behavior)
 
 ---
 
