@@ -718,6 +718,18 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `25`
 
+<a id="envoy-vcpu-request-in-milli-cpu"></a>
+
+### envoy.vcpu.request_in_milli_cpu
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** vCPU request value in millicores assigned to Envoy Gateway pods. This defines the minimum CPU resources guaranteed for each pod.
+
+**Default Value:** `100`
+
 ---
 
 ## Network - Database Access Control
