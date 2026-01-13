@@ -742,6 +742,18 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `1000`
 
+<a id="envoy-memory-request-in-mib"></a>
+
+### envoy.memory.request_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Memory request value in MiB assigned to Envoy Gateway pods. This defines the minimum memory resources guaranteed for each pod.
+
+**Default Value:** `256`
+
 ---
 
 ## Network - Database Access Control
