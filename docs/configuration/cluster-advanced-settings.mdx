@@ -680,6 +680,20 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `null` (uses Kubernetes default behavior)
 
+<a id="envoy-hpa-memory-average-utilization-percentage-threshold"></a>
+
+### envoy.hpa.memory_average_utilization_percentage_threshold
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `float`
+
+**Description:** HPA memory average utilization threshold assigned to Envoy Gateway deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes will scale up the number of Envoy replicas.
+
+**Valid values:** `0.0` to `1.0`
+
+**Default Value:** `null` (uses Kubernetes default behavior)
+
 ---
 
 ## Network - Database Access Control
