@@ -694,6 +694,18 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `null` (uses Kubernetes default behavior)
 
+<a id="envoy-hpa-min-number-instances"></a>
+
+### envoy.hpa.min_number_instances
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Minimum number of Envoy Gateway replicas for horizontal pod autoscaling. This ensures a baseline level of availability and load distribution.
+
+**Default Value:** `2`
+
 ---
 
 ## Network - Database Access Control
