@@ -754,6 +754,18 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `256`
 
+<a id="envoy-memory-limit-in-mib"></a>
+
+### envoy.memory.limit_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Memory limit value in MiB assigned to Envoy Gateway pods. This defines the maximum memory resources that each pod can consume.
+
+**Default Value:** `1024`
+
 ---
 
 ## Network - Database Access Control
