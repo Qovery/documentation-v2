@@ -208,6 +208,36 @@ Then instrument your application using the Datadog tracer for your language. See
     - Ensure correct `site` (datadoghq.com vs datadoghq.eu)
     - Check firewall/network policies allow outbound to Datadog
   </Accordion>
+
+  <Accordion title="Application logs not appearing in Datadog when Karpenter is enabled">
+  **Problem**: On a cluster with Karpenter enabled, some applications have their logs properly visible in Datadog but the logs are missing for some other applications.
+
+  **Reason**: The Datadog agent DaemonSet likely has node selectors or taints/tolerations that prevent it from running on the stable nodes where some of your services have been scheduled. Services with only one pod typically run on the stable node pool, which explains why logs from these services are missing when Karpenter is enabled.
+
+  **Solutions**: 
+  - Option 1 - tolerate all taints (recommended):
+  ```yaml
+  tolerations:
+  - operator: Exists  # This will tolerate all taints
+  ````
+
+- Option 2 - Specific node pool tolerations
+If you prefer to be more selective, use these specific tolerations:
+```yaml
+tolerations:
+  - key: "qovery.com/node-pool"
+    operator: "Equal"
+    value: "stable"
+    effect: "NoSchedule"
+  - key: "qovery.com/node-pool"
+    operator: "Equal"
+    value: "default"
+    effect: "NoSchedule"
+```
+
+After updating your Datadog Helm chart with these tolerations, the agent should be able to collect logs from services running on both the default and stable node pools.
+</Accordion>
+
 </AccordionGroup>
 
 ## Next Steps
