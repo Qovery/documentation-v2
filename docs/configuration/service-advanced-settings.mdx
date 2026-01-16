@@ -637,6 +637,346 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 "404,503"
 ```
 
+<a id="network-gateway-api-enable-sticky-session"></a>
+
+### network.gateway_api.enable_sticky_session
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `boolean`
+
+**Description:** Enables session affinity (sticky sessions) to ensure that requests from the same client are always routed to the same backend pod. This is useful for applications that maintain session state locally.
+
+**Use Case:** Enable for stateful applications that store session data in memory or local storage.
+
+**Default Value:** `false`
+
+<a id="network-gateway-api-force-ssl-redirect"></a>
+
+### network.gateway_api.force_ssl_redirect
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `boolean`
+
+**Description:** Forces automatic redirection from HTTP to HTTPS for all incoming requests. When enabled, any HTTP request will receive a 301 redirect to the HTTPS equivalent URL.
+
+**Use Case:** Enforce secure connections for all traffic to your application.
+
+**Default Value:** `true`
+
+<a id="network-gateway-api-enable-cors"></a>
+
+### network.gateway_api.enable_cors
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `boolean`
+
+**Description:** Enables Cross-Origin Resource Sharing (CORS) headers in responses. When enabled, the gateway will add CORS headers based on the configured `cors_allow_origin`, `cors_allow_methods`, and `cors_allow_headers` settings.
+
+**Use Case:** Enable when your application needs to be accessed from web browsers on different domains.
+
+**Default Value:** `false`
+
+<a id="network-gateway-api-cors-allow-origin"></a>
+
+### network.gateway_api.cors_allow_origin
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Specifies which origins are allowed to access the resource when CORS is enabled. Sets the `Access-Control-Allow-Origin` header.
+
+**Default Value:** `"*"` (allows all origins)
+
+**Example:**
+```json
+"https://example.com, https://app.example.com"
+```
+
+<a id="network-gateway-api-cors-allow-methods"></a>
+
+### network.gateway_api.cors_allow_methods
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Specifies which HTTP methods are allowed when CORS is enabled. Sets the `Access-Control-Allow-Methods` header.
+
+**Default Value:** `"GET, PUT, POST, DELETE, PATCH, OPTIONS"`
+
+<a id="network-gateway-api-cors-allow-headers"></a>
+
+### network.gateway_api.cors_allow_headers
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Specifies which HTTP headers are allowed in CORS requests. Sets the `Access-Control-Allow-Headers` header.
+
+**Default Value:** `"DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"`
+
+<a id="network-gateway-api-whitelist-source-range"></a>
+
+### network.gateway_api.whitelist_source_range
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Comma-separated list of IP addresses or CIDR ranges that are allowed to access the service. All other IP addresses will be denied. Use this for IP-based access control.
+
+**Use Case:** Restrict access to your service to specific IP ranges (e.g., corporate VPN, trusted partners).
+
+**Default Value:** `"0.0.0.0/0, ::/0"` (allows all IPv4 and IPv6 addresses)
+
+**Example:**
+```json
+"10.0.0.0/8, 192.168.1.0/24"
+```
+
+<a id="network-gateway-api-denylist-source-range"></a>
+
+### network.gateway_api.denylist_source_range
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Comma-separated list of IP addresses or CIDR ranges that are explicitly denied access to the service. All other IP addresses will be allowed.
+
+**Use Case:** Block specific IP addresses or ranges that are known to be malicious or unwanted.
+
+**Default Value:** `""` (no IPs are blocked)
+
+**Example:**
+```json
+"203.0.113.0/24, 198.51.100.0/24"
+```
+
+<a id="network-gateway-api-basic-auth-env-var"></a>
+
+### network.gateway_api.basic_auth_env_var
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Name of the environment variable containing Basic Authentication credentials in the format `username:password`. When set, the gateway will require HTTP Basic Authentication for all requests.
+
+**Use Case:** Add simple authentication protection to your service without modifying application code.
+
+**Default Value:** `""` (Basic Auth disabled)
+
+**Example:**
+```json
+"BASIC_AUTH_CREDENTIALS"
+```
+
+<a id="network-gateway-api-route-limit-rpm"></a>
+
+### network.gateway_api.route_limit_rpm
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Maximum number of requests per minute (RPM) allowed to the service. When exceeded, requests will be rejected with HTTP 429 (Too Many Requests).
+
+**Use Case:** Protect your service from excessive traffic or implement rate-based access control.
+
+**Default Value:** `null` (no limit)
+
+**Example:**
+```json
+1000
+```
+
+<a id="network-gateway-api-route-limit-rps"></a>
+
+### network.gateway_api.route_limit_rps
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Maximum number of requests per second (RPS) allowed to the service. When exceeded, requests will be rejected with HTTP 429 (Too Many Requests).
+
+**Use Case:** Enforce fine-grained rate limiting on a per-second basis for high-traffic services.
+
+**Default Value:** `null` (no limit)
+
+**Example:**
+```json
+100
+```
+
+<a id="network-gateway-api-route-limit-source-cidrs"></a>
+
+### network.gateway_api.route_limit_source_cidrs
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Comma-separated list of IP addresses or CIDR ranges to which rate limiting applies. When specified, only traffic from these sources will be subject to the configured rate limits.
+
+**Use Case:** Apply rate limiting selectively to specific IP ranges while allowing unlimited access from trusted networks.
+
+**Default Value:** `""` (rate limiting applies to all sources)
+
+**Example:**
+```json
+"0.0.0.0/0, ::/0"
+```
+
+<a id="network-gateway-api-route-limit-headers"></a>
+
+### network.gateway_api.route_limit_headers
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Comma-separated list of HTTP headers to use for rate limiting. When specified, rate limits are applied per unique combination of header values rather than per source IP.
+
+**Use Case:** Implement per-user or per-API-key rate limiting by using authentication headers.
+
+**Default Value:** `""` (rate limiting is per source IP)
+
+**Example:**
+```json
+"X-API-Key, X-User-ID"
+```
+
+<a id="network-gateway-api-add-headers"></a>
+
+### network.gateway_api.add_headers
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `map<string, string>`
+
+**Description:** Map of custom HTTP headers to add to responses sent to clients. Header names must be valid HTTP header names, and values must contain only valid ASCII characters.
+
+**Use Case:** Add custom headers for security policies (e.g., CSP, HSTS) or application-specific metadata.
+
+**Default Value:** `{}` (no headers added)
+
+**Example:**
+```json
+{
+  "X-Custom-Header": "custom-value",
+  "Strict-Transport-Security": "max-age=31536000"
+}
+```
+
+<a id="network-gateway-api-proxy-set-headers"></a>
+
+### network.gateway_api.proxy_set_headers
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `map<string, string>`
+
+**Description:** Map of custom HTTP headers to set on requests forwarded to backend pods. This overwrites existing headers with the same name. Header names must be valid HTTP header names, and values must contain only valid ASCII characters.
+
+**Use Case:** Pass additional context to your application (e.g., original client IP, authentication context) or override default headers.
+
+**Default Value:** `{}` (no headers modified)
+
+**Example:**
+```json
+{
+  "X-Forwarded-Proto": "https",
+  "X-Real-IP": "$remote_addr"
+}
+```
+
+<a id="network-gateway-api-custom-http-errors"></a>
+
+### network.gateway_api.custom_http_errors
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Comma-separated list of HTTP status codes for which Envoy Gateway should serve custom error pages. When you specify a status code in this list, Envoy Gateway will intercept that error and serve a hardcoded HTML error page instead of passing through the upstream error response. Valid status codes must be between 100 and 599.
+
+**Use Case:** Provide consistent error pages for specific HTTP errors across your services.
+
+**Default Value:** `null` (no custom error pages)
+
+**Example:**
+```json
+"404,503,502"
+```
+
+<Info>
+The hardcoded error pages cannot be customized at this time. If you need to customize error pages for your use case, please contact us and we can extend this feature.
+</Info>
+
+<a id="network-gateway-api-circuit-breaker-max-connections"></a>
+
+### network.gateway_api.circuit_breaker.max_connections
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Maximum number of concurrent connections that Envoy will establish to all backend pods for this service. When this limit is reached, new connection attempts will be rejected immediately with HTTP 503.
+
+**Use Case:** Protect backend services from connection exhaustion and prevent cascading failures during traffic spikes.
+
+**Default Value:** `null` (no limit)
+
+**Example:**
+```json
+1024
+```
+
+<a id="network-gateway-api-circuit-breaker-max-pending-requests"></a>
+
+### network.gateway_api.circuit_breaker.max_pending_requests
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Maximum number of requests that can be queued while waiting for a connection to become available. When this limit is reached, new requests will be rejected with HTTP 503.
+
+**Use Case:** Prevent queue buildup during backend slowdowns and maintain predictable latency.
+
+**Default Value:** `null` (no limit)
+
+**Example:**
+```json
+1024
+```
+
+<a id="network-gateway-api-circuit-breaker-max-parallel-requests"></a>
+
+### network.gateway_api.circuit_breaker.max_parallel_requests
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Maximum number of parallel requests (both active and queued) that can be outstanding to backend pods. When this limit is reached, new requests will be rejected with HTTP 503.
+
+**Use Case:** Set an overall cap on total inflight requests to protect backend services from overload.
+
+**Default Value:** `null` (no limit)
+
+**Example:**
+```json
+2048
+```
+
 ---
 
 ## Auto-scaling (HPA)
