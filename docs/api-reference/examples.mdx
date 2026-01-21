@@ -8,8 +8,8 @@ description: "Practical examples for using the Qovery API"
 Get all projects in your organization:
 
 ```bash
-curl -X GET "https://api.qovery.com/api/v1/organization/{org_id}/project" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X GET "https://api.qovery.com/organization/{org_id}/project" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json"
 ```
 
@@ -34,8 +34,8 @@ Response:
 Create a new environment in a project:
 
 ```bash
-curl -X POST "https://api.qovery.com/api/v1/project/{project_id}/environment" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X POST "https://api.qovery.com/project/{project_id}/environment" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "staging",
@@ -61,8 +61,8 @@ Response:
 Trigger an application deployment:
 
 ```bash
-curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/deploy" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X POST "https://api.qovery.com/application/{app_id}/deploy" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "git_commit_id": "abc123def456"
@@ -85,8 +85,8 @@ Response:
 Check the status of an application:
 
 ```bash
-curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/status" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X GET "https://api.qovery.com/application/{app_id}/status" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json"
 ```
 
@@ -106,8 +106,8 @@ Response:
 ### Create Environment Variable
 
 ```bash
-curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/environmentVariable" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X POST "https://api.qovery.com/application/{app_id}/environmentVariable" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "key": "DATABASE_URL",
@@ -118,8 +118,8 @@ curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/environmentVari
 ### Create Secret
 
 ```bash
-curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/secret" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X POST "https://api.qovery.com/application/{app_id}/secret" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "key": "API_KEY",
@@ -130,8 +130,8 @@ curl -X POST "https://api.qovery.com/api/v1/application/{app_id}/secret" \
 ### List Environment Variables
 
 ```bash
-curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/environmentVariable" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X GET "https://api.qovery.com/application/{app_id}/environmentVariable" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json"
 ```
 
@@ -140,8 +140,8 @@ curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/environmentVaria
 Get application logs (last 100 lines):
 
 ```bash
-curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/log?tail=100" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X GET "https://api.qovery.com/application/{app_id}/log?tail=100" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json"
 ```
 
@@ -150,8 +150,8 @@ curl -X GET "https://api.qovery.com/api/v1/application/{app_id}/log?tail=100" \
 ### Create PostgreSQL Database
 
 ```bash
-curl -X POST "https://api.qovery.com/api/v1/environment/{env_id}/database" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X POST "https://api.qovery.com/environment/{env_id}/database" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "main-db",
@@ -167,8 +167,8 @@ curl -X POST "https://api.qovery.com/api/v1/environment/{env_id}/database" \
 ### Deploy Database
 
 ```bash
-curl -X POST "https://api.qovery.com/api/v1/database/{db_id}/deploy" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X POST "https://api.qovery.com/database/{db_id}/deploy" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json"
 ```
 
@@ -182,11 +182,11 @@ import os
 
 # Configuration
 API_TOKEN = os.getenv("QOVERY_API_TOKEN")
-BASE_URL = "https://api.qovery.com/api/v1"
+BASE_URL = "https://api.qovery.com"
 ORG_ID = "your-org-id"
 
 headers = {
-    "Authorization": f"Bearer {API_TOKEN}",
+    "Authorization": f"Token {API_TOKEN}",
     "Content-Type": "application/json"
 }
 
@@ -318,8 +318,8 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
 ### Create a Webhook
 
 ```bash
-curl -X POST "https://api.qovery.com/api/v1/organization/{org_id}/webhook" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X POST "https://api.qovery.com/organization/{org_id}/webhook" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "target_url": "https://your-domain.com/webhooks/qovery",
@@ -380,8 +380,8 @@ jobs:
     steps:
       - name: Deploy application
         run: |
-          curl -X POST "https://api.qovery.com/api/v1/application/${{ secrets.QOVERY_APP_ID }}/deploy" \
-            -H "Authorization: Bearer ${{ secrets.QOVERY_API_TOKEN }}" \
+          curl -X POST "https://api.qovery.com/application/${{ secrets.QOVERY_APP_ID }}/deploy" \
+            -H "Authorization: Token ${{ secrets.QOVERY_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{"git_commit_id": "${{ github.sha }}"}'
 ```
@@ -393,8 +393,8 @@ deploy:
   stage: deploy
   script:
     - |
-      curl -X POST "https://api.qovery.com/api/v1/application/${QOVERY_APP_ID}/deploy" \
-        -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+      curl -X POST "https://api.qovery.com/application/${QOVERY_APP_ID}/deploy" \
+        -H "Authorization: Token ${QOVERY_API_TOKEN}" \
         -H "Content-Type: application/json" \
         -d "{\"git_commit_id\": \"${CI_COMMIT_SHA}\"}"
   only:
