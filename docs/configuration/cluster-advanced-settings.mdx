@@ -796,19 +796,71 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
-**Type:** `string`
+**Type:** `string` (JSON format)
 
-**Description:** Custom log format for Envoy Gateway access logs. Allows you to define the structure and content of log entries using Envoy's log formatting syntax. See [Envoy Gateway access logging documentation](https://gateway.envoyproxy.io/latest/tasks/observability/proxy-accesslog/#default-access-log) for available format variables and configuration options.
+**Description:** Custom log format for Envoy Gateway access logs. **Qovery only allows JSON format** as it enables all the Qovery capabilities for application logging and tracing. The value must be a JSON object (provided as a string) with Envoy command operators. See [Envoy Gateway access logging documentation](https://gateway.envoyproxy.io/latest/tasks/observability/proxy-accesslog/#default-access-log) for available format variables and configuration options.
 
 <Info>
 **For customers migrating from NGINX:** This replaces the NGINX `log_format_upstream` setting. Envoy uses its own format string with command operators like `%REQ(X-HEADER)%`, `%RESP(X-HEADER)%`, and `%DURATION%` instead of NGINX's `$variable` syntax.
 </Info>
 
-**Default Value:** `null` (uses Envoy default log format)
-
-**Example:**
+**Default Value:** If not specified, the following JSON format is used:
 ```json
-"[%START_TIME%] %REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL% %RESPONSE_CODE% %DURATION% %RESP(X-REQUEST-ID)% %REQ(X-FORWARDED-FOR)%"
+{
+  "start_time": "%START_TIME%",
+  "method": "%REQ(:METHOD)%",
+  "x-envoy-origin-path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+  "protocol": "%PROTOCOL%",
+  "response_code": "%RESPONSE_CODE%",
+  "response_flags": "%RESPONSE_FLAGS%",
+  "response_code_details": "%RESPONSE_CODE_DETAILS%",
+  "connection_termination_details": "%CONNECTION_TERMINATION_DETAILS%",
+  "upstream_transport_failure_reason": "%UPSTREAM_TRANSPORT_FAILURE_REASON%",
+  "bytes_received": "%BYTES_RECEIVED%",
+  "bytes_sent": "%BYTES_SENT%",
+  "duration": "%DURATION%",
+  "x-envoy-upstream-service-time": "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%",
+  "x-forwarded-for": "%REQ(X-FORWARDED-FOR)%",
+  "user-agent": "%REQ(USER-AGENT)%",
+  "x-request-id": "%REQ(X-REQUEST-ID)%",
+  ":authority": "%REQ(:AUTHORITY)%",
+  "upstream_host": "%UPSTREAM_HOST%",
+  "upstream_cluster": "%UPSTREAM_CLUSTER%",
+  "upstream_local_address": "%UPSTREAM_LOCAL_ADDRESS%",
+  "downstream_local_address": "%DOWNSTREAM_LOCAL_ADDRESS%",
+  "downstream_remote_address": "%DOWNSTREAM_REMOTE_ADDRESS%",
+  "requested_server_name": "%REQUESTED_SERVER_NAME%",
+  "route_name": "%ROUTE_NAME%",
+  "qovery_com_associated_service_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_associated_service_id)%",
+  "qovery_com_environment_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_environment_id)%"
+}
+```
+
+<Warning>
+When customizing the log format, **you must include these two Qovery-specific fields** for service logging to work properly:
+- `"qovery_com_associated_service_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_associated_service_id)%"`
+- `"qovery_com_environment_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_environment_id)%"`
+
+Without these fields, Qovery will not be able to properly associate logs with your services and environments.
+</Warning>
+
+**Example:** Custom JSON format with simplified fields (note the required Qovery fields):
+```json
+{
+  "timestamp": "%START_TIME%",
+  "method": "%REQ(:METHOD)%",
+  "path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+  "protocol": "%PROTOCOL%",
+  "status": "%RESPONSE_CODE%",
+  "duration_ms": "%DURATION%",
+  "bytes_sent": "%BYTES_SENT%",
+  "bytes_received": "%BYTES_RECEIVED%",
+  "client_ip": "%REQ(X-FORWARDED-FOR)%",
+  "user_agent": "%REQ(USER-AGENT)%",
+  "request_id": "%REQ(X-REQUEST-ID)%",
+  "qovery_com_associated_service_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_associated_service_id)%",
+  "qovery_com_environment_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_environment_id)%"
+}
 ```
 
 <a id="envoy-controller-custom-http-errors"></a>
