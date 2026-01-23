@@ -3,10 +3,6 @@ title: "Audit Logs"
 description: "Track all actions and changes in your Qovery organization"
 ---
 
-<Info>
-Audit Logs is currently in **public beta**. Access and functionalities may change based on your Qovery Plan.
-</Info>
-
 Qovery allows you to monitor any action happened within your organization thanks to the audit logs section.
 
 This feature enables you to track all changes to your organizational configuration, answering **who did what, where, and when?**
@@ -21,7 +17,11 @@ Navigate to the `Audit logs` section from the left navigation bar in the Qovery 
 
 ## Event Retention
 
-Events are retained for a maximum of **30 days**.
+The event retention depends on your plan:
+- **User**: 3 days
+- **Team**: 7 days
+- **Business**: 30 days
+- **Enterprise**: Custom
 
 ## How It Works
 
@@ -45,10 +45,6 @@ Each logged event includes the following information:
 
 You can click on any event to reveal the JSON response containing the post-event object status. This is useful for granular change comparison.
 
-<Frame>
-  <img src="/images/configuration/audit-logs/see-events.png" alt="View event details in JSON format" />
-</Frame>
-
 ---
 
 ## Filters
@@ -56,11 +52,26 @@ You can click on any event to reveal the JSON response containing the post-event
 You can filter audit logs by:
 
 - **Time range** - Select a specific date range
-- **Target specification** - First select the target type, then select the specific name
+- **Event** - Select a specific event
+- **Target specification**:
+  - For a Service: you can fine tune your research by
+    - selecting a specific project
+    - selecting a specific environment
+    - selecting a target service
+  - For an Environment: you can fine tune your research by
+    - selecting a specific project 
+    - selecting a target environment
+  - For other types: you can filter on a specific target
+- **User** - Select a specific user
+- **Source** - Select a specific source
 
 ### Quick Filters
 
 Throughout the Qovery Console, you'll find quick access to audit logs via the **"See Events"** button in the 3-dot submenus. This allows you to quickly filter and view events for specific resources.
+
+<Frame>
+  <img src="/images/configuration/audit-logs/see-events.png" alt="View event details in JSON format" />
+</Frame>
 
 ---
 
