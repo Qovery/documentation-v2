@@ -248,6 +248,13 @@ For high availability:
     2. **Scaler YAML Configuration**: Source-specific parameters in YAML format
     3. **Trigger Authentication YAML** (Optional): Authentication credentials if required
 
+    <Info>
+    **Scaler YAML Configuration** accepts the following fields:
+    - `metadata` - Scaler-specific parameters (required). Each scaler type has different metadata fields. See the [KEDA Scalers documentation](https://keda.sh/docs/latest/scalers/) for available parameters per scaler type.
+    - `metricType` - Metric target type: `Value`, `AverageValue`, or `Utilization` (optional)
+    - `useCachedMetrics` - Whether to use cached metrics (optional, boolean)
+    </Info>
+
     **Common Scaler Types**:
     - `aws-sqs-queue` - AWS Simple Queue Service
     - `aws-kinesis-stream` - AWS Kinesis Data Streams
