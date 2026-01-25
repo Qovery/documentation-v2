@@ -271,12 +271,102 @@ For high availability:
         - Both application pods and KEDA use the same IAM role
         - No AWS credentials stored as secrets
 
-        **Configuration**:
+        ---
 
-        1. Create an IAM role and configure your application's service account ([see how to use AWS IAM roles with Qovery](/getting-started/guides/advanced-tutorials/aws-iam-roles))
-        2. Ensure the IAM role has SQS permissions
-        3. Configure the trust relationship to allow KEDA's service account to assume the application's role
-        4. Configure both scaler and trigger authentication YAML
+        #### Step-by-Step AWS Configuration
+
+        <Steps>
+          <Step title="Create IAM Policy for SQS Access">
+            This policy grants your application the necessary permissions to interact with SQS (consume, process messages) and allows KEDA to read queue metrics.
+
+            1. Go to **IAM Console** → **Policies** → **Create policy**
+            2. Select the **JSON** tab and paste:
+
+            ```json
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "SqsFullAccess",
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:GetQueueAttributes",
+                    "sqs:GetQueueUrl",
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage",
+                    "sqs:ChangeMessageVisibility"
+                  ],
+                  "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
+                }
+              ]
+            }
+            ```
+
+            3. Name the policy: `AppSqsFullAccessPolicy`
+            4. Click **Create policy**
+
+            <Note>
+            This policy includes both application permissions (`ReceiveMessage`, `DeleteMessage`) and KEDA metric reading permissions (`GetQueueAttributes`).
+            </Note>
+          </Step>
+
+          <Step title="Create IAM Role and Service Account">
+            Follow the complete tutorial to create an IAM role and configure your application's service account with AWS IAM roles.
+
+            <Card title="AWS IAM Roles Tutorial" icon="book" href="/getting-started/guides/advanced-tutorials/aws-iam-roles">
+              Step-by-step guide to create IAM roles and service accounts for Qovery applications
+            </Card>
+
+            When creating the role:
+            1. Attach the policy created in Step 1: `AppSqsFullAccessPolicy`
+            2. Name the role: `AppSqsConsumerRole`
+            3. Note the role ARN for later use
+          </Step>
+
+          <Step title="Configure Trust Relationship for KEDA">
+            To allow KEDA to inherit the IAM role from your application's service account, you must update the trust relationship.
+
+            1. Open the role you created: `AppSqsConsumerRole`
+            2. Go to the **Trust relationships** tab and click **Edit trust policy**
+            3. Update the JSON to allow both your application namespace AND the KEDA operator:
+
+            ```json
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com",
+                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": [
+                        "system:serviceaccount:<your-namespace>:<service-account-name>",
+                        "system:serviceaccount:kube-system:keda-operator"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+            ```
+
+            4. Click **Update policy**
+
+            <Info>
+            Replace `<account-id>`, `<region>`, `<oidc-id>`, `<your-namespace>`, and `<service-account-name>` with your specific values. The key addition is the `keda-operator` service account in the trust relationship.
+            </Info>
+          </Step>
+        </Steps>
+
+        ---
+
+        #### Qovery Configuration
+
+        After completing the AWS configuration steps above, configure the KEDA scaler in Qovery.
 
         **Scaler YAML** (paste in "Configuration YAML" field):
         ```yaml
@@ -294,19 +384,18 @@ For high availability:
           identityOwner: workload
         ```
 
-        **Parameters**:
-        - **Scaler YAML**:
-          - `metadata.queueURL`: Full SQS queue URL
-          - `metadata.awsRegion`: AWS region of the queue
-          - `metadata.queueLength`: Target messages per pod (scale when exceeded)
-          - `metadata.activationQueueLength`: Minimum messages to activate scaling (default: 0)
-        - **Trigger Authentication YAML**:
-          - `podIdentity.provider: aws`: Use AWS pod identity
-          - `podIdentity.identityOwner: workload`: KEDA inherits the IAM role from application's service account
-
         <Info>
-        With `identityOwner: workload`, KEDA automatically inherits the IAM role from your application's service account. You must configure the trust relationship on the IAM role to allow KEDA's service account to assume it.
+        With `identityOwner: workload`, KEDA automatically inherits the IAM role from your application's service account. This requires the trust relationship configuration from Step 3.
         </Info>
+
+        ---
+
+        #### Resulting Behavior
+
+        - **Both application and KEDA use the same IAM role** - The role is shared between your application pods and KEDA operator
+        - **Application can consume from SQS** - Your application has full permissions to receive and process messages
+        - **KEDA monitors queue depth** - KEDA uses the same role to read queue metrics for scaling decisions
+        - **Simplified IAM management** - Only one role to manage and maintain
       </Tab>
 
       <Tab title="Model B: KEDA-Only IAM Role">
