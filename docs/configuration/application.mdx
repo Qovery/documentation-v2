@@ -279,31 +279,28 @@ Qovery offers three autoscaling modes to match your application's needs:
 
         **Scaler YAML** (paste in "Configuration YAML" field):
         ```yaml
-        queueURL: https://sqs.us-east-1.amazonaws.com/123456789012/my-queue
-        queueLength: "5"
-        awsRegion: us-east-1
-        identityOwner: operator
+        metadata:
+          queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
+          awsRegion: "us-east-1"
+          queueLength: "5"
         ```
 
         **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
         ```yaml
         podIdentity:
           provider: aws
-          identityOwner: workload
         ```
 
         **Parameters**:
         - **Scaler YAML**:
-          - `queueURL`: Full SQS queue URL
-          - `queueLength`: Target messages per pod (scale when exceeded)
-          - `awsRegion`: AWS region of the queue
-          - `identityOwner: operator`: Tells KEDA to use the pod's IAM role
+          - `metadata.queueURL`: Full SQS queue URL
+          - `metadata.queueLength`: Target messages per pod (scale when exceeded)
+          - `metadata.awsRegion`: AWS region of the queue
         - **Trigger Authentication YAML**:
-          - `podIdentity.provider: aws`: Specifies AWS as the identity provider
-          - `podIdentity.identityOwner: workload`: KEDA uses the workload's service account IAM role
+          - `podIdentity.provider: aws`: Use AWS pod identity (inherits from application's service account)
 
         <Info>
-        The combination of `identityOwner: operator` in the scaler and `podIdentity` configuration in trigger authentication tells KEDA to inherit the IAM role from the application's service account.
+        With `podIdentity.provider: aws` (no roleArn), KEDA automatically inherits the IAM role from your application's service account configured in advanced settings.
         </Info>
 
         ---
@@ -331,16 +328,15 @@ Qovery offers three autoscaling modes to match your application's needs:
         - **Scaler Type**: `aws-sqs-queue`
         - **Configuration YAML**:
           ```yaml
-          queueURL: https://sqs.us-east-1.amazonaws.com/123456789012/order-processing-queue
-          queueLength: "5"
-          awsRegion: us-east-1
-          identityOwner: operator
+          metadata:
+            queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/order-processing-queue"
+            awsRegion: "us-east-1"
+            queueLength: "5"
           ```
         - **Trigger Authentication YAML**:
           ```yaml
           podIdentity:
             provider: aws
-            identityOwner: workload
           ```
 
         **Behavior**:
@@ -360,41 +356,40 @@ Qovery offers three autoscaling modes to match your application's needs:
         **How it works**:
         - Dedicated IAM role for KEDA's scaling operations
         - Application has no AWS identity
-        - KEDA service account configured with dedicated IAM role
+        - IAM role ARN specified directly in trigger authentication
 
         **Configuration**:
 
         1. Create a dedicated IAM role for KEDA with SQS read permissions
-        2. Configure KEDA's service account with the IAM role ([see how to use AWS IAM roles with Qovery](/getting-started/guides/advanced-tutorials/aws-iam-roles))
-        3. Configure both scaler and trigger authentication YAML
+        2. Get the IAM role ARN
+        3. Configure both scaler and trigger authentication YAML with the role ARN
 
         **Scaler YAML** (paste in "Configuration YAML" field):
         ```yaml
-        queueURL: https://sqs.us-east-1.amazonaws.com/123456789012/my-queue
-        queueLength: "5"
-        awsRegion: us-east-1
-        identityOwner: operator
+        metadata:
+          queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
+          awsRegion: "us-east-1"
+          queueLength: "5"
         ```
 
         **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
         ```yaml
         podIdentity:
           provider: aws
-          identityOwner: workload
+          roleArn: arn:aws:iam::123456789012:role/keda-sqs-scaler-role
         ```
 
         **Parameters**:
         - **Scaler YAML**:
-          - `queueURL`: Full SQS queue URL
-          - `queueLength`: Target messages per pod (scale when exceeded)
-          - `awsRegion`: AWS region of the queue
-          - `identityOwner: operator`: Tells KEDA to use pod identity
+          - `metadata.queueURL`: Full SQS queue URL
+          - `metadata.queueLength`: Target messages per pod (scale when exceeded)
+          - `metadata.awsRegion`: AWS region of the queue
         - **Trigger Authentication YAML**:
-          - `podIdentity.provider: aws`: Specifies AWS as the identity provider
-          - `podIdentity.identityOwner: workload`: KEDA uses the workload's service account IAM role
+          - `podIdentity.provider: aws`: Use AWS pod identity
+          - `podIdentity.roleArn`: Dedicated IAM role ARN for KEDA
 
         <Info>
-        Using IAM roles with service accounts is more secure than static credentials as it leverages AWS's temporary credential system and doesn't require storing long-lived access keys.
+        Specifying `roleArn` in the trigger authentication allows KEDA to use a dedicated IAM role separate from your application, providing better security isolation.
         </Info>
 
         **Required IAM Permissions** (minimum):
@@ -424,10 +419,10 @@ Qovery offers three autoscaling modes to match your application's needs:
         - No IAM role needed for application
         - Application may consume from different sources
 
-        **KEDA Service Account**:
-        - IAM role: `arn:aws:iam::123456789012:role/keda-notification-queue-scaler`
+        **KEDA IAM Role**:
+        - Role ARN: `arn:aws:iam::123456789012:role/keda-notification-queue-scaler`
         - IAM permissions: SQS read-only (GetQueueAttributes, CloudWatch metrics)
-        - Service account configured for KEDA operator
+        - Specified in trigger authentication YAML
 
         **KEDA Configuration**:
 
@@ -443,23 +438,23 @@ Qovery offers three autoscaling modes to match your application's needs:
         - **Scaler Type**: `aws-sqs-queue`
         - **Configuration YAML**:
           ```yaml
-          queueURL: https://sqs.eu-west-1.amazonaws.com/123456789012/notification-queue
-          queueLength: "10"
-          awsRegion: eu-west-1
-          identityOwner: operator
+          metadata:
+            queueURL: "https://sqs.eu-west-1.amazonaws.com/123456789012/notification-queue"
+            awsRegion: "eu-west-1"
+            queueLength: "10"
           ```
         - **Trigger Authentication YAML**:
           ```yaml
           podIdentity:
             provider: aws
-            identityOwner: workload
+            roleArn: arn:aws:iam::123456789012:role/keda-notification-queue-scaler
           ```
 
         **Behavior**:
         - Each pod handles workload for ~10 messages
         - KEDA reads queue metrics but doesn't consume messages
         - Independent scaling logic from message consumption
-        - Uses KEDA service account IAM role for secure, temporary credential access
+        - Uses dedicated IAM role ARN for secure, isolated access
       </Tab>
     </Tabs>
       </Tab>
