@@ -102,25 +102,388 @@ Container registries must be configured at the organization level by administrat
 
 ### Resources
 
-**CPU and Memory**:
-- vCPU allocation (millicores)
-- RAM allocation (MB/GB)
-- Configure based on application needs
+#### CPU and Memory
 
-**GPU** (requires AWS with Karpenter):
+- **vCPU allocation**: Configure in millicores (e.g., 500m = 0.5 cores)
+- **RAM allocation**: Configure in MB or GB
+- Adjust based on your application's resource requirements
+
+#### GPU
+
+**Requirements**: AWS with Karpenter enabled
+
 - Number of GPUs per instance
-- Available for AI/ML workloads
+- Ideal for AI/ML workloads
+- Available GPU types depend on your cluster configuration
 
-**Auto-scaling**:
-- Minimum instances (default: 1)
-- Maximum instances (default: 3)
-- CPU threshold for scaling (default: 60%)
-- Scale up: Triggered after 15 seconds above threshold
-- Scale down: Triggered after 5 minutes below threshold
+#### Instances & Autoscaling
 
-<Info>
-Auto-scaling uses Kubernetes [metrics-server](https://github.com/kubernetes-sigs/metrics-server) to monitor resource usage.
-</Info>
+Qovery offers three autoscaling modes to match your application's needs:
+
+<Tabs>
+  <Tab title="No Scaling">
+    ### Single Instance (No Autoscaling)
+
+    Your application runs with a fixed number of instances (typically 1).
+
+    **Configuration**:
+    - Set both minimum and maximum instances to the same value
+    - No automatic scaling occurs
+
+    **Use Cases**:
+    - Development environments
+    - Proof of concepts (POC)
+    - Testing and experimentation
+
+    <Warning>
+    **Not recommended for production workloads**. A single instance has no redundancy—if the pod fails or the node undergoes maintenance, your application will be temporarily unavailable.
+
+    For high availability:
+    - Set minimum instances to **2** if your app can run on 1 instance
+    - Set minimum instances to **3 or higher** if your app requires multiple instances to handle necessary traffic
+    - This ensures redundancy during node maintenance or pod failures
+    </Warning>
+  </Tab>
+
+  <Tab title="HPA (CPU/Memory)">
+    ### Classic Horizontal Pod Autoscaling
+
+    Kubernetes HPA automatically scales your application based on CPU and/or memory utilization.
+
+    **Configuration**:
+    - **Minimum instances**: Baseline number of running pods
+    - **Maximum instances**: Scale-up limit
+    - **CPU threshold**: Default 60% (scale up after 15 seconds above threshold)
+    - **Memory threshold**: Optional, can be configured separately
+    - **Scale down**: Triggered after 5 minutes below threshold
+
+    **How It Works**:
+    - Kubernetes metrics-server monitors resource usage
+    - When average CPU/memory exceeds the threshold, new pods are added
+    - When usage drops below threshold for 5 minutes, pods are removed
+    - Scales down to minimum instances during low traffic
+
+    **Suitable For**:
+    - CPU-bound workloads (web servers, APIs)
+    - Memory-bound applications
+    - Applications with predictable traffic patterns
+
+    **Limitations**:
+    - Does not consider external events (message queues, streams, etc.)
+    - Reacts to resource usage, not workload depth
+    - May lag behind sudden traffic spikes
+
+    <Info>
+    HPA uses Kubernetes [metrics-server](https://github.com/kubernetes-sigs/metrics-server) to monitor resource usage. Evaluation window is approximately 5 minutes for scale-down decisions.
+    </Info>
+  </Tab>
+
+  <Tab title="KEDA (Event-Driven)">
+    ### Event-Driven Autoscaling with KEDA
+
+    Scale your application based on external event sources like message queues, streams, databases, and more.
+
+    <Warning>
+    **AWS clusters only** - KEDA autoscaling is currently available exclusively for applications deployed on AWS.
+    </Warning>
+
+    **What is KEDA?**
+
+    [KEDA (Kubernetes Event-Driven Autoscaler)](https://keda.sh) extends Kubernetes autoscaling capabilities by scaling based on external metrics and events rather than just CPU/memory.
+
+    **Use Cases**:
+    - Queue-based workloads (SQS, RabbitMQ, Kafka)
+    - Stream processing (Kinesis, Kafka)
+    - Database polling (PostgreSQL, MySQL)
+    - Custom metrics (Prometheus, Datadog)
+    - Scheduled scaling (cron-based)
+
+    ---
+
+    #### General Configuration
+
+    **Required Settings**:
+    - **Minimum instances**: Baseline number of pods (minimum: 1)
+    - **Maximum instances**: Upper scaling limit
+
+    **Optional Settings**:
+    - **Polling interval**: How often KEDA checks the event source (default: 30 seconds)
+    - **Cooldown period**: Wait time before scaling down after scale-up (default: 300 seconds)
+
+    <Info>
+    **Multiple scalers behavior**: If you configure multiple scalers, KEDA uses the scaler that indicates the highest scaling need. For example, if Scaler A monitors a queue with 15 messages and Scaler B monitors a queue with 50 messages, KEDA uses the higher metric value (50) to determine the number of pods needed.
+    </Info>
+
+    ---
+
+    #### Scaler Configuration
+
+    Each scaler monitors a specific event source. You can add multiple scalers to respond to different metrics.
+
+    **For Each Scaler**:
+    1. **Scaler Type**: The event source type (e.g., `aws-sqs-queue`, `rabbitmq`, `kafka`, `prometheus`)
+    2. **Scaler YAML Configuration**: Source-specific parameters in YAML format
+    3. **Trigger Authentication YAML** (Optional): Authentication credentials if required
+
+    **Common Scaler Types**:
+    - `aws-sqs-queue` - AWS Simple Queue Service
+    - `aws-kinesis-stream` - AWS Kinesis Data Streams
+    - `rabbitmq` - RabbitMQ queues
+    - `kafka` - Apache Kafka topics
+    - `prometheus` - Prometheus metrics
+    - `postgresql` - PostgreSQL queries
+    - `redis` - Redis lists/streams
+    - `cron` - Time-based scaling
+
+    For the complete list, see [KEDA Scalers documentation](https://keda.sh/docs/latest/scalers/).
+
+    ---
+
+    #### Scaler Examples by Type
+
+    <Tabs>
+      <Tab title="AWS SQS">
+        ### AWS SQS Queue Scaling
+
+        Let's explore AWS SQS in detail as it's a common use case.
+
+        **How KEDA Works with SQS**:
+        - KEDA reads queue metrics (number of messages) via AWS CloudWatch
+        - **KEDA does NOT consume messages** from the queue
+        - Your application pods consume and process the actual messages
+        - KEDA only uses metrics to make scaling decisions
+
+        **Authentication Requirements**:
+
+        AWS SQS requires IAM authentication. Qovery supports two authentication models:
+
+    <Tabs>
+      <Tab title="Model A: Shared IAM Role">
+        ### Shared IAM Role (Application + KEDA)
+
+        **When to use**:
+        - Your application already consumes from SQS
+        - You want to minimize IAM roles
+        - Simpler configuration
+
+        **How it works**:
+        - Single IAM role attached to your application's service account
+        - Both application pods and KEDA use the same IAM role
+        - No AWS credentials stored as secrets
+
+        **Configuration**:
+
+        1. Ensure your application has an IAM role with SQS permissions
+        2. Configure the KEDA scaler without trigger authentication
+
+        **Scaler YAML** (paste in "Configuration YAML" field):
+        ```yaml
+        queueURL: https://sqs.us-east-1.amazonaws.com/123456789012/my-queue
+        queueLength: "5"
+        awsRegion: us-east-1
+        identityOwner: operator
+        ```
+
+        **Leave "Trigger Authentication YAML" empty** - KEDA will use the application's IAM role.
+
+        **Parameters**:
+        - `queueURL`: Full SQS queue URL
+        - `queueLength`: Target messages per pod (scale when exceeded)
+        - `awsRegion`: AWS region of the queue
+        - `identityOwner: operator`: Tells KEDA to use the pod's IAM role
+
+        <Info>
+        **identityOwner: operator** is the key setting that tells KEDA to inherit the IAM role from the application's service account.
+        </Info>
+      </Tab>
+
+      <Tab title="Model B: KEDA-Only IAM Role">
+        ### Separate IAM Role for KEDA
+
+        **When to use**:
+        - Your application does NOT consume from SQS
+        - KEDA scales based on queue depth, but another service processes messages
+        - You want separate security boundaries
+
+        **How it works**:
+        - Dedicated IAM role for KEDA's scaling operations
+        - Application has no AWS identity
+        - IAM role ARN configured for KEDA
+
+        **Configuration**:
+
+        1. Create a dedicated IAM role for KEDA with SQS read permissions
+        2. Provide the IAM role ARN in your application configuration
+        3. Configure the scaler YAML (no trigger authentication needed)
+
+        **Scaler YAML** (paste in "Configuration YAML" field):
+        ```yaml
+        queueURL: https://sqs.us-east-1.amazonaws.com/123456789012/my-queue
+        queueLength: "5"
+        awsRegion: us-east-1
+        awsRoleArn: arn:aws:iam::123456789012:role/keda-sqs-scaler-role
+        identityOwner: operator
+        ```
+
+        **Leave "Trigger Authentication YAML" empty** - KEDA will use the role ARN specified in the scaler configuration.
+
+        **Parameters**:
+        - `queueURL`: Full SQS queue URL
+        - `queueLength`: Target messages per pod (scale when exceeded)
+        - `awsRegion`: AWS region of the queue
+        - `awsRoleArn`: Dedicated IAM role ARN for KEDA
+        - `identityOwner: operator`: Tells KEDA to use the specified role
+
+        <Info>
+        Using IAM role ARN is more secure than static credentials as it leverages AWS's temporary credential system and doesn't require storing long-lived access keys.
+        </Info>
+
+        **Required IAM Permissions** (minimum):
+        ```json
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "sqs:GetQueueAttributes",
+                "cloudwatch:GetMetricStatistics"
+              ],
+              "Resource": "arn:aws:sqs:REGION:ACCOUNT_ID:QUEUE_NAME"
+            }
+          ]
+        }
+        ```
+      </Tab>
+    </Tabs>
+
+    ---
+
+    #### Complete Configuration Example
+
+    Here's a complete example configuration for an application that scales based on AWS SQS queue depth:
+
+    <Tabs>
+      <Tab title="Model A: Shared IAM">
+        **Scenario**: Node.js worker consuming SQS messages
+
+        **Application Configuration**:
+        - IAM role: `arn:aws:iam::123456789012:role/my-app-sqs-consumer`
+        - IAM permissions: SQS read, receive, delete messages
+
+        **KEDA Configuration**:
+
+        | Setting | Value |
+        |---------|-------|
+        | Autoscaling Mode | KEDA (Event-driven autoscaling) |
+        | Min Instances | 1 |
+        | Max Instances | 10 |
+        | Polling Interval | 30 seconds |
+        | Cooldown Period | 300 seconds |
+
+        **Scaler #1**:
+        - **Scaler Type**: `aws-sqs-queue`
+        - **Configuration YAML**:
+          ```yaml
+          queueURL: https://sqs.us-east-1.amazonaws.com/123456789012/order-processing-queue
+          queueLength: "5"
+          awsRegion: us-east-1
+          identityOwner: operator
+          ```
+        - **Trigger Authentication YAML**: _(leave empty)_
+
+        **Behavior**:
+        - Each pod processes ~5 messages
+        - If queue has 25 messages, KEDA scales to 5 pods
+        - Scales down after 300 seconds of low queue depth
+      </Tab>
+
+      <Tab title="Model B: KEDA-Only IAM">
+        **Scenario**: Application scales based on queue depth but doesn't consume SQS
+
+        **Application Configuration**:
+        - No IAM role needed for application
+        - Application may consume from different sources
+
+        **KEDA IAM Role**:
+        - IAM role: `arn:aws:iam::123456789012:role/keda-notification-queue-scaler`
+        - IAM permissions: SQS read-only (GetQueueAttributes, CloudWatch metrics)
+
+        **KEDA Configuration**:
+
+        | Setting | Value |
+        |---------|-------|
+        | Autoscaling Mode | KEDA (Event-driven autoscaling) |
+        | Min Instances | 2 |
+        | Max Instances | 20 |
+        | Polling Interval | 60 seconds |
+        | Cooldown Period | 600 seconds |
+
+        **Scaler #1**:
+        - **Scaler Type**: `aws-sqs-queue`
+        - **Configuration YAML**:
+          ```yaml
+          queueURL: https://sqs.eu-west-1.amazonaws.com/123456789012/notification-queue
+          queueLength: "10"
+          awsRegion: eu-west-1
+          awsRoleArn: arn:aws:iam::123456789012:role/keda-notification-queue-scaler
+          identityOwner: operator
+          ```
+        - **Trigger Authentication YAML**: _(leave empty)_
+
+        **Behavior**:
+        - Each pod handles workload for ~10 messages
+        - KEDA reads queue metrics but doesn't consume messages
+        - Independent scaling logic from message consumption
+        - Uses IAM role ARN for secure, temporary credential access
+      </Tab>
+    </Tabs>
+      </Tab>
+
+      <Tab title="Redis">
+        ### Redis List/Stream Scaling
+
+        <Note>
+        **Coming soon** - Detailed configuration guide for Redis scalers will be available shortly.
+
+        In the meantime, you can use the `redis` or `redis-streams` scaler type. See the [KEDA Redis Scaler documentation](https://keda.sh/docs/latest/scalers/redis-lists/) for configuration details.
+        </Note>
+
+        **Important**: Redis (including AWS ElastiCache) does NOT use IAM authentication at runtime. Authentication requires:
+        - Redis host endpoint
+        - Password (if authentication enabled)
+        - Connection parameters stored as environment variables or secrets
+      </Tab>
+
+      <Tab title="RabbitMQ">
+        ### RabbitMQ Queue Scaling
+
+        <Note>
+        **Coming soon** - Detailed configuration guide for RabbitMQ scalers will be available shortly.
+
+        In the meantime, you can use the `rabbitmq` scaler type. See the [KEDA RabbitMQ Scaler documentation](https://keda.sh/docs/latest/scalers/rabbitmq-queue/) for configuration details.
+        </Note>
+
+        **Important**: RabbitMQ (including AWS MQ) does NOT use IAM authentication at runtime. Authentication requires:
+        - RabbitMQ host endpoint (AMQP URL)
+        - Username and password
+        - Connection parameters stored as environment variables or secrets
+      </Tab>
+    </Tabs>
+
+    ---
+
+    #### Additional Resources
+
+    - [KEDA Official Documentation](https://keda.sh/docs/)
+    - [KEDA Scalers Reference](https://keda.sh/docs/latest/scalers/)
+    - [KEDA Authentication Guide](https://keda.sh/docs/latest/concepts/authentication/)
+
+    <Tip>
+    **Testing your KEDA configuration**: Start with a low `queueLength` value and a small `maxInstances` to test scaling behavior. Monitor your application logs and KEDA operator logs to verify scaling triggers work as expected.
+    </Tip>
+  </Tab>
+</Tabs>
 
 ### Storage
 
