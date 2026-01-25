@@ -269,6 +269,36 @@ For high availability:
 
     ---
 
+    #### Authentication Methods
+
+    KEDA supports multiple authentication methods. Each scaler type supports a subset of these methods.
+
+    **Common Authentication Methods**:
+
+    **1. podIdentity** - Use IAM roles (AWS) or managed identities (Azure)
+    ```yaml
+    podIdentity:
+      provider: aws  # or azure
+      identityOwner: workload  # inherit from application service account
+      # OR
+      roleArn: arn:aws:iam::123456789012:role/MyRole  # specify role directly
+    ```
+
+    **2. secretTargetRef** - Reference Qovery environment variables or secrets
+    ```yaml
+    secretTargetRef:
+      - parameter: connectionString  # Parameter name defined by the scaler
+        key: qovery.env.MY_CONNECTION_STRING  # Qovery variable reference
+    ```
+
+    <Info>
+    Use `qovery.env.VARIABLE_NAME` to reference environment variables or secrets defined in your Qovery application.
+    </Info>
+
+    For complete authentication options, see [KEDA Authentication documentation](https://keda.sh/docs/latest/concepts/authentication/).
+
+    ---
+
     #### Scaler Examples by Type
 
     <Tabs>
