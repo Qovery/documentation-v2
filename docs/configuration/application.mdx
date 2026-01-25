@@ -28,7 +28,9 @@ Qovery pulls your code from a Git repository, builds the application, and deploy
 Qovery pulls a pre-built container image from your configured registry and deploys it to your Kubernetes cluster.
 
 <Note>
-Container registries must be configured at the organization level by administrators. See [Container Registry Management](/configuration/organization/container-registry).
+  Container registries must be configured at the organization level by
+  administrators. See [Container Registry
+  Management](/configuration/organization/container-registry).
 </Note>
 
 ## Creating an Application
@@ -50,29 +52,37 @@ Container registries must be configured at the organization level by administrat
     - Select configured registry
     - Enter image name
     - Specify image tag
+
   </Step>
 
-  <Step title="Configure Resources">
-    - **vCPU**: Default 500m (0.5 cores)
-    - **RAM**: Default 512MB
-    - **GPU**: Optional GPU allocation (requires GPU-enabled cluster)
-    - **Auto-scaling**: Configure min/max instances (optional)
-  </Step>
+{" "}
 
-  <Step title="Configure Ports">
-    - **Internal Port**: Port your application listens on
-    - **Protocol**: HTTPS, gRPC, TCP, or UDP
-    - **Publicly Accessible**: Enable to expose via load balancer
-  </Step>
+<Step title="Configure Resources">
+  - **vCPU**: Default 500m (0.5 cores) - **RAM**: Default 512MB - **GPU**:
+  Optional GPU allocation (requires GPU-enabled cluster) - **Auto-scaling**:
+  Configure min/max instances (optional)
+</Step>
 
-  <Step title="Health Checks (Optional)">
-    - **Liveness Probe**: Determines if container should be restarted
-    - **Readiness Probe**: Determines if container should receive traffic
-  </Step>
+{" "}
 
-  <Step title="Environment Variables">
-    Configure environment variables for your application
-  </Step>
+<Step title="Configure Ports">
+  - **Internal Port**: Port your application listens on - **Protocol**: HTTPS,
+  gRPC, TCP, or UDP - **Publicly Accessible**: Enable to expose via load
+  balancer
+</Step>
+
+{" "}
+
+<Step title="Health Checks (Optional)">
+  - **Liveness Probe**: Determines if container should be restarted -
+  **Readiness Probe**: Determines if container should receive traffic
+</Step>
+
+{" "}
+
+<Step title="Environment Variables">
+  Configure environment variables for your application
+</Step>
 
   <Step title="Review and Deploy">
     Review configuration and choose:
@@ -86,6 +96,7 @@ Container registries must be configured at the organization level by administrat
 ### General Settings
 
 **Git Repository Configuration**:
+
 - Git provider and repository
 - Branch selection
 - Root application path
@@ -94,6 +105,7 @@ Container registries must be configured at the organization level by administrat
 - Multi-stage build target selection
 
 **Container Registry Configuration**:
+
 - Registry selection
 - Image name
 - Image tag
@@ -124,10 +136,11 @@ Qovery offers three autoscaling modes to match your application's needs:
 **Not recommended for production workloads**. A single instance has no redundancy—if the pod fails or the node undergoes maintenance, your application will be temporarily unavailable.
 
 For high availability:
+
 - Set minimum instances to **2** if your app can run on 1 instance
 - Set minimum instances to **3 or higher** if your app requires multiple instances to handle necessary traffic
 - This ensures redundancy during node maintenance or pod failures
-</Warning>
+  </Warning>
 
 <Tabs>
   <Tab title="No Scaling">
@@ -143,6 +156,7 @@ For high availability:
     - Development environments
     - Proof of concepts (POC)
     - Testing and experimentation
+
   </Tab>
 
   <Tab title="HPA (CPU/Memory)">
@@ -176,6 +190,7 @@ For high availability:
     <Info>
     HPA uses Kubernetes [metrics-server](https://github.com/kubernetes-sigs/metrics-server) to monitor resource usage. Evaluation window is approximately 5 minutes for scale-down decisions.
     </Info>
+
   </Tab>
 
   <Tab title="KEDA (Event-Driven)">
@@ -198,8 +213,6 @@ For high availability:
     - Custom metrics (Prometheus, Datadog)
     - Scheduled scaling (cron-based)
 
-    ---
-
     #### General Configuration
 
     **Required Settings**:
@@ -213,8 +226,6 @@ For high availability:
     <Info>
     **Multiple scalers behavior**: If you configure multiple scalers, KEDA uses the scaler that calculates the highest target number of instances. For example, if Scaler A monitors a queue with 15 messages and calculates 15 target instances (1 message per instance), and Scaler B monitors a queue with 50 messages and calculates 5 target instances (10 messages per instance), KEDA scales to 15 instances (the higher target).
     </Info>
-
-    ---
 
     #### Scaler Configuration
 
@@ -535,9 +546,9 @@ For high availability:
         - **Scaling is isolated from application permissions** - KEDA can read queue metrics independently of the application's capabilities
       </Tab>
     </Tabs>
-      </Tab>
+    </Tab>
 
-      <Tab title="Redis">
+    <Tab title="Redis">
         ### Redis List/Stream Scaling
 
         <Note>
@@ -550,9 +561,9 @@ For high availability:
         - Redis host endpoint
         - Password (if authentication enabled)
         - Connection parameters stored as environment variables or secrets
-      </Tab>
+    </Tab>
 
-      <Tab title="RabbitMQ">
+    <Tab title="RabbitMQ">
         ### RabbitMQ Queue Scaling
 
         <Note>
@@ -565,7 +576,7 @@ For high availability:
         - RabbitMQ host endpoint (AMQP URL)
         - Username and password
         - Connection parameters stored as environment variables or secrets
-      </Tab>
+    </Tab>
     </Tabs>
 
     ---
@@ -579,17 +590,20 @@ For high availability:
     <Tip>
     **Testing your KEDA configuration**: Start with a low `queueLength` value and a small `maxInstances` to test scaling behavior. Monitor your application logs and KEDA operator logs to verify scaling triggers work as expected.
     </Tip>
+
   </Tab>
 </Tabs>
 
 ### Storage
 
 **Ephemeral Storage** (default):
+
 - Container filesystem
 - Data lost on restart
 - Use for temporary files and caches
 
 **Persistent Storage**:
+
 - Block storage volumes
 - Data persists across restarts
 - Configure mount path and size
@@ -597,7 +611,8 @@ For high availability:
 - Typical range: 5GB-10GB
 
 <Warning>
-Persistent storage cannot be shared between replicas. For shared storage, use external services like S3 or blob storage.
+  Persistent storage cannot be shared between replicas. For shared storage, use
+  external services like S3 or blob storage.
 </Warning>
 
 ### Ports
@@ -605,6 +620,7 @@ Persistent storage cannot be shared between replicas. For shared storage, use ex
 Configure network exposure for your application:
 
 **Port Configuration**:
+
 - **Internal Port**: Port your application listens on
 - **External Port**: HTTPS defaults to 443, HTTP to 80
 - **Protocol**: HTTP/HTTPS, gRPC, TCP, UDP
@@ -612,24 +628,31 @@ Configure network exposure for your application:
 - **URL Rewriting**: Configure path rewriting (optional)
 
 <Note>
-For HTTP and gRPC protocols, the external port is set to 443 by default with automatic TLS.
+  For HTTP and gRPC protocols, the external port is set to 443 by default with
+  automatic TLS.
 </Note>
 
 <Warning>
-**Connection Timeouts**: Connections on public ports are automatically closed after 60 seconds by default. Configure custom timeouts in advanced settings for long-lived connections.
+  **Connection Timeouts**: Connections on public ports are automatically closed
+  after 60 seconds by default. Configure custom timeouts in advanced settings
+  for long-lived connections.
 </Warning>
 
 <Info>
-**TCP/UDP Ports**: Exposing TCP/UDP ports publicly requires provisioning a dedicated load balancer, which takes approximately 15 minutes and incurs additional cloud provider costs.
+  **TCP/UDP Ports**: Exposing TCP/UDP ports publicly requires provisioning a
+  dedicated load balancer, which takes approximately 15 minutes and incurs
+  additional cloud provider costs.
 </Info>
 
 ### Health Checks
 
 **Liveness Probe**:
+
 - Determines if container should be restarted
 - Configure endpoint, port, initial delay, and intervals
 
 **Readiness Probe**:
+
 - Determines if container should receive traffic
 - Configure endpoint, port, initial delay, and intervals
 
@@ -680,6 +703,7 @@ Enable CDN proxy mode for custom domains to route traffic through your CDN provi
 ### Service Connections
 
 Applications can connect to:
+
 - Databases within the same environment
 - Other applications within the same environment
 - External services via environment variables
@@ -697,6 +721,7 @@ qovery shell
 ### Clone Service
 
 Duplicate an application configuration to the same or different environment. Cloning copies:
+
 - General configuration
 - Resource settings
 - Port configuration
@@ -704,12 +729,14 @@ Duplicate an application configuration to the same or different environment. Clo
 - Build settings
 
 <Note>
-Cloning excludes custom domains and some built-in environment variables to prevent conflicts.
+  Cloning excludes custom domains and some built-in environment variables to
+  prevent conflicts.
 </Note>
 
 ### Advanced Settings
 
 Configure advanced options including:
+
 - Build timeout and resources
 - Deployment strategy
 - Network settings
@@ -727,7 +754,8 @@ To delete an application:
 3. Confirm deletion
 
 <Warning>
-Deleting an application is permanent and cannot be undone. All associated data and configurations will be removed.
+  Deleting an application is permanent and cannot be undone. All associated data
+  and configurations will be removed.
 </Warning>
 
 ## Related Resources
@@ -737,13 +765,21 @@ Deleting an application is permanent and cannot be undone. All associated data a
     Step-by-step deployment guide
   </Card>
 
-  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
-    Manage configuration and secrets
-  </Card>
+{" "}
 
-  <Card title="Databases" icon="database" href="/configuration/database">
-    Connect databases to your application
-  </Card>
+<Card
+  title="Environment Variables"
+  icon="key"
+  href="/configuration/environment-variables"
+>
+  Manage configuration and secrets
+</Card>
+
+{" "}
+
+<Card title="Databases" icon="database" href="/configuration/database">
+  Connect databases to your application
+</Card>
 
   <Card title="Auto-Deploy" icon="arrows-rotate" href="/configuration/deployment/auto-deploy">
     Set up automatic deployments
