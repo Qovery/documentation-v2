@@ -55,34 +55,27 @@ Qovery pulls a pre-built container image from your configured registry and deplo
 
   </Step>
 
-{" "}
+  <Step title="Configure Resources">
+    - **vCPU**: Default 500m (0.5 cores)
+    - **RAM**: Default 512MB
+    - **GPU**: Optional GPU allocation (requires GPU-enabled cluster)
+    - **Auto-scaling**: Configure min/max instances (optional)
+  </Step>
 
-<Step title="Configure Resources">
-  - **vCPU**: Default 500m (0.5 cores) - **RAM**: Default 512MB - **GPU**:
-  Optional GPU allocation (requires GPU-enabled cluster) - **Auto-scaling**:
-  Configure min/max instances (optional)
-</Step>
+  <Step title="Configure Ports">
+    - **Internal Port**: Port your application listens on
+    - **Protocol**: HTTPS, gRPC, TCP, or UDP
+    - **Publicly Accessible**: Enable to expose via load balancer
+  </Step>
 
-{" "}
+  <Step title="Health Checks (Optional)">
+    - **Liveness Probe**: Determines if container should be restarted
+    - **Readiness Probe**: Determines if container should receive traffic
+  </Step>
 
-<Step title="Configure Ports">
-  - **Internal Port**: Port your application listens on - **Protocol**: HTTPS,
-  gRPC, TCP, or UDP - **Publicly Accessible**: Enable to expose via load
-  balancer
-</Step>
-
-{" "}
-
-<Step title="Health Checks (Optional)">
-  - **Liveness Probe**: Determines if container should be restarted -
-  **Readiness Probe**: Determines if container should receive traffic
-</Step>
-
-{" "}
-
-<Step title="Environment Variables">
-  Configure environment variables for your application
-</Step>
+  <Step title="Environment Variables">
+    Configure environment variables for your application
+  </Step>
 
   <Step title="Review and Deploy">
     Review configuration and choose:
@@ -766,21 +759,13 @@ To delete an application:
     Step-by-step deployment guide
   </Card>
 
-{" "}
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
+    Manage configuration and secrets
+  </Card>
 
-<Card
-  title="Environment Variables"
-  icon="key"
-  href="/configuration/environment-variables"
->
-  Manage configuration and secrets
-</Card>
-
-{" "}
-
-<Card title="Databases" icon="database" href="/configuration/database">
-  Connect databases to your application
-</Card>
+  <Card title="Databases" icon="database" href="/configuration/database">
+    Connect databases to your application
+  </Card>
 
   <Card title="Auto-Deploy" icon="arrows-rotate" href="/configuration/deployment/auto-deploy">
     Set up automatic deployments
