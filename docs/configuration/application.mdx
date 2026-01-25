@@ -120,6 +120,15 @@ Container registries must be configured at the organization level by administrat
 
 Qovery offers three autoscaling modes to match your application's needs:
 
+<Warning>
+**Not recommended for production workloads**. A single instance has no redundancy—if the pod fails or the node undergoes maintenance, your application will be temporarily unavailable.
+
+For high availability:
+- Set minimum instances to **2** if your app can run on 1 instance
+- Set minimum instances to **3 or higher** if your app requires multiple instances to handle necessary traffic
+- This ensures redundancy during node maintenance or pod failures
+</Warning>
+
 <Tabs>
   <Tab title="No Scaling">
     ### Fixed Number of Instances (No Autoscaling)
@@ -134,15 +143,6 @@ Qovery offers three autoscaling modes to match your application's needs:
     - Development environments
     - Proof of concepts (POC)
     - Testing and experimentation
-
-    <Warning>
-    **Not recommended for production workloads**. A single instance has no redundancy—if the pod fails or the node undergoes maintenance, your application will be temporarily unavailable.
-
-    For high availability:
-    - Set minimum instances to **2** if your app can run on 1 instance
-    - Set minimum instances to **3 or higher** if your app requires multiple instances to handle necessary traffic
-    - This ensures redundancy during node maintenance or pod failures
-    </Warning>
   </Tab>
 
   <Tab title="HPA (CPU/Memory)">
