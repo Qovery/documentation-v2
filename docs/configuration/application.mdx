@@ -339,7 +339,6 @@ For high availability:
         ```yaml
         podIdentity:
           provider: aws
-          identityOwner: workload
           roleArn: arn:aws:iam::123456789012:role/keda-sqs-scaler-role
         ```
 
@@ -350,8 +349,7 @@ For high availability:
           - `metadata.awsRegion`: AWS region of the queue
         - **Trigger Authentication YAML**:
           - `podIdentity.provider: aws`: Use AWS pod identity
-          - `podIdentity.identityOwner: workload`: KEDA uses pod identity
-          - `podIdentity.roleArn`: Dedicated IAM role ARN for KEDA
+          - `podIdentity.roleArn`: Dedicated IAM role ARN for KEDA to assume
 
         <Info>
         Specifying `roleArn` in the trigger authentication allows KEDA to use a dedicated IAM role separate from your application, providing better security isolation. You must configure the trust relationship on the IAM role to allow KEDA's service account to assume it.
