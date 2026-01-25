@@ -134,6 +134,8 @@ For high availability:
 - Set minimum instances to **3 or higher** if your app requires multiple instances to handle necessary traffic
 - This ensures redundancy during node maintenance or pod failures
 
+**Note**: KEDA (Event-Driven) autoscaling supports setting minimum instances to **0** for scale-to-zero capability on sporadic workloads.
+
 </Warning>
 
 <Tabs>
@@ -210,12 +212,16 @@ For high availability:
     #### General Configuration
 
     **Required Settings**:
-    - **Minimum instances**: Baseline number of pods (minimum: 1)
+    - **Minimum instances**: Baseline number of pods (minimum: 0 for scale-to-zero)
     - **Maximum instances**: Upper scaling limit
 
     **Optional Settings**:
     - **Polling interval**: How often KEDA checks the event source (default: 30 seconds)
     - **Cooldown period**: Wait time before scaling down after scale-up (default: 300 seconds)
+
+    <Note>
+    **Scale-to-Zero**: KEDA supports setting minimum instances to **0**, allowing your application to scale down completely when there are no events. When events are detected, KEDA automatically scales up from 0 to handle the workload. This is ideal for cost optimization on sporadic workloads.
+    </Note>
 
     <Info>
     **Multiple scalers behavior**: If you configure multiple scalers, KEDA uses the scaler that calculates the highest target number of instances. For example, if Scaler A monitors a queue with 15 messages and calculates 15 target instances (1 message per instance), and Scaler B monitors a queue with 50 messages and calculates 5 target instances (10 messages per instance), KEDA scales to 15 instances (the higher target).
