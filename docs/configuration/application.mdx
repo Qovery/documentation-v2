@@ -322,72 +322,94 @@ For high availability:
 
         ---
 
-        #### IAM Permissions
+        #### Step-by-Step AWS Configuration
 
-        **Required permissions**:
-        - `sqs:GetQueueAttributes` - Read queue metrics
-        - `sqs:GetQueueUrl` - Get queue URL
+        <Steps>
+          <Step title="Create the IAM Policy">
+            This policy grants KEDA the minimum permissions to read SQS metrics (queue depth) without allowing it to process or delete messages.
 
-        **Not required**:
-        - `sqs:ReceiveMessage` - KEDA only reads metrics, does not consume messages
+            1. Go to **IAM Console** → **Policies** → **Create policy**
+            2. Select the **JSON** tab and paste:
 
-        ```json
-        {
-          "Version": "2012-10-17",
-          "Statement": [
+            ```json
             {
-              "Sid": "ReadQueueAttributesForScaling",
-              "Effect": "Allow",
-              "Action": [
-                "sqs:GetQueueAttributes",
-                "sqs:GetQueueUrl"
-              ],
-              "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
-            }
-          ]
-        }
-        ```
-
-        <Note>
-        The application has no AWS permissions in this model. Only KEDA has access to read SQS metrics.
-        </Note>
-
-        ---
-
-        #### Trust Relationship
-
-        Only the KEDA operator ServiceAccount is allowed to assume the IAM role. No application ServiceAccount is included.
-
-        ```json
-        {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
-              },
-              "Action": "sts:AssumeRoleWithWebIdentity",
-              "Condition": {
-                "StringEquals": {
-                  "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com"
-                },
-                "StringLike": {
-                  "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": "system:serviceaccount:kube-system:keda-operator"
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "KedaSqsMetricReadAccess",
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:GetQueueAttributes",
+                    "sqs:GetQueueUrl"
+                  ],
+                  "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
                 }
-              }
+              ]
             }
-          ]
-        }
-        ```
+            ```
 
-        <Info>
-        Replace `<account-id>`, `<region>`, and `<oidc-id>` with your AWS account ID, EKS region, and OIDC provider ID. You can find the OIDC provider URL in your EKS cluster details.
-        </Info>
+            3. Name the policy: `KedaSqsMetricReadPolicy`
+            4. Click **Create policy**
+
+            <Note>
+            **Not required**: `sqs:ReceiveMessage` - KEDA only reads metrics, it does not consume or delete messages.
+            </Note>
+          </Step>
+
+          <Step title="Create the IAM Role (OIDC Integration)">
+            This step creates the AWS identity that the KEDA operator will assume using IRSA (IAM Roles for Service Accounts).
+
+            1. Navigate to **IAM** → **Roles** → **Create role**
+            2. Select **Web Identity** as the trusted entity type
+            3. **Identity provider**: Select your EKS cluster's OIDC URL from the dropdown
+            4. **Audience**: Select `sts.amazonaws.com`
+            5. Click **Next**
+            6. Search for and attach the policy created in Step 1: `KedaSqsMetricReadPolicy`
+            7. Name the role: `KedaOperatorScalingRole`
+            8. Click **Create role**
+          </Step>
+
+          <Step title="Refine the Trust Relationship">
+            To ensure maximum security, restrict this role so that only the KEDA operator pod in the `kube-system` namespace can use it.
+
+            1. Open the role you just created: `KedaOperatorScalingRole`
+            2. Go to the **Trust relationships** tab and click **Edit trust policy**
+            3. Update the JSON, replacing the placeholders with your cluster-specific info:
+
+            ```json
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com",
+                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": "system:serviceaccount:kube-system:keda-operator"
+                    }
+                  }
+                }
+              ]
+            }
+            ```
+
+            4. Click **Update policy**
+
+            <Info>
+            Replace `<account-id>`, `<region>`, and `<oidc-id>` with your AWS account ID, EKS region, and OIDC provider ID. You can find the OIDC provider URL in your EKS cluster details under the **Configuration** tab.
+            </Info>
+          </Step>
+        </Steps>
 
         ---
 
         #### Qovery Configuration
+
+        After completing the AWS configuration steps above, configure the KEDA scaler in Qovery with the IAM role ARN you created.
 
         **Scaler YAML** (paste in "Configuration YAML" field):
         ```yaml
@@ -401,8 +423,12 @@ For high availability:
         ```yaml
         podIdentity:
           provider: aws
-          roleArn: arn:aws:iam::<account-id>:role/<keda-sqs-role-name>
+          roleArn: arn:aws:iam::<account-id>:role/KedaOperatorScalingRole
         ```
+
+        <Info>
+        Replace `<account-id>` with your AWS account ID. You can find the complete role ARN in the IAM Console under the **KedaOperatorScalingRole** details page.
+        </Info>
 
         <Note>
         No ServiceAccount configuration is required on the application itself. The application runs without AWS identity.
