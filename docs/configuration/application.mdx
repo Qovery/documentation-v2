@@ -158,18 +158,22 @@ For high availability:
   <Tab title="HPA (CPU/Memory)">
     ### Classic Horizontal Pod Autoscaling
 
-    Kubernetes HPA automatically scales your application based on CPU and/or memory utilization.
+    Kubernetes HPA automatically scales your application based on CPU utilization, or both CPU and memory utilization.
 
     **Configuration**:
     - **Minimum instances**: Baseline number of running pods
     - **Maximum instances**: Scale-up limit
     - **CPU threshold**: Default 60% (scale up after 15 seconds above threshold)
-    - **Memory threshold**: Optional, can be configured separately
+    - **Memory threshold**: Optional, can be configured in addition to CPU
     - **Scale down**: Triggered after 5 minutes below threshold
+
+    <Note>
+    HPA supports CPU-only scaling or combined CPU+Memory scaling. Memory-only scaling is not supported.
+    </Note>
 
     **How It Works**:
     - Kubernetes metrics-server monitors resource usage
-    - When average CPU/memory exceeds the threshold, new pods are added
+    - When average CPU (or CPU+memory) exceeds the threshold, new pods are added
     - When usage drops below threshold for 5 minutes, pods are removed
     - Scales down to minimum instances during low traffic
 
@@ -197,6 +201,10 @@ For high availability:
     <Warning>
     **AWS clusters only** - KEDA autoscaling is currently available exclusively for applications deployed on AWS.
     </Warning>
+
+    <Note>
+    **Prerequisite**: KEDA must be enabled at the cluster level before you can use event-driven autoscaling. Contact your cluster administrator or enable KEDA in your cluster settings.
+    </Note>
 
     **What is KEDA?**
 
@@ -230,6 +238,10 @@ For high availability:
     #### Scaler Configuration
 
     Each scaler monitors a specific event source. You can add multiple scalers to respond to different metrics.
+
+    <Note>
+    **Built-in scalers only**: Qovery currently supports KEDA's built-in scalers. External scalers are not supported at this time.
+    </Note>
 
     **For Each Scaler**:
     1. **Scaler Type**: The event source type (e.g., `aws-sqs-queue`, `rabbitmq`, `kafka`, `prometheus`)
