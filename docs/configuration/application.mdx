@@ -280,315 +280,367 @@ For high availability:
 
         AWS SQS requires IAM authentication. Qovery supports two authentication models:
 
-    <Tabs>
-      <Tab title="Model A: Shared IAM Role">
-        ### Shared IAM Role (Application + KEDA)
+        <Tabs>
+          <Tab title="Shared IAM Role">
+            ### Shared IAM Role (Application + KEDA)
 
-        **When to use**:
-        - Your application already consumes from SQS
-        - You want to minimize IAM roles
-        - Simpler configuration
+            **When to use**:
+            - Your application already consumes from SQS
+            - You want to minimize IAM roles
+            - Simpler configuration
 
-        **How it works**:
-        - Single IAM role attached to your application's service account
-        - Both application pods and KEDA use the same IAM role
-        - No AWS credentials stored as secrets
+            **How it works**:
+            - Single IAM role attached to your application's service account
+            - Both application pods and KEDA use the same IAM role
+            - No AWS credentials stored as secrets
 
-        ---
+            ---
 
-        #### Step-by-Step AWS Configuration
+            #### Step-by-Step AWS Configuration
 
-        <Steps>
-          <Step title="Create IAM Policy for SQS Access">
-            This policy grants your application the necessary permissions to interact with SQS (consume, process messages) and allows KEDA to read queue metrics.
+            <Steps>
+              <Step title="Create IAM Policy for SQS Access">
+                This policy grants your application the necessary permissions to interact with SQS (consume, process messages) and allows KEDA to read queue metrics.
 
-            1. Go to **IAM Console** → **Policies** → **Create policy**
-            2. Select the **JSON** tab and paste:
+                1. Go to **IAM Console** → **Policies** → **Create policy**
+                2. Select the **JSON** tab and paste:
 
-            ```json
-            {
-              "Version": "2012-10-17",
-              "Statement": [
+                ```json
                 {
-                  "Sid": "SqsFullAccess",
-                  "Effect": "Allow",
-                  "Action": [
-                    "sqs:GetQueueAttributes",
-                    "sqs:GetQueueUrl",
-                    "sqs:ReceiveMessage",
-                    "sqs:DeleteMessage",
-                    "sqs:ChangeMessageVisibility"
-                  ],
-                  "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
-                }
-              ]
-            }
-            ```
-
-            3. Name the policy: `AppSqsFullAccessPolicy`
-            4. Click **Create policy**
-
-            <Note>
-            This policy includes both application permissions (`ReceiveMessage`, `DeleteMessage`) and KEDA metric reading permissions (`GetQueueAttributes`).
-            </Note>
-          </Step>
-
-          <Step title="Create IAM Role and Service Account">
-            Follow the complete tutorial to create an IAM role and configure your application's service account with AWS IAM roles.
-
-            <Card title="AWS IAM Roles Tutorial" icon="book" href="/getting-started/guides/advanced-tutorials/aws-iam-roles">
-              Step-by-step guide to create IAM roles and service accounts for Qovery applications
-            </Card>
-
-            When creating the role:
-            1. Attach the policy created in Step 1: `AppSqsFullAccessPolicy`
-            2. Name the role: `AppSqsConsumerRole`
-            3. Note the role ARN for later use
-          </Step>
-
-          <Step title="Configure Trust Relationship for KEDA">
-            To allow KEDA to inherit the IAM role from your application's service account, you must update the trust relationship.
-
-            1. Open the role you created: `AppSqsConsumerRole`
-            2. Go to the **Trust relationships** tab and click **Edit trust policy**
-            3. Update the JSON to allow both your application namespace AND the KEDA operator:
-
-            ```json
-            {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Principal": {
-                    "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
-                  },
-                  "Action": "sts:AssumeRoleWithWebIdentity",
-                  "Condition": {
-                    "StringEquals": {
-                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com",
-                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": [
-                        "system:serviceaccount:<your-namespace>:<service-account-name>",
-                        "system:serviceaccount:kube-system:keda-operator"
-                      ]
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Sid": "SqsFullAccess",
+                      "Effect": "Allow",
+                      "Action": [
+                        "sqs:GetQueueAttributes",
+                        "sqs:GetQueueUrl",
+                        "sqs:ReceiveMessage",
+                        "sqs:DeleteMessage",
+                        "sqs:ChangeMessageVisibility"
+                      ],
+                      "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
                     }
-                  }
+                  ]
                 }
-              ]
-            }
+                ```
+
+                3. Name the policy: `AppSqsFullAccessPolicy`
+                4. Click **Create policy**
+
+                <Note>
+                This policy includes both application permissions (`ReceiveMessage`, `DeleteMessage`) and KEDA metric reading permissions (`GetQueueAttributes`).
+                </Note>
+              </Step>
+
+              <Step title="Create IAM Role and Service Account">
+                Follow the complete tutorial to create an IAM role and configure your application's service account with AWS IAM roles.
+
+                <Card title="AWS IAM Roles Tutorial" icon="book" href="/getting-started/guides/advanced-tutorials/aws-iam-roles">
+                  Step-by-step guide to create IAM roles and service accounts for Qovery applications
+                </Card>
+
+                When creating the role:
+                1. Attach the policy created in Step 1: `AppSqsFullAccessPolicy`
+                2. Name the role: `AppSqsConsumerRole`
+                3. Note the role ARN for later use
+              </Step>
+
+              <Step title="Configure Trust Relationship for KEDA">
+                To allow KEDA to inherit the IAM role from your application's service account, you must update the trust relationship.
+
+                1. Open the role you created: `AppSqsConsumerRole`
+                2. Go to the **Trust relationships** tab and click **Edit trust policy**
+                3. Update the JSON to allow both your application namespace AND the KEDA operator:
+
+                ```json
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
+                      },
+                      "Action": "sts:AssumeRoleWithWebIdentity",
+                      "Condition": {
+                        "StringEquals": {
+                          "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com",
+                          "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": [
+                            "system:serviceaccount:<your-namespace>:<service-account-name>",
+                            "system:serviceaccount:kube-system:keda-operator"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+                ```
+
+                4. Click **Update policy**
+
+                <Info>
+                Replace `<account-id>`, `<region>`, `<oidc-id>`, `<your-namespace>`, and `<service-account-name>` with your specific values. The key addition is the `keda-operator` service account in the trust relationship.
+                </Info>
+              </Step>
+            </Steps>
+
+            ---
+
+            #### Qovery Configuration
+
+            After completing the AWS configuration steps above, configure the KEDA scaler in Qovery.
+
+            **Scaler YAML** (paste in "Configuration YAML" field):
+            ```yaml
+            metadata:
+              queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
+              awsRegion: "us-east-1"
+              queueLength: "5"
+              activationQueueLength: "1"
             ```
 
-            4. Click **Update policy**
+            **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
+            ```yaml
+            podIdentity:
+              provider: aws
+              identityOwner: workload
+            ```
 
             <Info>
-            Replace `<account-id>`, `<region>`, `<oidc-id>`, `<your-namespace>`, and `<service-account-name>` with your specific values. The key addition is the `keda-operator` service account in the trust relationship.
+            With `identityOwner: workload`, KEDA automatically inherits the IAM role from your application's service account. This requires the trust relationship configuration from Step 3.
             </Info>
-          </Step>
-        </Steps>
 
-        ---
+            ---
 
-        #### Qovery Configuration
+            #### Resulting Behavior
 
-        After completing the AWS configuration steps above, configure the KEDA scaler in Qovery.
+            - **Both application and KEDA use the same IAM role** - The role is shared between your application pods and KEDA operator
+            - **Application can consume from SQS** - Your application has full permissions to receive and process messages
+            - **KEDA monitors queue depth** - KEDA uses the same role to read queue metrics for scaling decisions
+            - **Simplified IAM management** - Only one role to manage and maintain
+          </Tab>
 
-        **Scaler YAML** (paste in "Configuration YAML" field):
-        ```yaml
-        metadata:
-          queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
-          awsRegion: "us-east-1"
-          queueLength: "5"
-          activationQueueLength: "1"
-        ```
+          <Tab title="KEDA-Only IAM Role">
+            ### Separate IAM Role for KEDA
 
-        **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
-        ```yaml
-        podIdentity:
-          provider: aws
-          identityOwner: workload
-        ```
+            **When to use**:
+            - Your application does NOT consume from SQS
+            - KEDA scales based on queue depth, but another service processes messages
+            - You want separate security boundaries
 
-        <Info>
-        With `identityOwner: workload`, KEDA automatically inherits the IAM role from your application's service account. This requires the trust relationship configuration from Step 3.
-        </Info>
+            **How it works**:
+            - Dedicated IAM role for KEDA's scaling operations
+            - Application has no AWS identity
+            - IAM role ARN specified directly in trigger authentication
 
-        ---
+            ---
 
-        #### Resulting Behavior
+            #### Step-by-Step AWS Configuration
 
-        - **Both application and KEDA use the same IAM role** - The role is shared between your application pods and KEDA operator
-        - **Application can consume from SQS** - Your application has full permissions to receive and process messages
-        - **KEDA monitors queue depth** - KEDA uses the same role to read queue metrics for scaling decisions
-        - **Simplified IAM management** - Only one role to manage and maintain
-      </Tab>
+            <Steps>
+              <Step title="Create the IAM Policy">
+                This policy grants KEDA the minimum permissions to read SQS metrics (queue depth) without allowing it to process or delete messages.
 
-      <Tab title="Model B: KEDA-Only IAM Role">
-        ### Separate IAM Role for KEDA
+                1. Go to **IAM Console** → **Policies** → **Create policy**
+                2. Select the **JSON** tab and paste:
 
-        **When to use**:
-        - Your application does NOT consume from SQS
-        - KEDA scales based on queue depth, but another service processes messages
-        - You want separate security boundaries
-
-        **How it works**:
-        - Dedicated IAM role for KEDA's scaling operations
-        - Application has no AWS identity
-        - IAM role ARN specified directly in trigger authentication
-
-        ---
-
-        #### Step-by-Step AWS Configuration
-
-        <Steps>
-          <Step title="Create the IAM Policy">
-            This policy grants KEDA the minimum permissions to read SQS metrics (queue depth) without allowing it to process or delete messages.
-
-            1. Go to **IAM Console** → **Policies** → **Create policy**
-            2. Select the **JSON** tab and paste:
-
-            ```json
-            {
-              "Version": "2012-10-17",
-              "Statement": [
+                ```json
                 {
-                  "Sid": "KedaSqsMetricReadAccess",
-                  "Effect": "Allow",
-                  "Action": [
-                    "sqs:GetQueueAttributes",
-                    "sqs:GetQueueUrl"
-                  ],
-                  "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
-                }
-              ]
-            }
-            ```
-
-            3. Name the policy: `KedaSqsMetricReadPolicy`
-            4. Click **Create policy**
-
-            <Note>
-            **Not required**: `sqs:ReceiveMessage` - KEDA only reads metrics, it does not consume or delete messages.
-            </Note>
-          </Step>
-
-          <Step title="Create the IAM Role (OIDC Integration)">
-            This step creates the AWS identity that the KEDA operator will assume using IRSA (IAM Roles for Service Accounts).
-
-            1. Navigate to **IAM** → **Roles** → **Create role**
-            2. Select **Web Identity** as the trusted entity type
-            3. **Identity provider**: Select your EKS cluster's OIDC URL from the dropdown
-            4. **Audience**: Select `sts.amazonaws.com`
-            5. Click **Next**
-            6. Search for and attach the policy created in Step 1: `KedaSqsMetricReadPolicy`
-            7. Name the role: `KedaOperatorScalingRole`
-            8. Click **Create role**
-          </Step>
-
-          <Step title="Refine the Trust Relationship">
-            To ensure maximum security, restrict this role so that only the KEDA operator pod in the `kube-system` namespace can use it.
-
-            1. Open the role you just created: `KedaOperatorScalingRole`
-            2. Go to the **Trust relationships** tab and click **Edit trust policy**
-            3. Update the JSON, replacing the placeholders with your cluster-specific info:
-
-            ```json
-            {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Principal": {
-                    "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
-                  },
-                  "Action": "sts:AssumeRoleWithWebIdentity",
-                  "Condition": {
-                    "StringEquals": {
-                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com",
-                      "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": "system:serviceaccount:kube-system:keda-operator"
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Sid": "KedaSqsMetricReadAccess",
+                      "Effect": "Allow",
+                      "Action": [
+                        "sqs:GetQueueAttributes",
+                        "sqs:GetQueueUrl"
+                      ],
+                      "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
                     }
-                  }
+                  ]
                 }
-              ]
-            }
+                ```
+
+                3. Name the policy: `KedaSqsMetricReadPolicy`
+                4. Click **Create policy**
+
+                <Note>
+                **Not required**: `sqs:ReceiveMessage` - KEDA only reads metrics, it does not consume or delete messages.
+                </Note>
+              </Step>
+
+              <Step title="Create the IAM Role (OIDC Integration)">
+                This step creates the AWS identity that the KEDA operator will assume using IRSA (IAM Roles for Service Accounts).
+
+                1. Navigate to **IAM** → **Roles** → **Create role**
+                2. Select **Web Identity** as the trusted entity type
+                3. **Identity provider**: Select your EKS cluster's OIDC URL from the dropdown
+                4. **Audience**: Select `sts.amazonaws.com`
+                5. Click **Next**
+                6. Search for and attach the policy created in Step 1: `KedaSqsMetricReadPolicy`
+                7. Name the role: `KedaOperatorScalingRole`
+                8. Click **Create role**
+              </Step>
+
+              <Step title="Refine the Trust Relationship">
+                To ensure maximum security, restrict this role so that only the KEDA operator pod in the `kube-system` namespace can use it.
+
+                1. Open the role you just created: `KedaOperatorScalingRole`
+                2. Go to the **Trust relationships** tab and click **Edit trust policy**
+                3. Update the JSON, replacing the placeholders with your cluster-specific info:
+
+                ```json
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
+                      },
+                      "Action": "sts:AssumeRoleWithWebIdentity",
+                      "Condition": {
+                        "StringEquals": {
+                          "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com",
+                          "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": "system:serviceaccount:kube-system:keda-operator"
+                        }
+                      }
+                    }
+                  ]
+                }
+                ```
+
+                4. Click **Update policy**
+
+                <Info>
+                Replace `<account-id>`, `<region>`, and `<oidc-id>` with your AWS account ID, EKS region, and OIDC provider ID. You can find the OIDC provider URL in your EKS cluster details under the **Configuration** tab.
+                </Info>
+              </Step>
+            </Steps>
+
+            ---
+
+            #### Qovery Configuration
+
+            After completing the AWS configuration steps above, configure the KEDA scaler in Qovery with the IAM role ARN you created.
+
+            **Scaler YAML** (paste in "Configuration YAML" field):
+            ```yaml
+            metadata:
+              queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
+              awsRegion: "us-east-1"
+              queueLength: "5"
+              activationQueueLength: "1"
             ```
 
-            4. Click **Update policy**
+            **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
+            ```yaml
+            podIdentity:
+              provider: aws
+              roleArn: arn:aws:iam::<account-id>:role/KedaOperatorScalingRole
+            ```
 
             <Info>
-            Replace `<account-id>`, `<region>`, and `<oidc-id>` with your AWS account ID, EKS region, and OIDC provider ID. You can find the OIDC provider URL in your EKS cluster details under the **Configuration** tab.
+            Replace `<account-id>` with your AWS account ID. You can find the complete role ARN in the IAM Console under the **KedaOperatorScalingRole** details page.
             </Info>
-          </Step>
-        </Steps>
 
-        ---
+            <Note>
+            No ServiceAccount configuration is required on the application itself. The application runs without AWS identity.
+            </Note>
 
-        #### Qovery Configuration
+            ---
 
-        After completing the AWS configuration steps above, configure the KEDA scaler in Qovery with the IAM role ARN you created.
+            #### Resulting Behavior
 
-        **Scaler YAML** (paste in "Configuration YAML" field):
-        ```yaml
-        metadata:
-          queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
-          awsRegion: "us-east-1"
-          queueLength: "5"
-          activationQueueLength: "1"
-        ```
-
-        **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
-        ```yaml
-        podIdentity:
-          provider: aws
-          roleArn: arn:aws:iam::<account-id>:role/KedaOperatorScalingRole
-        ```
-
-        <Info>
-        Replace `<account-id>` with your AWS account ID. You can find the complete role ARN in the IAM Console under the **KedaOperatorScalingRole** details page.
-        </Info>
-
-        <Note>
-        No ServiceAccount configuration is required on the application itself. The application runs without AWS identity.
-        </Note>
-
-        ---
-
-        #### Resulting Behavior
-
-        - **Only KEDA has AWS credentials** - The dedicated IAM role is only accessible to KEDA operator
-        - **Application runs without AWS identity** - Your application pods have no AWS permissions
-        - **Scaling is isolated from application permissions** - KEDA can read queue metrics independently of the application's capabilities
+            - **Only KEDA has AWS credentials** - The dedicated IAM role is only accessible to KEDA operator
+            - **Application runs without AWS identity** - Your application pods have no AWS permissions
+            - **Scaling is isolated from application permissions** - KEDA can read queue metrics independently of the application's capabilities
+          </Tab>
+        </Tabs>
       </Tab>
-    </Tabs>
-    </Tab>
 
-    <Tab title="Redis">
+      <Tab title="Redis">
         ### Redis List/Stream Scaling
 
-        <Note>
-        **Coming soon** - Detailed configuration guide for Redis scalers will be available shortly.
+        Scale your application based on Redis list length or stream lag.
 
-        In the meantime, you can use the `redis` or `redis-streams` scaler type. See the [KEDA Redis Scaler documentation](https://keda.sh/docs/latest/scalers/redis-lists/) for configuration details.
-        </Note>
+        **Scaler Types**:
+        - `redis` - For Redis lists
+        - `redis-streams` - For Redis streams
 
-        **Important**: Redis (including AWS ElastiCache) does NOT use IAM authentication at runtime. Authentication requires:
-        - Redis host endpoint
-        - Password (if authentication enabled)
-        - Connection parameters stored as environment variables or secrets
-    </Tab>
+        **Authentication**:
+        Redis does NOT use IAM authentication. You can provide credentials directly in the configuration or reference Qovery environment variables/secrets.
 
-    <Tab title="RabbitMQ">
+        ---
+
+        **Scaler YAML Example** (paste in "Configuration YAML" field):
+        ```yaml
+        metadata:
+          address: "redis.example.com:6379"
+          listName: "my-queue"
+          listLength: "5"
+          activationListLength: "1"
+        ```
+
+        **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
+        ```yaml
+        secretTargetRef:
+          - parameter: password
+            key: qovery.env.REDIS_PASSWORD
+        ```
+
+        <Info>
+        You can reference Qovery environment variables or secrets using `qovery.env.VARIABLE_NAME`, or provide credentials directly in the YAML configuration.
+        </Info>
+
+        **Configuration Parameters**:
+        - `address` - Redis server address (host:port)
+        - `listName` - Name of the Redis list to monitor
+        - `listLength` - Target list length per instance
+        - `activationListLength` - Minimum list length to activate scaling
+
+        For complete parameter reference, see [KEDA Redis Scaler documentation](https://keda.sh/docs/latest/scalers/redis-lists/).
+      </Tab>
+
+      <Tab title="RabbitMQ">
         ### RabbitMQ Queue Scaling
 
-        <Note>
-        **Coming soon** - Detailed configuration guide for RabbitMQ scalers will be available shortly.
+        Scale your application based on RabbitMQ queue depth.
 
-        In the meantime, you can use the `rabbitmq` scaler type. See the [KEDA RabbitMQ Scaler documentation](https://keda.sh/docs/latest/scalers/rabbitmq-queue/) for configuration details.
-        </Note>
+        **Authentication**:
+        RabbitMQ does NOT use IAM authentication. You can provide credentials directly in the configuration or reference Qovery environment variables/secrets.
 
-        **Important**: RabbitMQ (including AWS MQ) does NOT use IAM authentication at runtime. Authentication requires:
-        - RabbitMQ host endpoint (AMQP URL)
-        - Username and password
-        - Connection parameters stored as environment variables or secrets
-    </Tab>
+        ---
+
+        **Scaler YAML Example** (paste in "Configuration YAML" field):
+        ```yaml
+        metadata:
+          queueName: "my-queue"
+          mode: "QueueLength"
+          value: "5"
+          activationValue: "1"
+        ```
+
+        **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
+        ```yaml
+        secretTargetRef:
+          - parameter: host
+            key: qovery.env.RABBITMQ_URL
+        ```
+
+        <Info>
+        You can reference Qovery environment variables or secrets using `qovery.env.VARIABLE_NAME`, or provide the connection string directly in the YAML configuration. The RabbitMQ URL format is: `amqp://user:password@rabbitmq.example.com:5672/vhost`
+        </Info>
+
+        **Configuration Parameters**:
+        - `queueName` - Name of the RabbitMQ queue to monitor
+        - `mode` - Scaling mode: `QueueLength` (default) or `MessageRate`
+        - `value` - Target queue length per instance
+        - `activationValue` - Minimum queue length to activate scaling
+
+        For complete parameter reference, see [KEDA RabbitMQ Scaler documentation](https://keda.sh/docs/latest/scalers/rabbitmq-queue/).
+      </Tab>
     </Tabs>
 
     ---
