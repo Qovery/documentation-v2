@@ -284,6 +284,7 @@ For high availability:
           queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
           awsRegion: "us-east-1"
           queueLength: "5"
+          activationQueueLength: "1"
         ```
 
         **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
@@ -296,8 +297,9 @@ For high availability:
         **Parameters**:
         - **Scaler YAML**:
           - `metadata.queueURL`: Full SQS queue URL
-          - `metadata.queueLength`: Target messages per pod (scale when exceeded)
           - `metadata.awsRegion`: AWS region of the queue
+          - `metadata.queueLength`: Target messages per pod (scale when exceeded)
+          - `metadata.activationQueueLength`: Minimum messages to activate scaling (default: 0)
         - **Trigger Authentication YAML**:
           - `podIdentity.provider: aws`: Use AWS pod identity
           - `podIdentity.identityOwner: workload`: KEDA inherits the IAM role from application's service account
@@ -417,6 +419,7 @@ For high availability:
           queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue"
           awsRegion: "us-east-1"
           queueLength: "5"
+          activationQueueLength: "1"
         ```
 
         **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
