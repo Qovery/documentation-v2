@@ -305,48 +305,6 @@ For high availability:
         <Info>
         With `identityOwner: workload`, KEDA automatically inherits the IAM role from your application's service account. You must configure the trust relationship on the IAM role to allow KEDA's service account to assume it.
         </Info>
-
-        ---
-
-        #### Complete Example
-
-        **Scenario**: Node.js worker consuming SQS messages
-
-        **Application Configuration**:
-        - IAM role: `arn:aws:iam::123456789012:role/my-app-sqs-consumer`
-        - IAM permissions: SQS read, receive, delete messages
-        - Service account configured with IAM role in advanced settings
-
-        **KEDA Configuration**:
-
-        | Setting | Value |
-        |---------|-------|
-        | Autoscaling Mode | KEDA (Event-driven autoscaling) |
-        | Min Instances | 1 |
-        | Max Instances | 10 |
-        | Polling Interval | 30 seconds |
-        | Cooldown Period | 300 seconds |
-
-        **Scaler #1**:
-        - **Scaler Type**: `aws-sqs-queue`
-        - **Configuration YAML**:
-          ```yaml
-          metadata:
-            queueURL: "https://sqs.us-east-1.amazonaws.com/123456789012/order-processing-queue"
-            awsRegion: "us-east-1"
-            queueLength: "5"
-          ```
-        - **Trigger Authentication YAML**:
-          ```yaml
-          podIdentity:
-            provider: aws
-            identityOwner: workload
-          ```
-
-        **Behavior**:
-        - Each pod processes ~5 messages
-        - If queue has 25 messages, KEDA scales to 5 pods
-        - Scales down after 300 seconds of low queue depth
       </Tab>
 
       <Tab title="Model B: KEDA-Only IAM Role">
@@ -415,54 +373,6 @@ For high availability:
           ]
         }
         ```
-
-        ---
-
-        #### Complete Example
-
-        **Scenario**: Application scales based on queue depth but doesn't consume SQS
-
-        **Application Configuration**:
-        - No IAM role needed for application
-        - Application may consume from different sources
-
-        **KEDA IAM Role**:
-        - Role ARN: `arn:aws:iam::123456789012:role/keda-notification-queue-scaler`
-        - IAM permissions: SQS read-only (GetQueueAttributes, CloudWatch metrics)
-        - Specified in trigger authentication YAML
-
-        **KEDA Configuration**:
-
-        | Setting | Value |
-        |---------|-------|
-        | Autoscaling Mode | KEDA (Event-driven autoscaling) |
-        | Min Instances | 2 |
-        | Max Instances | 20 |
-        | Polling Interval | 60 seconds |
-        | Cooldown Period | 600 seconds |
-
-        **Scaler #1**:
-        - **Scaler Type**: `aws-sqs-queue`
-        - **Configuration YAML**:
-          ```yaml
-          metadata:
-            queueURL: "https://sqs.eu-west-1.amazonaws.com/123456789012/notification-queue"
-            awsRegion: "eu-west-1"
-            queueLength: "10"
-          ```
-        - **Trigger Authentication YAML**:
-          ```yaml
-          podIdentity:
-            provider: aws
-            identityOwner: workload
-            roleArn: arn:aws:iam::123456789012:role/keda-notification-queue-scaler
-          ```
-
-        **Behavior**:
-        - Each pod handles workload for ~10 messages
-        - KEDA reads queue metrics but doesn't consume messages
-        - Independent scaling logic from message consumption
-        - Uses dedicated IAM role ARN for secure, isolated access
       </Tab>
     </Tabs>
       </Tab>
