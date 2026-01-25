@@ -320,12 +320,74 @@ For high availability:
         - Application has no AWS identity
         - IAM role ARN specified directly in trigger authentication
 
-        **Configuration**:
+        ---
 
-        1. Create a dedicated IAM role for KEDA with SQS read permissions
-        2. Configure the trust relationship to allow KEDA's service account to assume this role
-        3. Get the IAM role ARN
-        4. Configure both scaler and trigger authentication YAML with the role ARN
+        #### IAM Permissions
+
+        **Required permissions**:
+        - `sqs:GetQueueAttributes` - Read queue metrics
+        - `sqs:GetQueueUrl` - Get queue URL
+
+        **Not required**:
+        - `sqs:ReceiveMessage` - KEDA only reads metrics, does not consume messages
+
+        ```json
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "ReadQueueAttributesForScaling",
+              "Effect": "Allow",
+              "Action": [
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl"
+              ],
+              "Resource": "arn:aws:sqs:<region>:<account-id>:<queue-name>"
+            }
+          ]
+        }
+        ```
+
+        <Note>
+        The application has no AWS permissions in this model. Only KEDA has access to read SQS metrics.
+        </Note>
+
+        ---
+
+        #### Trust Relationship
+
+        Only the KEDA operator ServiceAccount is allowed to assume the IAM role. No application ServiceAccount is included.
+
+        ```json
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": "arn:aws:iam::<account-id>:oidc-provider/oidc.eks.<region>.amazonaws.com/id/<oidc-id>"
+              },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                  "oidc.eks.<region>.amazonaws.com/id/<oidc-id>:sub": "system:serviceaccount:kube-system:keda-operator"
+                }
+              }
+            }
+          ]
+        }
+        ```
+
+        <Info>
+        Replace `<account-id>`, `<region>`, and `<oidc-id>` with your AWS account ID, EKS region, and OIDC provider ID. You can find the OIDC provider URL in your EKS cluster details.
+        </Info>
+
+        ---
+
+        #### Qovery Configuration
 
         **Scaler YAML** (paste in "Configuration YAML" field):
         ```yaml
@@ -339,38 +401,20 @@ For high availability:
         ```yaml
         podIdentity:
           provider: aws
-          roleArn: arn:aws:iam::123456789012:role/keda-sqs-scaler-role
+          roleArn: arn:aws:iam::<account-id>:role/<keda-sqs-role-name>
         ```
 
-        **Parameters**:
-        - **Scaler YAML**:
-          - `metadata.queueURL`: Full SQS queue URL
-          - `metadata.queueLength`: Target messages per pod (scale when exceeded)
-          - `metadata.awsRegion`: AWS region of the queue
-        - **Trigger Authentication YAML**:
-          - `podIdentity.provider: aws`: Use AWS pod identity
-          - `podIdentity.roleArn`: Dedicated IAM role ARN for KEDA to assume
+        <Note>
+        No ServiceAccount configuration is required on the application itself. The application runs without AWS identity.
+        </Note>
 
-        <Info>
-        Specifying `roleArn` in the trigger authentication allows KEDA to use a dedicated IAM role separate from your application, providing better security isolation. You must configure the trust relationship on the IAM role to allow KEDA's service account to assume it.
-        </Info>
+        ---
 
-        **Required IAM Permissions** (minimum):
-        ```json
-        {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": [
-                "sqs:GetQueueAttributes",
-                "cloudwatch:GetMetricStatistics"
-              ],
-              "Resource": "arn:aws:sqs:REGION:ACCOUNT_ID:QUEUE_NAME"
-            }
-          ]
-        }
-        ```
+        #### Resulting Behavior
+
+        - **Only KEDA has AWS credentials** - The dedicated IAM role is only accessible to KEDA operator
+        - **Application runs without AWS identity** - Your application pods have no AWS permissions
+        - **Scaling is isolated from application permissions** - KEDA can read queue metrics independently of the application's capabilities
       </Tab>
     </Tabs>
       </Tab>
