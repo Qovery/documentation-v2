@@ -206,9 +206,22 @@ For high availability:
     **AWS clusters only** - KEDA autoscaling is currently available exclusively for applications deployed on AWS.
     </Warning>
 
-    <Note>
-    **Prerequisite**: KEDA must be enabled at the cluster level before you can use event-driven autoscaling. Contact your cluster administrator or enable KEDA in your cluster settings.
-    </Note>
+    **Prerequisite: Enable KEDA at Cluster Level**
+
+    Before using event-driven autoscaling, KEDA must be enabled on your cluster:
+
+    1. Navigate to your cluster settings
+    2. Go to the **Advanced Settings** tab
+    3. Enable the **KEDA** option
+    4. **Redeploy your cluster** for the changes to take effect
+
+    <Frame>
+      <img src="/images/configuration/application/cluster-keda-activation.png" alt="Enable KEDA in cluster advanced settings" />
+    </Frame>
+
+    <Warning>
+    After enabling KEDA, you must redeploy your cluster for the feature to become available.
+    </Warning>
 
     **What is KEDA?**
 
