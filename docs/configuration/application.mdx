@@ -230,6 +230,19 @@ For high availability:
     - Custom metrics (Prometheus, Datadog)
     - Scheduled scaling (cron-based)
 
+    #### Migrating from HPA to KEDA
+
+    <Warning>
+    **Beta Limitation**: If your application is currently using HPA (CPU/Memory) autoscaling and you want to migrate to KEDA, follow these steps:
+
+    1. Switch your application to **No Scaling** mode
+    2. **Redeploy your application**
+    3. Switch to **KEDA (Event-Driven)** mode
+    4. Configure your KEDA scalers
+
+    Direct migration from HPA to KEDA is not currently supported and will not work properly.
+    </Warning>
+
     #### General Configuration
 
     **Required Settings**:
