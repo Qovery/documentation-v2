@@ -73,6 +73,37 @@ When CPU utilization exceeds the target threshold, Kubernetes automatically adds
 Auto-scaling helps maintain performance during traffic spikes while reducing costs during low-traffic periods.
 </Note>
 
+### Event-Driven Autoscaling with KEDA
+
+For advanced use cases, Qovery supports **event-driven autoscaling** powered by [KEDA](https://keda.sh).
+
+**What is KEDA?**
+
+KEDA scales your applications based on external event sources like:
+- Message queues (AWS SQS, RabbitMQ, Kafka)
+- Data streams (AWS Kinesis)
+- Databases (PostgreSQL, MySQL)
+- Custom metrics (Prometheus, Datadog)
+- Scheduled events (cron-based)
+
+**When to Use KEDA**:
+- Your application processes messages from a queue
+- Scaling should respond to queue depth, not CPU usage
+- You need to scale based on external metrics
+- You want scale-to-zero capability
+
+<Warning>
+**Beta Feature** - KEDA autoscaling is currently in beta and available to select customers only. Contact your Qovery account manager if you're interested in early access.
+</Warning>
+
+<Warning>
+**AWS clusters only** - KEDA event-driven autoscaling is currently available exclusively for applications deployed on AWS clusters.
+</Warning>
+
+<Card title="KEDA Configuration Guide" icon="book" href="/configuration/application#keda-event-driven">
+  Learn how to configure event-driven autoscaling with detailed examples and authentication patterns
+</Card>
+
 ## Spot Instances
 
 Reduce compute costs by up to 70% using **Spot Instances** for non-critical workloads.
