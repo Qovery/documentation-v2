@@ -640,10 +640,10 @@ For high availability:
         **Scaler YAML Example** (paste in "Configuration YAML" field):
         ```yaml
         metadata:
-          address: "redis.example.com:6379"
-          listName: "my-queue"
-          listLength: "5"
-          activationListLength: "1"
+          address: redis-queue.default.svc.cluster.local:6379
+          listName: myqueue
+          listLength: "1"
+          databaseIndex: "0"
         ```
 
         **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
@@ -658,10 +658,10 @@ For high availability:
         </Info>
 
         **Configuration Parameters**:
-        - `address` - Redis server address (host:port)
+        - `address` - Redis server address (host:port or Kubernetes service DNS)
         - `listName` - Name of the Redis list to monitor
         - `listLength` - Target list length per instance
-        - `activationListLength` - Minimum list length to activate scaling
+        - `databaseIndex` - Redis database index (optional, default: "0")
 
         For complete parameter reference, see [KEDA Redis Scaler documentation](https://keda.sh/docs/latest/scalers/redis-lists/).
       </Tab>
