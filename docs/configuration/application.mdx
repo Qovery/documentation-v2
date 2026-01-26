@@ -679,10 +679,10 @@ For high availability:
         **Scaler YAML Example** (paste in "Configuration YAML" field):
         ```yaml
         metadata:
-          queueName: "my-queue"
-          mode: "QueueLength"
-          value: "5"
-          activationValue: "1"
+          protocol: amqp
+          queueName: myqueue
+          mode: QueueLength
+          value: "1"
         ```
 
         **Trigger Authentication YAML** (paste in "Trigger Authentication YAML" field):
@@ -697,10 +697,10 @@ For high availability:
         </Info>
 
         **Configuration Parameters**:
+        - `protocol` - Connection protocol: `amqp` or `http` (optional, default: `amqp`)
         - `queueName` - Name of the RabbitMQ queue to monitor
         - `mode` - Scaling mode: `QueueLength` (default) or `MessageRate`
         - `value` - Target queue length per instance
-        - `activationValue` - Minimum queue length to activate scaling
 
         For complete parameter reference, see [KEDA RabbitMQ Scaler documentation](https://keda.sh/docs/latest/scalers/rabbitmq-queue/).
       </Tab>
