@@ -8,7 +8,8 @@ Qovery Documentation v2
 To work on the documentation locally:
 
 1. Install [**Mintlify**](https://www.mintlify.com/docs/quickstart)
-2. Run:
+2. Go to the /docs folder
+3. Run:
 
     ```bash
     mintlify dev
