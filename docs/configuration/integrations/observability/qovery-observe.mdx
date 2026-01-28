@@ -217,12 +217,12 @@ The navigation menu also includes a dedicated **Alerting** section where you can
 
 - **Issues**: View all currently fired alerts with their severity, target service, and duration. Each issue shows which alert rule triggered it and how long it has been active.
 - **Alert rules**: Browse and manage all configured alert rules across your services
-- **Notification channel**: Configure and manage notification channels (Slack, and more integrations coming soon)
+- **Notification channel**: Configure and manage notification channels (Slack, Email, and more integrations coming soon)
 
 <img src="/images/observability/issues-overview.png" alt="Alerting Section - Issues Overview" />
 
 <Tip>
-To receive alerts in Slack, you first need to configure a notification channel. See the [Slack Integration guide](/configuration/integrations/slack) to set up Slack webhooks and add notification channels.
+To receive alerts, you first need to configure a notification channel. See the [Slack Integration guide](/configuration/integrations/slack) or [Email Integration guide](/configuration/integrations/email) to set up notification channels.
 </Tip>
 
 ### Alert Categories
@@ -271,7 +271,7 @@ Create alerts based on these monitoring categories:
     Set up the alert notification:
     - **Alert name**: Descriptive name for easy identification
     - **Notification message**: Custom text included in notifications
-    - **Notification channel**: Select a configured Slack channel (more integrations coming soon)
+    - **Notification channel**: Select a configured notification channel (Slack, Email, or more integrations coming soon)
   </Step>
 </Steps>
 
@@ -460,6 +460,10 @@ Use the **Main condition query** preview to verify your alert configuration befo
 <CardGroup cols={2}>
   <Card title="Slack Notifications" icon="slack" href="/configuration/integrations/slack">
     Set up Slack notification channels for alerts
+  </Card>
+
+  <Card title="Email Notifications" icon="envelope" href="/configuration/integrations/email">
+    Set up email notification channels for alerts
   </Card>
 
   <Card title="Datadog" icon="dog" href="/configuration/integrations/observability/datadog">
