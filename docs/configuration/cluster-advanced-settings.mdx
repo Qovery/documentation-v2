@@ -663,8 +663,23 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 **Default Value:** `null`
 
 ---
+## Network - Gateway API
 
-## Network - Envoy Gateway
+<a id="k8s.use_api_gateway"></a>
+
+### k8s.use_api_gateway
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Flag to deploy Gateway API resources on the cluster.
+
+<Warning>
+  - This is alpha feature, only available on AWS for now and not meant to be used for now but will be handly soon to test ingress to gateway API migration.
+</Warning>
+
+**Default Value:** `false`
 
 <a id="envoy-hpa-cpu-average-utilization-percentage-threshold"></a>
 
