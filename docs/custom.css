@@ -375,34 +375,6 @@ html[data-theme="dark"] .raci-legend {
   background-color: rgba(100, 45, 255, 0.1);
 }
 
-/* AWS logo - light mode (default) */
-.badge-icon-aws-light {
-  display: inline-block;
-  height: 20px;
-  width: auto;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-.badge-icon-aws-dark {
-  display: none;
-  height: 20px;
-  width: auto;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-/* AWS logo switching for dark mode */
-html[class*="dark"] .badge-icon-aws-light,
-html[data-theme="dark"] .badge-icon-aws-light {
-  display: none;
-}
-
-html[class*="dark"] .badge-icon-aws-dark,
-html[data-theme="dark"] .badge-icon-aws-dark {
-  display: inline-block;
-}
-
 /* Scaleway logo - light mode (default) */
 .badge-icon-scaleway-light {
   display: inline-block;
