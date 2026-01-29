@@ -17,28 +17,28 @@ header a[href],
 
 /* Style the CTA button - target the background span */
 #topbar-cta-button a span.bg-primary-dark {
-  background-color: #642DFF !important;
+  background-color: #642dff !important;
 }
 
 /* Dark mode override for console button */
 html[class*="dark"] #topbar-cta-button a span.bg-primary-dark,
 html[data-theme="dark"] #topbar-cta-button a span.bg-primary-dark,
 .dark #topbar-cta-button a span.bg-primary-dark {
-  background-color: #D8CBFF !important;
+  background-color: #d8cbff !important;
 }
 
 /* Update text color in dark mode */
 html[class*="dark"] #topbar-cta-button a span.text-white,
 html[data-theme="dark"] #topbar-cta-button a span.text-white,
 .dark #topbar-cta-button a span.text-white {
-  color: #151B2B !important;
+  color: #151b2b !important;
 }
 
 /* Update arrow color in dark mode */
 html[class*="dark"] #topbar-cta-button a svg,
 html[data-theme="dark"] #topbar-cta-button a svg,
 .dark #topbar-cta-button a svg {
-  color: #151B2B !important;
+  color: #151b2b !important;
 }
 
 /* Add Qovery logo icon before Console text */
@@ -62,7 +62,6 @@ html[data-theme="dark"] #topbar-cta-button a div span.text-white::before,
 .dark #topbar-cta-button a div span.text-white::before {
   background-image: url('data:image/svg+xml,<svg width="84" height="96" viewBox="0 0 84 96" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M80.3554 21.4078L45.5514 1.31333C43.3963 0.0687351 40.7428 0.0687351 38.5906 1.31333L3.78655 21.4078C1.63427 22.6496 0.306152 24.9494 0.306152 27.4358V67.6247C0.306152 70.1111 1.63149 72.4082 3.78655 73.6528L42.071 95.7575V73.6528C42.071 72.4082 42.7336 71.261 43.8112 70.6373L62.9534 59.5864V83.6986L80.3554 73.6528C82.5104 72.4082 83.8358 70.1111 83.8358 67.6247V27.4358C83.8358 24.9494 82.5104 22.6524 80.3554 21.4078ZM40.3308 48.5354L21.1886 59.5864V37.4816C21.1886 36.2371 21.8512 35.0899 22.9288 34.4662L40.3308 24.4204C41.4083 23.7995 42.7336 23.7995 43.8112 24.4204L61.2132 34.4662C62.2907 35.0871 62.9534 36.2371 62.9534 37.4816V59.5864L43.8112 48.5354C42.7336 47.9145 41.4083 47.9145 40.3308 48.5354Z" fill="%23151B2B"/></svg>') !important;
 }
-
 
 /* Center and constrain welcome page content to match standard pages */
 [data-page-mode="custom"] main,
@@ -175,7 +174,7 @@ img[alt="Scaleway"].badge-icon {
   padding: 1rem;
   background-color: rgba(100, 45, 255, 0.05);
   border-radius: 8px;
-  border-left: 4px solid #642DFF;
+  border-left: 4px solid #642dff;
 }
 
 .raci-legend div {
@@ -230,7 +229,7 @@ table.raci-matrix .col-customer {
 }
 
 table.raci-matrix th {
-  background-color: #642DFF;
+  background-color: #642dff;
   color: white;
   font-weight: 600;
   padding: 12px;
@@ -313,7 +312,7 @@ table.raci-matrix .role-ci {
   display: inline-block;
   width: 16px;
   height: 16px;
-  background-color: #642DFF;
+  background-color: #642dff;
   color: white;
   border-radius: 50%;
   text-align: center;
@@ -357,7 +356,7 @@ html[data-theme="dark"] table.raci-matrix {
 }
 
 html[data-theme="dark"] table.raci-matrix th {
-  background-color: #642DFF;
+  background-color: #642dff;
   border-bottom-color: #5527cc;
 }
 
@@ -462,44 +461,44 @@ html[data-theme="dark"] .badge-icon-scaleway-dark {
 
 /* Cloud Provider Badges - Official Brand Colors */
 .badge-aws {
-  background-color: #FF9900; /* AWS Orange */
+  background-color: #ff9900; /* AWS Orange */
 }
 
 .badge-gcp {
-  background-color: #EA4335; /* Google Cloud Red */
+  background-color: #ea4335; /* Google Cloud Red */
 }
 
 .badge-azure {
-  background-color: #0089D6; /* Microsoft Azure Blue */
+  background-color: #0089d6; /* Microsoft Azure Blue */
 }
 
 .badge-scw {
-  background-color: #4F0599; /* Scaleway Purple */
+  background-color: #4f0599; /* Scaleway Purple */
 }
 
 /* Service Type Badges */
 .badge-app {
-  background-color: #10B981; /* Green */
+  background-color: #10b981; /* Green */
 }
 
 .badge-container {
-  background-color: #3B82F6; /* Blue */
+  background-color: #3b82f6; /* Blue */
 }
 
 .badge-cronjob {
-  background-color: #F59E0B; /* Orange */
+  background-color: #f59e0b; /* Orange */
 }
 
 .badge-job {
-  background-color: #8B5CF6; /* Purple */
+  background-color: #8b5cf6; /* Purple */
 }
 
 .badge-helm {
-  background-color: #0F1689; /* Helm Blue */
+  background-color: #0f1689; /* Helm Blue */
 }
 
 .badge-terraform {
-  background-color: #4040B2; /* Terraform Purple */
+  background-color: #4040b2; /* Terraform Purple */
 }
 
 /* Helm logo icon */
@@ -537,7 +536,8 @@ img[src*="/github-icon.svg"] {
 html[class*="dark"] img[src*="/terraform-icon.svg"],
 html[data-theme="dark"] img[src*="/terraform-icon.svg"],
 .dark img[src*="/terraform-icon.svg"] {
-  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%)
+    hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Helm icon - make white in dark mode */
@@ -554,7 +554,7 @@ html[data-theme="dark"] img[src*="/helm-icon-light.svg"],
 html[class*="dark"] img[src*="/aws-icon.svg"],
 html[data-theme="dark"] img[src*="/aws-icon.svg"],
 .dark img[src*="/aws-icon.svg"] {
-  content: url("/images/logos/cloud-providers/aws-icon-dark.svg");
+  content: url("/assets/aws-icon-dark.svg");
 }
 
 /* GitHub icon - make white in dark mode */
@@ -568,7 +568,8 @@ html[data-theme="dark"] img[src*="/github-icon.svg"],
 html[class*="dark"] img[src*="/scaleway-icon-light.svg"],
 html[data-theme="dark"] img[src*="/scaleway-icon-light.svg"],
 .dark img[src*="/scaleway-icon-light.svg"] {
-  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%)
+    hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Product logo color switching for dark mode */
@@ -578,35 +579,40 @@ html[data-theme="dark"] img[src*="/scaleway-icon-light.svg"],
 html[class*="dark"] img[src*="/logos/provision-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/provision-logo-only.svg"],
 .dark img[src*="/logos/provision-logo-only.svg"] {
-  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%)
+    hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Deploy logo */
 html[class*="dark"] img[src*="/logos/deploy-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/deploy-logo-only.svg"],
 .dark img[src*="/logos/deploy-logo-only.svg"] {
-  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%)
+    hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Observe logo */
 html[class*="dark"] img[src*="/logos/observe-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/observe-logo-only.svg"],
 .dark img[src*="/logos/observe-logo-only.svg"] {
-  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%)
+    hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Optimize logo */
 html[class*="dark"] img[src*="/logos/optimize-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/optimize-logo-only.svg"],
 .dark img[src*="/logos/optimize-logo-only.svg"] {
-  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%)
+    hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Secure logo */
 html[class*="dark"] img[src*="/logos/secure-logo-only.svg"],
 html[data-theme="dark"] img[src*="/logos/secure-logo-only.svg"],
 .dark img[src*="/logos/secure-logo-only.svg"] {
-  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%) hue-rotate(202deg) brightness(103%) contrast(100%);
+  filter: brightness(0) saturate(100%) invert(92%) sepia(8%) saturate(1299%)
+    hue-rotate(202deg) brightness(103%) contrast(100%);
 }
 
 /* Remove duplicate page titles */

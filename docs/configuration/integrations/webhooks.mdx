@@ -40,7 +40,7 @@ Access Organization settings → Webhook section → Select "Add New"
 | `URL` | External application's webhook endpoint |
 | `kind` | Webhook classification: `STANDARD` or `SLACK` |
 | `events` | Deployment events triggering the webhook |
-| `secret` | (Optional) Authentication credential for webhook calls |
+| `secret` | (Optional) Authentication credential for webhook calls; used in the header `Qovery-Secret` |
 | `description` | (Optional) Functional explanation |
 | `environment_types_filter` | (Optional) Filter by `PRODUCTION`, `DEVELOPMENT`, `STAGING`, `PREVIEW` |
 | `project_names_filter` | (Optional) Filter by project names; case-insensitive; supports wildcards |

@@ -30,6 +30,7 @@ tags:
   - name: Application Secret
   - name: Application Annotations Group
   - name: Applications
+  - name: AutoscalingPolicy
   - name: Container
   - name: Container Actions
   - name: Container Configuration
@@ -56,6 +57,7 @@ tags:
   - name: Job Secret
   - name: Job Annotations Group
   - name: Jobs
+  - name: KedaTriggerAuthentication
   - name: Helm
   - name: Helm Actions
   - name: Helm Configuration
@@ -114,6 +116,7 @@ tags:
   - name: Referral & Rewards
   - name: Terraforms
   - name: Terraform Main Calls
+  - name: Terraform Resources
   - name: Terraform Deployment History
   - name: Terraform Deployment Restriction
   - name: Container Registries
@@ -325,7 +328,7 @@ paths:
           $ref: '#/components/responses/404'
     put:
       summary: Edit an organization
-      description: To edit an organization you must have the admin permission
+      description: To edit an organization you must have the admin permission.
       operationId: editOrganization
       parameters:
         - $ref: '#/components/parameters/organizationId'
@@ -602,6 +605,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GitTokenAssociatedServicesResponseList'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  '/organization/{organizationId}/listDirectoriesFromGitRepository':
+    post:
+      summary: List directories from a git repository
+      description: |
+        List immediate subdirectories at a specified path in a git repository.
+        This endpoint is used when creating Terraform services to help users browse
+        and select the appropriate root path.
+      operationId: listDirectoriesFromGitRepository
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+      tags:
+        - Git repositories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationGitRepositoryRequest'
+      responses:
+        '200':
+          description: List of directories at the specified path
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: string
+                    example:
+                      - infra
+                      - terraform
+                      - .github
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1022,7 +1066,7 @@ paths:
     get:
       summary: Get organization billing external ID
       description: |
-        This endpoint returns the external ID of the organization's billing account.
+        This endpoint returns the external ID of the organization's billing account
       operationId: getOrganizationBillingExternalId
       parameters:
         - $ref: '#/components/parameters/organizationId'
@@ -2336,6 +2380,31 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+      x-stoplight:
+        id: ihun7iwf9rffw
+  '/organization/{organizationId}/webhook/{webhookId}/event':
+    get:
+      summary: List events of a webhook
+      description: List events of a webhooks
+      operationId: listWebhookEvent
+      parameters:
+        - $ref: '#/components/parameters/organizationId'
+        - $ref: '#/components/parameters/webhookId'
+      tags:
+        - Organization Webhook
+      responses:
+        '200':
+          description: List of event for the webhook
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookEventResponseList'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
   '/organization/{organizationId}/webhook/{webhookId}':
     get:
       summary: Get an Organization webhook
@@ -2600,6 +2669,16 @@ paths:
           name: origin
           schema:
             $ref: '#/components/schemas/OrganizationEventOrigin'
+        - in: query
+          name: serviceProjectId
+          description: The project chosen when filtering on a service type
+          schema:
+            type: string
+        - in: query
+          name: serviceEnvironmentId
+          description: The environment chosen when filtering on a service type
+          schema:
+            type: string
       tags:
         - Organization Event
       responses:
@@ -2669,6 +2748,11 @@ paths:
           schema:
             type: string
             format: uuid
+        - in: query
+          name: targetLevelToFetch
+          description: Used only to retrieve projects or environments linked to service typed events
+          schema:
+            $ref: '#/components/schemas/OrganizationEventTargetLevel'
       tags:
         - Organization Event
       responses:
@@ -4504,6 +4588,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EnvironmentStatsResponseList'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  '/project/{projectId}/environmentOverview':
+    get:
+      summary: List environments overview
+      description: Returns a list of environments with their overview information including deployment status, service count, and cluster details.
+      operationId: getProjectEnvironmentsOverview
+      parameters:
+        - $ref: '#/components/parameters/projectId'
+      tags:
+        - Environments
+      responses:
+        '200':
+          description: List environments overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentOverviewResponseList'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -10874,6 +10980,63 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+  '/service/{serviceId}/gitWebhookStatus':
+    get:
+      summary: Get git webhook status for a service
+      description: Returns the webhook status for a git-based service. Checks if the Qovery webhook is correctly configured on the git provider (GitHub, GitLab, or Bitbucket).
+      operationId: getServiceGitWebhookStatus
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      tags:
+        - Service Main Calls
+      responses:
+        '200':
+          description: Webhook status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitWebhookStatusResponse'
+        '400':
+          description: Service does not have a git source
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+  '/service/{serviceId}/gitWebhook/sync':
+    post:
+      summary: Synchronize git webhook for a service
+      description: |
+        Synchronizes the Qovery webhook configuration for a git-based service.
+        - If no webhook exists, creates one with the correct configuration
+        - If webhook exists but is misconfigured, updates it with the correct events
+        - If webhook is already correctly configured, returns current status
+        Works with GitHub, GitLab, and Bitbucket repositories.
+      operationId: syncServiceGitWebhook
+      parameters:
+        - $ref: '#/components/parameters/serviceId'
+      tags:
+        - Service Main Calls
+      responses:
+        '200':
+          description: Webhook synchronized successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GitWebhookStatusResponse'
+        '400':
+          description: Service does not have a git source
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '422':
+          description: Cannot configure webhook (provider-specific issues, insufficient permissions)
+        '429':
+          description: Git provider rate limit exceeded
   /variable:
     get:
       summary: List variables
@@ -11775,6 +11938,30 @@ paths:
         name: organizationId
         in: path
         required: true
+  '/organization/{organizationId}/environments':
+    get:
+      summary: List Environments By OrganizationId
+      tags:
+        - Organization Main Calls
+      responses:
+        '200':
+          description: Environment List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrganizationEnvironmentResponse'
+      operationId: listEnvironmentsByOrganizationId
+    parameters:
+      - schema:
+          type: string
+        name: organizationId
+        in: path
+        required: true
   '/organization/{organizationId}/parseTerraformVariablesFromGitRepo':
     post:
       summary: Parse Terraform variables from Git repository
@@ -12630,6 +12817,30 @@ paths:
       operationId: deleteTerraformDeploymentRestriction
       x-stoplight:
         id: d896flm9ibi54
+  '/terraform/{terraformId}/terraformResources':
+    parameters:
+      - $ref: '#/components/parameters/terraformId'
+    get:
+      summary: Get terraform resources from latest deployment
+      description: Returns the list of Terraform resources from the most recent deployment execution
+      tags:
+        - Terraform Resources
+      operationId: getTerraformResources
+      x-stoplight:
+        id: terraform-resources-get
+      responses:
+        '200':
+          description: List of terraform resources from latest deployment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerraformResourcesResponse'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
   '/organization/{organizationId}/credentials':
     parameters:
       - schema:
@@ -13034,6 +13245,58 @@ paths:
       x-stoplight:
         id: xkza3tt52gwse
       description: Retrieve all alert rules for a specific organization
+  '/alert-receivers/{alertReceiverId}/validate':
+    parameters:
+      - $ref: '#/components/parameters/alertReceiverId'
+    post:
+      summary: Validate Existing Alert Receiver
+      tags:
+        - Alert Receivers
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: validateExistingAlertReceiver
+      x-stoplight:
+        id: uz8sv9wwxy3ib
+      description: Validate an existing alert receiver by sending a test message for example.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertReceiverValidationRequest'
+  /alert-receivers/validate:
+    post:
+      summary: Validate New Alert Receiver
+      tags:
+        - Alert Receivers
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+      operationId: validateNewAlertReceiver
+      x-stoplight:
+        id: jqejmmiehaxlm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertReceiverCreationValidationRequest'
+      description: Validate a future alert receiver by sending a test message.
 components:
   parameters:
     alertReceiverId:
@@ -13381,6 +13644,13 @@ components:
       description: The name of the Organization's Enterprise Connection
       schema:
         type: string
+    triggerAuthenticationId:
+      name: triggerAuthenticationId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: KEDA triggerAuthentication ID
   schemas:
     TerraformBackend:
       oneOf:
@@ -13530,6 +13800,9 @@ components:
         build.ram_max_in_gib:
           type: integer
           description: define the max ram resources (in gib)
+        build.disable_buildkit_cache:
+          type: boolean
+          description: disable buildkit registry cache during build
         network.ingress.proxy_body_size_mb:
           type: integer
         network.ingress.force_ssl_redirect:
@@ -13604,6 +13877,10 @@ components:
         hpa.cpu.average_utilization_percent:
           type: integer
           description: Percentage value of cpu usage at which point pods should scale up.
+        hpa.memory.average_utilization_percent:
+          type: integer
+          nullable: true
+          description: Percentage value of memory usage at which point pods should scale up.
         security.service_account_name:
           type: string
           description: |
@@ -13724,6 +14001,8 @@ components:
                 id: tdxdfoyowutcx
               description: The target build stage in the Dockerfile to build
               nullable: true
+            autoscaling:
+              $ref: '#/components/schemas/AutoscalingPolicyResponse'
     ApplicationDeploymentRestriction:
       allOf:
         - $ref: '#/components/schemas/Base'
@@ -13835,6 +14114,8 @@ components:
               type: string
               description: The target build stage in the Dockerfile to build
               nullable: true
+            autoscaling:
+              $ref: '#/components/schemas/AutoscalingPolicyRequest'
     ApplicationGitRepository:
       type: object
       required:
@@ -14135,6 +14416,8 @@ components:
                 id: xg9q0urac8kdq
               description: The target build stage in the Dockerfile to build
               nullable: true
+            autoscaling:
+              $ref: '#/components/schemas/AutoscalingPolicyRequest'
     ApplicationResponseList:
       type: object
       properties:
@@ -14547,6 +14830,18 @@ components:
               example: 50
               default: 20
               description: Unit is in GB. The disk size to be used for the node configuration
+            disk_iops:
+              type: integer
+              example: 7800
+              minimum: 3000
+              maximum: 16000
+              description: Unit is operation/seconds. The disk IOPS to be used for the node configuration
+            disk_throughput:
+              type: integer
+              example: 255
+              minimum: 125
+              maximum: 1000
+              description: Unit is in MB/s. The disk thoughput to be used for the node configuration
             instance_type:
               type: string
               example: T3A_LARGE
@@ -14595,6 +14890,8 @@ components:
               $ref: '#/components/schemas/InfrastructureOutputs'
             infrastructure_charts_parameters:
               $ref: '#/components/schemas/ClusterInfrastructureChartsParameters'
+            keda:
+              $ref: '#/components/schemas/ClusterKeda'
     ClusterDeleteMode:
       type: string
       description: |
@@ -15234,6 +15531,18 @@ components:
           example: 50
           default: 40
           description: Unit is in GB. The disk size to be used for the node configuration
+        disk_iops:
+          type: integer
+          example: 7800
+          minimum: 3000
+          maximum: 16000
+          description: Unit is operation/seconds. The disk IOPS to be used for the node configuration
+        disk_throughput:
+          type: integer
+          example: 255
+          minimum: 125
+          maximum: 1000
+          description: Unit is in MB/s. The disk thoughput to be used for the node configuration
         instance_type:
           type: string
           example: T3A_LARGE
@@ -15269,6 +15578,8 @@ components:
           $ref: '#/components/schemas/MetricsParameters'
         infrastructure_charts_parameters:
           $ref: '#/components/schemas/ClusterInfrastructureChartsParameters'
+        keda:
+          $ref: '#/components/schemas/ClusterKeda'
     ClusterResponseList:
       type: object
       properties:
@@ -15644,6 +15955,10 @@ components:
         hpa.cpu.average_utilization_percent:
           type: integer
           description: Percentage value of cpu usage at which point pods should scale up.
+        hpa.memory.average_utilization_percent:
+          type: integer
+          nullable: true
+          description: Percentage value of memory usage at which point pods should scale up.
         security.automount_service_account_token:
           type: boolean
           description: |
@@ -16150,6 +16465,8 @@ components:
               description: Icon URI representing the container.
               x-stoplight:
                 id: jiypvl6nd63dm
+            autoscaling:
+              $ref: '#/components/schemas/AutoscalingPolicyRequest'
     ContainerResponse:
       allOf:
         - $ref: '#/components/schemas/Base'
@@ -16258,6 +16575,8 @@ components:
                 id: o2bdci7ak3bmz
             service_type:
               $ref: '#/components/schemas/ServiceTypeEnum'
+            autoscaling:
+              $ref: '#/components/schemas/AutoscalingPolicyResponse'
     ContainerResponseList:
       type: object
       properties:
@@ -17235,6 +17554,62 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Environment'
+    EnvironmentOverviewResponseList:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvironmentOverviewResponse'
+    EnvironmentOverviewResponse:
+      type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - name
+        - mode
+        - service_count
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        name:
+          type: string
+        mode:
+          $ref: '#/components/schemas/EnvironmentModeEnum'
+        cluster:
+          $ref: '#/components/schemas/ClusterOverviewResponse'
+          nullable: true
+        service_count:
+          type: integer
+          format: int32
+        deployment_status:
+          $ref: '#/components/schemas/EnvironmentStatus'
+          nullable: true
+    ClusterOverviewResponse:
+      type: object
+      required:
+        - id
+        - name
+        - cloud_provider
+        - is_demo
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        cloud_provider:
+          $ref: '#/components/schemas/CloudVendorEnum'
+        is_demo:
+          type: boolean
     EnvironmentDeploymentRule:
       allOf:
         - $ref: '#/components/schemas/Base'
@@ -18454,6 +18829,9 @@ components:
         build.ram_max_in_gib:
           type: integer
           description: define the max ram resources (in gib)
+        build.disable_buildkit_cache:
+          type: boolean
+          description: disable buildkit registry cache during build
         deployment.termination_grace_period_seconds:
           type: integer
           description: define how long in seconds an application is supposed to be stopped gracefully
@@ -19744,14 +20122,23 @@ components:
         - QOVERY_INTERNAL
         - TERRAFORM_PROVIDER
       example: API
+    OrganizationEventTargetLevel:
+      type: string
+      description: The target level to fetch
+      enum:
+        - PROJECT
+        - ENVIRONMENT
     OrganizationEventSubTargetType:
       type: string
       description: Type of the organization event
       nullable: true
       enum:
         - ADVANCED_SETTINGS
+        - ALERT_RULE
+        - ANNOTATIONS_GROUP
         - API_TOKEN
         - BILLING_INFO
+        - BILLING_USAGE_REPORT
         - CLOUD_PROVIDER_CREDENTIALS
         - CLUSTER_CREDENTIALS
         - CLUSTER_ROUTING_TABLE
@@ -19766,9 +20153,14 @@ components:
         - GIT_REPOSITORY
         - GIT_TOKEN
         - INVITATION
+        - KUBERNETES_CONFIGURATION
+        - KUBERNETES_CREDENTIALS
+        - LABELS_GROUP
         - MEMBER_ROLE
         - PLAN
+        - REMOTE_ACCESS
         - SECRET
+        - SSO
         - TERRAFORM
         - TRANSFER_OWNERSHIP
         - VARIABLE
@@ -19786,6 +20178,7 @@ components:
         - ENVIRONMENT
         - JOB
         - HELM
+        - HELM_REPOSITORY
         - MEMBERS_AND_ROLES
         - ORGANIZATION
         - PROJECT
@@ -19847,7 +20240,6 @@ components:
         - TERRAFORM_FORCE_UNLOCK_FAILED
         - TERRAFORM_MIGRATE_STATE_FAILED
         - SHELL
-        - SSO
         - PORT_FORWARD
         - REMOTE_DEBUG
         - IMPORT
@@ -19987,6 +20379,45 @@ components:
         - STANDARD
         - SLACK
       example: STANDARD
+    WebhookEventResponse:
+      type: object
+      required:
+        - id
+        - created_at
+        - kind
+        - matched_event
+        - target_url_used
+        - request
+        - target_response_status_code
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the webhook event was created
+        kind:
+          $ref: '#/components/schemas/OrganizationWebhookKindEnum'
+        matched_event:
+          $ref: '#/components/schemas/OrganizationWebhookEventEnum'
+        target_url_used:
+          type: string
+          format: uri
+          description: The webhook target URL that was invoked
+        request:
+          type: object
+          additionalProperties: true
+          description: The request payload sent to the webhook
+        target_response_status_code:
+          type: integer
+          format: int32
+          description: HTTP status code returned by the webhook target
+        target_response_body:
+          type: string
+          nullable: true
+          description: Response body from the webhook target
     OrganizationWebhookResponse:
       allOf:
         - $ref: '#/components/schemas/Base'
@@ -20032,6 +20463,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrganizationWebhookResponse'
+    WebhookEventResponseList:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookEventResponse'
+    GitWebhookStatusResponse:
+      type: object
+      required:
+        - status
+        - provider
+      properties:
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - NOT_CONFIGURED
+            - MISCONFIGURED
+            - UNABLE_TO_VERIFY
+          description: |
+            The webhook configuration status:
+            - ACTIVE: Webhook is properly configured with all required events
+            - NOT_CONFIGURED: No Qovery webhook found on the git rep
+            - MISCONFIGURED: Webhook exists but is missing required events
+            - UNABLE_TO_VERIFY: Could not check webhook status (auth error, rate limit, etc.)
+        provider:
+          type: string
+          enum:
+            - GITHUB
+            - GITLAB
+            - BITBUCKET
+          description: The git provider where the webhook is configured
+        missing_events:
+          type: array
+          items:
+            type: string
+          description: List of required events that are missing from the webhook configuration (only present when status is MISCONFIGURED)
     OrganizationAnnotationsGroupCreateRequest:
       type: object
       required:
@@ -20334,11 +20803,14 @@ components:
           required:
             - name
             - organization
+            - associated_environments_count
           properties:
             name:
               type: string
             description:
               type: string
+            associated_environments_count:
+              type: integer
             organization:
               $ref: '#/components/schemas/ReferenceObject'
     ProjectCurrentCost:
@@ -21882,6 +22354,10 @@ components:
             id: fuolcs5q8ncp8
         disk_size_in_gib:
           type: integer
+        disk_iops:
+          type: integer
+        disk_throughput:
+          type: integer
           x-stoplight:
             id: nwpjqw3bf7px0
         default_service_architecture:
@@ -22828,6 +23304,7 @@ components:
         - project_name
         - environment_id
         - environment_name
+        - cluster_id
       properties:
         id:
           type: string
@@ -22867,12 +23344,36 @@ components:
           type: string
           x-stoplight:
             id: s8c6hmto9njzg
+        cluster_id:
+          type: string
+          x-stoplight:
+            id: hg9qpxe5z7
+          format: uuid
         job_type:
           x-stoplight:
             id: jwtmqb1fq5a6m
           enum:
             - CRON
             - LIFECYCLE
+    OrganizationEnvironmentResponse:
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          required:
+            - name
+            - organization
+            - project
+            - mode
+          properties:
+            name:
+              type: string
+              description: name is case insensitive
+            organization:
+              $ref: '#/components/schemas/ReferenceObject'
+            project:
+              $ref: '#/components/schemas/ReferenceObject'
+            mode:
+              $ref: '#/components/schemas/EnvironmentModeEnum'
     ClusterMetricsResponse:
       title: ClusterMetricsResponse
       x-stoplight:
@@ -23175,6 +23676,113 @@ components:
               x-stoplight:
                 id: c6p960bh9qcu4
               type: string
+        dockerfile_fragment:
+          nullable: true
+          description: |
+            Custom Dockerfile fragment to inject during build. Optional field.
+            When null, no custom fragment is injected.
+          oneOf:
+            - $ref: '#/components/schemas/DockerfileFragmentFile'
+            - $ref: '#/components/schemas/DockerfileFragmentInline'
+          discriminator:
+            propertyName: type
+            mapping:
+              file: '#/components/schemas/DockerfileFragmentFile'
+              inline: '#/components/schemas/DockerfileFragmentInline'
+    TerraformResourceResponse:
+      type: object
+      title: Terraform Resource Response
+      description: A Terraform resource from a deployment execution
+      required:
+        - id
+        - resource_type
+        - name
+        - address
+        - provider
+        - mode
+        - attributes
+        - extracted_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for this resource record
+          example: 550e8400-e29b-41d4-a716-446655440000
+        resource_type:
+          type: string
+          description: Type of the Terraform resource (e.g., aws_instance, aws_s3_bucket)
+          example: aws_instance
+        name:
+          type: string
+          description: Name of the resource as defined in Terraform configuration
+          example: web_server
+        address:
+          type: string
+          description: Full address of the resource (e.g., aws_instance.web_server)
+          example: aws_instance.web_server
+        provider:
+          type: string
+          description: Terraform provider name (e.g., aws, google, azurerm)
+          example: aws
+        mode:
+          type: string
+          enum:
+            - managed
+            - data
+          description: Resource mode (managed or data source)
+          example: managed
+        attributes:
+          type: object
+          description: All resource attributes as key-value pairs
+          additionalProperties: true
+          example:
+            instance_id: i-1234567890abcdef0
+            instance_type: t2.micro
+            public_ip: 10.0.0.1
+            private_ip: 172.31.0.1
+        extracted_at:
+          type: string
+          format: date-time
+          description: Timestamp when the resource was extracted from Terraform state
+          example: '2023-01-15T10:30:00Z'
+    TerraformResourcesResponse:
+      type: object
+      title: Terraform Resources List Response
+      description: List of Terraform resources from the latest deployment
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          description: Array of Terraform resources
+          items:
+            $ref: '#/components/schemas/TerraformResourceResponse'
+    TerraformResourcesRequest:
+      type: object
+      title: Terraform Resources Request
+      description: Request to store terraform resources from engine after deployment
+      required:
+        - terraformId
+        - executionId
+        - resourcesJson
+      properties:
+        terraformId:
+          type: string
+          format: uuid
+          description: ID of the Terraform service
+          example: 550e8400-e29b-41d4-a716-446655440000
+        executionId:
+          type: string
+          description: |
+            Execution ID in format "UUID-version" or "UUID-version-timestamp"
+            Example: 550e8400-e29b-41d4-a716-446655440000-1
+          example: 550e8400-e29b-41d4-a716-446655440000-1
+        resourcesJson:
+          type: string
+          description: |
+            JSON array of terraform resources extracted from terraform show output.
+            Each resource contains: resource_type, name, provider, address, mode, attributes
+          example: '[{"resource_type":"aws_instance","name":"web_server","provider":"aws","address":"aws_instance.web_server","mode":"managed","attributes":{"instance_id":"i-1234567890abcdef0","instance_type":"t2.micro"}}]'
     TerraformResponse:
       allOf:
         - $ref: '#/components/schemas/Base'
@@ -23252,6 +23860,19 @@ components:
                   x-stoplight:
                     id: 2mkmankga2thw
                   type: string
+            dockerfile_fragment:
+              nullable: true
+              description: |
+                Custom Dockerfile fragment to inject during build.
+                When null, no custom fragment is injected.
+              oneOf:
+                - $ref: '#/components/schemas/DockerfileFragmentFile'
+                - $ref: '#/components/schemas/DockerfileFragmentInline'
+              discriminator:
+                propertyName: type
+                mapping:
+                  file: '#/components/schemas/DockerfileFragmentFile'
+                  inline: '#/components/schemas/DockerfileFragmentInline'
       description: A Terraform service
     TerraformRequestJobResources:
       title: TerraformRequestJobResources
@@ -23359,6 +23980,10 @@ components:
         sensitive:
           type: boolean
           description: Whether the variable is marked as sensitive
+        nullable:
+          type: boolean
+          default: true
+          description: 'Whether the variable accepts null values. If false, the variable is required.'
         default:
           type: string
           nullable: true
@@ -23366,6 +23991,10 @@ components:
         source:
           type: string
           description: The path inside your git repository where the variable is defined
+        description:
+          type: string
+          nullable: true
+          description: 'The description of the variable, or null if no description is provided'
     TerraformFilesSourceRequest:
       title: TerraformFilesSourceRequest
       x-stoplight:
@@ -23477,6 +24106,40 @@ components:
           example:
             - /environments/prod.tfvars
             - /environments/staging.tfvars
+    DockerfileFragmentFile:
+      title: DockerfileFragmentFile
+      type: object
+      description: Reference a Dockerfile fragment file from your Git repository.
+      required:
+        - type
+        - path
+      properties:
+        type:
+          type: string
+          enum:
+            - file
+          description: Fragment type discriminator
+        path:
+          type: string
+          description: Absolute path to the fragment file.
+          example: /infra/terraform/custom-build.dockerfile
+    DockerfileFragmentInline:
+      title: DockerfileFragmentInline
+      type: object
+      description: Define Dockerfile commands directly in the configuration.
+      required:
+        - type
+        - content
+      properties:
+        type:
+          type: string
+          enum:
+            - inline
+          description: Fragment type discriminator
+        content:
+          type: string
+          description: Dockerfile commands to inject (max 8KB).
+          example: RUN apt-get update && apt-get install -y aws-cli jq curl && rm -rf /var/lib/apt/lists/*
     TfVarsFileResponse:
       title: TfVarsFileResponse
       type: object
@@ -23821,12 +24484,18 @@ components:
       title: AlertReceiverCreationRequest
       x-stoplight:
         id: q1oj36zhkhmvp
-      type: object
+      x-internal: false
+      oneOf:
+        - $ref: '#/components/schemas/SlackAlertReceiverCreationRequest'
+        - $ref: '#/components/schemas/EmailAlertReceiverCreationRequest'
       discriminator:
         propertyName: type
         mapping:
           SLACK: '#/components/schemas/SlackAlertReceiverCreationRequest'
-      x-internal: false
+          EMAIL: '#/components/schemas/EmailAlertReceiverCreationRequest'
+    AlertReceiverCreationRequestBase:
+      title: AlertReceiverCreationRequestBase
+      type: object
       required:
         - organization_id
         - name
@@ -23836,9 +24505,9 @@ components:
       properties:
         organization_id:
           type: string
+          format: uuid
           x-stoplight:
             id: bojx2ynimjvnr
-          format: uuid
         name:
           type: string
           x-stoplight:
@@ -23853,38 +24522,84 @@ components:
           type: boolean
           x-stoplight:
             id: ucf1p0q2vpohv
+        owner:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          nullable: true
     SlackAlertReceiverCreationRequest:
       title: SlackAlertReceiverCreationRequest
       x-stoplight:
         id: awuv9zidg4qxx
       allOf:
-        - $ref: '#/components/schemas/AlertReceiverCreationRequest'
+        - $ref: '#/components/schemas/AlertReceiverCreationRequestBase'
         - type: object
-          x-stoplight:
-            id: jw3lis4cbm2nf
           required:
             - webhook_url
           properties:
             webhook_url:
               type: string
+              format: uri
               x-stoplight:
                 id: dre0gsq0bs0xv
-              format: uri
+    EmailAlertReceiverCreationRequest:
+      title: EmailAlertReceiverCreationRequest
+      allOf:
+        - $ref: '#/components/schemas/AlertReceiverCreationRequestBase'
+        - type: object
+          required:
+            - to
+            - from
+            - smarthost
+            - auth_password
+            - require_tls
+          properties:
+            to:
+              type: string
+              format: email
+              description: "Recipient email address"
+            from:
+              type: string
+              format: email
+              description: "Sender email address"
+            smarthost:
+              type: string
+              description: "SMTP server in format 'host:port'"
+              example: "smtp.example.com:587"
+            auth_username:
+              type: string
+              nullable: true
+              description: "SMTP authentication username. Defaults to 'from' if not provided."
+            auth_password:
+              type: string
+              format: password
+              description: "SMTP authentication password"
+            require_tls:
+              type: boolean
+              description: "Whether to require TLS for SMTP connection"
     AlertReceiverType:
       title: AlertReceiverType
       x-stoplight:
         id: 79fodqa89swh7
       enum:
         - SLACK
+        - EMAIL
     AlertReceiverEditRequest:
       title: AlertReceiverEditRequest
       x-stoplight:
         id: y2od6vkbmt7yr
-      type: object
+      oneOf:
+        - $ref: '#/components/schemas/SlackAlertReceiverEditRequest'
+        - $ref: '#/components/schemas/EmailAlertReceiverEditRequest'
       discriminator:
         propertyName: type
         mapping:
           SLACK: '#/components/schemas/SlackAlertReceiverEditRequest'
+          EMAIL: '#/components/schemas/EmailAlertReceiverEditRequest'
+    AlertReceiverEditRequestBase:
+      title: AlertReceiverEditRequestBase
+      type: object
       required:
         - name
         - description
@@ -23905,25 +24620,71 @@ components:
           type: boolean
           x-stoplight:
             id: hk2x1t8ixk5sf
+        owner:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          nullable: true
     SlackAlertReceiverEditRequest:
       title: SlackAlertReceiverEditRequest
       x-stoplight:
         id: hcxf6sxx1jrv9
       allOf:
-        - $ref: '#/components/schemas/AlertReceiverEditRequest'
+        - $ref: '#/components/schemas/AlertReceiverEditRequestBase'
         - type: object
-          x-stoplight:
-            id: 0nkbeafo42gqk
           properties:
             webhook_url:
               type: string
+              format: uri
+              nullable: true
+              description: "Update webhook URL. If null, keeps existing value."
               x-stoplight:
                 id: 8c5ze7hwv90q2
+    EmailAlertReceiverEditRequest:
+      title: EmailAlertReceiverEditRequest
+      allOf:
+        - $ref: '#/components/schemas/AlertReceiverEditRequestBase'
+        - type: object
+          required:
+            - to
+            - from
+            - smarthost
+            - require_tls
+          properties:
+            to:
+              type: string
+              format: email
+            from:
+              type: string
+              format: email
+            smarthost:
+              type: string
+              description: "SMTP server in format 'host:port'"
+            auth_username:
+              type: string
               nullable: true
+            auth_password:
+              type: string
+              format: password
+              nullable: true
+              description: "SMTP password. If null, keeps existing password."
+            require_tls:
+              type: boolean
     AlertReceiverResponse:
       title: AlertReceiverResponse
       x-stoplight:
         id: qyrx61cvx84cz
+      oneOf:
+        - $ref: '#/components/schemas/SlackAlertReceiverResponse'
+        - $ref: '#/components/schemas/EmailAlertReceiverResponse'
+      discriminator:
+        propertyName: type
+        mapping:
+          SLACK: '#/components/schemas/SlackAlertReceiverResponse'
+          EMAIL: '#/components/schemas/EmailAlertReceiverResponse'
+    SlackAlertReceiverResponse:
+      title: SlackAlertReceiverResponse
       allOf:
         - $ref: '#/components/schemas/Base'
         - type: object
@@ -23947,6 +24708,55 @@ components:
               type: boolean
               x-stoplight:
                 id: xpyx1p6hna34g
+            owner:
+              type: string
+              nullable: true
+            severity:
+              type: string
+              nullable: true
+    EmailAlertReceiverResponse:
+      title: EmailAlertReceiverResponse
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          required:
+            - name
+            - description
+            - type
+            - send_resolved
+            - to
+            - from
+            - smarthost
+            - auth_username
+            - require_tls
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            type:
+              $ref: '#/components/schemas/AlertReceiverType'
+            send_resolved:
+              type: boolean
+            to:
+              type: string
+              format: email
+            from:
+              type: string
+              format: email
+            smarthost:
+              type: string
+            auth_username:
+              type: string
+              nullable: true
+            require_tls:
+              type: boolean
+            owner:
+              type: string
+              nullable: true
+            severity:
+              type: string
+              nullable: true
     AlertReceiverList:
       title: AlertReceiverList
       x-stoplight:
@@ -24147,17 +24957,53 @@ components:
           description: URL to runbook with remediation steps
           format: uri
           nullable: true
+    AlertRuleSource:
+      title: AlertRuleSource
+      x-stoplight:
+        id: alert_rule_source_enum
+      description: |-
+        Source of the alert rule:
+        - MANAGED: Alert rule created and managed through the Qovery API
+        - GHOST: Alert rule that exists in Prometheus but has been deleted from the database
+      enum:
+        - MANAGED
+        - GHOST
+    AlertRuleResponseBase:
+      title: AlertRuleResponseBase
+      x-stoplight:
+        id: alert_rule_response_base
+      description: Base schema for alert rule responses with discriminator
+      type: object
+      required:
+        - source
+        - name
+        - state
+      properties:
+        source:
+          $ref: '#/components/schemas/AlertRuleSource'
+        name:
+          type: string
+          x-stoplight:
+            id: base_name_prop
+          description: Name of the alert rule
+        state:
+          $ref: '#/components/schemas/AlertRuleState'
+      discriminator:
+        propertyName: source
+        mapping:
+          MANAGED: '#/components/schemas/AlertRuleResponse'
+          GHOST: '#/components/schemas/GhostAlertRuleResponse'
     AlertRuleResponse:
       title: AlertRuleResponse
       x-stoplight:
         id: jsi9jy70651hv
       allOf:
         - $ref: '#/components/schemas/Base'
+        - $ref: '#/components/schemas/AlertRuleResponseBase'
         - type: object
           required:
             - organization_id
             - cluster_id
-            - name
             - description
             - tag
             - condition
@@ -24167,7 +25013,6 @@ components:
             - alert_receiver_ids
             - presentation
             - target
-            - state
             - is_up_to_date
           properties:
             organization_id:
@@ -24182,12 +25027,6 @@ components:
                 id: nd3oz9h1qpa6w
               description: ' Cluster identifier'
               format: uuid
-            name:
-              type: string
-              x-stoplight:
-                id: 866jtxgaipphh
-              description: |
-                Name of the alert rule
             description:
               type: string
               x-stoplight:
@@ -24226,8 +25065,6 @@ components:
               $ref: '#/components/schemas/AlertPresentationResponse'
             target:
               $ref: '#/components/schemas/AlertTarget'
-            state:
-              $ref: '#/components/schemas/AlertRuleState'
             is_up_to_date:
               type: boolean
               x-stoplight:
@@ -24241,6 +25078,27 @@ components:
                 id: 9r76f8pipu6y5
               description: when the alert starts firing
               format: date-time
+    GhostAlertRuleResponse:
+      title: GhostAlertRuleResponse
+      x-stoplight:
+        id: ghost_alert_rule_response
+      description: Response for ghost alerts that exist in Prometheus but have been deleted from the database
+      allOf:
+        - $ref: '#/components/schemas/AlertRuleResponseBase'
+        - type: object
+          properties:
+            target:
+              allOf:
+                - $ref: '#/components/schemas/AlertTarget'
+                - nullable: true
+              description: May be null if target info couldn't be extracted from Prometheus
+            starts_at:
+              type: string
+              x-stoplight:
+                id: ghost_starts_at
+              description: When the ghost alert started firing
+              format: date-time
+              nullable: true
     AlertTargetType:
       title: AlertTargetType
       x-stoplight:
@@ -24299,7 +25157,14 @@ components:
           x-stoplight:
             id: nsk4tfkil7yuf
           items:
-            $ref: '#/components/schemas/AlertRuleResponse'
+            oneOf:
+              - $ref: '#/components/schemas/AlertRuleResponse'
+              - $ref: '#/components/schemas/GhostAlertRuleResponse'
+            discriminator:
+              propertyName: source
+              mapping:
+                MANAGED: '#/components/schemas/AlertRuleResponse'
+                GHOST: '#/components/schemas/GhostAlertRuleResponse'
     ObservabilityResourceProfile:
       title: ObservabilityResourceProfile
       x-stoplight:
@@ -24413,6 +25278,262 @@ components:
         - MIN
         - SUM
         - COUNT
+    AlertReceiverValidationRequest:
+      title: AlertReceiverValidationRequest
+      x-stoplight:
+        id: w6fc7rel27rie
+      type: object
+      properties:
+        message:
+          type: string
+          x-stoplight:
+            id: fgi81witawggf
+    AlertReceiverCreationValidationRequest:
+      title: AlertReceiverCreationValidationRequest
+      x-stoplight:
+        id: xbtjouxwa280v
+      type: object
+      required:
+        - alert_receiver
+      properties:
+        alert_receiver:
+          $ref: '#/components/schemas/AlertReceiverCreationRequest'
+        message:
+          type: string
+          x-stoplight:
+            id: s7kbacgdp3fb4
+    ClusterKeda:
+      title: ClusterKeda
+      x-stoplight:
+        id: apznbrc98va7j
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          type: boolean
+          x-stoplight:
+            id: 46c6f1rqdvu55
+    AutoscalingPolicyRequest:
+      title: AutoscalingPolicyRequest
+      x-stoplight:
+        id: ylgyx3ozik2hf
+      oneOf:
+        - $ref: '#/components/schemas/KedaAutoscalingRequest'
+      discriminator:
+        propertyName: mode
+        mapping:
+          KEDA: '#/components/schemas/KedaAutoscalingRequest'
+    AutoscalingMode:
+      title: AutoscalingMode
+      x-stoplight:
+        id: vmgo27882mrl3
+      type: string
+      enum:
+        - KEDA
+    KedaAutoscalingRequest:
+      title: KedaAutoscalingRequest
+      x-stoplight:
+        id: 4vq8n2a7z3pen
+      type: object
+      required:
+        - mode
+        - scalers
+      properties:
+        mode:
+          $ref: '#/components/schemas/AutoscalingMode'
+        polling_interval_seconds:
+          type: integer
+          x-stoplight:
+            id: wy5blh9au1d85
+          format: int32
+        cooldown_period_seconds:
+          type: integer
+          x-stoplight:
+            id: zy5rt4bh9fyph
+          format: int32
+        scalers:
+          type: array
+          x-stoplight:
+            id: 6oh134v1tqb28
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/KedaScalerRequest'
+    KedaScalerRole:
+      title: KedaScalerRole
+      x-stoplight:
+        id: 1sl0mlxoqzr8w
+      type: string
+      enum:
+        - PRIMARY
+        - SAFETY
+    KedaAutoscalingResponse:
+      title: KedaAutoscalingResponse
+      x-stoplight:
+        id: dgcb902szizvv
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          x-stoplight:
+            id: zjlwqohiiyuwf
+          required:
+            - service_id
+            - mode
+            - polling_interval_seconds
+            - cooldown_period_seconds
+            - scalers
+          properties:
+            service_id:
+              type: string
+              x-stoplight:
+                id: j9bxhtiyyl0iv
+              format: uuid
+            mode:
+              $ref: '#/components/schemas/AutoscalingMode'
+            polling_interval_seconds:
+              type: integer
+              x-stoplight:
+                id: uone6zr48amok
+              format: int32
+            cooldown_period_seconds:
+              type: integer
+              x-stoplight:
+                id: j2dapmjjjiafj
+              format: int32
+            scalers:
+              type: array
+              x-stoplight:
+                id: oyhxgvwg36ixz
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/KedaScalerResponse'
+      description: ''
+    KedaTriggerAuthenticationRequest:
+      title: KedaTriggerAuthenticationRequest
+      x-stoplight:
+        id: wp51tmturog3b
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          x-stoplight:
+            id: ka4ltf1usuola
+        config_yaml:
+          type: string
+          x-stoplight:
+            id: 65znz6jclbew5
+          description: Optional raw KEDA TriggerAuthentication YAML configuration.
+    KedaTriggerAuthenticationResponse:
+      title: KedaTriggerAuthenticationResponse
+      x-stoplight:
+        id: 7mm4a4sk9jhz3
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          x-stoplight:
+            id: ssejnexbsra11
+          required:
+            - organization_id
+            - name
+          properties:
+            organization_id:
+              type: string
+              x-stoplight:
+                id: akxa3zctvjj5h
+            name:
+              type: string
+              x-stoplight:
+                id: gpvwed95xygk1
+            config_yaml:
+              type: string
+              x-stoplight:
+                id: r5lmrzakyk9o6
+              description: ' Optional raw KEDA TriggerAuthentication YAML configuration.'
+    KedaTriggerAuthenticationResponseList:
+      title: KedaTriggerAuthenticationResponseList
+      x-stoplight:
+        id: dpalux2mc7v8t
+      type: object
+      properties:
+        results:
+          type: array
+          x-stoplight:
+            id: md92njfinutyy
+          items:
+            $ref: '#/components/schemas/KedaTriggerAuthenticationResponse'
+    KedaScalerRequest:
+      title: KedaScalerRequest
+      x-stoplight:
+        id: hfn4tfrtivkcs
+      type: object
+      required:
+        - scaler_type
+        - role
+      properties:
+        scaler_type:
+          type: string
+          x-stoplight:
+            id: 3ba9iisjwqgsp
+        enabled:
+          type: boolean
+          x-stoplight:
+            id: 9m67trg9m0ioz
+        role:
+          $ref: '#/components/schemas/KedaScalerRole'
+        config_json:
+          type: object
+          x-stoplight:
+            id: si5ekni2hc6w9
+        config_yaml:
+          type: string
+          x-stoplight:
+            id: 8c7vktd7svl30
+        trigger_authentication:
+          $ref: '#/components/schemas/KedaTriggerAuthenticationRequest'
+    KedaScalerResponse:
+      title: KedaScalerResponse
+      x-stoplight:
+        id: gaaqg32ivl48h
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - type: object
+          x-stoplight:
+            id: 74tt3hgf95nfe
+          required:
+            - scaler_type
+            - enabled
+            - role
+          properties:
+            scaler_type:
+              type: string
+              x-stoplight:
+                id: 1ckp76ziimkg4
+            enabled:
+              type: boolean
+              x-stoplight:
+                id: 0dnjwnlkuj3kp
+            role:
+              $ref: '#/components/schemas/KedaScalerRole'
+            config_json:
+              type: object
+              nullable: true
+            config_yaml:
+              type: string
+              nullable: true
+            trigger_authentication:
+              $ref: '#/components/schemas/KedaTriggerAuthenticationResponse'
+    AutoscalingPolicyResponse:
+      title: AutoscalingPolicyResponse
+      x-stoplight:
+        id: mjawsx6obi237
+      oneOf:
+        - $ref: '#/components/schemas/KedaAutoscalingResponse'
+      discriminator:
+        propertyName: mode
+        mapping:
+          KEDA: '#/components/schemas/KedaAutoscalingResponse'
   responses:
     '204':
       description: no content

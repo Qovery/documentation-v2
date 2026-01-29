@@ -1,63 +1,102 @@
 ---
-title: "Docker Desktop for Local Development"
-description: "Use Docker Desktop Kubernetes with Qovery for local development"
+title: "Local Cluster for Development"
+description: "Use a local k3s cluster with Docker for development and testing"
 ---
+
+import InstallQoveryCLI from '/snippets/install-qovery-cli.mdx';
 
 ## Overview
 
-Docker Desktop includes a local Kubernetes cluster perfect for development and testing. Connect it to Qovery to develop and test applications locally before deploying to cloud environments.
+Run Qovery on your local machine using Docker and k3s (lightweight Kubernetes). Perfect for development, testing, and learning without cloud costs or Docker Desktop requirements.
 
-## Supported Local Kubernetes
+<Warning>
+**Demo Environment Only**: This local installation is designed for demonstration and testing purposes only. It is **not intended for production use**.
+</Warning>
 
-<CardGroup cols={3}>
-  <Card title="Docker Desktop" icon="docker">
-    Mac, Windows, Linux - Built-in Kubernetes
-  </Card>
+## Prerequisites
 
-  <Card title="Minikube" icon="dharmachakra">
-    Lightweight K8s - Cross-platform
-  </Card>
+Before starting, ensure you have:
 
-  <Card title="Kind" icon="boxes-stacked">
-    K8s in Docker - Fast, lightweight
-  </Card>
-</CardGroup>
+**System Requirements:**
+- **Operating System**: Linux, macOS, or Windows (WSL only)
+- **CPU & Memory**: Minimum 4 CPU cores and 8GB RAM for Docker
+- **Software**:
+  - Docker daemon running (Docker Desktop not required, especially on Linux)
+  - Git
+  - Common utilities: `jq`, `curl`, `sed`, `grep` (usually pre-installed)
 
-## Docker Desktop Setup
+<Note>
+**Linux Users**: You only need Docker Engine running on your machine. Docker Desktop is not required.
+</Note>
+
+## Installation Steps
 
 <Steps>
-  <Step title="Enable Kubernetes">
-    1. Open Docker Desktop
-    2. Settings → Kubernetes
-    3. Check "Enable Kubernetes"
-    4. Click "Apply & Restart"
-    5. Wait for Kubernetes to start (green icon)
+  <Step title="Install Qovery CLI">
+    <InstallQoveryCLI />
   </Step>
 
-  <Step title="Verify Installation">
+  <Step title="Authenticate">
+    Sign in to your Qovery account (or create one if you haven't already):
+
     ```bash
-    kubectl cluster-info
-    kubectl get nodes
+    qovery auth
     ```
+
+    This will open your browser to complete the authentication process.
+
+    <Tip>
+    **Running in a terminal without browser access?** Use `qovery auth --headless` instead.
+    </Tip>
   </Step>
 
-  <Step title="Install Nginx Ingress">
+  <Step title="Set Context">
+    Configure your CLI context:
+
     ```bash
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+    qovery context set
     ```
+
+    Select your organization when prompted.
   </Step>
 
-  <Step title="Connect to Qovery">
-    Follow BYOK setup to connect local cluster
+  <Step title="Deploy Local Cluster">
+    Install a local k3s Kubernetes cluster with Qovery:
+
+    ```bash
+    qovery demo up
+    ```
+
+    This command will:
+    - Install k3s (lightweight Kubernetes)
+    - Install Qovery agent and all required components
+    - Configure networking and ingress
+    - Take approximately 5-10 minutes to complete
+
+    <Warning>
+    **macOS and Windows Users**: You may be prompted for your admin password. This is necessary to properly route traffic from your host to your k3s applications.
+    </Warning>
+  </Step>
+
+  <Step title="Access the Console">
+    Once the installation is complete, navigate to [console.qovery.com](https://console.qovery.com)
+
+    You should see your demo cluster connected and ready to use. You can now start deploying applications!
   </Step>
 </Steps>
 
-## Use Cases
+## Using Your Local Cluster
 
-- **Local Development**: Develop and test locally
-- **CI/CD Testing**: Ephemeral clusters in pipelines
-- **Learning**: Safe environment for experimentation
-- **Preview Environments**: Test before cloud deployment
+Once your local cluster is running, you can:
+
+- **Deploy applications** via the [Qovery Console](https://console.qovery.com)
+- **Use kubectl** to interact with your local k3s cluster directly
+- **Use k9s** for a terminal-based Kubernetes dashboard
+- **Follow tutorials** to deploy applications locally
+
+<Tip>
+The local cluster runs entirely on your machine, making it perfect for testing and development without cloud costs.
+</Tip>
 
 ## Limitations
 
@@ -69,12 +108,15 @@ Local Kubernetes is **NOT for production**:
 - Performance limitations
 </Warning>
 
-## Resource Requirements
+## Cleanup
 
-**Minimum**: 4 GB RAM, 2 CPUs, 20 GB disk
-**Recommended**: 8 GB RAM, 4 CPUs, 50 GB disk
+When you're finished testing, remove the local cluster:
 
-Configure in Docker Desktop Settings → Resources
+```bash
+qovery demo destroy
+```
+
+This command removes the local k3s cluster and all Qovery components from your machine.
 
 ## Next Steps
 
@@ -83,15 +125,15 @@ Configure in Docker Desktop Settings → Resources
     Deploy your first application locally
   </Card>
 
+  <Card title="Qovery CLI" icon="terminal" href="/cli/overview">
+    Explore Qovery CLI commands
+  </Card>
+
   <Card title="BYOK Setup" icon="plug" href="/configuration/integrations/kubernetes/byok">
-    Connect local cluster to Qovery
+    Connect your own Kubernetes cluster
   </Card>
 
   <Card title="Cloud Deployment" icon="cloud" href="/configuration/integrations/kubernetes/eks/overview">
-    Move to cloud when ready
-  </Card>
-
-  <Card title="Local Installation" icon="book" href="/getting-started/quickstart#deploy-now">
-    Detailed local setup guide
+    Move to production on AWS, GCP, Azure, or Scaleway
   </Card>
 </CardGroup>

@@ -39,8 +39,8 @@ When creating a token, you can configure these scopes:
 Include your API token in the `Authorization` header:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_API_TOKEN" \
-  https://api.qovery.com/api/v1/organization
+curl -H "Authorization: Token YOUR_API_TOKEN" \
+  https://api.qovery.com/organization
 ```
 
 ## Authentication Methods
@@ -50,8 +50,8 @@ curl -H "Authorization: Bearer YOUR_API_TOKEN" \
 ```bash
 export QOVERY_API_TOKEN="your-api-token"
 
-curl -X GET "https://api.qovery.com/api/v1/organization" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X GET "https://api.qovery.com/organization" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json"
 ```
 
@@ -64,12 +64,12 @@ QOVERY_API_TOKEN = "your-api-token"
 BASE_URL = "https://api.qovery.com"
 
 headers = {
-    "Authorization": f"Bearer {QOVERY_API_TOKEN}",
+    "Authorization": f"Token {QOVERY_API_TOKEN}",
     "Content-Type": "application/json"
 }
 
 response = requests.get(
-    f"{BASE_URL}/api/v1/organization",
+    f"{BASE_URL}/organization",
     headers=headers
 )
 
@@ -83,11 +83,11 @@ const QOVERY_API_TOKEN = 'your-api-token';
 const BASE_URL = 'https://api.qovery.com';
 
 const headers = {
-  'Authorization': `Bearer ${QOVERY_API_TOKEN}`,
+  'Authorization': `Token ${QOVERY_API_TOKEN}`,
   'Content-Type': 'application/json'
 };
 
-fetch(`${BASE_URL}/api/v1/organization`, {
+fetch(`${BASE_URL}/organization`, {
   method: 'GET',
   headers: headers
 })
@@ -110,14 +110,14 @@ import (
 
 func main() {
     token := os.Getenv("QOVERY_API_TOKEN")
-    url := "https://api.qovery.com/api/v1/organization"
+    url := "https://api.qovery.com/organization"
 
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
         panic(err)
     }
 
-    req.Header.Add("Authorization", "Bearer "+token)
+    req.Header.Add("Authorization", "Token "+token)
     req.Header.Add("Content-Type", "application/json")
 
     client := &http.Client{}
@@ -300,8 +300,8 @@ Token doesn't have required permissions:
 Test your authentication setup:
 
 ```bash
-curl -X GET "https://api.qovery.com/api/v1/organization" \
-  -H "Authorization: Bearer ${QOVERY_API_TOKEN}" \
+curl -X GET "https://api.qovery.com/organization" \
+  -H "Authorization: Token ${QOVERY_API_TOKEN}" \
   -H "Content-Type: application/json" \
   -w "\nHTTP Status: %{http_code}\n"
 ```

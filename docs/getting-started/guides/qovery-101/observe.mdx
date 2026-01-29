@@ -8,7 +8,7 @@ Qovery provides integrated observability to help you monitor the health, perform
 <img src="/images/observability/overview.png" alt="Qovery Observability Overview" />
 
 <Note>
-Currently available for AWS, GCP, and Scaleway clusters. Azure support is coming soon.
+Supports Applications, Containers, and Managed Databases (MySQL and PostgreSQL on AWS only). Jobs support coming soon.
 </Note>
 
 <Info>
@@ -22,13 +22,16 @@ Qovery Observe is not yet self-service. Contact Qovery via Slack or email to get
     Real-time service health and performance tracking
   </Card>
   <Card title="Metrics" icon="chart-line">
-    CPU, memory, network, request latency, and error rates
+    CPU, memory, network, request latency, error rates, and database performance metrics
   </Card>
   <Card title="Logs" icon="file-lines">
     12 weeks log retention with automatic error detection
   </Card>
   <Card title="Events" icon="clock">
     Qovery and Kubernetes events (deployments, scaling, failures)
+  </Card>
+  <Card title="Alerts" icon="bell">
+    Proactive monitoring with customizable alerts and notifications
   </Card>
 </CardGroup>
 
@@ -40,7 +43,9 @@ Qovery Observe is not yet self-service. Contact Qovery via Slack or email to get
 
 ## Getting Started
 
-Access the **Monitoring** tab at the service level to view real-time and historical data, or use the **Logs** tab for log analysis.
+Access the **Monitoring** section at the service level to view real-time and historical data (Dashboard tab), create alerts (Alerts tab), or use the **Logs** tab for log analysis.
+
+The navigation menu also includes a dedicated **Alerting** section where you can manage notification channels, view all alert rules, and monitor active issues across your services.
 
 For detailed documentation on features, configuration, and best practices, see the [Qovery Observe documentation](/configuration/integrations/observability/qovery-observe).
 
@@ -49,6 +54,14 @@ For detailed documentation on features, configuration, and best practices, see t
 <CardGroup cols={2}>
   <Card title="Qovery Observe" icon="chart-line" href="/configuration/integrations/observability/qovery-observe">
     Full observability documentation
+  </Card>
+
+  <Card title="Slack Notifications" icon="slack" href="/configuration/integrations/slack">
+    Set up Slack for alerts and notifications
+  </Card>
+
+  <Card title="Email Notifications" icon="envelope" href="/configuration/integrations/email">
+    Set up email for alerts and notifications
   </Card>
 
   <Card title="Optimize" icon="gauge-high" href="/getting-started/guides/qovery-101/optimize">

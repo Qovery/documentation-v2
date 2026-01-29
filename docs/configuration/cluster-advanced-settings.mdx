@@ -103,6 +103,44 @@ resource "qovery_cluster" "my_cluster" {
 
 ---
 
+## Cluster sizing
+
+<a id="aws-cloudwatch-eks-logs-retention-days"></a>
+
+### cluster.profile
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Defines the cluster sizing profile, which determines the default resource allocation and performance characteristics of the cluster.
+
+<Info>
+  Choosing a larger profile may incur higher costs but provides better performance and capacity for workloads.
+  Here are detailed insights to help you choose the right profile:
+  - `Small`: Suitable for development, testing, or small-scale applications with low resource demands.
+    * 3-5 nodes | 12-20 vCPUs | 24-40 GB RAM | ~50-100 pods
+    * Node size: 2-4 vCPUs, 4-8 GB RAM per node
+    * Use cases: Development, staging, small internal tools
+  - `Medium`: A balanced option for moderate workloads, suitable for most production applications.
+    * 6-10 nodes | 48-80 vCPUs | 96-160 GB RAM | ~200-400 pods
+    * Node size: 4-8 vCPUs, 8-16 GB RAM per node
+    * Use cases: Small to medium production apps, multi-tenant dev environments
+  - `Large`: Designed for high-traffic applications or workloads requiring significant resources.
+    * 11-20 nodes | 176-320 vCPUs | 352-640 GB RAM | ~500-1000 pods
+    * Node size: 8-16 vCPUs, 16-32 GB RAM per node
+    * Use cases: Enterprise production applications, microservices architectures
+  - `ExtraLarge`: Ideal for enterprise-level applications with intensive resource needs and 
+    high availability requirements.
+    * 20+ nodes | 400+ vCPUs | 800+ GB RAM | 1000+ pods
+    * Node size: 16-32+ vCPUs, 32-64+ GB RAM per node
+    * Use cases: Large-scale production, ML/AI workloads, intensive data processing
+</Info>
+
+**Valid values:** `Small`, `Medium`, `Large`, `ExtraLarge`
+
+**Default Value:** `Medium`
+
 ## Logs
 
 <a id="aws-cloudwatch-eks-logs-retention-days"></a>
@@ -643,8 +681,284 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `false`
 
+<a id="envoy-hpa-cpu-average-utilization-percentage-threshold"></a>
+
+### envoy.hpa.cpu_average_utilization_percentage_threshold
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `float`
+
+**Description:** HPA CPU average utilization threshold assigned to Envoy Gateway deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When CPU usage exceeds this threshold, Kubernetes will scale up the number of Envoy replicas.
+
+**Valid values:** `0.0` to `1.0`
+
+**Default Value:** `null` (uses Kubernetes default behavior)
+
+<a id="envoy-hpa-memory-average-utilization-percentage-threshold"></a>
+
+### envoy.hpa.memory_average_utilization_percentage_threshold
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `float`
+
+**Description:** HPA memory average utilization threshold assigned to Envoy Gateway deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes will scale up the number of Envoy replicas.
+
+**Valid values:** `0.0` to `1.0`
+
+**Default Value:** `null` (uses Kubernetes default behavior)
+
+<a id="envoy-hpa-min-number-instances"></a>
+
+### envoy.hpa.min_number_instances
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Minimum number of Envoy Gateway replicas for horizontal pod autoscaling. This ensures a baseline level of availability and load distribution. Must be less than or equal to `envoy.hpa.max_number_instances`.
+
+**Default Value:** `2`
+
+<a id="envoy-hpa-max-number-instances"></a>
+
+### envoy.hpa.max_number_instances
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Maximum number of Envoy Gateway replicas for horizontal pod autoscaling. This sets an upper limit on scaling to control resource consumption. Must be greater than or equal to `envoy.hpa.min_number_instances`.
+
+**Default Value:** `25`
+
+<a id="envoy-vcpu-request-in-milli-cpu"></a>
+
+### envoy.vcpu.request_in_milli_cpu
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** vCPU request value in millicores assigned to Envoy Gateway pods. This defines the minimum CPU resources guaranteed for each pod. Must be less than or equal to `envoy.vcpu.limit_in_milli_cpu`.
+
+**Default Value:** `100`
+
+<a id="envoy-vcpu-limit-in-milli-cpu"></a>
+
+### envoy.vcpu.limit_in_milli_cpu
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** vCPU limit value in millicores assigned to Envoy Gateway pods. This defines the maximum CPU resources that each pod can consume. Must be greater than or equal to `envoy.vcpu.request_in_milli_cpu`.
+
+**Default Value:** `1000`
+
+<a id="envoy-memory-request-in-mib"></a>
+
+### envoy.memory.request_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Memory request value in MiB assigned to Envoy Gateway pods. This defines the minimum memory resources guaranteed for each pod. Must be less than or equal to `envoy.memory.limit_in_mib`.
+
+**Default Value:** `256`
+
+<a id="envoy-memory-limit-in-mib"></a>
+
+### envoy.memory.limit_in_mib
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Memory limit value in MiB assigned to Envoy Gateway pods. This defines the maximum memory resources that each pod can consume. Must be greater than or equal to `envoy.memory.request_in_mib`.
+
+**Default Value:** `1024`
+
+<a id="envoy-client-ip-detection-x-forwarded-for-number-trusted-hops"></a>
+
+### envoy.client_ip_detection.x_forwarded_for.number_trusted_hops
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Number of trusted hops in the X-Forwarded-For header for client IP detection. This setting determines how many proxy hops to trust when extracting the real client IP address from the X-Forwarded-For header. See [Envoy Gateway documentation](https://gateway.envoyproxy.io/latest/tasks/traffic/client-traffic-policy/#configure-client-ip-detection) for more details.
+
+<Info>
+**For customers migrating from NGINX:** This replaces the NGINX `use_forwarded_headers` and `compute_full_forwarded_for` settings. Instead of a boolean flag, Envoy uses a hop count to precisely control which IP addresses in the X-Forwarded-For chain to trust.
+</Info>
+
+**How to configure:**
+- Set to `1` if your traffic passes through 1 trusted proxy (e.g., AWS ALB only)
+- Set to `2` if your traffic passes through 2 trusted proxies (e.g., CloudFront → ALB)
+- Set to `0` to use only the direct connection IP (equivalent to NGINX `use_forwarded_headers: false`)
+- Leave as `null` to use Envoy's default behavior
+
+**Example:** If a request arrives with `X-Forwarded-For: client-ip, proxy1-ip, proxy2-ip` and you set `number_trusted_hops: 2`, Envoy will trust the last 2 hops (proxy1 and proxy2) and identify `client-ip` as the real client.
+
+**Default Value:** `null` (uses Envoy default behavior)
+
+<a id="envoy-log-format"></a>
+
+### envoy.log_format
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string` (JSON format)
+
+**Description:** Custom log format for Envoy Gateway access logs. **Qovery only allows JSON format** as it enables all the Qovery capabilities for application logging and tracing. The value must be a JSON object (provided as a string) with Envoy command operators. See [Envoy Gateway access logging documentation](https://gateway.envoyproxy.io/latest/tasks/observability/proxy-accesslog/#default-access-log) for available format variables and configuration options.
+
+<Info>
+**For customers migrating from NGINX:** This replaces the NGINX `log_format_upstream` setting. Envoy uses its own format string with command operators like `%REQ(X-HEADER)%`, `%RESP(X-HEADER)%`, and `%DURATION%` instead of NGINX's `$variable` syntax.
+</Info>
+
+**Default Value:** If not specified, the following JSON format is used:
+```json
+{
+  "start_time": "%START_TIME%",
+  "method": "%REQ(:METHOD)%",
+  "x-envoy-origin-path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+  "protocol": "%PROTOCOL%",
+  "response_code": "%RESPONSE_CODE%",
+  "response_flags": "%RESPONSE_FLAGS%",
+  "response_code_details": "%RESPONSE_CODE_DETAILS%",
+  "connection_termination_details": "%CONNECTION_TERMINATION_DETAILS%",
+  "upstream_transport_failure_reason": "%UPSTREAM_TRANSPORT_FAILURE_REASON%",
+  "bytes_received": "%BYTES_RECEIVED%",
+  "bytes_sent": "%BYTES_SENT%",
+  "duration": "%DURATION%",
+  "x-envoy-upstream-service-time": "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%",
+  "x-forwarded-for": "%REQ(X-FORWARDED-FOR)%",
+  "user-agent": "%REQ(USER-AGENT)%",
+  "x-request-id": "%REQ(X-REQUEST-ID)%",
+  ":authority": "%REQ(:AUTHORITY)%",
+  "upstream_host": "%UPSTREAM_HOST%",
+  "upstream_cluster": "%UPSTREAM_CLUSTER%",
+  "upstream_local_address": "%UPSTREAM_LOCAL_ADDRESS%",
+  "downstream_local_address": "%DOWNSTREAM_LOCAL_ADDRESS%",
+  "downstream_remote_address": "%DOWNSTREAM_REMOTE_ADDRESS%",
+  "requested_server_name": "%REQUESTED_SERVER_NAME%",
+  "route_name": "%ROUTE_NAME%",
+  "qovery_com_associated_service_id": "%REQ(x-qovery-com-associated-service-id)%",
+  "qovery_com_environment_id": "%REQ(x-qovery-com-environment-id)%"
+}
+```
+
+<Warning>
+When customizing the log format, **you must include these two Qovery-specific fields** for service logging to work properly:
+- `"qovery_com_associated_service_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_associated_service_id)%"`
+- `"qovery_com_environment_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_environment_id)%"`
+
+Without these fields, Qovery will not be able to properly associate logs with your services and environments.
+</Warning>
+
+**Example:** Custom JSON format with simplified fields (note the required Qovery fields):
+```json
+{
+  "timestamp": "%START_TIME%",
+  "method": "%REQ(:METHOD)%",
+  "path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+  "protocol": "%PROTOCOL%",
+  "status": "%RESPONSE_CODE%",
+  "duration_ms": "%DURATION%",
+  "bytes_sent": "%BYTES_SENT%",
+  "bytes_received": "%BYTES_RECEIVED%",
+  "client_ip": "%REQ(X-FORWARDED-FOR)%",
+  "user_agent": "%REQ(USER-AGENT)%",
+  "request_id": "%REQ(X-REQUEST-ID)%",
+  "qovery_com_associated_service_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_associated_service_id)%",
+  "qovery_com_environment_id": "%DYNAMIC_METADATA(envoy.lb:qovery_com_environment_id)%"
+}
+```
+
+<a id="envoy-controller-custom-http-errors"></a>
+
+### envoy.controller.custom_http_errors
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `list of integers`
+
+**Description:** List of HTTP status codes for which Envoy Gateway should serve custom error pages. When you specify a status code in this list, Envoy Gateway will intercept that error and serve a hardcoded HTML error page instead of passing through the upstream error response. Each HTTP error code has its own hardcoded HTML page built into Envoy Gateway.
+
+<Info>
+The hardcoded error pages cannot be customized at this time. If you need to customize error pages for your use case, please contact us and we can extend this feature.
+</Info>
+
+**Valid values:** HTTP status codes from `100` to `599`
+
+**Default Value:** `null`
+
+**Example:** `[404, 503, 502, 500]` - This will serve custom hardcoded HTML pages for Not Found, Service Unavailable, Bad Gateway, and Internal Server Error responses.
+
+<a id="envoy-controller-enable-compression"></a>
+
+### envoy.controller.enable_compression
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enables HTTP response compression in Envoy Gateway. When enabled, Envoy Gateway automatically compresses HTTP responses using multiple compression algorithms to reduce bandwidth usage and improve performance.
+
+**Compression algorithms enabled:**
+- **Gzip** - Compression level 6 (widely supported, good compression ratio)
+- **Brotli** - Quality level 6 (better compression than Gzip, modern browsers)
+- **Zstd** - Compression level 6 (fastest compression, newest standard)
+
+Envoy Gateway automatically selects the best compression algorithm based on the client's `Accept-Encoding` header.
+
+<Info>
+**For customers migrating from NGINX:** This replaces NGINX's compression settings (`enable-brotli` and `use-gzip`). The main difference is that Envoy Gateway adds **Zstd** as a third compression algorithm alongside Gzip and Brotli. All compression levels match NGINX defaults (level 6).
+</Info>
+
+**Default Value:** `true`
+
+<a id="envoy-default-backend-enabled"></a>
+
+### envoy.default_backend.enabled
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enables the default backend for Envoy Gateway. The default backend serves a generic error page for requests that don't match any route.
+
+**Default Value:** `false`
+
+<a id="envoy-default-backend-image"></a>
+
+### envoy.default_backend.image
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Specifies the Docker image used for the default backend.
+
+**Default Value:** `null`
+
+<a id="envoy-default-backend-tag"></a>
+
+### envoy.default_backend.tag
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Defines the image tag used by the default backend.
+
+**Default Value:** `null`
 
 ---
+
 ## Network - Database Access Control
 
 <a id="database-postgresql-deny-any-access"></a>

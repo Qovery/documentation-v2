@@ -1,11 +1,19 @@
 ---
 title: "Slack Integration"
-description: "Get real-time deployment notifications in Slack"
+description: "Get real-time deployment notifications and alerts in Slack"
 ---
 
 ## Overview
 
-The Slack integration enables automatic team notifications whenever changes occur within your applications. Users can customize which actions trigger Slack workspace messages.
+The Slack integration enables automatic team notifications for two use cases:
+
+- **Deployment notifications**: Get notified whenever changes occur within your applications (deployments, failures, etc.)
+- **Alerting notifications**: Receive real-time alerts when your services trigger monitoring conditions (CPU, memory, errors, latency, etc.)
+
+<Note>
+  Choose your use case below. Steps 1 and 2 are common for both integrations.
+  Step 3 differs depending on your needs.
+</Note>
 
 ## Step 1: Create a Slack App
 
@@ -18,7 +26,9 @@ Navigate to the [Slack app creation page](https://api.slack.com/apps) and build 
 ![Create Slack App - Step 3](/images/slack/create-app-slack-3.png)
 
 <Info>
-You can customize your Slack app with an optional logo available from [Qovery's public resources repository](https://uploads-ssl.webflow.com/6046393ad41fc8c21e77d3d7/60c0dc4f7c3f2e3e6e2c3b5f_qovery-logo-square.png).
+  You can customize your Slack app with an optional logo available from
+  [Qovery's public resources
+  repository](https://uploads-ssl.webflow.com/6046393ad41fc8c21e77d3d7/60c0dc4f7c3f2e3e6e2c3b5f_qovery-logo-square.png).
 </Info>
 
 ![Customize Slack App](/images/slack/create-app-slack-4.png)
@@ -35,17 +45,49 @@ Activate the Incoming Webhooks feature within your app, then add a new webhook t
 
 ![Copy Webhook URL](/images/slack/create-webhook-4.png)
 
-<Note>
-Multiple webhooks can target different channels. Specific events can be filtered (e.g., `"events": ["DEPLOYMENT_FAILURE"]`). Webhooks are manageable and deletable anytime.
-</Note>
+## Step 3: Configure Slack in Qovery
 
-## Step 3: Configure Qovery Webhook
+Choose your use case:
 
-Reference the [webhook documentation](/integrations/webhooks) to establish the connection within Qovery, using the copied Slack webhook URL as the endpoint.
+<Tabs>
+  <Tab title="Deployment Notifications">
+    ### Configure Qovery Webhook
 
-## Step 4: Test the Integration
+    Reference the [webhook documentation](/configuration/integrations/webhooks) to establish the connection within Qovery, using the copied Slack webhook URL as the endpoint.
 
-Launch a deployment to verify notifications appear in your designated Slack channel.
+    <Note>
+    Multiple webhooks can target different channels. Specific events can be filtered (e.g., `"events": ["DEPLOYMENT_FAILURE"]`). Webhooks are manageable and deletable anytime.
+    </Note>
+
+    ### Test the Integration
+
+    Launch a deployment to verify notifications appear in your designated Slack channel.
+
+  </Tab>
+
+  <Tab title="Alerting Notifications">
+    ### Add Notification Channel
+
+    1. Navigate to the **Alerting** section in the Qovery Console navigation menu
+    2. Click on **Notification channel**
+    3. Click the **Add channel** button
+    4. In the **New channel** modal:
+       - **Display name**: Enter a descriptive name for this notification channel (e.g., "Production Alerts", "Team DevOps")
+       - **Webhook URL**: Paste the webhook URL you copied from Step 2
+    5. Click **Confirm creation**
+
+    <img src="/images/slack/notification-channel-setup.png" alt="Add Notification Channel" />
+
+    <Tip>
+    The display name is how this channel will appear when configuring alerts. Choose a clear name that indicates which Slack channel or team will receive these notifications.
+    </Tip>
+
+    ### Test the Integration
+
+    Create a test alert with a low threshold to verify notifications appear in your designated Slack channel. See the [Alert Conditions guide](/configuration/integrations/observability/qovery-observe#alerts) for details on creating alerts.
+
+  </Tab>
+</Tabs>
 
 ## Support
 
