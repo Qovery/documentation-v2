@@ -375,34 +375,6 @@ html[data-theme="dark"] .raci-legend {
   background-color: rgba(100, 45, 255, 0.1);
 }
 
-/* AWS logo - light mode (default) */
-.badge-icon-aws-light {
-  display: inline-block;
-  height: 20px;
-  width: auto;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-.badge-icon-aws-dark {
-  display: none;
-  height: 20px;
-  width: auto;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-/* AWS logo switching for dark mode */
-html[class*="dark"] .badge-icon-aws-light,
-html[data-theme="dark"] .badge-icon-aws-light {
-  display: none;
-}
-
-html[class*="dark"] .badge-icon-aws-dark,
-html[data-theme="dark"] .badge-icon-aws-dark {
-  display: inline-block;
-}
-
 /* Scaleway logo - light mode (default) */
 .badge-icon-scaleway-light {
   display: inline-block;
@@ -554,7 +526,7 @@ html[data-theme="dark"] img[src*="/helm-icon-light.svg"],
 html[class*="dark"] img[src*="/aws-icon.svg"],
 html[data-theme="dark"] img[src*="/aws-icon.svg"],
 .dark img[src*="/aws-icon.svg"] {
-  content: url("/assets/aws-icon-dark.svg");
+  content: url("/images/logos/cloud-providers/aws-icon-dark.svg");
 }
 
 /* GitHub icon - make white in dark mode */
