@@ -5,7 +5,7 @@ description: "Setup Qovery AI Copilot with Claude Desktop using the Model Contex
 
 ## Overview
 
-The Qovery MCP (Model Context Protocol) Server enables you to use Qovery AI Copilot directly in Claude Desktop and other MCP-compatible clients. This gives you natural language control over your entire Qovery infrastructure.
+The Qovery MCP (Model Context Protocol) Server enables you to use Qovery AI Copilot directly in any MCP-compatible client, including ChatGPT, Claude, and Claude Code. This gives you natural language control over your entire Qovery infrastructure.
 
 <Note>
 **Activation Required**: Before using the MCP Server, organization administrators must first activate Qovery AI Copilot from the console settings. See the [Getting Started guide](/copilot/getting-started#activation) for activation instructions.
@@ -76,7 +76,7 @@ The most restrictive setting takes precedence. For example, if your organization
 
 Before using the MCP Server:
 
-- **MCP-Compatible Client**: Claude Desktop, or any other MCP-compatible application
+- **MCP-Compatible Client**: Any MCP-compatible application (tested with ChatGPT, Claude, and Claude Code)
 - **Qovery Account**: Active account with infrastructure
 - **API Token**: Generate from Qovery Console (Settings → API Tokens)
 
@@ -111,16 +111,30 @@ Before using the MCP Server:
 The Qovery MCP Server is accessible via the following URL:
 
 ```
-https://p8081-api-ai-dev.qovery.com/mcp
+https://mcp-api-ai.qovery.com/mcp
 ```
+
+You can optionally include your API token as a query parameter:
+
+```
+https://mcp-api-ai.qovery.com/mcp?token=<your-token>
+```
+
+<Info>
+**Token in URL**: If you provide the token in the URL, you won't be prompted for authentication during the session. If omitted, the token will be requested when you first interact with the server.
+</Info>
 
 Add the Qovery MCP Server to your MCP client's configuration using:
 
 ```
-Server URL: https://p8081-api-ai-dev.qovery.com/mcp
+Server URL: https://mcp-api-ai.qovery.com/mcp
 ```
 
 Refer to your specific MCP client's documentation for detailed setup instructions on how to add a custom MCP server.
+
+<Info>
+The Qovery MCP Server is also available through the [MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=com.qovery).
+</Info>
 
 ## Usage
 
@@ -216,7 +230,7 @@ Once authenticated, you can interact with your infrastructure naturally:
 **Issue**: Client doesn't show Qovery tools or cannot connect
 
 **Solutions**:
-1. Verify the MCP Server URL is correct: `https://p8081-api-ai-dev.qovery.com/mcp`
+1. Verify the MCP Server URL is correct: `https://mcp-api-ai.qovery.com/mcp`
 2. Check your internet connection
 3. Restart your MCP client
 4. Contact Qovery Support if the issue persists
