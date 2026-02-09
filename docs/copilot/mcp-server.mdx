@@ -140,52 +140,35 @@ The Qovery MCP Server is also available through the [MCP Registry](https://regis
 
 ### Authentication with API Token
 
-The Qovery MCP Server requires authentication via your API token. There are two ways to provide it:
+The Qovery MCP Server supports **3 authentication methods**:
 
 <Tabs>
-  <Tab title="Method 1: Ask First">
-    Start your conversation naturally, and Claude will request the token when needed:
-
-    **You:**
+  <Tab title="1. Query Parameter">
+    Add your token directly to the MCP Server URL:
     ```
-    Can you list my Qovery environments?
-    ```
-
-    **Claude:**
-    ```
-    I'll need your Qovery API token to access your infrastructure. 
-    Please provide your API token.
-    ```
-
-    **You:**
-    ```
-    Here's my token: xxxxxxxxxxxxx
-    ```
-
-    **Claude:**
-    ```
-    [Returns your environments list]
+    https://mcp-api-ai.qovery.com/mcp?token=your_qovery_token
     ```
   </Tab>
 
-  <Tab title="Method 2: Provide Immediately">
-    Include your token directly in your first message:
+  <Tab title="2. Custom Header">
+    Add the `X-Qovery-Token` header to your requests:
+    ```
+    X-Qovery-Token: your_qovery_token
+    ```
+  </Tab>
 
-    **You:**
+  <Tab title="3. Authorization Header">
+    Use the standard `Authorization` header:
     ```
-    Using token xxxxxxxxxxxxx, can you list my Qovery environments?
+    Authorization: Token your_qovery_token
     ```
-
-    **Claude:**
+    Or with Bearer:
     ```
-    [Returns your environments list immediately]
+    Authorization: Bearer your_qovery_token
     ```
   </Tab>
 </Tabs>
 
-<Info>
-**Token Persistence**: Once you provide your API token in a conversation, it will be remembered for the duration of that conversation. However, when you start a **new conversation**, you'll need to provide the token again.
-</Info>
 
 ## Usage Examples
 
