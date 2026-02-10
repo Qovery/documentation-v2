@@ -46,7 +46,7 @@
 				"events:RemoveTargets",
 				"kms:*",
 				"events:TagResource",
-                "events:UntagResource",
+				"events:UntagResource",
 				"events:ListTagsForResource"
 			],
 			"Resource": "*"
