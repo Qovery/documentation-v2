@@ -977,6 +977,35 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 2048
 ```
 
+<a id="network-dns-ndots"></a>
+
+### network.dns.ndots
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Configures the DNS `ndots` threshold that determines when Kubernetes appends search domain suffixes to hostnames during DNS resolution.
+
+**Use Case:** When your service queries an external domain like `api.example.com` (2 dots) with the default `ndots=5`, Kubernetes attempts **6 DNS queries** before resolving:
+1. `api.example.com.default.svc.cluster.local` ❌ (fails)
+2. `api.example.com.svc.cluster.local` ❌ (fails)
+3. `api.example.com.cluster.local` ❌ (fails)
+4. `api.example.com.us-east-1.compute.internal` ❌ (fails)
+5. `api.example.com.ec2.internal` ❌ (fails)
+6. `api.example.com` ✅ (succeeds)
+
+Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has 2 dots, improving DNS resolution speed and reducing load on DNS servers. This is especially beneficial for applications making frequent external API calls.
+
+**Default Value:** `null` (uses Kubernetes default of `5`)
+
+**Example:**
+```json
+2
+```
+
+**Learn More:** See the [Kubernetes DNS documentation](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) for more details.
+
 ---
 
 ## Auto-scaling (HPA)
