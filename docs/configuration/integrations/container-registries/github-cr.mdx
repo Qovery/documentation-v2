@@ -29,9 +29,15 @@ GitHub Container Registry uses GitHub Personal Access Tokens (PAT) for authentic
 
 ### Required Permissions
 
-Your Personal Access Token needs the following scopes:
-- `read:packages` - Pull images
-- `write:packages` - Push images (if needed)
+Your Personal Access Token (classic) needs the following scopes:
+- `read:packages` - Pull images from GHCR
+- `read:org` - Required for Qovery to validate your organization access
+- `write:packages` - Push images (only if needed)
+- `repo` - Required only if your container packages are linked to private repositories (this is the default behavior on GitHub)
+
+<Warning>
+If your container packages inherit their visibility from private repositories (GitHub's default), the `repo` scope is required even for read-only access. This is a GitHub limitation, not a Qovery requirement. You can avoid this by configuring your package visibility independently in your GitHub package settings.
+</Warning>
 
 ## Configuration in Qovery
 
@@ -43,7 +49,9 @@ Your Personal Access Token needs the following scopes:
     4. Give it a descriptive name (e.g., "Qovery GHCR Access")
     5. Select required scopes:
        - `read:packages`
-       - `write:packages` (if pushing images)
+       - `read:org`
+       - `repo` (if your packages are linked to private repositories)
+       - `write:packages` (only if pushing images)
     6. Click **Generate token** and copy immediately
 
     <Warning>
@@ -65,8 +73,8 @@ Your Personal Access Token needs the following scopes:
 
   <Step title="Enter Credentials">
     Provide:
-    - **Username**: Your GitHub username
-    - **Password**: Personal Access Token (not your GitHub password)
+    - **Container Registry Prefix**: Your GitHub organization name or username (e.g., `mycompany` for images like `ghcr.io/mycompany/my-app`)
+    - **Personal Access Token**: Your GitHub Personal Access Token (classic) with the required scopes
   </Step>
 
   <Step title="Save">
@@ -78,8 +86,9 @@ Your Personal Access Token needs the following scopes:
 
 For organization-owned packages:
 - Ensure your PAT has access to the organization
-- Set package visibility appropriately (public/private)
-- Configure package permissions in GitHub
+- The token owner must be a member of the organization
+- If your organization enforces SAML SSO, you must authorize the token for SSO after creation: go to **GitHub Settings** → **Developer settings** → **Personal access tokens (classic)** → select your token → **Configure SSO** → **Authorize** for your organization
+- If your packages inherit visibility from private repositories, the `repo` scope is required on the token
 
 ## Integration with GitHub Actions
 
