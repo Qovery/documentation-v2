@@ -17,7 +17,7 @@ The Qovery MCP (Model Context Protocol) Server enables you to use Qovery AI Copi
 
 ## Operating Modes
 
-The MCP Server's operating mode is determined by your organization's AI Copilot settings and your API token's permissions:
+By default, the MCP Server operates at the **highest access level** available based on your organization's AI Copilot settings and your API token's permissions. You can optionally force read-only mode using a URL parameter.
 
 <Tabs>
   <Tab title="Read-Only Mode">
@@ -63,13 +63,13 @@ The MCP Server's operating mode is determined by your organization's AI Copilot 
 </Tabs>
 
 <Note>
-**Permission Hierarchy**: The MCP Server operates at the highest level of access available based on:
+**Permission Hierarchy**: By default, the MCP Server operates at the highest level of access available based on:
 - Your organization's AI Copilot authorization settings (read-only or read-write)
 - Your API token's role permissions
 
 The most restrictive setting takes precedence. For example, if your organization enables AI write access but your token has viewer permissions, the Copilot will operate in read-only mode.
 
-**Note**: The operating mode applies to all your conversations. If you have read-write access, your conversations will operate in read-write mode.
+**Forcing Read-Only Mode**: You can override the default behavior and force read-only mode by adding `read-only=true` to the MCP Server URL, even if you have read-write permissions. This is useful for safe exploration when you want to ensure no changes are made.
 </Note>
 
 ## Prerequisites
@@ -114,14 +114,24 @@ The Qovery MCP Server is accessible via the following URL:
 https://mcp-api-ai.qovery.com/mcp
 ```
 
-You can optionally include your API token as a query parameter:
+You can optionally include your API token and operating mode as query parameters:
 
 ```
 https://mcp-api-ai.qovery.com/mcp?token=<your-token>
 ```
 
+Or force read-only mode:
+
+```
+https://mcp-api-ai.qovery.com/mcp?token=<your-token>&read-only=true
+```
+
 <Info>
 **Token in URL**: If you provide the token in the URL, you won't be prompted for authentication during the session. If omitted, the token will be requested when you first interact with the server.
+</Info>
+
+<Info>
+**Operating Mode**: By default, the MCP Server operates at the highest access level available based on your organization settings and token permissions. You can force read-only mode by adding `read-only=true` to the URL, regardless of your available permissions.
 </Info>
 
 Add the Qovery MCP Server to your MCP client's configuration using:
@@ -148,6 +158,11 @@ The Qovery MCP Server supports **3 authentication methods**:
     ```
     https://mcp-api-ai.qovery.com/mcp?token=your_qovery_token
     ```
+
+    To force read-only mode:
+    ```
+    https://mcp-api-ai.qovery.com/mcp?token=your_qovery_token&read-only=true
+    ```
   </Tab>
 
   <Tab title="2. Custom Header">
@@ -155,12 +170,22 @@ The Qovery MCP Server supports **3 authentication methods**:
     ```
     X-Qovery-Token: your_qovery_token
     ```
+
+    To force read-only mode, add `read-only=true` as a query parameter:
+    ```
+    https://mcp-api-ai.qovery.com/mcp?read-only=true
+    ```
   </Tab>
 
   <Tab title="3. Authorization Header">
     Use the standard `Authorization` header:
     ```
     Authorization: Token your_qovery_token
+    ```
+
+    To force read-only mode, add `read-only=true` as a query parameter:
+    ```
+    https://mcp-api-ai.qovery.com/mcp?read-only=true
     ```
   </Tab>
 </Tabs>
