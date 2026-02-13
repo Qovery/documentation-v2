@@ -977,6 +977,63 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 2048
 ```
 
+<a id="network-gateway-api-tcp-keepalive-idle-time-seconds"></a>
+
+### network.gateway_api.tcp_keepalive_idle_time_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the idle time in seconds before TCP keepalive probes are sent on backend connections. This is the duration a connection must be idle before the first keepalive probe is sent.
+
+**Use Case:** Configure TCP keepalive idle time to detect dead connections earlier or to keep connections alive through firewalls/load balancers that have aggressive idle timeouts. A lower value (e.g., 60s) helps detect dead connections faster, while a higher value reduces keepalive overhead.
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+7200
+```
+
+<a id="network-gateway-api-tcp-keepalive-interval-seconds"></a>
+
+### network.gateway_api.tcp_keepalive_interval_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the interval in seconds between TCP keepalive probes on backend connections. This is the time between consecutive keepalive probes after the idle time has elapsed.
+
+**Use Case:** Control how frequently keepalive probes are sent once the connection becomes idle. A shorter interval (e.g., 30s) provides faster failure detection, while a longer interval reduces network overhead.
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+120
+```
+
+<a id="network-gateway-api-http-request-timeout-seconds"></a>
+
+### network.gateway_api.http_request_timeout_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the maximum time in seconds that Envoy Gateway will wait for a complete HTTP response from backend pods. Requests exceeding this timeout will be terminated with HTTP 504 Gateway Timeout.
+
+**Use Case:** Configure request timeouts to match your application's expected response times. Increase for long-running operations (e.g., batch processing, large file uploads) or decrease to fail fast for quick operations. This prevents clients from waiting indefinitely for unresponsive backends.
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+90
+```
+
 <a id="network-dns-ndots"></a>
 
 ### network.dns.ndots
