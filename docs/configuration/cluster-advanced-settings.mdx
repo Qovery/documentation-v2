@@ -665,18 +665,40 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 ---
 ## Network - Gateway API
 
+<a id="k8s.deploy_api_gateway"></a>
+
+### k8s.deploy_api_gateway
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20" style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Deploys Gateway API resources on the cluster if true.
+
+<Warning>
+  - Gateway API will be deployed on the cluster alongside Ingress NGINX
+  controller, and both will be active. - It will allow you to access your
+  service using a dedicated service URL pointing to the Gateway API controller
+  instead of Ingress NGINX controller.
+</Warning>
+
+**Default Value:** `false`
+
 <a id="k8s.use_api_gateway"></a>
 
 ### k8s.use_api_gateway
 
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20" style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 **Type:** `boolean`
 
-**Description:** Flag to deploy Gateway API resources on the cluster.
+**Description:** Makes Gateway API the default routing component.
 
 <Warning>
-  - This is alpha feature, only available on AWS for now and not meant to be used for now but will be handly soon to test ingress to gateway API migration.
+  - When enabled, all new services will be exposed through Gateway API instead
+  of Ingress NGINX controller. - NGINX controller will still be deployed in the
+  cluster an will remain until we've fully migrated to Gateway API, but it will
+  not be used for routing.
 </Warning>
 
 **Default Value:** `false`
