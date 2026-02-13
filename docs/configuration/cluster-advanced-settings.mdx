@@ -755,6 +755,62 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `25`
 
+---
+
+<a id="envoy-gateway-hpa-cpu-average-utilization-percentage-threshold"></a>
+
+### envoy.gateway.hpa.cpu_average_utilization_percentage_threshold
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `float`
+
+**Description:** HPA CPU average utilization threshold assigned to the Envoy Gateway deployment serving traffic, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When CPU usage exceeds this threshold, Kubernetes will automatically scale up the number of Envoy Gateway replicas to handle increased load. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+
+**Valid values:** `0.0` to `1.0`
+
+**Default Value:** `null` (uses Kubernetes default behavior)
+
+<a id="envoy-gateway-hpa-memory-average-utilization-percentage-threshold"></a>
+
+### envoy.gateway.hpa.memory_average_utilization_percentage_threshold
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `float`
+
+**Description:** HPA memory average utilization threshold assigned to the Envoy Gateway deployment serving traffic, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes will automatically scale up the number of Envoy Gateway replicas to handle increased load. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+
+**Valid values:** `0.0` to `1.0`
+
+**Default Value:** `null` (uses Kubernetes default behavior)
+
+<a id="envoy-gateway-hpa-min-number-instances"></a>
+
+### envoy.gateway.hpa.min_number_instances
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Minimum number of Envoy Gateway replicas serving traffic for horizontal pod autoscaling. This ensures a baseline level of availability and load distribution for incoming traffic. Must be less than or equal to `envoy.gateway.hpa.max_number_instances`. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+
+**Default Value:** `1`
+
+<a id="envoy-gateway-hpa-max-number-instances"></a>
+
+### envoy.gateway.hpa.max_number_instances
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer`
+
+**Description:** Maximum number of Envoy Gateway replicas serving traffic for horizontal pod autoscaling. This sets an upper limit on scaling to control resource consumption. Must be greater than or equal to `envoy.gateway.hpa.min_number_instances`. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+
+**Default Value:** `5`
+
+---
+
 <a id="envoy-vcpu-request-in-milli-cpu"></a>
 
 ### envoy.vcpu.request_in_milli_cpu
