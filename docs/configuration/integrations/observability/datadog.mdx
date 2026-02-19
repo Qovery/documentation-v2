@@ -139,7 +139,11 @@ The Datadog chart installs **Custom Resource Definitions (CRDs)** by default (e.
     |---|---|---|---|---|
     | `DD_APP_KEY` | `<your_APP_KEY>` | Service | ✔️ | Only needed for Database Monitoring |
     | `DD_SITE` | `datadoghq.eu` or `datadoghq.com` | Service | ❌ | Your Datadog region |
-    | `CLUSTER_NAME` | `my-cluster-name` | Service | ❌ | Friendly name for your cluster |
+    | `CLUSTER_NAME` | `my-cluster-name` or alias of `QOVERY_KUBERNETES_CLUSTER_NAME` | Service | ❌ | Friendly name for your cluster |
+
+    <Warning>
+    **Built-in variables** (e.g., `QOVERY_KUBERNETES_CLUSTER_NAME`) **cannot be used directly** in Helm value overrides via `qovery.env.*`. To use a built-in variable value, create an **alias** variable that references it and use that alias in your override instead.
+    </Warning>
 
     See [Environment Variables](/configuration/environment-variables) for more details on managing variables in Qovery.
   </Step>
