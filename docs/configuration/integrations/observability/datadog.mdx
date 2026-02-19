@@ -1,25 +1,41 @@
 ---
 title: "Datadog Integration"
-description: "Kubernetes observability and monitoring with Datadog"
+description: "Deploying Datadog on Qovery: The Complete Guide"
 ---
 
 ## Overview
 
-How to integrate Datadog with Kubernetes on Qovery.
+[Datadog](https://www.datadoghq.com/) is one of the leading platforms for infrastructure monitoring, log management, Application Performance Monitoring (APM), and more. This guide walks you through deploying the Datadog Agent on a Qovery-managed Kubernetes cluster using Helm.
 
-While Qovery will soon provide basic metrics on apps resources usage, you might need a more advanced view on what happens on your infrastructure. There are many solutions on the market, one of them being Datadog. Datadog is one of the leading platforms for monitoring and observability, and it is pretty easy to integrate it with Qovery.
+### Architecture
+
+The Datadog Helm chart deploys three main components on your cluster:
+
+| Component | Type | Role |
+|---|---|---|
+| **Node Agent** | DaemonSet | Runs on every node. Collects metrics, logs, and traces from the node and its pods |
+| **Cluster Agent** | Deployment | Centralized collection of cluster-level metadata (events, leader election, external metrics) |
+| **Cluster Check Runners** | Deployment (optional) | Run cluster checks (e.g., database monitoring) without tying them to a specific node |
 
 ## Prerequisites
 
 Before you begin, this guide assumes the following:
 
-- You have a Qovery cluster running
-- You have a dedicated Qovery project and environment to deploy Datadog (example: Project=Tooling, Environment=Production)
-- You have a Datadog account
-- You have already created a [Datadog API Key](https://docs.datadoghq.com/account_management/api-app-keys/#api-keys) here: `https://app.datadoghq.<region>/organization-settings/api-keys`
+- You have a [Qovery cluster running](/getting-started/installation/aws)
+- You have a dedicated Qovery project and environment to deploy Datadog (example: Project=`Tooling`, Environment=`Production`)
+- You have a [Datadog account](https://www.datadoghq.com/)
+
+You will need the following information from your Datadog account:
+
+| Variable | Where to find it | Required |
+|---|---|---|
+| `DD_API_KEY` | [Organization Settings → API Keys](https://docs.datadoghq.com/account_management/api-app-keys/#api-keys) `https://app.datadoghq.<region>/organization-settings/api-keys` | Yes |
+| `DD_APP_KEY` | [Organization Settings → Application Keys](https://docs.datadoghq.com/account_management/api-app-keys/#application-keys) | Only for Database Monitoring |
+| `DD_SITE` | Your Datadog region (e.g., `datadoghq.eu`, `datadoghq.com`) | Yes |
+| `CLUSTER_NAME` | A friendly name you choose for your cluster | Yes |
 
 <Warning>
-An API key is required, not an Application key. Please ensure you are using the correct key to authenticate.
+An **API key** is required, not an Application key. Please ensure you are using the correct key to authenticate.
 </Warning>
 
 ![Datadog - API Key](/images/kubernetes-observability-and-monitoring-with-datadog/datadog-api-key.png)
@@ -29,68 +45,134 @@ An API key is required, not an Application key. Please ensure you are using the 
 In this tutorial, we will install the Datadog agent on a Qovery cluster to gather metrics about infrastructure and applications.
 
 <Note>
-This tutorial is based on a specific version of Datadog. We have created it to assist our users, but Qovery is not responsible for any configuration issues—please contact Datadog support.
+This tutorial is based on a specific version of Datadog. We have created it to assist our users, but Qovery is not responsible for any configuration issues — please contact Datadog support for chart-specific questions.
 </Note>
 
 ### Step 1: Add the Datadog Helm Repository
 
 <Steps>
   <Step title="Add Helm Repository">
-    In Qovery Console:
+    In [Qovery Console](https://console.qovery.com):
     1. Go to **Settings** → **Helm Repositories**
     2. Click **Add Repository**
     3. Configure:
        - Repository name: `Datadog`
        - Kind: `HTTPS`
        - Repository URL: `https://helm.datadoghq.com`
+
+    See [Helm Repository Management](/configuration/organization/helm-repository) for more details.
   </Step>
 </Steps>
 
-### Step 2: Create the Datadog Service in Qovery
+### Step 2: Create the Datadog Helm Service
 
 <Steps>
   <Step title="Create Helm Service">
-    In your environment:
+    In your dedicated environment:
     1. Click **Create** → **Helm Chart**
     2. Configure:
        - Application name: `Datadog`
        - Helm source: `Helm repository`
        - Repository: `Datadog`
        - Chart name: `datadog`
-       - Version: `3.49.5` (or latest)
+       - Version: `3.87.1` (or [latest from Datadog](https://github.com/DataDog/helm-charts/releases))
        - Allow cluster-wide resources: ✔️
-  </Step>
 
-  <Step title="Add Values YAML">
-    Use this minimal configuration in the Override as file section:
+    <Note>
+    If you prefer not to enable cluster-wide resources, see [Step 3](#step-3-configure-helm-chart-settings) for an alternative approach using values override.
+    </Note>
 
-    ```yaml
-    # The following YAML contains the minimum configuration required to deploy the Datadog Agent
-    datadog:
-      apiKey: qovery.env.DD_API_KEY
-      site: datadoghq.eu  # Use datadoghq.com for US
-      clusterName: qoverycluster
-    ```
+    See [Helm Charts](/configuration/helm) for more details on creating a Helm service.
   </Step>
 </Steps>
 
-### Step 3: Store the Datadog API Key as Secret
+### Step 3: Configure Helm Chart Settings
+
+The Datadog chart installs **Custom Resource Definitions (CRDs)** by default (e.g., `DatadogMetric`, `DatadogMonitor`). You have two options:
+
+<Tabs>
+  <Tab title="Option A: Allow cluster-wide resources (recommended)">
+    In the Helm service settings, enable **Allow cluster-wide resources**. This lets the chart create CRDs and ClusterRoles normally.
+
+    This is the simplest approach and is recommended for most installations.
+  </Tab>
+
+  <Tab title="Option B: Disable CRDs in values">
+    If you prefer not to grant cluster-wide permissions, add the following to your values override to disable CRD installation:
+
+    ```yaml
+    datadog:
+      kubeStateMetricsEnabled: false
+
+    datadog-crds:
+      crds:
+        datadogMetrics: false
+        datadogAgents: false
+        datadogMonitors: false
+    ```
+
+    <Warning>
+    This disables some advanced Datadog features (external metrics, Datadog Monitors as Code). Only use this option if you have strict RBAC requirements.
+    </Warning>
+  </Tab>
+</Tabs>
+
+### Step 4: Store Secrets and Variables
 
 <Steps>
-  <Step title="Add Secret Variable">
-    1. Open service overview
-    2. Go to **Variables** section
-    3. Add Variable:
-       - Variable = `DD_API_KEY`
-       - Value = `<your_API_KEY>`
-       - Scope = Service
+  <Step title="Add the API Key as Secret">
+    1. Open the Datadog service overview
+    2. Go to the **Variables** section
+    3. Add a new variable:
+       - Variable: `DD_API_KEY`
+       - Value: `<your_API_KEY>`
+       - Scope: `Service`
        - Secret variable: ✔️
 
     ![Datadog Secret Configuration](/images/kubernetes-observability-and-monitoring-with-datadog/datadog-secret.png)
   </Step>
+
+  <Step title="Add optional variables">
+    Add these additional variables as needed:
+
+    | Variable | Value | Scope | Secret | Notes |
+    |---|---|---|---|---|
+    | `DD_APP_KEY` | `<your_APP_KEY>` | Service | ✔️ | Only needed for Database Monitoring |
+    | `DD_SITE` | `datadoghq.eu` or `datadoghq.com` | Service | ❌ | Your Datadog region |
+    | `CLUSTER_NAME` | `my-cluster-name` or alias of `QOVERY_KUBERNETES_CLUSTER_NAME` | Service | ❌ | Friendly name for your cluster |
+
+    <Warning>
+    **Built-in variables** (e.g., `QOVERY_KUBERNETES_CLUSTER_NAME`) **cannot be used directly** in Helm value overrides via `qovery.env.*`. To use a built-in variable value, create an **alias** variable that references it and use that alias in your override instead.
+    </Warning>
+
+    See [Environment Variables](/configuration/environment-variables) for more details on managing variables in Qovery.
+  </Step>
 </Steps>
 
-### Step 4: Deploy the Chart
+### Step 5: Configure Values Override
+
+In the **Override as file** section of your Helm service, add the following minimal configuration:
+
+```yaml
+# Minimal working configuration for Datadog on Qovery
+datadog:
+  apiKey: qovery.env.DD_API_KEY
+  site: qovery.env.DD_SITE
+  clusterName: qovery.env.CLUSTER_NAME
+
+  kubelet:
+    tlsVerify: false  # Required on most Qovery clusters
+```
+
+<Note>
+**How `qovery.env.*` works**: At deploy time, Qovery replaces `qovery.env.DD_API_KEY` with the actual value of the `DD_API_KEY` variable. The real value never appears in the Qovery UI — it is only injected at Helm install time. See [Environment Variables in Helm Values](/configuration/helm#environment-variables-in-values) for more details.
+</Note>
+
+<Warning>
+Variable names must match **exactly** (case-sensitive). If you define `DD_API_KEY` in Variables, you must use `qovery.env.DD_API_KEY` in the override — not `qovery.env.dd_api_key`.
+</Warning>
+
+### Step 6: Deploy the Chart
 
 <Steps>
   <Step title="Deploy">
@@ -104,11 +186,15 @@ This tutorial is based on a specific version of Datadog. We have created it to a
   </Step>
 </Steps>
 
-### Step 5: Verify Setup on Datadog
+<Tip>
+If the deployment times out, you can add `--timeout 15m0s` in the Helm **Arguments** field. Datadog CRDs can take time to apply on the first install.
+</Tip>
+
+### Step 7: Verify Setup on Datadog
 
 <Steps>
   <Step title="Check Datadog Dashboard">
-    1. Access Datadog interface
+    1. Access the Datadog interface
     2. Navigate to **Infrastructure** → **Containers** → **Kubernetes**
     3. Confirm data is coming from your Qovery cluster
 
@@ -118,38 +204,203 @@ This tutorial is based on a specific version of Datadog. We have created it to a
 
 ## Advanced Configuration
 
-For more advanced Datadog configuration, you can extend the `values.yaml` through the Override as file section:
+### Log Collection
+
+Enable log collection to stream container logs to Datadog:
 
 ```yaml
 datadog:
   apiKey: qovery.env.DD_API_KEY
-  site: datadoghq.eu
-  clusterName: qoverycluster
+  site: qovery.env.DD_SITE
+  clusterName: qovery.env.CLUSTER_NAME
 
-  # Enable logs collection
+  kubelet:
+    tlsVerify: false
+
   logs:
     enabled: true
     containerCollectAll: true
+    autoMultiLineDetection:
+      enabled: true  # Automatically detects multi-line logs (Java stack traces, etc.)
+```
 
-  # Enable APM (Application Performance Monitoring)
+### Unified Service Tagging
+
+Unified Service Tagging ties Datadog telemetry (metrics, logs, traces) together using three standard labels. You can add them to your Qovery services via the [Labels & Annotations](/configuration/organization/labels-annotations) feature:
+
+| Label | Value | Purpose |
+|---|---|---|
+| `tags.datadoghq.com/env` | `production` | Environment name |
+| `tags.datadoghq.com/service` | `my-api` | Service name |
+| `tags.datadoghq.com/version` | `1.2.3` | Version |
+
+Once these labels are applied, Datadog automatically correlates logs, traces, and metrics for the same service.
+
+### Datadog Autodiscovery Annotations
+
+For more granular control over log collection (e.g., setting a source, custom pipeline), add [Datadog Autodiscovery annotations](https://docs.datadoghq.com/containers/kubernetes/log/?tab=operator#autodiscovery) to your Qovery services via the [Labels & Annotations](/configuration/organization/labels-annotations) feature:
+
+```
+ad.datadoghq.com/<container-name>.logs: '[{"source":"java","service":"my-api"}]'
+```
+
+Replace `<container-name>` with the actual container name of the pod.
+
+### Database Monitoring (PostgreSQL)
+
+Datadog can monitor your PostgreSQL databases using [Cluster Checks](https://docs.datadoghq.com/database_monitoring/). This requires the `DD_APP_KEY` variable.
+
+<Steps>
+  <Step title="Enable Cluster Checks in values">
+    ```yaml
+    datadog:
+      apiKey: qovery.env.DD_API_KEY
+      appKey: qovery.env.DD_APP_KEY
+      site: qovery.env.DD_SITE
+      clusterName: qovery.env.CLUSTER_NAME
+
+      kubelet:
+        tlsVerify: false
+
+      clusterChecks:
+        enabled: true
+
+    clusterAgent:
+      enabled: true
+      confd:
+        postgres.yaml: |-
+          cluster_check: true
+          init_config:
+          instances:
+            - dbm: true
+              host: <YOUR_PG_HOST>
+              port: 5432
+              username: datadog
+              password: qovery.env.PG_DATADOG_PASSWORD
+              tags:
+                - "env:production"
+                - "service:my-database"
+
+    clusterChecksRunner:
+      enabled: true
+      replicas: 2
+    ```
+  </Step>
+
+  <Step title="Create the monitoring user on PostgreSQL">
+    On your PostgreSQL instance, create a dedicated `datadog` user with the required permissions. See [Datadog's Database Monitoring docs](https://docs.datadoghq.com/database_monitoring/setup_postgres/) for the full setup instructions.
+  </Step>
+</Steps>
+
+### APM with Admission Controller
+
+The Datadog Admission Controller can automatically inject the tracing library into your application pods — no code changes required:
+
+```yaml
+datadog:
+  apiKey: qovery.env.DD_API_KEY
+  site: qovery.env.DD_SITE
+  clusterName: qovery.env.CLUSTER_NAME
+
+  kubelet:
+    tlsVerify: false
+
   apm:
     portEnabled: true
     port: 8126
 
-  # Enable process monitoring
+clusterAgent:
+  enabled: true
+  admissionController:
+    enabled: true
+    mutateUnlabelled: false  # Set to true to inject into all pods
+```
+
+When `mutateUnlabelled` is `false`, you must add the following label to your services (via [Labels & Annotations](/configuration/organization/labels-annotations)) to opt in:
+
+```
+admission.datadoghq.com/enabled: "true"
+```
+
+The Admission Controller will automatically set `DD_AGENT_HOST`, `DD_ENTITY_ID`, and inject the appropriate tracing library based on the language annotation:
+
+```
+admission.datadoghq.com/java-lib.version: "latest"
+```
+
+Supported language annotations: `java-lib`, `python-lib`, `js-lib`, `dotnet-lib`, `ruby-lib`.
+
+### Manual APM Instrumentation
+
+If you prefer not to use the Admission Controller, you can manually instrument your applications by adding these environment variables to your Qovery services:
+
+```bash
+DD_AGENT_HOST=datadog-agent.qovery.svc.cluster.local
+DD_TRACE_AGENT_PORT=8126
+DD_SERVICE=my-app
+DD_ENV=production
+DD_VERSION=$QOVERY_COMMIT_ID
+```
+
+Then instrument your application using the Datadog tracer for your language. See [Datadog's instrumentation docs](https://docs.datadoghq.com/tracing/setup_overview/) for language-specific guides.
+
+## Recommended Production Configuration
+
+Here is a comprehensive production-ready configuration that enables the most commonly used features:
+
+```yaml
+datadog:
+  apiKey: qovery.env.DD_API_KEY
+  site: qovery.env.DD_SITE
+  clusterName: qovery.env.CLUSTER_NAME
+
+  kubelet:
+    tlsVerify: false
+
+  # Log collection
+  logs:
+    enabled: true
+    containerCollectAll: true
+    autoMultiLineDetection:
+      enabled: true
+
+  # APM
+  apm:
+    portEnabled: true
+    port: 8126
+
+  # Process monitoring
   processAgent:
     enabled: true
     processCollection: true
 
-  # Enable network monitoring
+  # Network monitoring
   networkMonitoring:
     enabled: true
 
-# Agent configuration
+  # Cluster checks (for Database Monitoring, etc.)
+  clusterChecks:
+    enabled: true
+
+  # Avoid auto-detecting the Qovery cluster agent
+  ignoreAutoConfig:
+    - datadog_cluster_agent
+
+# Node Agent
 agents:
   enabled: true
+  priorityClassName: qovery-high-priority
 
-  # Resource limits
+  # Tolerate all taints (important for Karpenter clusters)
+  tolerations:
+    - operator: Exists
+
+  # Rolling update to avoid scheduling all pods at once
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "33%"
+
   resources:
     requests:
       cpu: 200m
@@ -158,8 +409,26 @@ agents:
       cpu: 500m
       memory: 512Mi
 
-# Cluster Agent (for Kubernetes metadata)
+# Cluster Agent
 clusterAgent:
+  enabled: true
+  replicas: 2
+  priorityClassName: qovery-high-priority
+
+  admissionController:
+    enabled: true
+    mutateUnlabelled: false
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Cluster Check Runners (optional, for database monitoring)
+clusterChecksRunner:
   enabled: true
   replicas: 2
 
@@ -172,90 +441,229 @@ clusterAgent:
       memory: 512Mi
 ```
 
-## Instrumenting Your Applications
-
-To enable APM for your applications, add these environment variables in Qovery:
-
-```bash
-DD_AGENT_HOST=datadog-agent.qovery.svc.cluster.local
-DD_TRACE_AGENT_PORT=8126
-DD_SERVICE=my-app
-DD_ENV=production
-DD_VERSION=$QOVERY_COMMIT_ID
-```
-
-Then instrument your application using the Datadog tracer for your language. See [Datadog's instrumentation docs](https://docs.datadoghq.com/tracing/setup_overview/) for language-specific guides.
-
 ## Troubleshooting
 
+### Deployment Issues
+
 <AccordionGroup>
-  <Accordion title="Agent Not Starting">
-    **Problem**: Datadog agent pods crash or fail to start
+  <Accordion title="Timeout during deployment">
+    **Problem**: Helm deployment times out before completing.
 
-    **Solutions**:
-    - Check API key is valid: `kubectl logs -n qovery datadog-agent-xxx`
-    - Verify secret exists: `kubectl get secret -n qovery`
-    - Check resource limits (may need more memory)
-    - Review values.yaml for syntax errors
+    **Cause**: Datadog CRDs can take time to apply, especially on the first install.
+
+    **Solution**: Add `--timeout 15m0s` in the Helm **Arguments** field of your Datadog service in Qovery Console.
   </Accordion>
 
-  <Accordion title="No Metrics in Datadog">
-    **Problem**: Cluster appears in Datadog but no metrics
+  <Accordion title="CrashLoopBackOff on agent pods">
+    **Problem**: Datadog agent pods are in `CrashLoopBackOff` state.
 
-    **Solutions**:
-    - Wait 5-10 minutes for initial data
-    - Verify agent is scraping: Check agent logs
-    - Ensure correct `site` (datadoghq.com vs datadoghq.eu)
-    - Check firewall/network policies allow outbound to Datadog
+    **Possible causes and solutions**:
+    - **Invalid API key**: Check agent logs with `kubectl logs -n qovery datadog-agent-xxx`. If you see authentication errors, verify your `DD_API_KEY` is correct.
+    - **Resource limits too low**: The agent may be OOMKilled. Increase memory limits (start with `512Mi`, go up to `1Gi` if needed).
+    - **Verify secret exists**: Run `kubectl get secret -n qovery` to confirm the secret was created.
+    - **YAML syntax errors**: Review your values override for indentation or syntax issues.
   </Accordion>
 
-  <Accordion title="Application logs not appearing in Datadog when Karpenter is enabled">
-  **Problem**: On a cluster with Karpenter enabled, some applications have their logs properly visible in Datadog but the logs are missing for some other applications.
+  <Accordion title="Pods not scheduling — maximum pods per node reached">
+    **Problem**: Datadog agent pods fail to start or stay in `Pending` state, causing the deployment to time out. Node events show scheduling errors or IP address timeout messages.
 
-  **Reason**: The Datadog agent DaemonSet likely has node selectors or taints/tolerations that prevent it from running on the stable nodes where some of your services have been scheduled. Services with only one pod typically run on the stable node pool, which explains why logs from these services are missing when Karpenter is enabled.
+    **Cause**: Since Datadog deploys a DaemonSet (at least one agent pod per node), if even a single node has reached its maximum pod capacity, the deployment will fail. This is common on clusters with many services or smaller instance types.
 
-  **Solutions**: 
-  - Option 1 - tolerate all taints (recommended):
-  ```yaml
-  tolerations:
-  - operator: Exists  # This will tolerate all taints
-  ````
+    **Solutions**:
 
-- Option 2 - Specific node pool tolerations
-If you prefer to be more selective, use these specific tolerations:
-```yaml
-tolerations:
-  - key: "qovery.com/node-pool"
-    operator: "Equal"
-    value: "stable"
-    effect: "NoSchedule"
-  - key: "qovery.com/node-pool"
-    operator: "Equal"
-    value: "default"
-    effect: "NoSchedule"
-```
+    1. **Set a high priority class** so Datadog pods get scheduled before lower-priority workloads:
+       ```yaml
+       agents:
+         priorityClassName: qovery-high-priority
 
-After updating your Datadog Helm chart with these tolerations, the agent should be able to collect logs from services running on both the default and stable node pools.
-</Accordion>
+       clusterAgent:
+         priorityClassName: qovery-high-priority
+       ```
 
+    2. **Ignore auto-detection of the Qovery cluster agent** to avoid unnecessary pod conflicts:
+       ```yaml
+       datadog:
+         ignoreAutoConfig:
+           - datadog_cluster_agent
+       ```
+
+    3. **Use a rolling update strategy** to avoid scheduling all pods at once:
+       ```yaml
+       agents:
+         updateStrategy:
+           type: RollingUpdate
+           rollingUpdate:
+             maxUnavailable: "33%"
+       ```
+
+    <Tip>
+    If you recently changed your node instance type (e.g., to xlarge), the max pods per node limit increases. However, existing nodes may still be at capacity until workloads are redistributed. Redeploying may succeed on a subsequent attempt once Karpenter provisions new nodes.
+    </Tip>
+  </Accordion>
 </AccordionGroup>
 
-## Next Steps
+### Configuration Issues
+
+<AccordionGroup>
+  <Accordion title="qovery.env.* values not interpolated">
+    **Problem**: The Helm chart receives literal strings like `qovery.env.DD_API_KEY` instead of the actual value.
+
+    **Cause**: The variable name in the override doesn't match the variable defined in Qovery.
+
+    **Solutions**:
+    - Variable names are **case-sensitive**: `qovery.env.DD_API_KEY` ≠ `qovery.env.dd_api_key`
+    - The variable must exist on the Helm service (correct scope)
+    - Check for typos in both the variable name and the override value
+    - See [Environment Variables in Helm Values](/configuration/helm#environment-variables-in-values) for details
+  </Accordion>
+
+  <Accordion title="CRD-related errors">
+    **Problem**: Errors related to `DatadogMetric`, `DatadogMonitor`, or other CRDs during deployment.
+
+    **Solutions**:
+    - **Option A**: Enable **Allow cluster-wide resources** in the Helm service settings
+    - **Option B**: Disable CRDs in your values override:
+      ```yaml
+      datadog-crds:
+        crds:
+          datadogMetrics: false
+          datadogAgents: false
+          datadogMonitors: false
+      ```
+  </Accordion>
+</AccordionGroup>
+
+### Logs & Monitoring Issues
+
+<AccordionGroup>
+  <Accordion title="Application logs not appearing (Karpenter clusters)">
+    **Problem**: On a cluster with Karpenter enabled, some applications have their logs visible in Datadog but logs are missing for others.
+
+    **Reason**: The Datadog agent DaemonSet likely has node selectors or taints/tolerations that prevent it from running on the stable nodes where some of your services have been scheduled. Services with only one pod typically run on the stable node pool, which explains why logs from these services are missing when Karpenter is enabled.
+
+    **Solutions**:
+
+    - **Option 1 — Tolerate all taints (recommended)**:
+      ```yaml
+      agents:
+        tolerations:
+          - operator: Exists  # This will tolerate all taints
+      ```
+
+    - **Option 2 — Specific node pool tolerations**:
+      ```yaml
+      agents:
+        tolerations:
+          - key: "qovery.com/node-pool"
+            operator: "Equal"
+            value: "stable"
+            effect: "NoSchedule"
+          - key: "qovery.com/node-pool"
+            operator: "Equal"
+            value: "default"
+            effect: "NoSchedule"
+      ```
+
+    After updating your Datadog Helm chart with these tolerations, the agent should be able to collect logs from services running on both the default and stable node pools.
+
+    See [Deploy a DaemonSet in a Karpenter Context](/getting-started/guides/advanced-tutorials/deploy-daemonset-karpenter) for more details.
+  </Accordion>
+
+  <Accordion title="No metrics in Datadog">
+    **Problem**: Cluster appears in Datadog but no metrics are shown.
+
+    **Solutions**:
+    - Wait 5-10 minutes for initial data to appear
+    - Verify the agent is scraping: check agent logs
+    - Ensure the correct `site` is set (`datadoghq.com` for US, `datadoghq.eu` for EU)
+    - Check that firewall/network policies allow outbound traffic to Datadog
+  </Accordion>
+
+  <Accordion title="Kubelet metrics missing">
+    **Problem**: Node-level metrics (CPU, memory per node) are missing.
+
+    **Cause**: TLS verification failure when the agent contacts the kubelet.
+
+    **Solution**: Set `kubelet.tlsVerify: false` in your values override:
+    ```yaml
+    datadog:
+      kubelet:
+        tlsVerify: false
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### APM Issues
+
+<AccordionGroup>
+  <Accordion title="Traces not arriving in Datadog">
+    **Problem**: APM traces are not visible in the Datadog APM dashboard.
+
+    **Solutions**:
+    - Verify `DD_AGENT_HOST` points to the correct service: `datadog-agent.qovery.svc.cluster.local`
+    - Confirm APM is enabled in the Helm values (`apm.portEnabled: true`)
+    - Check that port `8126` is open and not blocked by network policies
+    - Verify the application is correctly instrumented with the Datadog tracing library
+  </Accordion>
+
+  <Accordion title="Admission Controller not injecting tracing library">
+    **Problem**: The tracing library is not automatically injected into application pods.
+
+    **Solutions**:
+    - Ensure the Admission Controller is enabled in the Helm values
+    - If `mutateUnlabelled: false`, verify the label `admission.datadoghq.com/enabled: "true"` is set on the pod
+    - Check the language annotation is set (e.g., `admission.datadoghq.com/java-lib.version: "latest"`)
+    - Check Cluster Agent logs: `kubectl logs -n qovery deployment/datadog-cluster-agent`
+  </Accordion>
+</AccordionGroup>
+
+## Deployment Checklist
+
+Use this checklist to verify your Datadog deployment:
+
+- Helm repository `Datadog` added in Organization Settings
+- Helm service created with chart `datadog` and **Allow cluster-wide resources** enabled
+- `DD_API_KEY` stored as a **secret** variable on the service
+- `DD_SITE` and `CLUSTER_NAME` configured as variables
+- Values override configured with `kubelet.tlsVerify: false`
+- Log collection enabled if needed (`logs.enabled: true`)
+- APM configured if needed (`apm.portEnabled: true`)
+- Tolerations added if Karpenter is enabled
+- Deployment successful — agent pods running
+- Agent visible in Datadog → Infrastructure → Kubernetes
+
+## Useful Links
 
 <CardGroup cols={2}>
-  <Card title="Datadog Documentation" icon="book" href="https://docs.datadoghq.com/agent/kubernetes/">
-    Official Datadog Kubernetes docs
+  <Card title="Datadog Helm Chart Values" icon="file-code" href="https://github.com/DataDog/helm-charts/blob/main/charts/datadog/values.yaml">
+    Full list of configurable values for the Datadog Helm chart
   </Card>
 
-  <Card title="Datadog Getting Started" icon="play" href="https://docs.datadoghq.com/getting_started/">
-    Getting started guide
+  <Card title="Datadog Kubernetes Docs" icon="book" href="https://docs.datadoghq.com/agent/kubernetes/">
+    Official Datadog Kubernetes agent documentation
   </Card>
 
-  <Card title="Kubecost" icon="dollar-sign" href="/configuration/integrations/observability/kubecost">
-    Monitor and reduce Kubernetes costs
+  <Card title="Datadog APM Setup" icon="magnifying-glass" href="https://docs.datadoghq.com/tracing/setup_overview/">
+    Language-specific APM instrumentation guides
   </Card>
 
-  <Card title="Qovery Observe" icon="chart-mixed" href="/configuration/integrations/observability/qovery-observe">
-    Built-in observability option
+  <Card title="Datadog Log Collection" icon="file-lines" href="https://docs.datadoghq.com/containers/kubernetes/log/">
+    Kubernetes log collection configuration
+  </Card>
+
+  <Card title="Datadog Database Monitoring" icon="database" href="https://docs.datadoghq.com/database_monitoring/setup_postgres/">
+    PostgreSQL database monitoring setup
+  </Card>
+
+  <Card title="Qovery Helm Charts" icon="dharmachakra" href="/configuration/helm">
+    Qovery documentation for deploying Helm charts
+  </Card>
+
+  <Card title="Qovery Environment Variables" icon="key" href="/configuration/environment-variables">
+    Managing variables and secrets in Qovery
+  </Card>
+
+  <Card title="Deploy DaemonSet with Karpenter" icon="server" href="/getting-started/guides/advanced-tutorials/deploy-daemonset-karpenter">
+    Guide for deploying DaemonSets on Karpenter clusters
   </Card>
 </CardGroup>
