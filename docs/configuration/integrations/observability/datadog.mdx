@@ -382,13 +382,24 @@ datadog:
   clusterChecks:
     enabled: true
 
+  # Avoid auto-detecting the Qovery cluster agent
+  ignoreAutoConfig:
+    - datadog_cluster_agent
+
 # Node Agent
 agents:
   enabled: true
+  priorityClassName: qovery-high-priority
 
   # Tolerate all taints (important for Karpenter clusters)
   tolerations:
     - operator: Exists
+
+  # Rolling update to avoid scheduling all pods at once
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "33%"
 
   resources:
     requests:
@@ -402,6 +413,7 @@ agents:
 clusterAgent:
   enabled: true
   replicas: 2
+  priorityClassName: qovery-high-priority
 
   admissionController:
     enabled: true
@@ -450,6 +462,43 @@ clusterChecksRunner:
     - **Resource limits too low**: The agent may be OOMKilled. Increase memory limits (start with `512Mi`, go up to `1Gi` if needed).
     - **Verify secret exists**: Run `kubectl get secret -n qovery` to confirm the secret was created.
     - **YAML syntax errors**: Review your values override for indentation or syntax issues.
+  </Accordion>
+
+  <Accordion title="Pods not scheduling — maximum pods per node reached">
+    **Problem**: Datadog agent pods fail to start or stay in `Pending` state, causing the deployment to time out. Node events show scheduling errors or IP address timeout messages.
+
+    **Cause**: Since Datadog deploys a DaemonSet (at least one agent pod per node), if even a single node has reached its maximum pod capacity, the deployment will fail. This is common on clusters with many services or smaller instance types.
+
+    **Solutions**:
+
+    1. **Set a high priority class** so Datadog pods get scheduled before lower-priority workloads:
+       ```yaml
+       agents:
+         priorityClassName: qovery-high-priority
+
+       clusterAgent:
+         priorityClassName: qovery-high-priority
+       ```
+
+    2. **Ignore auto-detection of the Qovery cluster agent** to avoid unnecessary pod conflicts:
+       ```yaml
+       datadog:
+         ignoreAutoConfig:
+           - datadog_cluster_agent
+       ```
+
+    3. **Use a rolling update strategy** to avoid scheduling all pods at once:
+       ```yaml
+       agents:
+         updateStrategy:
+           type: RollingUpdate
+           rollingUpdate:
+             maxUnavailable: "33%"
+       ```
+
+    <Tip>
+    If you recently changed your node instance type (e.g., to xlarge), the max pods per node limit increases. However, existing nodes may still be at capacity until workloads are redistributed. Redeploying may succeed on a subsequent attempt once Karpenter provisions new nodes.
+    </Tip>
   </Accordion>
 </AccordionGroup>
 
