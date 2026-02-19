@@ -568,16 +568,16 @@ clusterChecksRunner:
 
 Use this checklist to verify your Datadog deployment:
 
-- [ ] Helm repository `Datadog` added in Organization Settings
-- [ ] Helm service created with chart `datadog` and **Allow cluster-wide resources** enabled
-- [ ] `DD_API_KEY` stored as a **secret** variable on the service
-- [ ] `DD_SITE` and `CLUSTER_NAME` configured as variables
-- [ ] Values override configured with `kubelet.tlsVerify: false`
-- [ ] Log collection enabled if needed (`logs.enabled: true`)
-- [ ] APM configured if needed (`apm.portEnabled: true`)
-- [ ] Tolerations added if Karpenter is enabled
-- [ ] Deployment successful — agent pods running
-- [ ] Agent visible in Datadog → Infrastructure → Kubernetes
+- Helm repository `Datadog` added in Organization Settings
+- Helm service created with chart `datadog` and **Allow cluster-wide resources** enabled
+- `DD_API_KEY` stored as a **secret** variable on the service
+- `DD_SITE` and `CLUSTER_NAME` configured as variables
+- Values override configured with `kubelet.tlsVerify: false`
+- Log collection enabled if needed (`logs.enabled: true`)
+- APM configured if needed (`apm.portEnabled: true`)
+- Tolerations added if Karpenter is enabled
+- Deployment successful — agent pods running
+- Agent visible in Datadog → Infrastructure → Kubernetes
 
 ## Useful Links
 
