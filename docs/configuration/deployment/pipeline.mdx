@@ -85,6 +85,27 @@ If you have multiple applications that share the same base image or dependencies
 
 Don't use environment-specific Docker ARG values in your Dockerfiles. This causes Qovery to rebuild images for each environment even when the code hasn't changed. Instead, use environment variables that are injected at runtime.
 
+## Skipped Services
+
+You can exclude specific services from environment-level deployment actions by marking them as **skipped** in the deployment pipeline settings.
+
+### How to Skip a Service
+
+In your environment's **Settings > Deployment Pipeline**, drag a service into the **Skipped** column. Skipped services appear visually separated from the regular deployment stages.
+
+### Behavior
+
+- **Environment deployment actions** (deploy, stop, restart): Skipped services are **excluded** from the operation. They will not be built, deployed, stopped, or restarted when you trigger an environment-level action.
+- **Environment delete**: Skipped services are **still deleted** along with the rest of the environment. The skipped status does not prevent deletion.
+- **Service-level actions**: You can still deploy, stop, or restart a skipped service individually by triggering the action directly on that service.
+- **Clone and Preview Environments**: When you clone an environment or create a preview environment, the skipped status is **inherited** by the cloned services. Services that were skipped in the source environment will also be skipped in the new environment.
+
+### Use Cases
+
+- **Temporarily disable a service** without removing it from the environment
+- **Speed up deployments** by excluding services that don't need frequent updates
+- **Reduce costs** by preventing unnecessary builds and deployments for stable services
+
 ## Managing Deployment Stages
 
 You can customize your deployment pipeline by creating, modifying, or removing deployment stages from your environment configuration section.
