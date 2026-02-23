@@ -123,13 +123,14 @@ Preview Environments solve the challenge of maintaining testing environments tha
 
 #### Blueprint Environment
 
-A Blueprint Environment serves as the template for all your Preview Environments. It's a fully-configured, working environment that Qovery clones whenever a new pull request is created.
+A Blueprint Environment serves as the template for all your Preview Environments. It's a fully-configured, working environment that Qovery clones whenever a new pull request is created. The deployment pipeline configuration, including [skipped services](/configuration/deployment/pipeline#skipped-services), is inherited by each Preview Environment created from the Blueprint.
 
 **Blueprint Best Practices**:
 - Use a separate cluster from production for Preview Environments
 - Ensure all applications and services are properly configured
 - Test the Blueprint thoroughly before enabling Preview Environments
 - Keep it in sync with your production configuration
+- Review which services are [skipped](/configuration/deployment/pipeline#skipped-services) in the Blueprint, as Preview Environments will inherit this configuration
 
 <Frame>
   <img src="/images/preview-environment/preview_env_branching.jpg" alt="Git branching strategy for Preview Environments" />
@@ -403,6 +404,10 @@ Duplicate an existing environment to quickly create a copy across projects or cl
 Cloning excludes:
 - Custom domains
 - Certain built-in environment variables
+
+Cloning preserves:
+- [Deployment pipeline](/configuration/deployment/pipeline) stage configuration
+- [Skipped services](/configuration/deployment/pipeline#skipped-services) status — services that were skipped in the source environment will also be skipped in the cloned environment
 </Info>
 
 ## Deployment & Deletion

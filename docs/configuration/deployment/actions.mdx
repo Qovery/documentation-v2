@@ -114,11 +114,24 @@ Queued deployment requests can be merged under specific conditions: if the same 
 
 **Example 2**: Same as Example 1, but this time another user triggers the deployment of C. In this case, the deployments of B and C will NOT be merged. B will deploy first, then C will deploy, following the order defined in the Deployment Pipeline.
 
+## Skipped Services
+
+Services marked as **skipped** in the [Deployment Pipeline](/configuration/deployment/pipeline#skipped-services) are excluded from environment-level deployment actions:
+
+- **Deploy, Stop, Restart** at environment level: Skipped services are **not included** in the operation
+- **Delete** at environment level: Skipped services are **still deleted** along with the rest of the environment
+- **Service-level actions**: You can still trigger actions directly on a skipped service individually
+- **Multi-service selection**: Skipped services cannot be selected for bulk operations
+
+<Note>
+Skipped services appear with reduced opacity in the service list and cannot be checked for bulk actions. To include a skipped service in deployments again, move it back to a regular deployment stage in **Settings > Deployment Pipeline**.
+</Note>
+
 ## Executing Actions
 
 Actions can be triggered at different levels:
 
-- **Environment level**: Click the play button on the environment to execute the action on all services according to the Deployment Pipeline order
+- **Environment level**: Click the play button on the environment to execute the action on all services according to the Deployment Pipeline order. [Skipped services](#skipped-services) are excluded from this action.
 - **Service level**: Click the play button on a specific service to execute the action only on that service
 - **Multi-service selection**: Select multiple services and use the floating action button to execute the action on selected services
 
