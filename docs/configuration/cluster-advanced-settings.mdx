@@ -1313,9 +1313,21 @@ It won't be possible to go back once this feature is activated.
 
 **Type:** `string`
 
-**Description:** Specify the AMI you want to use for EKS nodes.
+**Description:** Specify the AMI you want to use for EKS worker nodes (Karpenter only).
 
-**Valid values:** `AmazonLinux2` (Deprecated, not working after Kubernetes 1.32), `AmazonLinux2023` (Default Amazon AMI, recommended), `Bottlerocket` (Focuses on security and maintainability)
+**Valid values:**
+- `AmazonLinux2` (Deprecated, not working after Kubernetes 1.32)
+- `AmazonLinux2023` (Default Amazon AMI, recommended)
+- `Bottlerocket` (Focuses on security and maintainability)
+- `ami-xxx` — A custom AMI ID (e.g. `ami-0123456789abcdef0`). Assumes AL2023-based by default.
+- `my-custom-ami-*` — A custom AMI name pattern with optional wildcards. Assumes AL2023-based by default.
+- `al2:ami-xxx` or `al2:my-ami-*` — A custom AMI based on Amazon Linux 2.
+- `al2023:ami-xxx` or `al2023:my-ami-*` — A custom AMI based on Amazon Linux 2023 (explicit).
+- `bottlerocket:ami-xxx` or `bottlerocket:my-ami-*` — A custom AMI based on Bottlerocket.
+
+<Note>
+Custom AMIs without a family prefix are assumed to be AL2023-based. Use a prefix (`al2:`, `al2023:`, `bottlerocket:`) to specify the base OS so that Karpenter generates the correct bootstrap configuration. This setting only applies to Karpenter-managed nodes (not managed node groups). GPU nodes are not affected by this setting.
+</Note>
 
 **Default Value:** `AmazonLinux2023`
 
