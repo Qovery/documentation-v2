@@ -1,0 +1,283 @@
+---
+title: "Azure Permission Requirements"
+description: "Understand the Azure permissions Qovery needs and how to scope them to resource groups"
+---
+
+Qovery requires specific Azure permissions to provision and manage AKS clusters. You can choose between two permission models depending on your security requirements.
+
+## Permission Models
+
+<CardGroup cols={2}>
+  <Card title="Subscription-Level (Default)" icon="key">
+    Simplest approach. The Service Principal has roles at the subscription level. **Required for initial cluster provisioning.**
+  </Card>
+  <Card title="Resource-Group-Scoped" icon="lock">
+    After initial deployment, scope permissions down to specific resource groups for tighter security.
+  </Card>
+</CardGroup>
+
+## Option 1: Subscription-Level Permissions (Default)
+
+This is the default and simplest approach. During initial cluster setup, the Service Principal is assigned the following roles at the **subscription level**:
+
+| Role | Purpose |
+|------|---------|
+| **Contributor** | Create and manage all Azure resources (AKS, VMs, VNets, Load Balancers, Storage, etc.) |
+| **User Access Administrator** | Assign roles to managed identities created by AKS |
+
+<Info>
+Subscription-level permissions are **required for the initial cluster provisioning**. You can scope them down to resource groups after the first successful deployment.
+</Info>
+
+## Option 2: Resource-Group-Scoped Permissions
+
+After the initial cluster deployment completes successfully, you can restrict the Service Principal permissions to only the specific resource groups that Qovery manages. This follows the principle of least privilege.
+
+### Steps to Scope Permissions
+
+<Steps>
+  <Step title="Complete Initial Deployment">
+    Deploy your cluster with subscription-level permissions (Option 1). Wait for the cluster to reach **Running** status in the Qovery console.
+  </Step>
+
+  <Step title="Identify the Resource Groups">
+    Qovery creates two resource groups during deployment:
+
+    **Main resource group:**
+    ```
+    qovery-<cluster-short-id>
+    ```
+    You can find the cluster short ID in the Qovery console on the cluster settings page.
+
+    **Node resource group (managed by AKS):**
+    ```
+    MC_qovery-<cluster-short-id>_<cluster-name>_<region>
+    ```
+    If you configured a [custom node resource group name](#custom-node-resource-group-name), it will use that name instead.
+
+    <Tip>
+    You can find both resource groups in the [Azure Portal](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) by searching for `qovery-`.
+    </Tip>
+  </Step>
+
+  <Step title="Pre-Register Required Resource Providers">
+    Before removing subscription-level permissions, you must pre-register the required Azure resource providers. See the [Resource Provider Registration](#pre-register-required-azure-resource-providers) section below.
+  </Step>
+
+  <Step title="Remove Subscription-Level Role Assignments">
+    In the Azure Portal:
+    1. Go to **Subscriptions** > select your subscription
+    2. Click **Access control (IAM)**
+    3. Click **Role assignments**
+    4. Find the Qovery Service Principal entries
+    5. Remove both the **Contributor** and **User Access Administrator** role assignments at subscription level
+  </Step>
+
+  <Step title="Add Resource-Group-Scoped Roles">
+    For **each** of the two resource groups (main and node), add the following roles:
+
+    1. Go to the resource group in Azure Portal
+    2. Click **Access control (IAM)**
+    3. Click **Add** > **Add role assignment**
+    4. Assign **Contributor** role to the Qovery Service Principal
+    5. Repeat to assign **User Access Administrator** role
+
+    <Warning>
+    You must add both roles to **both** resource groups. Missing a role or resource group will cause deployment failures.
+    </Warning>
+  </Step>
+
+  <Step title="Verify Permissions">
+    Trigger a redeployment of the cluster from the Qovery console to verify everything works correctly with the scoped permissions.
+  </Step>
+</Steps>
+
+### Using Azure CLI
+
+You can also scope permissions using the Azure CLI:
+
+```bash
+# Set your variables
+SP_OBJECT_ID="<service-principal-object-id>"
+SUBSCRIPTION_ID="<your-subscription-id>"
+MAIN_RG="qovery-<cluster-short-id>"
+NODE_RG="MC_qovery-<cluster-short-id>_<cluster-name>_<region>"
+
+# Remove subscription-level roles
+az role assignment delete \
+  --assignee "$SP_OBJECT_ID" \
+  --role "Contributor" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID"
+
+az role assignment delete \
+  --assignee "$SP_OBJECT_ID" \
+  --role "User Access Administrator" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID"
+
+# Add roles scoped to the main resource group
+az role assignment create \
+  --assignee "$SP_OBJECT_ID" \
+  --role "Contributor" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$MAIN_RG"
+
+az role assignment create \
+  --assignee "$SP_OBJECT_ID" \
+  --role "User Access Administrator" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$MAIN_RG"
+
+# Add roles scoped to the node resource group
+az role assignment create \
+  --assignee "$SP_OBJECT_ID" \
+  --role "Contributor" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$NODE_RG"
+
+az role assignment create \
+  --assignee "$SP_OBJECT_ID" \
+  --role "User Access Administrator" \
+  --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$NODE_RG"
+```
+
+## Pre-Register Required Azure Resource Providers
+
+When using resource-group-scoped permissions, the Service Principal cannot register resource providers at the subscription level. You must pre-register them as a one-time admin operation before scoping down permissions.
+
+<Warning>
+Resource provider registration is a **subscription-level** operation. It must be done by a user or service principal with subscription-level access **before** you remove subscription-level role assignments.
+</Warning>
+
+### Required Resource Providers
+
+| Resource Provider | Purpose |
+|-------------------|---------|
+| `Microsoft.ContainerService` | AKS cluster management |
+| `Microsoft.Network` | Virtual networks, load balancers, NAT gateways |
+| `Microsoft.Compute` | Virtual machine scale sets for node pools |
+| `Microsoft.Storage` | Managed disks and storage accounts |
+| `Microsoft.ManagedIdentity` | Managed identities used by AKS |
+| `Microsoft.Authorization` | Role assignments for managed identities |
+| `Microsoft.OperationsManagement` | Container Insights and monitoring solutions |
+| `Microsoft.OperationalInsights` | Log Analytics workspaces |
+
+### Registration Commands
+
+Run these commands in Azure Cloud Shell (Bash) or any terminal with the Azure CLI installed:
+
+```bash
+az provider register --namespace Microsoft.ContainerService
+az provider register --namespace Microsoft.Network
+az provider register --namespace Microsoft.Compute
+az provider register --namespace Microsoft.Storage
+az provider register --namespace Microsoft.ManagedIdentity
+az provider register --namespace Microsoft.Authorization
+az provider register --namespace Microsoft.OperationsManagement
+az provider register --namespace Microsoft.OperationalInsights
+```
+
+### Verify Registration Status
+
+Check that all providers are registered:
+
+```bash
+az provider show --namespace Microsoft.ContainerService --query "registrationState" -o tsv
+az provider show --namespace Microsoft.Network --query "registrationState" -o tsv
+az provider show --namespace Microsoft.Compute --query "registrationState" -o tsv
+az provider show --namespace Microsoft.Storage --query "registrationState" -o tsv
+az provider show --namespace Microsoft.ManagedIdentity --query "registrationState" -o tsv
+az provider show --namespace Microsoft.Authorization --query "registrationState" -o tsv
+az provider show --namespace Microsoft.OperationsManagement --query "registrationState" -o tsv
+az provider show --namespace Microsoft.OperationalInsights --query "registrationState" -o tsv
+```
+
+All providers should show `Registered`. Registration can take a few minutes to complete.
+
+## Entra ID Requirements
+
+Qovery requires the **Cloud Application Administrator** role in Microsoft Entra ID (formerly Azure Active Directory) to create and manage application registrations.
+
+### What Qovery Uses Entra ID For
+
+| Action | Description |
+|--------|-------------|
+| **Application Registration** | Creates an App Registration for authentication with your Azure subscription |
+| **Short-Lived Credentials** | Generates credentials with a 4-hour expiration for each deployment |
+| **No Stored Secrets** | No long-lived secrets are stored; credentials are regenerated on demand |
+
+<Info>
+The 4-hour credential expiration provides strong security by limiting the window of exposure. Credentials are automatically regenerated for each deployment operation.
+</Info>
+
+## Custom Node Resource Group Name
+
+By default, AKS creates a node resource group with the naming convention:
+
+```
+MC_qovery-<cluster-short-id>_<cluster-name>_<region>
+```
+
+You can specify a custom name for the node resource group to make it predictable and simplify permission scoping. This is particularly useful when using resource-group-scoped permissions because you can pre-create the resource group and assign permissions before deployment.
+
+### How to Configure
+
+Set the custom node resource group name in the cluster advanced settings in the Qovery console. Refer to the [Cluster Advanced Settings](/configuration/cluster-advanced-settings) documentation for details.
+
+<Warning>
+The custom node resource group name can only be set **before** the initial cluster deployment. It cannot be changed after the cluster is created.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Deployment fails after scoping permissions">
+    **Symptoms:** Cluster update or application deployment fails with authorization errors.
+
+    **Solutions:**
+    1. Verify that both **Contributor** and **User Access Administrator** roles are assigned on **both** resource groups
+    2. Check that all required resource providers are registered (see [Pre-Register Required Azure Resource Providers](#pre-register-required-azure-resource-providers))
+    3. Ensure the Service Principal object ID matches the one used by Qovery
+    4. Wait a few minutes after assigning roles -- Azure role assignments can take up to 5 minutes to propagate
+  </Accordion>
+
+  <Accordion title="Resource provider registration errors">
+    **Symptoms:** Errors mentioning resource provider not registered.
+
+    **Solutions:**
+    1. Re-register the missing resource provider using the commands above
+    2. Resource provider registration requires subscription-level access -- use a subscription admin to run the registration
+    3. Verify registration status with `az provider show --namespace <provider> --query "registrationState"`
+  </Accordion>
+
+  <Accordion title="Cannot identify the node resource group">
+    **Symptoms:** You cannot find the AKS node resource group in the Azure Portal.
+
+    **Solutions:**
+    1. In the Azure Portal, go to your AKS cluster resource
+    2. Under **Properties**, look for the **Node resource group** field
+    3. Alternatively, run: `az aks show --resource-group qovery-<cluster-short-id> --name <cluster-name> --query "nodeResourceGroup" -o tsv`
+  </Accordion>
+
+  <Accordion title="Entra ID permission errors">
+    **Symptoms:** Errors related to application registration or credential creation.
+
+    **Solutions:**
+    1. Verify the service principal has **Cloud Application Administrator** role in Entra ID
+    2. Check that the Entra ID tenant matches the one configured in Qovery
+    3. Contact your Azure AD administrator to grant the required Entra ID role
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Install Qovery on Azure" icon="cloud" href="/getting-started/installation/azure">
+    Step-by-step Azure installation guide
+  </Card>
+  <Card title="Qovery-Managed AKS" icon="server" href="/configuration/integrations/kubernetes/aks/managed">
+    AKS cluster configuration reference
+  </Card>
+  <Card title="Cloud Credentials" icon="key" href="/configuration/organization/cloud-credentials">
+    Manage cloud provider credentials
+  </Card>
+  <Card title="Cluster Advanced Settings" icon="gear" href="/configuration/cluster-advanced-settings">
+    Advanced cluster configuration options
+  </Card>
+</CardGroup>
