@@ -51,9 +51,9 @@ After the initial cluster deployment completes successfully, you can restrict th
 
     **Node resource group (managed by AKS):**
     ```
-    MC_qovery-<cluster-short-id>_<cluster-name>_<region>
+    qovery-<cluster-short-id>-nodes
     ```
-    If you configured a [custom node resource group name](#custom-node-resource-group-name), it will use that name instead.
+    Qovery automatically sets this deterministic name during cluster creation.
 
     <Tip>
     You can find both resource groups in the [Azure Portal](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) by searching for `qovery-`.
@@ -101,7 +101,7 @@ You can also scope permissions using the Azure CLI:
 SP_OBJECT_ID="<service-principal-object-id>"
 SUBSCRIPTION_ID="<your-subscription-id>"
 MAIN_RG="qovery-<cluster-short-id>"
-NODE_RG="MC_qovery-<cluster-short-id>_<cluster-name>_<region>"
+NODE_RG="qovery-<cluster-short-id>-nodes"
 
 # Remove subscription-level roles
 az role assignment delete \
@@ -206,23 +206,19 @@ Qovery requires the **Cloud Application Administrator** role in Microsoft Entra 
 The 4-hour credential expiration provides strong security by limiting the window of exposure. Credentials are automatically regenerated for each deployment operation.
 </Info>
 
-## Custom Node Resource Group Name
+## Node Resource Group Naming
 
-By default, AKS creates a node resource group with the naming convention:
+Qovery automatically sets the AKS node resource group name to a deterministic value:
 
 ```
-MC_qovery-<cluster-short-id>_<cluster-name>_<region>
+qovery-<cluster-short-id>-nodes
 ```
 
-You can specify a custom name for the node resource group to make it predictable and simplify permission scoping. This is particularly useful when using resource-group-scoped permissions because you can pre-create the resource group and assign permissions before deployment.
+This predictable naming makes it easy to pre-scope Service Principal permissions to both resource groups **before** the initial deployment, enabling you to start with resource-group-scoped permissions from day one.
 
-### How to Configure
-
-Set the custom node resource group name in the cluster advanced settings in the Qovery console. Refer to the [Cluster Advanced Settings](/configuration/cluster-advanced-settings) documentation for details.
-
-<Warning>
-The custom node resource group name can only be set **before** the initial cluster deployment. It cannot be changed after the cluster is created.
-</Warning>
+<Info>
+The node resource group name is set automatically by Qovery and cannot be customized. This ensures a consistent and predictable naming convention across all Qovery-managed AKS clusters.
+</Info>
 
 ## Troubleshooting
 
