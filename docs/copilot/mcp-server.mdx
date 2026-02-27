@@ -17,10 +17,10 @@ The Qovery MCP (Model Context Protocol) Server enables you to use Qovery AI Copi
 
 ## Operating Modes
 
-By default, the MCP Server operates at the **highest access level** available based on your organization's AI Copilot settings and your API token's permissions. You can optionally force read-only mode using a URL parameter.
+By default, the MCP Server operates in **read-only mode**. To enable read-write access, you must explicitly opt in using a URL parameter and have the necessary permissions configured.
 
 <Tabs>
-  <Tab title="Read-Only Mode">
+  <Tab title="Read-Only Mode (Default)">
     **Safe exploration** - View-only access
 
     In **read-only mode**, the Copilot allows you to:
@@ -31,11 +31,7 @@ By default, the MCP Server operates at the **highest access level** available ba
     - Analyze infrastructure
     - **No changes** to infrastructure
 
-    This ensures safe exploration without risk of accidental modifications.
-    
-    <Info>
-    Read-only mode is active when your organization has disabled AI write permissions, or when your API token has viewer-level permissions.
-    </Info>
+    This is the default mode, ensuring safe exploration without risk of accidental modifications.
   </Tab>
 
   <Tab title="Read-Write Mode">
@@ -53,23 +49,23 @@ By default, the MCP Server operates at the **highest access level** available ba
     <Warning>
     The Copilot will **ask for confirmation** before performing destructive operations like deletions.
     </Warning>
-    
+
     <Info>
     Read-write mode requires both:
     1. AI write permissions enabled in your organization settings
     2. An API token with sufficient permissions (Developer or Admin role)
+    3. Adding `read_write=true` to the MCP Server URL
     </Info>
   </Tab>
 </Tabs>
 
 <Note>
-**Permission Hierarchy**: By default, the MCP Server operates at the highest level of access available based on:
-- Your organization's AI Copilot authorization settings (read-only or read-write)
-- Your API token's role permissions
+**Permission Hierarchy**: The MCP Server is **read-only by default**. To enable read-write access, you must:
+- Add `read_write=true` to the MCP Server URL
+- Have AI write permissions enabled in your organization settings
+- Use an API token with sufficient role permissions
 
-The most restrictive setting takes precedence. For example, if your organization enables AI write access but your token has viewer permissions, the Copilot will operate in read-only mode.
-
-**Forcing Read-Only Mode**: You can override the default behavior and force read-only mode by adding `read-only=true` to the MCP Server URL, even if you have read-write permissions. This is useful for safe exploration when you want to ensure no changes are made.
+The most restrictive setting takes precedence. For example, if you add `read_write=true` but your token has viewer permissions, the Copilot will remain in read-only mode.
 </Note>
 
 ## Prerequisites
@@ -120,10 +116,10 @@ You can optionally include your API token and operating mode as query parameters
 https://mcp-api-ai.qovery.com/mcp?token=<your-token>
 ```
 
-Or force read-only mode:
+To enable read-write mode (requires appropriate permissions):
 
 ```
-https://mcp-api-ai.qovery.com/mcp?token=<your-token>&read-only=true
+https://mcp-api-ai.qovery.com/mcp?token=<your-token>&read_write=true
 ```
 
 <Info>
@@ -131,7 +127,7 @@ https://mcp-api-ai.qovery.com/mcp?token=<your-token>&read-only=true
 </Info>
 
 <Info>
-**Operating Mode**: By default, the MCP Server operates at the highest access level available based on your organization settings and token permissions. You can force read-only mode by adding `read-only=true` to the URL, regardless of your available permissions.
+**Operating Mode**: By default, the MCP Server operates in read-only mode. To enable read-write access, add `read_write=true` to the URL. This requires AI write permissions to be enabled in your organization settings and a token with sufficient permissions.
 </Info>
 
 Add the Qovery MCP Server to your MCP client's configuration using:
