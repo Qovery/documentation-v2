@@ -8,6 +8,7 @@ Install Qovery on your Azure account and deploy a fully managed Kubernetes clust
 ## Overview
 
 Qovery simplifies Azure Kubernetes Service (AKS) management by:
+
 - Automating cluster creation and configuration
 - Managing networking, load balancers, and DNS
 - Providing built-in monitoring and logging
@@ -35,12 +36,18 @@ Before you begin, ensure you have:
 
 <Check>**Azure Account**: Active Azure subscription with admin access</Check>
 <Check>**Azure Tenant**: Access to an Azure Active Directory tenant</Check>
-<Check>**Qovery Account**: Free account at [console.qovery.com](https://console.qovery.com/signup)</Check>
-<Check>**Permissions**: Ability to create service principals and assign roles</Check>
+<Check>
+  **Qovery Account**: Free account at
+  [console.qovery.com](https://console.qovery.com/signup)
+</Check>
+<Check>
+  **Permissions**: Ability to create service principals and assign roles
+</Check>
 
 ### Required Azure Permissions
 
 Your Azure account needs these permissions:
+
 - Create and manage AKS clusters
 - Create service principals
 - Assign contributor role
@@ -65,6 +72,7 @@ Qovery needs credentials to manage resources in your Azure subscription. We use 
     <Tip>
     The Tenant ID is a GUID that looks like: `12345678-1234-1234-1234-123456789abc`
     </Tip>
+
   </Step>
 
   <Step title="Find Subscription ID">
@@ -77,6 +85,7 @@ Qovery needs credentials to manage resources in your Azure subscription. We use 
     <Warning>
     Make sure the subscription is **active** and has billing enabled. Qovery cannot create resources in disabled subscriptions.
     </Warning>
+
   </Step>
 </Steps>
 
@@ -96,6 +105,7 @@ Qovery needs credentials to manage resources in your Azure subscription. We use 
     3. Click **Next**
 
     Qovery will generate a secure installation command for you.
+
   </Step>
 
   <Step title="Copy the Command">
@@ -104,6 +114,7 @@ Qovery needs credentials to manage resources in your Azure subscription. We use 
     <Info>
     This command creates a service principal using Azure's app registration.
     </Info>
+
   </Step>
 </Steps>
 
@@ -119,6 +130,7 @@ Qovery needs credentials to manage resources in your Azure subscription. We use 
     <Warning>
     The script must run in **Bash mode**. If you're in PowerShell, click the dropdown and switch to Bash.
     </Warning>
+
   </Step>
 
   <Step title="Run the Command">
@@ -137,6 +149,7 @@ Qovery needs credentials to manage resources in your Azure subscription. We use 
     Subscription ID: 12345678-1234-1234-1234-123456789abc
     Tenant ID: 87654321-4321-4321-4321-cba987654321
     ```
+
   </Step>
 
   <Step title="Verify in Qovery">
@@ -145,11 +158,13 @@ Qovery needs credentials to manage resources in your Azure subscription. We use 
     <Tip>
     If you have multiple subscriptions, you can specify which one to use by passing it as a parameter to the script.
     </Tip>
+
   </Step>
 </Steps>
 
 <Info>
-**Source**: Content above is maintained in `/snippets/azure-credentials.mdx`. Update snippet first, then copy to all usage locations.
+  **Source**: Content above is maintained in `/snippets/azure-credentials.mdx`.
+  Update snippet first, then copy to all usage locations.
 </Info>
 
 ## Step 2: Configure Your Cluster
@@ -168,6 +183,7 @@ Now configure your AKS cluster settings in the Qovery console.
     <Tip>
     Use naming conventions that indicate environment and region for easier management.
     </Tip>
+
   </Step>
 
   <Step title="Select Region">
@@ -194,12 +210,14 @@ Now configure your AKS cluster settings in the Qovery console.
     <Info>
     Choose a region that complies with your data residency requirements.
     </Info>
+
   </Step>
 
   <Step title="Attach Credentials">
     Select the Azure credentials you created in Step 1.
 
     If you need to create new credentials, click **Add new credentials** and repeat Step 1.
+
   </Step>
 </Steps>
 
@@ -211,31 +229,61 @@ Configure the VM sizes for your AKS node pools:
   **Development/Testing:**
   - `Standard_B2s` (2 vCPU, 4GB RAM)
   - `Standard_B2ms` (2 vCPU, 8GB RAM)
+  - `Standard_B2als_v2` (2 vCPU, 4GB RAM)
 
-  **General Purpose Production:**
-  - `Standard_D2s_v3` (2 vCPU, 8GB RAM)
-  - `Standard_D4s_v3` (4 vCPU, 16GB RAM)
-  - `Standard_D8s_v3` (8 vCPU, 32GB RAM)
+**General Purpose Production (v3):**
 
-  **Compute Optimized:**
-  - `Standard_F2s_v2` (2 vCPU, 4GB RAM)
-  - `Standard_F4s_v2` (4 vCPU, 8GB RAM)
+- `Standard_D2s_v3` (2 vCPU, 8GB RAM)
+- `Standard_D4s_v3` (4 vCPU, 16GB RAM)
 
-  **Memory Optimized:**
-  - `Standard_E2s_v3` (2 vCPU, 16GB RAM)
-  - `Standard_E4s_v3` (4 vCPU, 32GB RAM)
+**General Purpose Production (v5 — recommended):**
+
+- `Standard_D2ads_v5` (2 vCPU, 8GB RAM)
+- `Standard_D4ads_v5` (4 vCPU, 16GB RAM)
+- `Standard_D8ads_v5` (8 vCPU, 32GB RAM)
+
+**General Purpose Production (v6 — latest generation):**
+
+- `Standard_D2ads_v6` (2 vCPU, 8GB RAM)
+- `Standard_D4ads_v6` (4 vCPU, 16GB RAM)
+- `Standard_D4alds_v6` (4 vCPU, 8GB RAM)
+
+**Compute Optimized:**
+
+- `Standard_F2s_v2` (2 vCPU, 4GB RAM)
+- `Standard_F4s_v2` (4 vCPU, 8GB RAM)
+
+**Memory Optimized:**
+
+- `Standard_E2s_v3` (2 vCPU, 16GB RAM)
+- `Standard_E4s_v3` (4 vCPU, 32GB RAM)
+- `Standard_E2ads_v5` (2 vCPU, 16GB RAM)
 
   <Tip>
-  Select **multiple VM sizes** to give the cluster autoscaler flexibility in choosing the most cost-effective options.
+  Select **multiple VM sizes** to give the cluster autoscaler flexibility in choosing the most cost-effective options. Both v5 and v6 series are available and offer improved price-performance over v3.
   </Tip>
 </Accordion>
 
+<Accordion title="Availability Zones">
+  All Azure regions supported by Qovery have **3 availability zones** (zones 1, 2, and 3).
+
+Qovery automatically spreads node groups across all available zones for high availability:
+
+- **Zone 1, Zone 2, Zone 3** — each gets a dedicated node group
+- Nodes are evenly distributed across zones with any remainder assigned to Zone 1
+- This provides **zone-level redundancy** and automatic failover at no extra cost
+
+No manual zone configuration is required — Qovery handles this automatically during cluster creation.
+
+</Accordion>
+
 **Example Configuration:**
+
 ```yaml
 Node Pool Settings:
   - Standard_B2s (2 vCPU, 4GB) - Development workloads
-  - Standard_D2s_v3 (2 vCPU, 8GB) - General purpose
-  - Standard_D4s_v3 (4 vCPU, 16GB) - Larger workloads
+  - Standard_D2ads_v5 (2 vCPU, 8GB) - General purpose
+  - Standard_D4ads_v6 (4 vCPU, 16GB) - Larger workloads
   - Standard_F4s_v2 (4 vCPU, 8GB) - CPU-intensive tasks
 ```
 
@@ -244,6 +292,7 @@ Node Pool Settings:
 Qovery automatically configures Azure networking:
 
 **What's Created:**
+
 - Virtual Network (VNet) with CIDR `10.0.0.0/16`
 - Public subnet for load balancers
 - Private subnets for nodes
@@ -255,11 +304,12 @@ Qovery automatically configures Azure networking:
   **VNet Peering:**
   Configure VNet peering to connect to existing Azure resources (databases, storage, etc.).
 
-  **Custom CIDR:**
-  Change the default VNet CIDR if it conflicts with your existing networks.
+**Custom CIDR:**
+Change the default VNet CIDR if it conflicts with your existing networks.
 
-  **Private Cluster:**
-  Enable private cluster mode to remove public API endpoints (requires VPN or ExpressRoute).
+**Private Cluster:**
+Enable private cluster mode to remove public API endpoints (requires VPN or ExpressRoute).
+
 </Accordion>
 
 ## Step 3: Deploy Your Cluster
@@ -279,6 +329,7 @@ Qovery automatically configures Azure networking:
     <Info>
     You can start configuring applications immediately! The cluster will be available once deployment completes.
     </Info>
+
   </Step>
 
   <Step title="Monitor Progress">
@@ -294,12 +345,14 @@ Qovery automatically configures Azure networking:
     - 🟡 **Creating**: Infrastructure provisioning in progress
     - 🟢 **Running**: Cluster is ready to use
     - 🔴 **Error**: Check logs for troubleshooting
+
   </Step>
 
   <Step title="Verify Installation">
     Once complete, your cluster will appear in the cluster list with status **Running**.
 
     ![Azure Cluster Running](/images/install-qovery/common/list-azure-clusters.png)
+
   </Step>
 </Steps>
 
@@ -349,13 +402,14 @@ Once your cluster is running:
     Follow the [Deploy Your First App](/guides/getting-started/deploy-your-first-application) guide
   </Step>
 
-  <Step title="Configure Custom Domain">
-    Set up your own domain instead of the default Qovery domain
-  </Step>
+<Step title="Configure Custom Domain">
+  Set up your own domain instead of the default Qovery domain
+</Step>
 
-  <Step title="Set Up Monitoring">
-    Configure [Azure Monitor](/integrations/observability/overview) or [Datadog](/integrations/observability/datadog)
-  </Step>
+<Step title="Set Up Monitoring">
+  Configure [Azure Monitor](/integrations/observability/overview) or
+  [Datadog](/integrations/observability/datadog)
+</Step>
 
   <Step title="Configure Backups">
     Set up backup policies for persistent data
@@ -373,6 +427,7 @@ Once your cluster is running:
     - Check that your Azure subscription is active
     - Ensure you're using Bash mode (not PowerShell) in Cloud Shell
     - Verify Tenant ID and Subscription ID are correct
+
   </Accordion>
 
   <Accordion title="Cluster Creation Stuck">
@@ -383,6 +438,7 @@ Once your cluster is running:
     - Verify the selected region has capacity
     - Check Azure status page for outages
     - Contact Qovery support if issue persists
+
   </Accordion>
 
   <Accordion title="Insufficient Quota">
@@ -399,6 +455,7 @@ Once your cluster is running:
     - VM family specific vCPUs (D-series, F-series, etc.)
     - Public IP addresses
     - Load balancers
+
   </Accordion>
 
   <Accordion title="Network Configuration Issues">
@@ -409,6 +466,7 @@ Once your cluster is running:
     - Check Network Security Group rules
     - Ensure subnet routing tables are correct
     - Test connectivity from a pod: `kubectl run -it debug --image=nicolaka/netshoot --rm`
+
   </Accordion>
 </AccordionGroup>
 
@@ -419,7 +477,8 @@ Once your cluster is running:
 For enhanced security, enable private cluster mode:
 
 <Warning>
-Private clusters require VPN or ExpressRoute to access the Kubernetes API. Plan your network connectivity before enabling.
+  Private clusters require VPN or ExpressRoute to access the Kubernetes API.
+  Plan your network connectivity before enabling.
 </Warning>
 
 ### VNet Peering
@@ -446,17 +505,17 @@ Use your own DNS servers:
     Start with smaller VMs and scale up based on actual usage patterns
   </Card>
 
-  <Card title="Enable Monitoring" icon="chart-line">
-    Configure Azure Monitor or third-party monitoring from day one
-  </Card>
+<Card title="Enable Monitoring" icon="chart-line">
+  Configure Azure Monitor or third-party monitoring from day one
+</Card>
 
-  <Card title="Implement RBAC" icon="shield">
-    Use Azure AD integration and Kubernetes RBAC for access control
-  </Card>
+<Card title="Implement RBAC" icon="shield">
+  Use Azure AD integration and Kubernetes RBAC for access control
+</Card>
 
-  <Card title="Regular Updates" icon="arrows-rotate">
-    Keep your AKS cluster updated with the latest Kubernetes versions
-  </Card>
+<Card title="Regular Updates" icon="arrows-rotate">
+  Keep your AKS cluster updated with the latest Kubernetes versions
+</Card>
 
   <Card title="Backup Strategy" icon="floppy-disk">
     Implement automated backups for persistent data and configurations
@@ -470,13 +529,21 @@ Use your own DNS servers:
     Complete step-by-step deployment guide
   </Card>
 
-  <Card title="Configure RBAC" icon="users" href="/configuration/organization/members-rbac">
-    Set up team access control
-  </Card>
+<Card
+  title="Configure RBAC"
+  icon="users"
+  href="/configuration/organization/members-rbac"
+>
+  Set up team access control
+</Card>
 
-  <Card title="Set Up CI/CD" icon="code-branch" href="/configuration/integrations/ci-cd/github-actions">
-    Automate deployments with GitHub Actions or Azure DevOps
-  </Card>
+<Card
+  title="Set Up CI/CD"
+  icon="code-branch"
+  href="/configuration/integrations/ci-cd/github-actions"
+>
+  Automate deployments with GitHub Actions or Azure DevOps
+</Card>
 
   <Card title="Monitor Your Cluster" icon="chart-line" href="/configuration/integrations/observability/qovery-observe">
     Configure monitoring and alerting
