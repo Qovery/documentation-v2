@@ -194,7 +194,7 @@ resource "qovery_cluster" "my_cluster" {
 **Default Value:** `false`
 
 <Warning>
-Enabling this setting creates 3 additional Elastic IPs in your AWS account. Each EIP incurs standard AWS charges. This setting only takes effect when the cluster uses NAT Gateways.
+Enabling this setting creates 3 additional Elastic IPs in your AWS account. Each EIP incurs standard AWS charges. This setting only takes effect when the cluster uses NAT Gateways. Before enabling, verify that your AWS account has sufficient EIP quota (default is 5 per region). You can check and request an increase in the AWS Service Quotas console.
 </Warning>
 
 <a id="loki-log-retention-in-week"></a>
