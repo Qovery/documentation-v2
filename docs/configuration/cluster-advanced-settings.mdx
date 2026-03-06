@@ -181,6 +181,22 @@ resource "qovery_cluster" "my_cluster" {
 
 **Default Value:** `365`
 
+<a id="aws-vpc-enable-nat-gateway-secondary-eip"></a>
+
+### aws.vpc.enable_nat_gateway_secondary_eip
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable a secondary Elastic IP (EIP) per NAT Gateway. When enabled, each of the 3 NAT Gateways in your VPC receives an additional EIP, doubling the number of outbound public IP addresses from 3 to 6. This is useful when your workloads interact with external services that have IP-based rate limits — more IPs means higher aggregate limits.
+
+**Default Value:** `false`
+
+<Warning>
+Enabling this setting creates 3 additional Elastic IPs in your AWS account. Each EIP incurs standard AWS charges. This setting only takes effect when the cluster uses NAT Gateways. Before enabling, verify that your AWS account has sufficient EIP quota (default is 5 per region). You can check and request an increase in the AWS Service Quotas console.
+</Warning>
+
 <a id="loki-log-retention-in-week"></a>
 
 ### loki.log_retention_in_week
