@@ -36,14 +36,13 @@ You can specify the command in two ways:
 
 **Plain command string** (recommended for shell commands):
 ```
-python -c "import os,time;f='/code/celerybeat-liveness';assert os.path.exists(f) and time.time()-os.path.getmtime(f)<120"
+test -f /tmp/healthy
 ```
 This is automatically converted to `["sh", "-c", "<your command>"]`.
 
 **JSON array format** (for explicit argument control):
 ```json
-["cat", "/tmp/healthy"]
-["python", "-c", "print('ok')"]
+["test", "-f", "/tmp/healthy"]
 ["sh", "-c", "test -f /tmp/healthy && echo ok"]
 ```
 
