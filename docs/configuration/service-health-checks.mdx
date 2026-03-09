@@ -28,7 +28,29 @@ Configure probe execution method:
 - **HTTP probes**: Ping specified path/port; success requires 200-300 range responses
 - **TCP probes**: Establish port connections; successful connections indicate health
 - **gRPC probes**: Connect to specified port/service; successful connections confirm health
-- **EXEC probes**: Execute container commands; failed execution = probe failure
+- **EXEC probes**: Execute container commands; failed execution = probe failure. Enter a plain command or a JSON array format.
+
+#### EXEC Probe Command Format
+
+You can specify the command in two ways:
+
+**Plain command string** (recommended for shell commands):
+```
+python -c "import os,time;f='/code/celerybeat-liveness';assert os.path.exists(f) and time.time()-os.path.getmtime(f)<120"
+```
+This is automatically converted to `["sh", "-c", "<your command>"]`.
+
+**JSON array format** (for explicit argument control):
+```json
+["cat", "/tmp/healthy"]
+["python", "-c", "print('ok')"]
+["sh", "-c", "test -f /tmp/healthy && echo ok"]
+```
+
+<Tip>
+Use the plain command format for complex shell commands with quotes or pipes. The JSON array format is useful when you need precise control over command arguments.
+</Tip>
+
 
 ### Initial Delay (in seconds)
 
