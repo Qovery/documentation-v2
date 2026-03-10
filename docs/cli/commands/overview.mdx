@@ -1,0 +1,121 @@
+---
+title: "Commands Overview"
+description: "Complete reference for all Qovery CLI commands"
+---
+
+## Authentication & Configuration
+
+Commands to authenticate and configure the CLI — start here before anything else.
+
+<CardGroup cols={2}>
+  <Card title="qovery auth" icon="lock" href="/cli/commands/auth">
+    Log in and out of Qovery
+  </Card>
+  <Card title="qovery context" icon="location-dot" href="/cli/commands/context">
+    Set and switch the active organization, project, and environment
+  </Card>
+  <Card title="qovery token" icon="key" href="/cli/commands/token">
+    Generate an API token for CI/CD pipelines
+  </Card>
+  <Card title="qovery cluster" icon="cloud" href="/cli/commands/cluster">
+    Manage and inspect clusters
+  </Card>
+  <Card title="qovery enterprise-connection" icon="building" href="/cli/commands/enterprise-connection">
+    Manage enterprise SSO connections
+  </Card>
+</CardGroup>
+
+## Environment & Project
+
+Commands to navigate and manage your Qovery organizational structure.
+
+<CardGroup cols={2}>
+  <Card title="qovery project" icon="folder" href="/cli/commands/project">
+    List and manage projects
+  </Card>
+  <Card title="qovery environment" icon="layer-group" href="/cli/commands/environment">
+    List and manage environments
+  </Card>
+  <Card title="qovery env" icon="key" href="/cli/commands/env">
+    Manage environment variables and secrets
+  </Card>
+</CardGroup>
+
+## Service Management
+
+Commands to manage your Qovery services across environments.
+
+<CardGroup cols={2}>
+  <Card title="qovery application" icon="window" href="/cli/commands/application">
+    Deploy, redeploy, stop, and manage application services
+  </Card>
+  <Card title="qovery container" icon="docker" href="/cli/commands/container">
+    Manage container services
+  </Card>
+  <Card title="qovery database" icon="database" href="/cli/commands/database">
+    Manage database services
+  </Card>
+  <Card title="qovery helm" icon="dharmachakra" href="/cli/commands/helm">
+    Manage Helm chart services
+  </Card>
+  <Card title="qovery cronjob" icon="clock" href="/cli/commands/cronjob">
+    Manage cron job services
+  </Card>
+  <Card title="qovery lifecycle" icon="rotate" href="/cli/commands/lifecycle">
+    Manage lifecycle job services
+  </Card>
+  <Card title="qovery service" icon="cubes" href="/cli/commands/service">
+    Generic service management commands
+  </Card>
+</CardGroup>
+
+## Debugging & Observability
+
+Commands to inspect, debug, and monitor running services.
+
+<CardGroup cols={2}>
+  <Card title="qovery log" icon="terminal" href="/cli/commands/log">
+    Stream and view service logs
+  </Card>
+  <Card title="qovery shell" icon="square-terminal" href="/cli/commands/shell">
+    Open an interactive shell inside a running container
+  </Card>
+  <Card title="qovery port-forward" icon="arrow-right-arrow-left" href="/cli/commands/port-forward">
+    Forward a local port to a service running on Qovery
+  </Card>
+  <Card title="qovery status" icon="circle-check" href="/cli/commands/status">
+    Check the status of services and environments
+  </Card>
+  <Card title="qovery list-pods" icon="server" href="/cli/commands/list-pods">
+    List the pods of a service
+  </Card>
+  <Card title="qovery console" icon="display" href="/cli/commands/console">
+    Open a service directly in the Qovery Console
+  </Card>
+</CardGroup>
+
+## Utilities
+
+<CardGroup cols={2}>
+  <Card title="qovery completion" icon="wand-magic-sparkles" href="/cli/commands/completion">
+    Generate shell autocompletion scripts
+  </Card>
+  <Card title="qovery upgrade" icon="arrow-up" href="/cli/commands/upgrade">
+    Upgrade the CLI to the latest version
+  </Card>
+  <Card title="qovery version" icon="tag" href="/cli/commands/version">
+    Print the installed CLI version
+  </Card>
+  <Card title="qovery demo" icon="play" href="/cli/commands/demo">
+    Try Qovery locally with a demo environment
+  </Card>
+  <Card title="qovery terraform" icon="cube" href="/cli/commands/terraform">
+    Manage Terraform services
+  </Card>
+  <Card title="qovery list-commands" icon="list" href="/cli/commands/list-commands">
+    List all commands with aliases, args, and flags
+  </Card>
+  <Card title="qovery help" icon="circle-question" href="/cli/commands/help">
+    Get help for any command
+  </Card>
+</CardGroup>
