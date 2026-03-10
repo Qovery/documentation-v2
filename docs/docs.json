@@ -478,6 +478,7 @@
           {
             "group": "Commands",
             "pages": [
+              "cli/commands/overview",
               "cli/commands/application",
               "cli/commands/audit-log",
               "cli/commands/auth",
