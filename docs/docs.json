@@ -388,7 +388,8 @@
               {
                 "group": "Advanced Configuration",
                 "pages": [
-                  "configuration/organization/labels-annotations"
+                  "configuration/organization/labels-annotations",
+                  "configuration/disaster-recovery"
                 ]
               },
               {
