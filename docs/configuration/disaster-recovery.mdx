@@ -1,0 +1,346 @@
+---
+title: "Disaster Recovery"
+description: "Best practices for building resilient, reproducible, and tested DR strategies leveraging Qovery's Infrastructure as Code capabilities"
+---
+
+Disaster Recovery (DR) planning is essential for any organization running production workloads. When Qovery sits at the core of your infrastructure orchestration, it provides powerful primitives that can significantly simplify your DR strategy and reduce the operational burden typically associated with maintaining standby environments.
+
+This guide provides cloud-agnostic best practices for building a robust DR plan with Qovery. Whether you deploy on AWS, Scaleway, GCP, or Azure, the principles and patterns described here apply across all supported cloud providers.
+
+## Key Concepts: RTO, RPO & DR Tiers
+
+Before diving into implementation, it is critical to establish shared vocabulary and align on your business recovery objectives. Two metrics drive every DR architecture decision:
+
+| Metric | Definition | Impact on Architecture |
+| --- | --- | --- |
+| **RTO** | Recovery Time Objective — maximum acceptable downtime before services are restored. | Low RTO requires pre-provisioned standby environments, warm clusters, and automated failover. |
+| **RPO** | Recovery Point Objective — maximum acceptable data loss measured in time. | Low RPO requires continuous replication (logical replication, streaming). Higher RPO can use periodic backups (pg_dump). |
+
+Your DR strategy should be directly derived from these two numbers. There is no one-size-fits-all: an e-commerce platform with strict SLA requires a different approach than an internal analytics tool.
+
+### DR Strategy Tiers
+
+The industry broadly recognizes four DR strategy tiers, each with different cost and recovery trade-offs:
+
+| Strategy | Description | RTO / RPO | Cost |
+| --- | --- | --- | --- |
+| **Backup & Restore** | Periodic backups stored off-site. Infrastructure re-provisioned on demand. | RTO: hours. RPO: hours to days. | Low |
+| **Pilot Light** | Minimal standby infra with data replication. Scale up during failover. | RTO: tens of minutes. RPO: minutes. | Moderate |
+| **Warm Standby** | Scaled-down but functional environment. Quick scale-up on failover. | RTO: minutes. RPO: seconds to minutes. | Medium-High |
+| **Active-Active** | Full duplicate production in multiple locations. Traffic served from all sites. | RTO: near-zero. RPO: near-zero. | High |
+
+<Info>
+**Recommendation** — For most Qovery customers, the **Pilot Light** or **Warm Standby** approach offers the best balance of cost and recovery speed. Qovery's Terraform provider makes it easy to maintain a fully provisioned standby environment at minimal operational cost.
+</Info>
+
+## DR Resilience Levels with Qovery
+
+DR strategies can be structured around three escalating levels of resilience, each protecting against different failure scopes.
+
+### Cross-AZ (Same Region)
+
+This is the first level of resilience, protecting against single datacenter failures within the same cloud region.
+
+**How to achieve this with Qovery:**
+
+- **AWS clusters** — Qovery supports multi-AZ node pools natively. Production clusters should be configured with nodes spread across at least two or three availability zones.
+- **Scaleway / GCP / Azure** — If multi-AZ node pools are not yet available directly through Qovery's cluster creation UI, configure them at the cloud provider level and connect the cluster to Qovery.
+- **Kubernetes-native resilience** — Deploy multiple replicas to ensure your workloads can tolerate the loss of a single availability zone.
+- Qovery will leverage the underlying cluster topology. Your deployments will automatically benefit from the multi-AZ distribution configured at the node level.
+
+<Warning>
+If you configure multi-AZ node pools directly at the cloud provider level and attach the cluster to Qovery (BYOK model), you retain full workload deployment capabilities but shift cluster lifecycle ownership to your team. Some Qovery-managed cluster features (node pool configuration from console, some scaling automation) will not apply.
+</Warning>
+
+### Cross-Region (Same Cloud Provider)
+
+This level protects against entire region outages. A standby cluster is provisioned in a different region of the same cloud provider.
+
+**How to achieve this with Qovery:**
+
+- Provision a second Qovery cluster in a different region using the [Qovery Terraform provider](https://registry.terraform.io/providers/qovery/qovery/latest) (`qovery_cluster` resource).
+- Declare a mirror environment on the standby cluster using parameterized Terraform configurations.
+- Set up database replication between primary and standby regions.
+- Keep the DR environment provisioned and continuously maintained. Do not create DR infrastructure during an incident.
+- Failover is achieved through DNS or load balancer traffic switching.
+
+### Cross-Cloud (Multi-Cloud Failover)
+
+The highest level of resilience protects against full cloud provider outages. A standby environment is maintained on a different cloud provider entirely (e.g., Scaleway to AWS, or AWS to GCP).
+
+**How to achieve this with Qovery:**
+
+- Qovery is cloud-agnostic and supports AWS, Scaleway, GCP, and Azure. You can manage clusters on different cloud providers from the same Qovery organization.
+- Use the Qovery Terraform provider to declare clusters on both cloud providers with a consistent configuration.
+- For databases, use custom Terraform modules to manage cross-cloud provisioning (e.g., RDS on AWS from a Scaleway-based cluster). Credentials must be correctly configured for the target cloud.
+- For database replication across clouds, consider periodic `pg_dump`/restore instead of logical replication to simplify operations and reduce cross-cloud network costs.
+
+<Note>
+Full hot multi-cloud DR is possible but usually justified only by strict RPO/compliance requirements. The cost includes duplicated infrastructure, duplicated managed services, cross-cloud data transfer fees, and increased operational complexity. Evaluate carefully whether your RTO/RPO targets require this level of investment.
+</Note>
+
+## Infrastructure as Code: The GitOps Approach
+
+The most important principle for a reliable DR strategy with Qovery is to **manage everything as code**. Manual configurations create drift, are error-prone during high-pressure incidents, and are difficult to test. Qovery's [Terraform provider](/configuration/integrations/iac/terraform) enables a fully declarative, GitOps-driven DR setup.
+
+### Terraform Provider Setup
+
+The Qovery Terraform provider allows you to declare and manage the full lifecycle of your infrastructure: organizations, clusters, projects, environments, applications, containers, databases, and jobs.
+
+**Recommended structure:**
+
+```
+terraform/
+  modules/
+    qovery-stack/            # Reusable module for a full Qovery environment
+      main.tf                # Cluster, project, environment, apps, DBs
+      variables.tf           # Parameterized inputs
+      outputs.tf
+  environments/
+    prod/
+      main.tf                # Instantiates qovery-stack with prod values
+      prod.tfvars
+    dr/
+      main.tf                # Instantiates qovery-stack with DR values
+      dr.tfvars
+```
+
+This structure allows you to instantiate the same stack on both production and DR clusters, with only the parameterized values differing.
+
+### Environment Parameterization
+
+The key to a maintainable DR setup is proper parameterization. Every value that differs between production and DR should be a Terraform variable.
+
+**Typical parameters to externalize:**
+
+- Cluster ID / region / cloud provider credentials
+- Database endpoints and connection strings
+- Container registry URLs
+- External API endpoints (if region-specific)
+- Environment mode (`PRODUCTION` vs. `STAGING`)
+- Replica counts and resource limits (DR can run scaled-down)
+
+Use **separate `.tfvars` files** for production (`prod.tfvars`) and DR (`dr.tfvars`). This prevents configuration drift and makes DR reproducible.
+
+<Info>
+**Terraform Exporter** — If your current stack is configured through the Qovery console, you can use Qovery's Terraform exporter feature to generate the corresponding Terraform code as a starting point. This saves significant time when migrating to a GitOps approach.
+</Info>
+
+### Secrets Management
+
+Secrets are a critical part of any DR setup. The recommended approach depends on your complexity and DR simplicity goals.
+
+**Recommended pattern (simple & reliable):**
+
+<Steps>
+  <Step title="Define infrastructure in Terraform">
+    Keep all infrastructure definitions in your Terraform modules.
+  </Step>
+  <Step title="Inject secrets from CI">
+    Inject sensitive values from your CI secret store (e.g., GitLab CI variables, GitHub Secrets, Vault) at `terraform apply` time.
+  </Step>
+  <Step title="Use Qovery Secrets for runtime">
+    Use [Qovery Secrets](/configuration/environment-variable) via the Terraform provider or API for runtime secret injection into environments.
+  </Step>
+</Steps>
+
+**Alternative pattern (advanced):**
+
+- Use an External Secrets Operator (ESO) with a secrets backend (HashiCorp Vault, AWS Secrets Manager, etc.).
+- ESO works well for day-to-day operations but adds a dependency in your DR chain. If DR simplicity is a priority, minimizing the number of moving parts is usually the better trade-off.
+
+<Warning>
+Avoid manual overrides in the Qovery UI whenever possible. Every secret that exists only in the UI is a secret that won't be automatically reproduced in your DR environment.
+</Warning>
+
+## Database Replication Strategies
+
+Database replication is often the most complex and critical piece of a DR strategy. Two main approaches exist, each with different RPO/complexity trade-offs.
+
+### Logical Replication vs. Periodic Dump
+
+| Criteria | Logical Replication | Periodic pg_dump / Restore |
+| --- | --- | --- |
+| **RPO** | Very low (seconds to minutes). Data is replicated in near-real-time. | Higher (depends on dump frequency: hours to days). |
+| **Complexity** | Higher. Requires ongoing monitoring of replication lag, slot management, and conflict resolution. | Lower. Standard backup/restore workflow. Easier to manage and debug. |
+| **Network** | Requires persistent network connectivity between primary and replica. Costs increase with cross-region/cloud data transfer. | Only needs network during dump transfer. Can use object storage as intermediary. |
+| **Best For** | Cross-AZ and cross-region scenarios where low RPO is required. | Cross-cloud scenarios, or environments where higher RPO is acceptable. |
+
+<Info>
+Use **logical replication** for cross-AZ and cross-region DR when you need low RPO. Use **periodic dump/restore** for cross-cloud DR or when operational simplicity is more important than near-zero RPO. The right choice depends entirely on your RTO/RPO targets and data change rate.
+</Info>
+
+### Managed Databases vs. Custom Terraform Modules
+
+Qovery offers managed database provisioning (`qovery_database` resource) on supported cloud providers, primarily AWS (RDS). For other providers or cross-cloud scenarios, custom Terraform modules provide maximum flexibility.
+
+| Scenario | Recommended Approach | Details |
+| --- | --- | --- |
+| **AWS to AWS** | `qovery_database` in MANAGED mode | Simplest option. Qovery provisions and manages RDS. Use for both production and DR clusters on AWS. |
+| **Scaleway / GCP** | Custom Terraform modules via Qovery Terraform integration | Provision cloud-native managed databases (e.g., Scaleway Managed PostgreSQL) using your own Terraform modules deployed through Qovery. |
+| **Cross-Cloud** | Custom Terraform modules | Maximum control. Terraform module deployment from any Qovery cluster can provision resources on any cloud, as long as credentials are configured. |
+
+For all approaches, inject database endpoints and credentials into your Qovery environments using environment variables and secrets. This keeps everything GitOps-driven and avoids configuration drift.
+
+## Failover Orchestration
+
+A well-designed failover process minimizes human error and reduces recovery time. The guiding principle is: **minimize runtime mutations during an incident**.
+
+### Pre-Failover Preparation
+
+<Warning>
+**Golden Rule** — Do NOT create DR infrastructure during an incident. Your DR cluster and environment should be provisioned, maintained, and regularly tested BEFORE any disaster occurs.
+</Warning>
+
+Your DR environment should be in a ready state at all times:
+
+- **DR cluster** — Fully provisioned and running (or in a stopped-but-deployable state).
+- **DR environment** — Declared in Terraform with all applications, containers, and jobs configured.
+- **Database replication** — Continuously active (for logical replication) or dumps on schedule.
+- **Container images** — Available in the DR registry.
+- **DNS / Load Balancer** — Configured with health checks and ready for traffic switching.
+
+### Failover Execution via Qovery API
+
+Qovery provides a comprehensive [REST API](/api-reference/introduction) that enables full automation of failover operations: stop/start environments, update environment variables and secrets, trigger deployments and redeploys, and monitor deployment status.
+
+**Recommended failover sequence:**
+
+<Steps>
+  <Step title="Detect failure">
+    Via monitoring and alerting systems.
+  </Step>
+  <Step title="Validate decision to fail over">
+    Manual approval is recommended to avoid false positives.
+  </Step>
+  <Step title="Promote the DR database">
+    Promote the database replica in the DR region to become the new primary.
+  </Step>
+  <Step title="Update environment variables (if needed)">
+    Update the DR environment with new DB endpoints / connection strings pointing to the newly promoted primary.
+  </Step>
+  <Step title="Start/deploy the DR environment">
+    Via the Qovery API.
+  </Step>
+  <Step title="Switch DNS/load balancer">
+    Point traffic to the DR cluster.
+  </Step>
+  <Step title="Verify and notify">
+    Verify services are healthy, then notify the team and stakeholders.
+  </Step>
+</Steps>
+
+<Info>
+**Best practice** — The cleanest failover pattern is when the DR environment is already deployed and replication is already in place. Failover then equals a simple DNS/traffic switch — no variable updates, no redeployments, no human error.
+</Info>
+
+### DNS & Traffic Switching
+
+DNS-based failover is the most common and recommended approach for traffic switching:
+
+- Use your DNS provider's health check and failover features (e.g., Route 53 health checks, Cloudflare load balancing).
+- Configure a **low TTL** on your production DNS records to enable fast propagation on failover.
+- Alternatively, use a global load balancer in front of both clusters for instant switching.
+- Test your DNS failover mechanism regularly.
+
+## CI/CD & Container Registry Strategy
+
+Your DR strategy must ensure that container images are available in the DR region or cloud at all times. Qovery deploys whatever image reference you provide, but it does not automatically remap registries when switching clusters.
+
+<Tabs>
+  <Tab title="Multi-Registry Push">
+    Configure your CI/CD pipeline (GitLab CI, GitHub Actions, etc.) to push container images to **both registries** simultaneously.
+
+    For example: push to both Scaleway Container Registry (primary) and AWS ECR (DR) on every build. The DR environment's image references should point to the DR registry.
+  </Tab>
+  <Tab title="Single Global Registry">
+    Use a single container registry accessible from both primary and DR clusters (e.g., a cloud-agnostic registry or a registry with cross-region replication).
+
+    This simplifies image management but introduces a single point of failure for the registry itself.
+  </Tab>
+</Tabs>
+
+<Note>
+When switching an environment to a different cluster or region, you need to update container image references manually (in Terraform or via the API). Qovery deploys exactly the image you specify and does not rewrite registry URLs automatically.
+</Note>
+
+## Monitoring, Alerting & Observability
+
+A DR plan without monitoring is a plan that will fail silently. You need visibility into both your production and DR environments at all times.
+
+**Key areas to monitor:**
+
+- Database replication lag (for logical replication setups)
+- Backup job success/failure (for periodic dump strategies)
+- DR cluster health and readiness (node status, resource availability)
+- DR environment deployment status (are images up to date?)
+- DNS health checks and failover readiness
+- Container registry synchronization status (for multi-registry setups)
+
+**Recommended tools:**
+
+- [Datadog](/configuration/integrations/observability/datadog), Grafana, or CloudWatch for infrastructure and application monitoring.
+- PagerDuty, OpsGenie, or custom alerting for incident response.
+- Qovery's built-in deployment status and audit logs for environment health tracking.
+
+<Info>
+Set up a dedicated dashboard that shows DR readiness at a glance: replication lag, last backup timestamp, DR cluster status, and image sync status. This makes it easy to verify DR health during daily operations and during incidents.
+</Info>
+
+## Testing Your DR Plan
+
+A DR plan that has never been tested is a DR plan that does not work. Regular testing is the single most important factor in DR reliability.
+
+**Recommended testing schedule:**
+
+| Test Type | Frequency | What to Validate |
+| --- | --- | --- |
+| **Runbook Review** | Monthly | Verify documentation is up to date, team knows their roles, contact lists are current. |
+| **Partial Failover Drill** | Quarterly | Deploy the DR environment, verify services start correctly, validate database connectivity, check image availability. |
+| **Full Failover Drill** | Bi-Annually | Complete end-to-end failover: traffic switch, user validation, data integrity check, and failback. |
+| **Backup Restore Test** | Monthly | Restore a backup to an isolated environment, validate data integrity and completeness. |
+
+**After every test:**
+
+- Document what worked and what didn't.
+- Measure actual RTO and RPO achieved during the test.
+- Update runbooks and scripts based on findings.
+- Fix any gaps discovered before the next scheduled test.
+
+<Info>
+Qovery's environment clone feature and Terraform-based approach make it easy to spin up isolated test environments for DR drills without impacting production. Use the [Qovery API](/api-reference/introduction) to automate test scenarios and measure recovery times programmatically.
+</Info>
+
+## Summary of Recommendations
+
+| # | Area | Recommendation |
+| --- | --- | --- |
+| 1 | Infrastructure Management | Use the Qovery Terraform provider for all infrastructure. Never rely solely on manual UI configuration for DR. |
+| 2 | DR Preparation | Keep DR cluster and environment provisioned at all times. Do not create DR infrastructure during an incident. |
+| 3 | Environment Parity | Use parameterized Terraform with separate `.tfvars` files for prod and DR. Same modules, different values. |
+| 4 | Secrets | Inject from CI secret stores at apply time. Use Qovery Secrets for runtime. Avoid manual UI overrides. |
+| 5 | Database Strategy | Logical replication for low RPO (same cloud). Periodic dump for cross-cloud or higher RPO tolerance. |
+| 6 | Failover Pattern | Minimize runtime mutations. Ideal failover = DNS switch only. Automate all steps, keep manual approval for trigger. |
+| 7 | Container Images | Push to both primary and DR registries. Qovery does not remap registries automatically. |
+| 8 | Monitoring | Monitor replication lag, backup status, DR cluster health, and DNS failover readiness continuously. |
+| 9 | Testing | Test regularly: monthly runbook reviews, quarterly partial drills, bi-annual full failovers. |
+| 10 | Documentation | Maintain up-to-date runbooks, architecture diagrams, and contact lists. Update after every DR test. |
+
+## Useful Resources
+
+**Qovery Documentation & Tools**
+
+- [Qovery Terraform Provider](https://registry.terraform.io/providers/qovery/qovery/latest)
+- [Qovery API Reference](/api-reference/introduction)
+- [Infrastructure as Code with Qovery](/configuration/integrations/iac/overview)
+
+**Cloud Provider DR Resources**
+
+- [AWS Disaster Recovery Whitepaper](https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/)
+- [Azure Well-Architected DR Guide](https://learn.microsoft.com/en-us/azure/well-architected/design-guides/disaster-recovery)
+- [GCP Disaster Recovery Planning](https://cloud.google.com/architecture/dr-scenarios-planning-guide)
+
+**Database Replication**
+
+- [PostgreSQL Logical Replication](https://www.postgresql.org/docs/current/logical-replication.html)
+- [pg_dump Documentation](https://www.postgresql.org/docs/current/app-pgdump.html)
