@@ -45,7 +45,7 @@ This is the first level of resilience, protecting against single datacenter fail
 
 - **AWS clusters** — Qovery supports multi-AZ node pools natively. Production clusters should be configured with nodes spread across at least two or three availability zones.
 - **Scaleway / GCP / Azure** — If multi-AZ node pools are not yet available directly through Qovery's cluster creation UI, configure them at the cloud provider level and connect the cluster to Qovery.
-- **Kubernetes-native resilience** — Deploy multiple replicas, configure Pod Anti-Affinity rules to spread pods across zones, and set PodDisruptionBudgets (use absolute values for small replica counts).
+- **Kubernetes-native resilience** — Deploy multiple replicas to ensure your workloads can tolerate the loss of a single availability zone.
 - Qovery will leverage the underlying cluster topology. Your deployments will automatically benefit from the multi-AZ distribution configured at the node level.
 
 <Warning>
