@@ -96,6 +96,7 @@
                 "group": "Security & Compliance",
                 "pages": [
                   "getting-started/security-and-compliance/overview",
+                  "getting-started/security-and-compliance/aws-iam-permissions",
                   "getting-started/security-and-compliance/audit-logs",
                   "getting-started/security-and-compliance/soc2",
                   "getting-started/security-and-compliance/gdpr",
