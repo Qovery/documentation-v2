@@ -221,6 +221,7 @@
                 "pages": [
                   "configuration/integrations/kubernetes/eks/overview",
                   "configuration/integrations/kubernetes/eks/managed",
+                  "configuration/integrations/kubernetes/eks/preflight-checks",
                   "configuration/integrations/kubernetes/eks/eks-anywhere"
                 ]
               },
