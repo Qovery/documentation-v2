@@ -1,0 +1,350 @@
+---
+title: "GCP IAM Permissions Reference"
+description: "Detailed breakdown of every GCP IAM permission required by Qovery and why it's needed"
+---
+
+This page explains every GCP IAM permission that Qovery requires to create and manage your GKE clusters, and what each permission is used for in our infrastructure engine.
+
+<Info>
+  Qovery uses a **custom IAM role** with granular permissions rather than predefined GCP roles, following the principle of least privilege. The setup script also enables only the specific GCP APIs that Qovery needs.
+</Info>
+
+## Setup Overview
+
+Qovery provides a setup script that:
+
+1. **Enables required GCP APIs** (Container, Compute, Artifact Registry, Storage, Resource Manager, Cloud Run)
+2. **Creates a custom IAM role** with the exact permissions listed below
+3. **Creates a service account** and binds it to the custom role
+4. **Generates a JSON key** for the service account to upload in Qovery
+
+You can review the full setup script in the [GCP installation guide](/getting-started/installation/gcp).
+
+---
+
+## Required GCP APIs
+
+| API | Why |
+|---|---|
+| `container.googleapis.com` | GKE cluster creation and management |
+| `compute.googleapis.com` | VPC networks, subnetworks, routers, NAT gateways, firewall rules |
+| `artifactregistry.googleapis.com` | Docker image repository management |
+| `storage.googleapis.com` | GCS buckets for Terraform state, logs, and metrics |
+| `cloudresourcemanager.googleapis.com` | Project-level IAM policy management |
+| `run.googleapis.com` | Cloud Run Jobs for asynchronous cleanup tasks |
+
+---
+
+## IAM Permissions — Service Accounts
+
+### `iam.serviceAccounts.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `disable`, `enable`, `undelete` | Qovery creates dedicated GCP service accounts for each cluster component (GKE nodes, Loki logging, External Secrets Operator, KEDA autoscaler, Thanos metrics) |
+| `get`, `list` | Reads existing service accounts to avoid duplicates during updates |
+| `update` | Updates service account display names or descriptions when cluster configuration changes |
+| `getIamPolicy`, `setIamPolicy` | Configures Workload Identity bindings — maps Kubernetes service accounts to GCP service accounts so pods authenticate without JSON keys |
+| `actAs` | Required for assigning service accounts to GKE nodes and Cloud Run Jobs |
+
+<Info>
+  **Workload Identity** is the recommended way to authenticate workloads on GKE. Qovery creates dedicated service accounts for each component:
+  - **Cluster SA** — Default node SA with logging, monitoring, and image pull permissions
+  - **Loki SA** — GCS access for log storage
+  - **ESO SA** — Secret Manager access for external secrets
+  - **KEDA SA** — Workload Identity for autoscaling
+  - **Thanos SA** — GCS access for metrics storage
+</Info>
+
+---
+
+## IAM Permissions — Resource Manager
+
+### `resourcemanager.projects.*`
+
+| Permission | Why |
+|---|---|
+| `get` | Reads project metadata to validate the project context before provisioning |
+| `getIamPolicy` | Reads existing project-level IAM bindings to check current state before making changes |
+| `setIamPolicy` | Binds service accounts to IAM roles at the project level (e.g., granting the cluster SA `roles/logging.logWriter`) |
+
+---
+
+## Kubernetes Engine — `container.*`
+
+Qovery creates **GKE Autopilot** clusters, which requires full control over Kubernetes resources. The permissions are grouped by function below.
+
+### Cluster Management
+
+| Permission group | Why |
+|---|---|
+| `container.clusters.create`, `delete`, `update`, `get`, `list` | Creates and manages GKE Autopilot clusters with VPC-native networking, private nodes, release channels, and maintenance windows |
+| `container.clusters.connect`, `getCredentials` | Retrieves cluster credentials (kubeconfig) to deploy Helm charts and Kubernetes resources |
+| `container.clusters.createTagBinding`, `deleteTagBinding`, `listEffectiveTags`, `listTagBindings` | Tags clusters for lifecycle tracking and cost allocation |
+| `container.operations.get`, `list` | Monitors long-running cluster operations (create, upgrade, delete) |
+
+### Core Kubernetes Resources
+
+These permissions are required to deploy and manage Qovery system components (Nginx Ingress, cert-manager, Loki, Prometheus, KEDA, etc.) via Helm charts.
+
+| Permission group | Why |
+|---|---|
+| `container.pods.*` | Deploys application pods, reads logs, executes into pods for debugging, manages pod lifecycle |
+| `container.deployments.*` | Creates Deployments for Qovery agent, ingress controller, monitoring stack |
+| `container.services.*` | Creates Kubernetes Services (LoadBalancer, ClusterIP) to expose applications |
+| `container.configMaps.*` | Stores configuration for Helm releases and application settings |
+| `container.secrets.*` | Manages TLS certificates, registry credentials, and application secrets |
+| `container.namespaces.*` | Creates isolated namespaces for each Qovery environment |
+| `container.serviceAccounts.*` | Creates Kubernetes service accounts for Workload Identity bindings |
+| `container.persistentVolumeClaims.*`, `container.persistentVolumes.*` | Manages persistent storage for stateful workloads (databases, caches) |
+
+### Workload Scaling & Scheduling
+
+| Permission group | Why |
+|---|---|
+| `container.horizontalPodAutoscalers.*` | Configures HPA for auto-scaling application workloads based on CPU/memory |
+| `container.statefulSets.*` | Deploys stateful components (Prometheus, Loki) that need stable identities |
+| `container.daemonSets.*` | Deploys node-level agents (Promtail log forwarder) on every node |
+| `container.cronJobs.*` | Schedules recurring tasks (certificate renewal, cleanup jobs) |
+| `container.jobs.*` | Runs one-off tasks (database migrations, lifecycle hooks) |
+| `container.replicaSets.*` | Manages pod replicas created by Deployments |
+| `container.podDisruptionBudgets.*` | Ensures minimum pod availability during node maintenance |
+| `container.priorityClasses.*` | Defines scheduling priority for system components vs user workloads |
+| `container.limitRanges.*`, `container.resourceQuotas.*` | Enforces resource limits per namespace to prevent noisy-neighbor issues |
+
+### Networking & Ingress
+
+| Permission group | Why |
+|---|---|
+| `container.ingresses.*` | Creates Ingress resources to route external traffic to applications |
+| `container.networkPolicies.*` | Enforces network isolation between namespaces/environments |
+| `container.endpointSlices.*`, `container.endpoints.*` | Service discovery — maps Services to pod IPs |
+| `container.backendConfigs.*`, `container.frontendConfigs.*` | Configures GCP-specific load balancer settings (health checks, SSL policies) |
+| `container.managedCertificates.*` | Manages Google-managed TLS certificates for HTTPS endpoints |
+
+### RBAC & Security
+
+| Permission group | Why |
+|---|---|
+| `container.clusterRoles.*`, `container.clusterRoleBindings.*` | Defines cluster-wide permissions for Qovery system components |
+| `container.roles.*`, `container.roleBindings.*` | Defines namespace-scoped permissions for application workloads |
+| `container.podSecurityPolicies.*` | Configures pod security constraints (deprecated but required for older clusters) |
+| `container.mutatingWebhookConfigurations.*`, `container.validatingWebhookConfigurations.*` | Installs admission webhooks for cert-manager and policy enforcement |
+| `container.certificateSigningRequests.*` | Manages internal TLS certificate signing within the cluster |
+| `container.selfSubjectAccessReviews.create`, `container.selfSubjectRulesReviews.create`, `container.subjectAccessReviews.create`, `container.localSubjectAccessReviews.create`, `container.tokenReviews.create` | RBAC authorization checks — verifies what actions are permitted |
+
+### Storage & CSI
+
+| Permission group | Why |
+|---|---|
+| `container.storageClasses.*` | Defines storage classes (SSD, standard) for persistent volumes |
+| `container.csiDrivers.*`, `container.csiNodes.*`, `container.csiNodeInfos.*` | Container Storage Interface plugins for dynamic volume provisioning |
+| `container.volumeAttachments.*` | Attaches/detaches persistent disks to nodes |
+| `container.volumeSnapshots.*`, `container.volumeSnapshotClasses.*`, `container.volumeSnapshotContents.*` | Creates volume snapshots for backup and restore |
+| `container.storageStates.*`, `container.storageVersionMigrations.*` | Internal storage state management and API version migrations |
+
+### Cluster Internals
+
+| Permission group | Why |
+|---|---|
+| `container.nodes.*` | Reads node status, labels, and taints for scheduling decisions |
+| `container.events.*` | Reads Kubernetes events for debugging and monitoring |
+| `container.leases.*` | Leader election for HA components (controller-manager, scheduler) |
+| `container.controllerRevisions.*` | Tracks revision history for Deployments and StatefulSets |
+| `container.replicationControllers.*` | Legacy workload management (backward compatibility) |
+| `container.componentStatuses.*` | Health checks on cluster components |
+| `container.customResourceDefinitions.*` | Installs CRDs for cert-manager, Prometheus Operator, KEDA, and other operators |
+| `container.apiServices.*` | Registers custom API services (metrics server, custom metrics) |
+| `container.runtimeClasses.*` | Configures container runtimes (gVisor, containerd) |
+| `container.bindings.create` | Binds pods to nodes during scheduling |
+| `container.podTemplates.*` | Pod template management for workload controllers |
+| `container.thirdPartyObjects.*` | Legacy third-party resource support |
+| `container.updateInfos.*` | Cluster update state tracking |
+| `container.auditSinks.*` | Configures audit log forwarding |
+| `container.hostServiceAgent.use` | Required for GKE host service agent integration |
+
+---
+
+## Artifact Registry — `artifactregistry.*`
+
+| Permission group | Why |
+|---|---|
+| `repositories.create`, `delete`, `update`, `get`, `list` | Creates Docker repositories (prefixed `qovery-`) to store container images built from your source code |
+| `repositories.getIamPolicy`, `setIamPolicy` | Grants the cluster service account pull access to Qovery repositories |
+| `repositories.uploadArtifacts`, `downloadArtifacts`, `readViaVirtualRepository`, `deleteArtifacts` | Pushes built images during CI/CD, pulls images during deployment, cleans up old images |
+| `repositories.createTagBinding`, `deleteTagBinding`, `listEffectiveTags`, `listTagBindings` | Tags repositories for lifecycle tracking |
+| `dockerimages.get`, `list` | Lists and inspects images for version management and cleanup |
+| `tags.create`, `delete`, `get`, `list`, `update` | Manages image tags (e.g., `latest`, commit SHA, version numbers) |
+| `versions.delete`, `get`, `list` | Manages image versions and removes unused versions to save storage costs |
+| `locations.get`, `list` | Discovers available Artifact Registry regions |
+
+---
+
+## Compute Engine — Networking
+
+### VPC Networks — `compute.networks.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `get`, `list` | Creates a dedicated VPC for the GKE cluster or uses an existing one |
+| `access`, `use`, `useExternalIp` | Allows GKE nodes and pods to use the VPC for networking |
+| `getEffectiveFirewalls`, `getRegionEffectiveFirewalls` | Reads firewall state for debugging and validation |
+| `setFirewallPolicy`, `updatePolicy`, `updatePeering` | Configures network policies and VPC peering for cross-VPC connectivity |
+| `mirror` | Network traffic mirroring for security analysis (if enabled) |
+| `createTagBinding`, `deleteTagBinding`, `listEffectiveTags`, `listTagBindings` | Tags networks for lifecycle tracking |
+
+### Subnetworks — `compute.subnetworks.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `update`, `get`, `list` | Creates subnetworks for GKE pods and services with secondary IP ranges |
+| `use`, `useExternalIp` | Allows GKE to schedule pods in the subnetwork |
+| `expandIpCidrRange` | Expands subnet CIDR if more pod IPs are needed |
+| `getIamPolicy`, `setIamPolicy` | Grants GKE access to the subnetwork |
+| `setPrivateIpGoogleAccess` | Enables private Google access so nodes can reach GCP APIs without public IPs |
+| `mirror` | Subnet-level traffic mirroring |
+| `createTagBinding`, `deleteTagBinding`, `listEffectiveTags`, `listTagBindings` | Tags subnetworks for lifecycle tracking |
+
+### Routers & NAT — `compute.routers.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `update`, `get`, `list` | Creates Cloud Routers for NAT gateway configuration |
+| `use` | Associates the router with the VPC network |
+| `getRoutePolicy`, `deleteRoutePolicy`, `listRoutePolicies`, `updateRoutePolicy`, `listBgpRoutes` | Manages BGP routing policies for advanced networking |
+
+### Routes — `compute.routes.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `get`, `list` | Creates custom routes for VPC traffic (e.g., routing to NAT gateway) |
+| `createTagBinding`, `deleteTagBinding`, `listEffectiveTags`, `listTagBindings` | Tags routes for lifecycle tracking |
+
+### Instance Groups — `compute.instanceGroupManagers.*`, `compute.instanceGroups.*`
+
+| Permission | Why |
+|---|---|
+| `get`, `list`, `update`, `use` | Reads and manages GKE node pool instance groups (managed by Autopilot) |
+| `listEffectiveTags`, `listTagBindings` | Tags instance groups for lifecycle tracking |
+
+### Regions — `compute.regions.*`
+
+| Permission | Why |
+|---|---|
+| `get`, `list` | Discovers available regions for cluster placement |
+
+---
+
+## Cloud Storage — `storage.*`
+
+Qovery creates three GCS buckets per cluster, all prefixed with `qovery-`:
+- **`qovery-kubeconfigs-{id}`** — Stores kubeconfig files (versioned)
+- **`qovery-logs-{id}`** — Stores application and infrastructure logs (Loki)
+- **`qovery-prometheus-{id}`** — Stores metrics (Thanos long-term storage)
+
+### Bucket Operations — `storage.buckets.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `update`, `get`, `list` | Full lifecycle management of Qovery GCS buckets |
+| `getIamPolicy`, `setIamPolicy` | Grants Loki and Thanos service accounts access to their respective buckets |
+| `enableObjectRetention`, `restore` | Configures retention policies for compliance |
+| `getObjectInsights` | Storage analytics for cost optimization |
+| `createTagBinding`, `deleteTagBinding`, `listEffectiveTags`, `listTagBindings` | Tags buckets for lifecycle tracking |
+
+### Object Operations — `storage.objects.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `update`, `get`, `list` | Reads and writes kubeconfigs, log chunks, and metrics blocks |
+| `getIamPolicy`, `setIamPolicy` | Fine-grained object-level access control |
+| `overrideUnlockedRetention`, `setRetention`, `restore` | Manages object retention for compliance requirements |
+
+### Other Storage — `storage.bucketOperations.*`, `storage.managedFolders.*`, `storage.multipartUploads.*`
+
+| Permission group | Why |
+|---|---|
+| `bucketOperations.cancel`, `get`, `list` | Monitors and manages long-running bucket operations |
+| `managedFolders.*` | Organizes objects within buckets with folder-level IAM |
+| `multipartUploads.*` | Large file uploads (log archives, metrics snapshots) using multipart upload |
+
+---
+
+## Cloud Run — `run.*`
+
+Qovery uses Cloud Run Jobs for **asynchronous cleanup tasks** (e.g., deleting GCS buckets with many objects in the background).
+
+### Services — `run.services.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `update`, `get`, `list` | Manages Cloud Run services if enabled for workload deployment |
+| `getIamPolicy` | Reads IAM policies on Cloud Run services |
+| `listEffectiveTags`, `listTagBindings` | Tags services for lifecycle tracking |
+
+### Jobs — `run.jobs.*`
+
+| Permission | Why |
+|---|---|
+| `create`, `delete`, `update`, `get`, `list` | Creates cleanup jobs that run `gcloud storage rm` to delete buckets asynchronously |
+| `run`, `runWithOverrides` | Executes jobs with specific parameters (bucket name, cleanup commands) |
+| `getIamPolicy` | Reads IAM policies on Cloud Run jobs |
+| `listEffectiveTags`, `listTagBindings` | Tags jobs for lifecycle tracking |
+
+### Other Cloud Run — `run.configurations.*`, `run.executions.*`, `run.revisions.*`, `run.routes.*`, `run.operations.*`, `run.locations.*`
+
+| Permission group | Why |
+|---|---|
+| `configurations.get`, `list` | Reads service configuration state |
+| `executions.cancel`, `delete`, `get`, `list` | Monitors and manages job execution lifecycle |
+| `revisions.delete`, `get`, `list` | Manages Cloud Run revision history |
+| `routes.get`, `list`, `invoke` | Routes traffic to Cloud Run services |
+| `operations.delete`, `get`, `list` | Monitors long-running Cloud Run operations |
+| `locations.list` | Discovers available Cloud Run regions |
+
+---
+
+## What Qovery Creates in Your Account
+
+Here's a summary of all resources Qovery provisions per cluster:
+
+| Resource | Count | Purpose |
+|---|---|---|
+| GKE Autopilot cluster | 1 | Managed Kubernetes control plane |
+| VPC network | 1 | Network isolation for the cluster |
+| Subnetwork | 1 | Pod and service IP ranges |
+| Cloud Router | 1 | BGP router for NAT configuration |
+| Cloud NAT | 1 | Outbound internet access for nodes |
+| GCS buckets | 3 | Kubeconfigs, logs (Loki), metrics (Thanos) |
+| Artifact Registry repositories | 1+ | Docker image storage |
+| Service accounts | 5+ | Cluster nodes, Loki, ESO, KEDA, Thanos |
+| Firewall rules | 5+ | Intra-cluster, webhook, and logging rules |
+
+---
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Can I restrict these permissions further?">
+    The permissions listed are the minimum required for Qovery to fully manage your GKE infrastructure. If you don't use certain features (e.g., Cloud Run workloads), contact [Qovery support](/getting-started/useful-resources/help-and-support) for a tailored minimal role.
+  </Accordion>
+
+  <Accordion title="Why does Qovery need so many Kubernetes Engine permissions?">
+    GCP's Kubernetes Engine permissions are extremely granular — each Kubernetes resource type (Pod, Service, Deployment, etc.) and action (create, get, list, update, delete) requires a separate permission. Qovery fully manages the cluster lifecycle, including deploying system components (ingress, monitoring, logging, autoscaling) via Helm charts, which requires CRUD access to nearly all Kubernetes resource types.
+  </Accordion>
+
+  <Accordion title="What service accounts does Qovery create?">
+    Qovery creates dedicated service accounts with **Workload Identity** bindings:
+    - **Cluster node SA** — logging, monitoring, image pull
+    - **Loki SA** — GCS access for log storage
+    - **ESO SA** — Secret Manager access
+    - **KEDA SA** — autoscaling metrics
+    - **Thanos SA** — GCS access for metrics storage
+
+    Each SA has the minimum permissions for its specific function.
+  </Accordion>
+
+  <Accordion title="How can I audit what Qovery does with these permissions?">
+    Enable [GCP Audit Logs](https://cloud.google.com/logging/docs/audit) on your project to get a full record of every API call made by the Qovery service account. You can also review Qovery's [audit logs](/getting-started/security-and-compliance/audit-logs) for a high-level view.
+  </Accordion>
+</AccordionGroup>

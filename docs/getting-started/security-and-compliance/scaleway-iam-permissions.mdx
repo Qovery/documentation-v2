@@ -1,0 +1,218 @@
+---
+title: "Scaleway IAM Permissions Reference"
+description: "Detailed breakdown of every Scaleway IAM permission required by Qovery and why it's needed"
+---
+
+This page explains every Scaleway IAM permission that Qovery requires to create and manage your Kapsule clusters, and what each permission is used for in our infrastructure engine.
+
+<Info>
+  Qovery uses a dedicated **IAM Application** with a scoped policy rather than your personal API keys. This isolates Qovery's access and makes it easy to revoke.
+</Info>
+
+## Setup Overview
+
+The Scaleway credential setup involves:
+
+1. **Creating an IAM Application** — A dedicated identity for Qovery (`qovery-manager`)
+2. **Generating an API Key** — Scoped to your project for authentication
+3. **Creating a Policy** — Five permission sets granting access to the required services
+4. **Attaching the Policy** — Binding permissions to the application
+
+You can review the full setup process in the [Scaleway installation guide](/getting-started/installation/scaleway).
+
+---
+
+## Required Permission Sets
+
+Qovery requires **five IAM permission sets**, each granting full access to a specific Scaleway product. Below is a detailed explanation of what Qovery does with each.
+
+---
+
+### Containers — Full Access
+
+This permission set covers **Kapsule** (managed Kubernetes) and **Container Registry**.
+
+#### Kapsule (Kubernetes)
+
+| What Qovery does | Why |
+|---|---|
+| Creates Kapsule clusters | Provisions the managed Kubernetes control plane in your chosen region (Paris, Amsterdam, or Warsaw) |
+| Configures Cilium CNI | Sets up the network plugin for pod networking and network policies |
+| Creates and manages node pools | Provisions worker node groups with auto-scaling (configurable min/max), per-zone placement (zones 1, 2, 3), and custom root volume sizes |
+| Configures cluster auto-upgrade | Enables automatic Kubernetes minor version upgrades on a controlled schedule |
+| Lists clusters and pools | Reads cluster and node pool state to monitor health, detect drift, and plan upgrades |
+| Deletes clusters | Tears down the full cluster infrastructure when requested |
+
+<Info>
+  Qovery manages node pools with auto-scaling enabled. Each pool is configured with minimum and maximum node counts, and Kubernetes automatically scales within these bounds based on pod scheduling pressure.
+</Info>
+
+#### Container Registry
+
+| What Qovery does | Why |
+|---|---|
+| Creates registry namespaces | Creates private Docker repositories (max 50 characters, prefixed for Qovery) to store container images built from your source code |
+| Lists namespaces | Discovers existing registries to avoid duplicates |
+| Lists images and tags | Enumerates stored images for version management, cleanup, and deployment |
+| Deletes tags | Removes old image tags during retention policy enforcement to save storage |
+| Deletes namespaces | Cleans up registries when a cluster or environment is deleted |
+| Authenticates for image pull | Generates Docker `config.json` credentials so Kapsule nodes can pull images from the registry |
+
+---
+
+### Network Services — Full Access
+
+This permission set covers **VPC**, **Private Networks**, **Public Gateways**, and **Load Balancers**.
+
+#### VPC & Private Networks
+
+| What Qovery does | Why |
+|---|---|
+| Creates Private Networks | Provisions an isolated network for the Kapsule cluster, separating it from other workloads in your account |
+| Tags Private Networks | Adds metadata tags (cluster ID, organization) for lifecycle tracking |
+| Checks Private Network existence | Queries the VPC API (`/vpc/v2/regions/{region}/private-networks`) to verify network state before provisioning |
+| Updates Private Networks | Modifies network configuration when cluster settings change |
+| Deletes Private Networks | Cleans up networking resources when a cluster is deleted |
+
+#### Public Gateways (NAT)
+
+| What Qovery does | Why |
+|---|---|
+| Allocates static Public Gateway IPs | Reserves a dedicated public IP for deterministic outbound traffic (useful for IP whitelisting) |
+| Creates Public Gateways | Provisions a NAT gateway so cluster nodes on the private network can reach the internet. Supports multiple gateway sizes (VPC-GW-S, VPC-GW-M, VPC-GW-L) |
+| Associates Gateways to Networks | Binds the gateway to the cluster's private network with MASQUERADE/IPAM configuration for outbound connectivity |
+| Deletes Gateways and IPs | Cleans up gateway resources when a cluster is deleted |
+
+#### Load Balancers
+
+| What Qovery does | Why |
+|---|---|
+| Creates Load Balancers | Kubernetes creates Scaleway Load Balancers via the cloud controller manager when Services of type `LoadBalancer` are deployed (Nginx Ingress) |
+| Configures LB annotations | Sets Scaleway-specific annotations for proxy protocol, health checks, and backend configuration |
+| Deletes Load Balancers | Cleans up LBs when services are removed or the cluster is deleted |
+
+---
+
+### Compute — Full Access
+
+This permission set covers **Instances** (virtual machines) used as Kapsule worker nodes.
+
+| What Qovery does | Why |
+|---|---|
+| Provisions compute instances via node pools | Kapsule creates and manages instances as worker nodes. Qovery supports a wide range of instance types across general purpose, compute-optimized, and memory-optimized families |
+| Scales instances up and down | Auto-scaling adjusts the number of instances based on pod resource requirements |
+| Manages instance lifecycle | Handles node draining, replacement, and termination during upgrades and scale-down |
+
+<Info>
+  Qovery supports Scaleway regions **Paris** (`fr-par`), **Amsterdam** (`nl-ams`), and **Warsaw** (`pl-waw`), each with multiple availability zones.
+</Info>
+
+---
+
+### Storage — Full Access
+
+This permission set covers **Object Storage** (S3-compatible) and **Block Storage**.
+
+#### Object Storage
+
+Qovery creates three buckets per cluster, using Scaleway's S3-compatible API (`s3.{zone}.scw.cloud`):
+- **`qovery-kubeconfigs-{id}`** — Stores kubeconfig files for cluster access
+- **`qovery-logs-{id}`** — Stores application and infrastructure logs (Loki)
+- **`qovery-prometheus-{id}`** — Stores metrics (Thanos long-term storage)
+
+| What Qovery does | Why |
+|---|---|
+| Creates buckets | Provisions storage for kubeconfigs, logs, and metrics |
+| Enables bucket versioning | Protects kubeconfig files from accidental overwrites |
+| Configures bucket logging | Enables access logging for audit and debugging |
+| Tags buckets with metadata | Stores creation date, TTL, and cluster association for lifecycle management |
+| Reads bucket lifecycle and tags | Checks TTL and retention settings during updates |
+| Uploads and downloads objects | Writes kubeconfigs, log chunks (Loki), and metrics blocks (Thanos); reads them back for cluster access and monitoring |
+| Deletes objects and buckets | Cleans up storage when a cluster is deleted. Handles Scaleway's 24-hour bucket deletion delay by reusing existing buckets when possible |
+
+<Info>
+  Scaleway Object Storage has a **24-hour deletion delay** on buckets. Qovery handles this gracefully by reusing existing buckets with matching names rather than failing on re-creation.
+</Info>
+
+#### Block Storage
+
+| What Qovery does | Why |
+|---|---|
+| Provisions SSD block volumes via CSI | Kapsule uses the `csi.scaleway.com` driver to dynamically provision `b_ssd` (SSD) persistent volumes for stateful workloads |
+| Expands volumes | Supports online volume expansion for growing storage needs |
+| Deletes volumes on PVC deletion | Uses the `Delete` reclaim policy to clean up unused volumes |
+
+---
+
+### VPC — Full Access
+
+This permission set provides additional VPC-level controls beyond what Network Services covers.
+
+| What Qovery does | Why |
+|---|---|
+| Manages VPC-level resources | Controls the overall VPC configuration that contains private networks, gateways, and routing |
+| Configures VPC peering (if applicable) | Enables connectivity between your Qovery VPC and other VPCs in your account |
+
+<Info>
+  The **VPC** and **Network Services** permission sets are both required because Scaleway splits networking permissions across two product scopes. VPC covers the top-level virtual private cloud, while Network Services covers the resources within it (private networks, gateways, load balancers).
+</Info>
+
+---
+
+## Managed Databases (Optional)
+
+If you use Scaleway managed databases through Qovery, the **Containers** permission set also covers **RDB** (Relational Database) operations:
+
+### PostgreSQL & MySQL
+
+| What Qovery does | Why |
+|---|---|
+| Creates RDB instances | Provisions managed PostgreSQL or MySQL databases with configurable instance types and storage |
+| Creates databases within instances | Sets up the actual database schema after the instance is ready |
+| Configures access control (ACL) | Adds ACL rules to allow connections from the Kapsule cluster (public or private access) |
+| Enables high availability | Configures HA clustering for production databases when requested |
+| Manages backups | Enables or disables automated backups based on your configuration |
+| Deletes instances | Tears down database infrastructure when requested |
+
+---
+
+## What Qovery Creates in Your Account
+
+Here's a summary of all resources Qovery provisions per cluster:
+
+| Resource | Count | Purpose |
+|---|---|---|
+| Kapsule cluster | 1 | Managed Kubernetes control plane |
+| Node pools | 1+ | Worker nodes with auto-scaling |
+| Private Network | 1 | Network isolation for the cluster |
+| Public Gateway | 1 | NAT for outbound internet access |
+| Public IP | 1 | Static IP for the gateway |
+| Object Storage buckets | 3 | Kubeconfigs, logs, metrics |
+| Container Registry namespace | 1+ | Docker image storage |
+| Load Balancer | 1+ | Ingress traffic routing |
+| Block volumes | varies | Persistent storage for stateful workloads |
+
+---
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Why use an IAM Application instead of personal API keys?">
+    IAM Applications provide **isolated identities** for automated systems. Using a dedicated application means:
+    - Qovery's access is separate from your personal credentials
+    - You can revoke access by deleting the application or its API key without affecting your own access
+    - API key usage is tracked separately in Scaleway's audit logs
+  </Accordion>
+
+  <Accordion title="Can I restrict these permissions further?">
+    Scaleway IAM uses product-level permission sets (e.g., "Containers — Full access") rather than individual API-level permissions. This means you cannot restrict to read-only within a product. However, you can remove entire products if you don't use certain features. For example, if you don't use managed databases, the Containers permission still covers Kapsule and Registry but you can skip database-related configuration. Contact [Qovery support](/getting-started/useful-resources/help-and-support) for guidance.
+  </Accordion>
+
+  <Accordion title="Is the API key scoped to a single project?">
+    Yes. When generating the API key, you select an **Object Storage preferred Project**. The API key and its associated policy operate within the scope of your Scaleway project and organization, not across all projects.
+  </Accordion>
+
+  <Accordion title="How can I audit what Qovery does with these permissions?">
+    Scaleway provides audit logging through the **Cockpit** observability platform. You can track API calls made by the Qovery application's API key. You can also review Qovery's [audit logs](/getting-started/security-and-compliance/audit-logs) for a high-level view of operations.
+  </Accordion>
+</AccordionGroup>

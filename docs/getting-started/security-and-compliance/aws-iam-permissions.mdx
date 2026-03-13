@@ -1,0 +1,316 @@
+---
+title: "AWS IAM Permissions Reference"
+description: "Detailed breakdown of every AWS IAM permission required by Qovery and why it's needed"
+---
+
+This page explains every AWS IAM permission that Qovery requires to create and manage your EKS clusters, and what each permission is used for in our infrastructure engine.
+
+<Info>
+  Qovery follows the **principle of least privilege** where possible. S3 and SQS permissions are scoped to `qovery*` resources only. Some services require broad permissions because Qovery fully manages the lifecycle of those resources on your behalf.
+</Info>
+
+## Setup Overview
+
+Qovery provides two methods to set up AWS credentials:
+
+1. **STS Assume Role (recommended)** — A CloudFormation stack creates an IAM role with temporary, auto-rotating credentials
+2. **Static Credentials** — An IAM user with an access key pair (requires manual rotation)
+
+Both methods use the same IAM policy. You can review the full setup process in the [AWS installation guide](/getting-started/installation/aws).
+
+---
+
+## Policy Structure
+
+The Qovery IAM policy has **two statements**:
+
+1. **Statement 1** — Permissions on all resources (`"Resource": "*"`) for services where AWS does not support resource-level restrictions, or where Qovery needs to create new resources.
+2. **Statement 2** — Permissions scoped to `qovery*` resources only (S3 buckets and SQS queues).
+
+You can download the full policy JSON [here](/files/qovery-iam-aws.json).
+
+---
+
+## Statement 1 — Permissions on All Resources
+
+### IAM — `iam:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates IAM roles for the EKS control plane | AWS requires a service role for EKS to manage Kubernetes components |
+| Creates IAM roles and instance profiles for worker nodes | EC2 instances need roles to pull container images (ECR) and join the EKS cluster |
+| Creates IAM roles for Karpenter (node provisioner) | Karpenter needs permissions to launch/terminate EC2 instances and manage fleet requests |
+| Creates IAM roles for the AWS Load Balancer Controller | The ALB controller needs permissions to create and configure load balancers on your behalf |
+| Creates IAM roles for the Cluster Autoscaler | Autoscaler needs permissions to read and modify Auto Scaling groups |
+| Creates IAM roles for the CloudWatch exporter | Exporter needs read access to CloudWatch metrics for monitoring |
+| Creates IAM roles for Loki (log aggregation) | Loki stores logs in S3 and needs a dedicated role with scoped bucket access |
+| Creates IAM roles for External Secrets Operator | ESO needs permissions to read from AWS Secrets Manager and Parameter Store |
+| Manages OIDC providers for IRSA | IAM Roles for Service Accounts (IRSA) enables fine-grained pod-level permissions without sharing node credentials |
+
+<Info>
+  All IAM roles created by Qovery follow the IRSA pattern (IAM Roles for Service Accounts), meaning each Kubernetes workload gets its own scoped role rather than sharing a single broad role.
+</Info>
+
+---
+
+### EC2 — `ec2:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates a dedicated VPC | Isolates your Qovery infrastructure from other workloads in your AWS account |
+| Creates public and private subnets across 3 availability zones | Multi-AZ subnets provide high availability for your applications |
+| Creates security groups for EKS and worker nodes | Controls inbound/outbound traffic to the cluster and its nodes |
+| Creates Internet Gateways and NAT Gateways | Internet Gateway enables outbound connectivity; NAT Gateways provide static outbound IPs |
+| Allocates Elastic IPs for NAT Gateways | Required for static IP addresses when the Static IP feature is enabled |
+| Creates route tables and associations | Directs traffic between subnets, internet, and NAT gateways |
+| Launches EC2 instances via Karpenter (`CreateFleet`, `RunInstances`) | Karpenter provisions compute capacity for your application workloads |
+| Creates launch templates | Defines the AMI (Bottlerocket), instance configuration, and user data for worker nodes |
+| Describes instance types, availability zones, images, and spot prices | Karpenter uses this information to select the most cost-effective instances |
+| Manages network interfaces | Required for pod networking via the AWS VPC CNI plugin |
+
+---
+
+### EKS — `eks:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates EKS clusters | Provisions the Kubernetes control plane managed by AWS |
+| Configures control plane logging (API, audit, authenticator, controller manager, scheduler) | Sends EKS logs to CloudWatch for diagnostics and security auditing |
+| Enables Kubernetes secrets encryption via KMS | Encrypts sensitive data (secrets) stored in etcd at rest |
+| Creates and manages EKS managed node groups | Provisions the initial node group before Karpenter takes over scaling |
+| Installs EKS add-ons (CoreDNS, VPC-CNI, EBS-CSI) | Core Kubernetes networking and storage plugins required for cluster operation |
+
+---
+
+### Elastic Load Balancing — `elasticloadbalancing:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates Network Load Balancers (NLB) | Routes incoming HTTPS traffic to the Nginx Ingress controller inside the cluster |
+| Manages target groups and listeners | Configures how traffic is distributed to your application pods |
+| Manages listener certificates and SSL policies | Handles TLS termination for your custom domains |
+| Tags load balancers for cluster association | Ensures load balancers are tracked and cleaned up with the cluster lifecycle |
+| Cleans up orphaned load balancers | Removes NLBs that are no longer referenced by any Kubernetes service |
+
+---
+
+### RDS — `rds:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates RDS instances (PostgreSQL, MySQL) | Provisions managed databases requested through the Qovery console |
+| Configures Multi-AZ with automatic failover | Ensures database high availability across availability zones |
+| Enables encryption at rest and in transit | Protects your data with AES-256 encryption and TLS connections |
+| Creates DB subnet groups | Places databases in dedicated private subnets for network isolation |
+| Enables Performance Insights monitoring | Provides database performance metrics in the Qovery dashboard |
+| Manages snapshots and backup retention | Enables point-in-time recovery and scheduled backups |
+| Creates enhanced monitoring roles | Provides OS-level metrics for database instances |
+
+---
+
+### ElastiCache — `elasticache:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates ElastiCache replication groups (Redis) | Provisions managed Redis instances requested through the Qovery console |
+| Configures Multi-AZ with automatic failover | Ensures cache high availability |
+| Creates cache subnet groups | Places cache nodes in dedicated private subnets |
+| Enables transit encryption with auth tokens | Secures data in motion between your application and Redis |
+| Manages snapshots and maintenance windows | Enables backups and controlled maintenance |
+
+---
+
+### ECR — `ecr:*`
+
+| What Qovery does | Why |
+|---|---|
+| Grants worker nodes read access to ECR | Kubernetes nodes need to pull container images from your ECR repositories |
+| Manages ECR repositories for Qovery-built images | When building from source, Qovery pushes built images to ECR |
+
+<Info>
+  Worker nodes receive the `AmazonEC2ContainerRegistryReadOnly` managed policy via their IAM role.
+</Info>
+
+---
+
+### CloudWatch — `cloudwatch:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates CloudWatch log groups for EKS | Stores EKS control plane logs (API server, audit, authenticator, controller manager, scheduler) |
+| Configures log retention policies | Controls how long EKS logs are kept (configurable) |
+| Reads metrics via CloudWatch Exporter (`GetMetricData`, `GetMetricStatistics`, `ListMetrics`) | Collects AWS resource metrics for Qovery's monitoring dashboard |
+
+---
+
+### CloudWatch Logs — `logs:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates and manages log groups | Required by EKS for control plane logging |
+| Sets retention policies | Prevents unbounded log storage costs |
+| Streams log events | Enables viewing EKS control plane logs for debugging |
+
+---
+
+### Auto Scaling — `autoscaling:*`, `application-autoscaling:*`
+
+| What Qovery does | Why |
+|---|---|
+| Reads Auto Scaling group state (`Describe*`) | Cluster Autoscaler monitors current node capacity |
+| Modifies desired capacity (`SetDesiredCapacity`, `TerminateInstanceInAutoScalingGroup`) | Cluster Autoscaler scales nodes up/down based on pod scheduling pressure |
+
+<Info>
+  Qovery primarily uses **Karpenter** for node provisioning, which manages EC2 instances directly. Auto Scaling permissions are retained for the initial managed node group and as a fallback.
+</Info>
+
+---
+
+### KMS — `kms:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates or uses KMS keys for EKS secrets encryption | Encrypts Kubernetes secrets in etcd at rest using envelope encryption |
+| Encrypts S3 buckets (logs, Terraform state) | Ensures all stored data is encrypted with AWS-managed or customer-managed keys |
+
+---
+
+### EventBridge — `events:*` (scoped actions)
+
+The policy grants only specific EventBridge actions:
+
+| Action | Why |
+|---|---|
+| `PutRule`, `PutTargets` | Creates event rules to capture EC2 spot interruption warnings, rebalance recommendations, and instance state changes |
+| `DescribeRule`, `ListRuleNamesByTarget`, `ListTargetsByRule` | Reads existing rules for idempotent Terraform management |
+| `DeleteRule`, `RemoveTargets` | Cleans up event rules when the cluster is deleted |
+| `TagResource`, `UntagResource`, `ListTagsForResource` | Tags event rules for cluster lifecycle tracking |
+
+<Info>
+  These events are forwarded to an SQS queue that Karpenter monitors to gracefully drain nodes before spot interruptions or maintenance events.
+</Info>
+
+---
+
+### Organizations — Read-Only Access
+
+| Action | Why |
+|---|---|
+| `DescribeAccount`, `DescribeOrganization`, `DescribeOrganizationalUnit`, `DescribePolicy` | Reads AWS account metadata to validate the account context and detect organizational constraints |
+| `ListChildren`, `ListParents`, `ListPoliciesForTarget`, `ListRoots`, `ListPolicies`, `ListTargetsForPolicy` | Enumerates organizational structure to detect Service Control Policies (SCPs) that might restrict Qovery operations |
+
+<Info>
+  These are **read-only** permissions. Qovery never modifies your AWS Organization structure.
+</Info>
+
+---
+
+### DynamoDB — `dynamodb:*`
+
+| What Qovery does | Why |
+|---|---|
+| Creates DynamoDB tables for Terraform state locking | Prevents concurrent Terraform operations from corrupting your infrastructure state |
+
+---
+
+### ECS — `ecs:*`
+
+| What Qovery does | Why |
+|---|---|
+| Reserved for future use and hybrid ECS/EKS workloads | Ensures Qovery can manage ECS-based workloads if enabled on your cluster |
+
+---
+
+### Elasticsearch Service — `es:*` (scoped actions)
+
+| Action | Why |
+|---|---|
+| `CreateElasticsearchDomain`, `DeleteElasticsearchDomain`, `DescribeElasticsearchDomain` | Provisions and manages Elasticsearch domains when requested as a managed service |
+| `AddTags`, `RemoveTags`, `ListTags` | Tags Elasticsearch domains for cluster lifecycle tracking and cost allocation |
+
+---
+
+### CloudTrail — `cloudtrail:LookupEvents`
+
+| What Qovery does | Why |
+|---|---|
+| Looks up recent API events | Used for debugging infrastructure provisioning failures by checking recent AWS API activity |
+
+---
+
+### Resource Groups Tagging — `tag:GetResources`
+
+| What Qovery does | Why |
+|---|---|
+| Discovers resources by tag across all services | Used by the CloudWatch Exporter to find all resources belonging to your cluster for metrics collection |
+
+---
+
+## Statement 2 — Scoped to `qovery*` Resources
+
+These permissions are **restricted** to resources whose names start with `qovery`. Qovery cannot access any S3 buckets or SQS queues that you created outside of Qovery.
+
+### S3 — `s3:*` (on `arn:aws:s3:::qovery*`)
+
+| What Qovery does | Why |
+|---|---|
+| Creates S3 buckets for Terraform state | Stores infrastructure state files needed to manage your cluster |
+| Creates S3 buckets for VPC flow logs | Stores network traffic logs for security auditing (encrypted, with lifecycle policies) |
+| Creates S3 buckets for Loki log storage | Stores application and infrastructure logs with configurable retention |
+| Manages bucket encryption and access policies | Ensures all buckets have server-side encryption and public access blocking enabled |
+
+<Info>
+  The `s3:ListAllMyBuckets` permission in Statement 1 is required to verify bucket existence before creation. It is read-only and does not grant access to bucket contents.
+</Info>
+
+---
+
+### SQS — `sqs:*` (on `arn:aws:sqs:*:*:qovery*`)
+
+| What Qovery does | Why |
+|---|---|
+| Creates SQS queues for Karpenter interruption events | Receives EventBridge events for spot interruptions, health events, and instance state changes |
+| Karpenter reads and deletes messages (`ReceiveMessage`, `DeleteMessage`, `GetQueueUrl`) | Karpenter processes interruption events to gracefully drain workloads before node termination |
+
+---
+
+## What Qovery Creates in Your Account
+
+Here's a summary of all resources Qovery provisions per cluster:
+
+| Resource | Count | Purpose |
+|---|---|---|
+| EKS cluster | 1 | Managed Kubernetes control plane |
+| VPC | 1 | Network isolation for the cluster |
+| Subnets | 6 | 3 public + 3 private across availability zones |
+| NAT Gateways | up to 3 | Static outbound IP addresses |
+| Elastic IPs | up to 3 | Fixed IPs for NAT Gateways |
+| Security Groups | 3+ | Network access control for cluster, workers, databases |
+| EC2 instances | varies | Worker nodes managed by Karpenter |
+| S3 buckets | 3+ | Terraform state, VPC flow logs, Loki logs |
+| SQS queues | 1 | Karpenter interruption events |
+| IAM roles | 8+ | EKS, workers, Karpenter, ALB controller, Loki, ESO, etc. |
+| Load Balancer | 1+ | Ingress traffic routing |
+| CloudWatch log groups | 5 | EKS control plane logs |
+
+---
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Can I restrict these permissions further?">
+    Some permissions can be scoped more narrowly for advanced use cases. Contact [Qovery support](/getting-started/useful-resources/help-and-support) for a minimal policy template tailored to your specific configuration (e.g., if you don't use managed databases, RDS and ElastiCache permissions can be removed).
+  </Accordion>
+
+  <Accordion title="Why use STS Assume Role instead of static credentials?">
+    STS Assume Role provides **temporary credentials** that automatically rotate. Qovery never stores long-lived access keys, and you can revoke access instantly by deleting the CloudFormation stack. See the [AWS installation guide](/getting-started/installation/aws) for setup instructions.
+  </Accordion>
+
+  <Accordion title="Does Qovery access my existing AWS resources?">
+    No. S3 and SQS permissions are scoped to `qovery*` resources only. Other services (EC2, EKS, RDS, etc.) create **new** resources dedicated to your Qovery cluster. Qovery does not read or modify resources created outside of Qovery.
+  </Accordion>
+
+  <Accordion title="How can I audit what Qovery does with these permissions?">
+    Enable AWS CloudTrail in your account to get a full audit log of every API call made by the Qovery IAM role. You can also review Qovery's [audit logs](/getting-started/security-and-compliance/audit-logs) for a high-level view of operations.
+  </Accordion>
+</AccordionGroup>
