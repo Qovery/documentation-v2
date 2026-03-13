@@ -1,0 +1,168 @@
+---
+title: "AWS Cluster Preflight Checks"
+description: "Understand the automatic prerequisite validation checks that run before AWS EKS cluster creation"
+---
+
+Before deploying a new AWS EKS cluster, Qovery automatically runs prerequisite validation checks to ensure your AWS environment is properly configured. If any check fails, deployment is blocked and a clear report shows what needs to be fixed.
+
+<Info>
+Preflight checks run automatically when you create or deploy an AWS EKS cluster. No additional configuration is required.
+</Info>
+
+## Checks Performed
+
+### Quota Checks (All Modes)
+
+Qovery verifies that your AWS account has sufficient resource quotas in the target region:
+
+| Resource | Default AWS Limit | Required by Qovery |
+|----------|-------------------|---------------------|
+| EKS clusters per region | 100 | 1 per cluster |
+| Elastic IPs | 5 | 3-6 depending on NAT Gateway configuration |
+| VPCs per region | 5 | 1 per cluster |
+| NAT Gateways per AZ | Per-AZ limit | 1 per AZ used |
+
+<Info>
+Qovery attempts to query your actual quota limits via the [AWS Service Quotas API](https://docs.aws.amazon.com/servicequotas/latest/userguide/intro.html). If the `servicequotas:GetServiceQuota` permission is not granted, Qovery falls back to AWS default limits and displays a **WARN** in the report. To get accurate quota checks, add the following permission to your IAM policy:
+
+```json
+{
+  "Effect": "Allow",
+  "Action": "servicequotas:GetServiceQuota",
+  "Resource": "*"
+}
+```
+</Info>
+
+### Availability Zone Checks (All Modes)
+
+The target region must have a minimum of **3 Availability Zones**. This is required to ensure high availability for EKS workloads.
+
+### VPC Configuration Checks (Custom VPC Mode Only)
+
+When using the **Deploy on my existing VPC** option, Qovery validates your VPC setup:
+
+- **VPC exists** and has `enable_dns_hostnames = true`
+- **All 15 required subnets exist** (5 subnet types x 3 Availability Zones)
+- **Required tags** are present on subnets:
+
+| Subnet Type | Required Tag | Value |
+|-------------|-------------|-------|
+| All subnets | `kubernetes.io/cluster/qovery-{cluster_id}` | `shared` |
+| Public subnets | `kubernetes.io/role/elb` | `1` |
+| Private subnets | `kubernetes.io/role/internal-elb` | `` (empty string) |
+| Private subnets | `karpenter.sh/discovery` | `{cluster_name}` |
+
+### IAM Checks (Managed and Custom VPC Modes)
+
+Qovery verifies that:
+
+- AWS credentials are valid
+- Basic permissions are present to create and manage cluster resources
+
+## Reading the Preflight Report
+
+After checks complete, Qovery displays a summary report in the deployment logs:
+
+```
+========================================================================
+                  AWS Deployment Preflight Report
+========================================================================
+ [PASS] EKS cluster quota ........................ 3/100 clusters
+ [PASS] Elastic IP quota ......................... 2/5 allocated
+ [FAIL] VPC subnet tags
+        -> Missing tag 'kubernetes.io/role/elb' on subnet-abc123
+        -> Fix: Add tag 'kubernetes.io/role/elb=1' to public subnets
+ [WARN] IAM permissions .......................... Could not fully verify
+------------------------------------------------------------------------
+ Result: 1 FAILED | 1 WARNING | 2 PASSED
+ Deployment BLOCKED - fix FAILED checks before retrying
+========================================================================
+```
+
+Each check is reported with one of three statuses:
+
+| Status | Meaning |
+|--------|---------|
+| **PASS** | Check succeeded, no action needed |
+| **WARN** | Potential issue detected but deployment is not blocked |
+| **FAIL** | Check failed, deployment is blocked until resolved |
+
+<Warning>
+If any check has a **FAIL** status, deployment will not proceed. You must fix the reported issues and retry.
+</Warning>
+
+## Common Issues and Fixes
+
+<AccordionGroup>
+  <Accordion title="Elastic IP quota exceeded">
+    **Symptom**: `[FAIL] Elastic IP quota` in the preflight report.
+
+    **Fix**: Request a quota increase through the [AWS Service Quotas console](https://console.aws.amazon.com/servicequotas/). Navigate to **Amazon EC2 > Elastic IPs** and request an increase. Qovery requires 3-6 Elastic IPs depending on your NAT Gateway configuration.
+  </Accordion>
+
+  <Accordion title="Missing subnet tags">
+    **Symptom**: `[FAIL] VPC subnet tags` with details about missing tags.
+
+    **Fix**: Add the required Kubernetes tags to your subnets. For Custom VPC setups, ensure:
+    - All subnets have `kubernetes.io/cluster/qovery-{cluster_id} = shared`
+    - Public subnets have `kubernetes.io/role/elb = 1`
+    - Private subnets have `kubernetes.io/role/internal-elb = ""`
+    - Private subnets have `karpenter.sh/discovery = {cluster_name}`
+
+    You can add tags in the AWS Console under **VPC > Subnets > Tags**, or via the AWS CLI:
+    ```bash
+    aws ec2 create-tags --resources subnet-abc123 \
+      --tags Key=kubernetes.io/role/elb,Value=1
+    ```
+  </Accordion>
+
+  <Accordion title="VPC DNS hostnames disabled">
+    **Symptom**: `[FAIL] VPC DNS hostnames` in the preflight report.
+
+    **Fix**: Enable DNS hostnames on your VPC. In the AWS Console, go to **VPC > Your VPC > Actions > Edit VPC settings** and enable **DNS hostnames**. Or via the AWS CLI:
+    ```bash
+    aws ec2 modify-vpc-attribute --vpc-id vpc-abc123 \
+      --enable-dns-hostnames '{"Value": true}'
+    ```
+  </Accordion>
+
+  <Accordion title="Insufficient Availability Zones">
+    **Symptom**: `[FAIL] Availability Zones` indicating fewer than 3 AZs.
+
+    **Fix**: Choose a different AWS region that has at least 3 Availability Zones. Most standard AWS regions (e.g., `us-east-1`, `eu-west-1`, `ap-southeast-1`) meet this requirement. Some smaller or newer regions may not.
+  </Accordion>
+
+  <Accordion title="Quota limits showing as WARN (default limits)">
+    **Symptom**: `[WARN] EKS cluster quota access` (or Elastic IP / VPC quota access) with message "Could not query real quota, using default limit".
+
+    **Cause**: Your IAM policy does not include the `servicequotas:GetServiceQuota` permission. Qovery falls back to AWS default limits which may not reflect your actual account quotas.
+
+    **Fix**: Add the `servicequotas:GetServiceQuota` permission to your IAM policy:
+    ```json
+    {
+      "Effect": "Allow",
+      "Action": "servicequotas:GetServiceQuota",
+      "Resource": "*"
+    }
+    ```
+    This is optional — preflight checks still work without it, but quota comparisons will use AWS default limits instead of your actual limits.
+  </Accordion>
+
+  <Accordion title="VPC quota exceeded">
+    **Symptom**: `[FAIL] VPC quota` in the preflight report.
+
+    **Fix**: Either delete unused VPCs in the target region or request a quota increase via the [AWS Service Quotas console](https://console.aws.amazon.com/servicequotas/) under **Amazon VPC > VPCs per Region**.
+  </Accordion>
+</AccordionGroup>
+
+## Quick Reference
+
+| Issue | Fix |
+|---|---|
+| Quota limits using defaults (WARN) | Add `servicequotas:GetServiceQuota` permission to your IAM policy (optional) |
+| Elastic IP quota exceeded | Request quota increase via AWS Service Quotas console |
+| Missing subnet tags | Add required Kubernetes tags to your subnets (see Custom VPC docs) |
+| VPC DNS hostnames disabled | Enable `enable_dns_hostnames` on your VPC |
+| Insufficient AZs | Choose a region with at least 3 Availability Zones |
+
