@@ -1,0 +1,283 @@
+---
+title: "Azure IAM Permissions Reference"
+description: "Detailed breakdown of every Azure permission required by Qovery and why it's needed"
+---
+
+This page explains every Azure permission that Qovery requires to create and manage your AKS clusters, and what each permission is used for in our infrastructure engine.
+
+<Info>
+  Qovery uses a **custom role** with granular permissions rather than the built-in `Contributor` role, following the principle of least privilege. The role is scoped to a single subscription.
+</Info>
+
+## Setup Overview
+
+Qovery provides a setup script that:
+
+1. **Registers required Azure resource providers** (Container Service, Container Registry, Storage, Network, etc.)
+2. **Creates a custom IAM role** with the exact permissions listed below, scoped to your subscription
+3. **Creates a multi-tenant service principal** in your Azure AD tenant
+4. **Assigns the custom role** to the service principal
+
+You can review the full setup process in the [Azure installation guide](/getting-started/installation/azure).
+
+---
+
+## Required Resource Providers
+
+The setup script registers these Azure resource providers before provisioning:
+
+| Provider | Why |
+|---|---|
+| `Microsoft.ContainerService` | AKS cluster creation and management |
+| `Microsoft.ContainerRegistry` | Docker image registry for built container images |
+| `Microsoft.Storage` | Storage accounts and blob storage for Terraform state, logs, and metrics |
+| `Microsoft.Network` | Virtual networks, subnets, NAT gateways, public IPs, load balancers, DNS |
+| `Microsoft.ContainerInstance` | Container instance support |
+| `Microsoft.Compute` | Virtual machine scale sets, disks, and snapshots for AKS nodes |
+| `Microsoft.Authorization` | Role assignments and role definitions for managed identities |
+| `Microsoft.Insights` | Monitoring, diagnostics, and metrics |
+| `Microsoft.KeyVault` | Secret and key management |
+| `Microsoft.AppConfiguration` | Application configuration management |
+| `Microsoft.EventGrid` | Event-driven integrations |
+| `Microsoft.ServiceBus` | Message queue support |
+| `Microsoft.ManagedIdentity` | User-assigned managed identities for Workload Identity |
+| `Microsoft.Features` | Feature flag registration for preview features |
+
+---
+
+## Control Plane Permissions (Actions)
+
+### AKS — `Microsoft.ContainerService`
+
+| Permission | Why |
+|---|---|
+| `managedClusters/*` | Full lifecycle management of AKS clusters: create, update, delete, scale, upgrade. Qovery provisions AKS clusters with OIDC issuer, Workload Identity, Cilium network policy, system-assigned managed identity, and multi-zone node pools |
+| `locations/operationresults/read` | Monitors long-running AKS operations (cluster create, upgrade, delete) |
+| `locations/operations/read` | Reads operation status during provisioning |
+| `operations/read` | Lists available AKS operations |
+| `locations/usages/read` | Checks AKS quota and capacity before provisioning |
+| `locations/orchestrators/read` | Lists available Kubernetes versions for cluster creation and upgrades |
+
+<Info>
+  Qovery creates AKS clusters with:
+  - **Cilium** network policy and data plane
+  - **Azure CNI Overlay** networking
+  - **Workload Identity** via OIDC issuer
+  - **Multi-zone node pools** (zones 1, 2, 3) with auto-scaling
+  - **Maintenance windows** (Tuesdays 21:00–23:00 UTC)
+</Info>
+
+---
+
+### Container Registry — `Microsoft.ContainerRegistry`
+
+| Permission | Why |
+|---|---|
+| `registries/*` | Creates and manages Azure Container Registry instances to store container images built from your source code. Includes image push/pull, repository management, retention policies, and AKS pull access configuration |
+| `locations/operationresults/read` | Monitors ACR provisioning operations |
+| `operations/read` | Lists available ACR operations |
+| `checkNameAvailability/read` | Validates registry name uniqueness before creation (Azure requires globally unique names) |
+
+---
+
+### Storage — `Microsoft.Storage`
+
+Qovery creates a **Standard ZRS** (Zone-Redundant Storage) account per cluster with three blob containers:
+- **`qovery-kubeconfigs-{id}`** — Stores kubeconfig files
+- **`qovery-logs-{id}`** — Stores application and infrastructure logs (Loki)
+- **`qovery-thanos-{id}`** — Stores metrics (Thanos long-term storage)
+
+| Permission | Why |
+|---|---|
+| `storageAccounts/*` | Full lifecycle management of storage accounts: create, configure, delete |
+| `locations/usages/read` | Checks storage quota before creating accounts |
+| `operations/read` | Lists available storage operations |
+| `storageAccounts/listAccountSas/action` | Generates SAS tokens for scoped access to storage resources |
+| `storageAccounts/listServiceSas/action` | Generates service-level SAS tokens for blob container access |
+| `storageAccounts/listKeys/action` | Retrieves storage account access keys for Terraform state backend and blob operations |
+| `storageAccounts/blobServices/*` | Manages blob containers and configuration (versioning, lifecycle policies) |
+| `storageAccounts/fileServices/*` | Manages file shares if needed for persistent volumes |
+
+---
+
+### Networking — `Microsoft.Network`
+
+Qovery creates a complete network stack per cluster:
+- **VNet** with configurable CIDR (default `10.0.0.0/16`)
+- **3 subnets** (one per availability zone, each `/20`)
+- **3 NAT Gateways** with static public IPs (one per zone)
+- **Network policy** via Cilium
+
+| Permission | Why |
+|---|---|
+| `virtualNetworks/*` | Creates the cluster VNet with custom CIDR blocks, or uses an existing VNet |
+| `networkSecurityGroups/*` | Creates NSGs to control inbound/outbound traffic to cluster nodes and pods |
+| `routeTables/*` | Creates route tables for custom traffic routing within the VNet |
+| `publicIPAddresses/*` | Allocates static public IPs for NAT gateways (Standard SKU, one per AZ) |
+| `loadBalancers/*` | Manages the Kubernetes Standard load balancer for service exposure |
+| `networkInterfaces/*` | Manages network interfaces for AKS node VMs |
+| `natGateways/*` | Creates zone-redundant NAT gateways for deterministic outbound IP addresses |
+| `locations/operations/read` | Monitors long-running network operations |
+| `locations/usages/read` | Checks networking quota (public IPs, VNets, etc.) |
+| `operations/read` | Lists available network operations |
+| `dnsZones/*` | Manages public DNS zones for application domain resolution |
+| `privateDnsZones/*` | Manages private DNS zones for internal service discovery |
+| `publicIPPrefixes/*` | Manages public IP prefixes for contiguous IP allocation |
+| `applicationSecurityGroups/*` | Groups VMs by security policy for granular NSG rules |
+| `privateEndpoints/*` | Creates private endpoints for secure access to Azure services (storage, registry) without public internet |
+| `privateLinkServices/*` | Exposes services via Azure Private Link |
+
+---
+
+### Compute — `Microsoft.Compute`
+
+| Permission | Why |
+|---|---|
+| `virtualMachineScaleSets/*` | Manages AKS node pool VMSS: scaling, updates, instance management. Karpenter uses VMSS for dynamic node provisioning |
+| `virtualMachines/*` | Manages individual VM instances within node pools |
+| `disks/*` | Creates and manages managed disks for persistent volumes (supports Standard, Premium, Premium V2, and Ultra SSD) |
+| `snapshots/*` | Creates disk snapshots for backup and restore of persistent volumes |
+| `availabilitySets/*` | Manages availability sets for VM placement across fault domains |
+| `locations/operations/read` | Monitors long-running compute operations |
+| `locations/usages/read` | Checks compute quota (vCPUs, VMs) before provisioning |
+| `locations/vmSizes/read` | Lists available VM sizes in the target region — Qovery supports 600+ Azure instance types (B, D, E, F series and more) |
+| `operations/read` | Lists available compute operations |
+
+---
+
+### Resource Manager — `Microsoft.Resources`
+
+| Permission | Why |
+|---|---|
+| `subscriptions/resourceGroups/*` | Creates a dedicated resource group per cluster to isolate all Qovery resources. Tags include cluster_id, organization_id, region, creation_date |
+| `subscriptions/resources/read` | Lists resources within the subscription for discovery and validation |
+| `deployments/*` | Manages Azure Resource Manager deployments (ARM templates) used by some provisioning operations |
+| `subscriptions/operationresults/read` | Monitors long-running subscription-level operations |
+| `subscriptions/providers/read` | Reads registered resource providers to verify prerequisites |
+
+---
+
+### Authorization — `Microsoft.Authorization`
+
+| Permission | Why |
+|---|---|
+| `roleAssignments/*` | Creates role assignments to bind managed identities to Azure roles. Qovery assigns: **Virtual Machine Contributor** and **Network Contributor** to Karpenter, **Storage Blob Data Contributor** to storage and Thanos identities, **Contributor** to the AKS system identity |
+| `roleDefinitions/read` | Reads built-in role definitions to reference them in assignments |
+| `*/read` | Reads authorization metadata across all resource types for validation |
+
+<Info>
+  Qovery creates these managed identities with **Workload Identity** (OIDC federation):
+  - **Karpenter MSI** — VM/Network Contributor for node provisioning
+  - **Storage MSI** — Blob Data Contributor for logs and state
+  - **Thanos MSI** — Blob Data Contributor for metrics storage
+
+  Each identity is scoped to the cluster's resource group.
+</Info>
+
+---
+
+### Managed Identity — `Microsoft.ManagedIdentity`
+
+| Permission | Why |
+|---|---|
+| `userAssignedIdentities/*` | Creates user-assigned managed identities for Karpenter, storage, and Thanos. Each identity gets a federated credential linked to a Kubernetes service account via OIDC |
+| `*/read` | Reads managed identity metadata for validation and reference |
+
+---
+
+### Key Vault — `Microsoft.KeyVault`
+
+| Permission | Why |
+|---|---|
+| `vaults/*` | Creates and manages Key Vault instances for storing secrets, certificates, and encryption keys used by cluster components |
+| `operations/read` | Lists available Key Vault operations |
+
+---
+
+### Monitoring — `Microsoft.Insights`
+
+| Permission | Why |
+|---|---|
+| `components/*` | Creates Application Insights components for application monitoring |
+| `webtests/*` | Manages availability tests for endpoint monitoring |
+| `alertRules/*` | Creates alert rules for infrastructure and application health |
+| `diagnosticSettings/*` | Configures diagnostic settings to route platform logs and metrics |
+| `logDefinitions/read` | Reads available log categories for diagnostic configuration |
+| `metricDefinitions/read` | Reads available metric definitions for monitoring dashboards |
+
+---
+
+### Features — `Microsoft.Features`
+
+| Permission | Why |
+|---|---|
+| `features/read` | Reads available Azure feature flags |
+| `providers/features/read` | Checks if preview features are registered for the subscription |
+| `providers/features/register/action` | Registers preview features required by AKS (e.g., Karpenter support, Cilium data plane) |
+
+---
+
+### Container Instances — `Microsoft.ContainerInstance`
+
+| Permission | Why |
+|---|---|
+| `containerGroups/*` | Creates container groups for utility tasks (similar to Cloud Run Jobs on GCP) |
+| `locations/operations/read` | Monitors container instance operations |
+| `operations/read` | Lists available container instance operations |
+| `locations/usages/read` | Checks container instance quota |
+
+---
+
+## Data Plane Permissions (DataActions)
+
+These permissions control access to the **data** within Azure resources (as opposed to management operations).
+
+### Blob Storage — `Microsoft.Storage`
+
+| Permission | Why |
+|---|---|
+| `storageAccounts/blobServices/containers/blobs/*` | Read, write, and delete blob objects in Qovery storage containers (kubeconfigs, log chunks, metrics blocks). Required for Loki log ingestion, Thanos metrics storage, and kubeconfig management |
+
+### Container Registry — `Microsoft.ContainerRegistry`
+
+| Permission | Why |
+|---|---|
+| `registries/repositories/content/read` | Pulls container images from ACR during pod deployments |
+| `registries/repositories/content/write` | Pushes built container images to ACR during CI/CD builds |
+| `registries/repositories/content/delete` | Removes old container images during cleanup and retention enforcement |
+| `registries/repositories/metadata/read` | Reads image tags, manifests, and repository metadata for version management |
+| `registries/repositories/metadata/write` | Updates image tags and metadata during build and promotion workflows |
+
+---
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Why does Qovery use a multi-tenant service principal?">
+    Qovery uses a **multi-tenant application** registered in Qovery's Azure AD tenant. When you run the setup script, it creates a service principal in **your** tenant that references this application. This means:
+    - Qovery never has direct access to your tenant credentials
+    - You control the service principal and its role assignment
+    - You can revoke access instantly by deleting the role assignment or service principal
+  </Accordion>
+
+  <Accordion title="Can I restrict these permissions further?">
+    The custom role contains the minimum permissions required for full cluster lifecycle management. If you don't use certain features (e.g., Key Vault, Container Instances), contact [Qovery support](/getting-started/useful-resources/help-and-support) for a tailored role definition.
+  </Accordion>
+
+  <Accordion title="What is the scope of the custom role?">
+    The custom role is scoped to a **single subscription** (`/subscriptions/{id}`). Qovery cannot access resources in other subscriptions. Within the subscription, Qovery creates a dedicated resource group per cluster and operates primarily within that group.
+  </Accordion>
+
+  <Accordion title="How can I audit what Qovery does with these permissions?">
+    Enable [Azure Activity Log](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log) and [Azure Monitor](https://learn.microsoft.com/en-us/azure/azure-monitor/) to get a full record of every API call made by the Qovery service principal. You can also review Qovery's [audit logs](/getting-started/security-and-compliance/audit-logs) for a high-level view.
+  </Accordion>
+
+  <Accordion title="What managed identities does Qovery create?">
+    Qovery creates dedicated **user-assigned managed identities** with Workload Identity (OIDC federation):
+    - **Karpenter MSI** — Virtual Machine Contributor + Network Contributor for dynamic node provisioning
+    - **Storage MSI** — Storage Blob Data Contributor for kubeconfig and log storage
+    - **Thanos MSI** — Storage Blob Data Contributor for long-term metrics storage
+
+    Each identity is federated with a specific Kubernetes service account, so credentials are never stored in pods.
+  </Accordion>
+</AccordionGroup>
