@@ -9,6 +9,17 @@ This page explains every AWS IAM permission that Qovery requires to create and m
   Qovery follows the **principle of least privilege** where possible. S3 and SQS permissions are scoped to `qovery*` resources only. Some services require broad permissions because Qovery fully manages the lifecycle of those resources on your behalf.
 </Info>
 
+## Setup Overview
+
+Qovery provides two methods to set up AWS credentials:
+
+1. **STS Assume Role (recommended)** — A CloudFormation stack creates an IAM role with temporary, auto-rotating credentials
+2. **Static Credentials** — An IAM user with an access key pair (requires manual rotation)
+
+Both methods use the same IAM policy. You can review the full setup process in the [AWS installation guide](/getting-started/installation/aws).
+
+---
+
 ## Policy Structure
 
 The Qovery IAM policy has **two statements**:
@@ -260,6 +271,27 @@ These permissions are **restricted** to resources whose names start with `qovery
 |---|---|
 | Creates SQS queues for Karpenter interruption events | Receives EventBridge events for spot interruptions, health events, and instance state changes |
 | Karpenter reads and deletes messages (`ReceiveMessage`, `DeleteMessage`, `GetQueueUrl`) | Karpenter processes interruption events to gracefully drain workloads before node termination |
+
+---
+
+## What Qovery Creates in Your Account
+
+Here's a summary of all resources Qovery provisions per cluster:
+
+| Resource | Count | Purpose |
+|---|---|---|
+| EKS cluster | 1 | Managed Kubernetes control plane |
+| VPC | 1 | Network isolation for the cluster |
+| Subnets | 6 | 3 public + 3 private across availability zones |
+| NAT Gateways | up to 3 | Static outbound IP addresses |
+| Elastic IPs | up to 3 | Fixed IPs for NAT Gateways |
+| Security Groups | 3+ | Network access control for cluster, workers, databases |
+| EC2 instances | varies | Worker nodes managed by Karpenter |
+| S3 buckets | 3+ | Terraform state, VPC flow logs, Loki logs |
+| SQS queues | 1 | Karpenter interruption events |
+| IAM roles | 8+ | EKS, workers, Karpenter, ALB controller, Loki, ESO, etc. |
+| Load Balancer | 1+ | Ingress traffic routing |
+| CloudWatch log groups | 5 | EKS control plane logs |
 
 ---
 

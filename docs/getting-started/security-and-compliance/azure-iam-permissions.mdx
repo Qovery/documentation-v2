@@ -250,6 +250,26 @@ These permissions control access to the **data** within Azure resources (as oppo
 
 ---
 
+## What Qovery Creates in Your Account
+
+Here's a summary of all resources Qovery provisions per cluster:
+
+| Resource | Count | Purpose |
+|---|---|---|
+| Resource Group | 1 | Isolates all cluster resources |
+| AKS cluster | 1 | Managed Kubernetes control plane |
+| Virtual Network | 1 | Network isolation for the cluster |
+| Subnets | 3 | One per availability zone |
+| NAT Gateways | 3 | One per zone for static outbound IPs |
+| Public IPs | 3 | Static IPs for NAT Gateways |
+| Storage Account | 1 | Blob storage for kubeconfigs, logs, metrics |
+| Blob containers | 3 | Kubeconfigs, logs (Loki), metrics (Thanos) |
+| Container Registry | 1 | Docker image storage |
+| Managed Identities | 3+ | Karpenter, storage, Thanos |
+| Load Balancer | 1+ | Ingress traffic routing |
+
+---
+
 ## Security Best Practices
 
 <AccordionGroup>

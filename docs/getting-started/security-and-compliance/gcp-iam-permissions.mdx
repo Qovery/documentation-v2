@@ -304,6 +304,24 @@ Qovery uses Cloud Run Jobs for **asynchronous cleanup tasks** (e.g., deleting GC
 
 ---
 
+## What Qovery Creates in Your Account
+
+Here's a summary of all resources Qovery provisions per cluster:
+
+| Resource | Count | Purpose |
+|---|---|---|
+| GKE Autopilot cluster | 1 | Managed Kubernetes control plane |
+| VPC network | 1 | Network isolation for the cluster |
+| Subnetwork | 1 | Pod and service IP ranges |
+| Cloud Router | 1 | BGP router for NAT configuration |
+| Cloud NAT | 1 | Outbound internet access for nodes |
+| GCS buckets | 3 | Kubeconfigs, logs (Loki), metrics (Thanos) |
+| Artifact Registry repositories | 1+ | Docker image storage |
+| Service accounts | 5+ | Cluster nodes, Loki, ESO, KEDA, Thanos |
+| Firewall rules | 5+ | Intra-cluster, webhook, and logging rules |
+
+---
+
 ## Security Best Practices
 
 <AccordionGroup>
