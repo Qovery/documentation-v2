@@ -246,6 +246,18 @@ The policy grants only specific EventBridge actions:
 
 ---
 
+### Service Quotas — `servicequotas:GetServiceQuota`
+
+| What Qovery does | Why |
+|---|---|
+| Reads your actual account quotas for EKS clusters, Elastic IPs, and VPCs | Used by [preflight checks](/configuration/integrations/kubernetes/eks/preflight-checks) to validate that your AWS account has sufficient quotas before creating a cluster |
+
+<Info>
+  This is a **read-only** permission. If not granted, preflight checks still work but fall back to AWS default quota limits, which may not reflect your actual account limits. A **WARN** is displayed in the preflight report to inform you.
+</Info>
+
+---
+
 ## Statement 2 — Scoped to `qovery*` Resources
 
 These permissions are **restricted** to resources whose names start with `qovery`. Qovery cannot access any S3 buckets or SQS queues that you created outside of Qovery.
