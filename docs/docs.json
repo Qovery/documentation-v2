@@ -96,10 +96,15 @@
                 "group": "Security & Compliance",
                 "pages": [
                   "getting-started/security-and-compliance/overview",
-                  "getting-started/security-and-compliance/aws-iam-permissions",
-                  "getting-started/security-and-compliance/gcp-iam-permissions",
-                  "getting-started/security-and-compliance/azure-iam-permissions",
-                  "getting-started/security-and-compliance/scaleway-iam-permissions",
+                  {
+                    "group": "IAM Permissions Reference",
+                    "pages": [
+                      "getting-started/security-and-compliance/aws-iam-permissions",
+                      "getting-started/security-and-compliance/gcp-iam-permissions",
+                      "getting-started/security-and-compliance/azure-iam-permissions",
+                      "getting-started/security-and-compliance/scaleway-iam-permissions"
+                    ]
+                  },
                   "getting-started/security-and-compliance/audit-logs",
                   "getting-started/security-and-compliance/soc2",
                   "getting-started/security-and-compliance/gdpr",
