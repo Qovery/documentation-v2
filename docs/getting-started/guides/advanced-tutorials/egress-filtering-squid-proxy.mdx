@@ -101,11 +101,18 @@ Add the following environment variables to your application in Qovery:
 
 | Variable | Value | Purpose |
 |---|---|---|
-| `HTTPS_PROXY` | `http://<squid-service-name>:3128` | Route HTTPS traffic through proxy |
-| `HTTP_PROXY` | `http://<squid-service-name>:3128` | Route HTTP traffic through proxy |
+| `HTTPS_PROXY` | `http://$QOVERY_CONTAINER_<ID>_HOST_INTERNAL:3128` | Route HTTPS traffic through proxy |
+| `HTTP_PROXY` | `http://$QOVERY_CONTAINER_<ID>_HOST_INTERNAL:3128` | Route HTTP traffic through proxy |
 | `NO_PROXY` | `127.0.0.1,localhost,.svc,.cluster.local` | Bypass proxy for internal traffic |
 
-Replace `<squid-service-name>` with the internal DNS name of the Squid service (the Qovery service name in lowercase, e.g. `squid-proxy`).
+Qovery automatically exposes a built-in variable for each service's internal hostname. For your Squid container service it will look like `QOVERY_CONTAINER_<ID>_HOST_INTERNAL`. You can find the exact variable name in the **Environment Variables** tab of your Squid service, under the built-in variables section.
+
+Use it by reference so the value stays correct across redeployments:
+
+```
+HTTP_PROXY=http://{{ QOVERY_CONTAINER_<ID>_HOST_INTERNAL }}:3128
+HTTPS_PROXY=http://{{ QOVERY_CONTAINER_<ID>_HOST_INTERNAL }}:3128
+```
 
 <Info>
 Some runtimes and libraries also read lowercase variants: `http_proxy`, `https_proxy`, `no_proxy`. Set both if your language runtime requires it.
