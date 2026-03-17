@@ -68,10 +68,6 @@ acl allowed_domains dstdomain \
 
 http_access allow allowed_domains
 http_access deny all
-
-# Send logs to stdout/stderr for visibility in Qovery logs
-access_log stdio:/dev/stdout
-cache_log stdio:/dev/stderr
 ```
 
 Replace `.example.com` and `.another-service.com` with the domains your application actually needs to reach.
