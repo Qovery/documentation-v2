@@ -13,7 +13,7 @@ Qovery's built-in controls focus on ingress. Per-application egress domain filte
 
 The approach has three parts:
 
-1. **Squid forward proxy** — runs inside the cluster and enforces a domain allowlist
+1. **Squid forward proxy** — runs inside the cluster as a container service and enforces a domain allowlist
 2. **App environment variables** — tell your application to route all outbound traffic through the proxy
 3. **Kubernetes NetworkPolicy** *(optional)* — prevents the application from bypassing the proxy by talking directly to the internet
 
@@ -30,16 +30,33 @@ IP-based filtering (Security Groups / NACLs) is **not reliable** for domain-base
 ## Prerequisites
 
 - A Qovery environment with at least one application running
-- Basic familiarity with Kubernetes and Helm
 - A list of domains your application needs to reach
 
-## Step 1: Deploy a Squid proxy in your environment
+## Step 1: Deploy Squid as a container service
 
-Deploy Squid as a dedicated service inside the same Qovery environment as your application. You can use a Helm chart or a custom container.
+Create a new **Container** service in your Qovery environment using the `ubuntu/squid` image.
 
-### Squid configuration
+### Configure the service
 
-Create a `squid.conf` with your domain allowlist:
+| Setting | Value |
+|---|---|
+| Image | `ubuntu/squid` |
+| Port | `3128` (do not expose publicly) |
+
+### Pass the Squid configuration as a file variable
+
+Rather than baking a config into a custom image, pass your `squid.conf` as a **file variable** mounted directly into the container.
+
+In Qovery, create a new variable with:
+
+| Field | Value |
+|---|---|
+| Name | `SQUID_CONF` (or any name) |
+| Type | File |
+| Mount path | `/etc/squid/squid.conf` |
+| Value | *(the squid.conf content below)* |
+
+File content:
 
 ```nginx
 http_port 3128
@@ -57,45 +74,25 @@ access_log stdio:/dev/stdout
 cache_log stdio:/dev/stderr
 ```
 
+Replace `.example.com` and `.another-service.com` with the domains your application actually needs to reach.
+
 <Tip>
 Start with a permissive allowlist and use the proxy logs to discover all the domains your application actually contacts before tightening it. External services often use multiple hostnames for APIs, CDNs, redirects, and object storage.
 </Tip>
 
-### Deploy via Helm
+### Configure health probes
 
-Use any Squid Helm chart and mount the config above. Example `values.yaml`:
+Add the following exec probe so Qovery (and Kubernetes) can verify Squid is healthy:
 
-```yaml
-replicaCount: 1
+| Probe | Command |
+|---|---|
+| Liveness | `squid -k check` |
+| Readiness | `squid -k check` |
 
-service:
-  type: ClusterIP
-  port: 3128
-
-resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
-  limits:
-    cpu: 500m
-    memory: 512Mi
-
-config: |
-  http_port 3128
-
-  acl allowed_domains dstdomain \
-    .example.com \
-    .another-service.com
-
-  http_access allow allowed_domains
-  http_access deny all
-
-  access_log stdio:/dev/stdout
-  cache_log stdio:/dev/stderr
-```
+`squid -k check` sends a signal to the running Squid process and exits with a non-zero code if the process is not responding — making it a reliable health signal.
 
 <Warning>
-Use `ClusterIP` — this proxy is for internal use only and should never be exposed publicly.
+Do not expose this service publicly. It is an internal proxy and should only be reachable from within the cluster.
 </Warning>
 
 ## Step 2: Configure the application to use the proxy
@@ -104,11 +101,11 @@ Add the following environment variables to your application in Qovery:
 
 | Variable | Value | Purpose |
 |---|---|---|
-| `HTTPS_PROXY` | `http://squid-proxy:3128` | Route HTTPS traffic through proxy |
-| `HTTP_PROXY` | `http://squid-proxy:3128` | Route HTTP traffic through proxy |
+| `HTTPS_PROXY` | `http://<squid-service-name>:3128` | Route HTTPS traffic through proxy |
+| `HTTP_PROXY` | `http://<squid-service-name>:3128` | Route HTTP traffic through proxy |
 | `NO_PROXY` | `127.0.0.1,localhost,.svc,.cluster.local` | Bypass proxy for internal traffic |
 
-Replace `squid-proxy` with the actual Kubernetes service name of your Squid deployment.
+Replace `<squid-service-name>` with the internal DNS name of the Squid service (the Qovery service name in lowercase, e.g. `squid-proxy`).
 
 <Info>
 Some runtimes and libraries also read lowercase variants: `http_proxy`, `https_proxy`, `no_proxy`. Set both if your language runtime requires it.
@@ -179,7 +176,7 @@ Once an egress NetworkPolicy is applied, **only traffic explicitly listed is all
     Check that:
     - `HTTPS_PROXY` and `HTTP_PROXY` are set and point to the correct hostname and port
     - `NO_PROXY` includes `.svc` and `.cluster.local`
-    - The Squid pod is running and healthy
+    - The Squid pod is running and healthy (`squid -k check` probe passes)
     - The Squid service name matches the hostname in the env vars
     - If NetworkPolicy is applied, DNS (port 53) is explicitly allowed
   </Accordion>
@@ -198,17 +195,21 @@ Once an egress NetworkPolicy is applied, **only traffic explicitly listed is all
   <Accordion title="Some requests succeed but others fail intermittently">
     This often happens when an external service uses multiple backend hostnames or load balances across CDN nodes. Check proxy logs for blocked requests and add the missing hostnames to the allowlist.
   </Accordion>
+
+  <Accordion title="Squid health probe is failing">
+    Make sure the container has fully started before the probe runs — `ubuntu/squid` may take a few seconds to initialize. Add a `initialDelaySeconds` to the probe if needed. You can also exec into the container and run `squid -k check` manually to check the process state.
+  </Accordion>
 </AccordionGroup>
 
 ## Related documentation
 
 <CardGroup cols={2}>
   <Card title="Environment Variables" icon="key" href="/configuration/environment-variable">
-    Configure environment variables and secrets on your services
+    Configure environment variables and file variables on your services
   </Card>
 
-  <Card title="Deploy a Helm Chart" icon="helm" href="/configuration/helm-chart">
-    Deploy Squid or other tools as a Helm service in Qovery
+  <Card title="Container Service" icon="docker" href="/configuration/application">
+    Deploy a container image as a Qovery service
   </Card>
 
   <Card title="Security Overview" icon="shield" href="/getting-started/security-and-compliance/overview">
