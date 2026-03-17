@@ -3,7 +3,7 @@ title: "Filter Outbound Traffic with an Egress Proxy"
 description: "Restrict outbound HTTP(S) traffic for a single application using a Squid forward proxy and Kubernetes NetworkPolicy"
 ---
 
-This guide shows how to restrict outbound HTTP(S) traffic for a single application running on a Qovery-managed cluster. The pattern is particularly useful for **agentic or automation workloads** where you want to reduce data exfiltration risk by only allowing calls to a predefined set of domains.
+This guide shows how to restrict outbound HTTP(S) traffic for a single application running on a Qovery-managed cluster. The goal is to enforce a domain allowlist so the application can only reach a predefined set of external services.
 
 <Info>
 Qovery's built-in controls focus on ingress. Per-application egress domain filtering is handled at the Kubernetes level using a dedicated forward proxy.
@@ -24,7 +24,7 @@ The approach has three parts:
 ```
 
 <Warning>
-IP-based filtering (Security Groups / NACLs) is **not reliable** for this use case. Services like GitHub, npm, Anthropic, and Linear sit behind CDNs and use multiple IPs that change over time. Domain-based filtering via a forward proxy is the right approach.
+IP-based filtering (Security Groups / NACLs) is **not reliable** for domain-based allowlisting. Many external services sit behind CDNs and use multiple IPs that change over time. A forward proxy that filters on the destination hostname is the right approach.
 </Warning>
 
 ## Prerequisites
@@ -32,10 +32,6 @@ IP-based filtering (Security Groups / NACLs) is **not reliable** for this use ca
 - A Qovery environment with at least one application running
 - Basic familiarity with Kubernetes and Helm
 - A list of domains your application needs to reach
-
-<Info>
-**About EKS Application Network Policies and Envoy:** EKS FQDN-based policies are tied to EKS Auto Mode and are not available on standard Qovery-managed clusters. The Envoy Gateway being introduced in Qovery covers ingress only — it is a different component from an egress gateway. The proxy pattern described here is the recommended approach today.
-</Info>
 
 ## Step 1: Deploy a Squid proxy in your environment
 
@@ -50,12 +46,8 @@ http_port 3128
 
 # Define your approved destinations
 acl allowed_domains dstdomain \
-  .anthropic.com \
-  .github.com \
-  .githubusercontent.com \
-  .npmjs.org \
-  .npmjs.com \
-  .linear.app
+  .example.com \
+  .another-service.com
 
 http_access allow allowed_domains
 http_access deny all
@@ -66,7 +58,7 @@ cache_log stdio:/dev/stderr
 ```
 
 <Tip>
-Start with a permissive allowlist and use the proxy logs to discover all the domains your application actually contacts before tightening it. SaaS services often use multiple hostnames for APIs, CDNs, redirects, and object storage.
+Start with a permissive allowlist and use the proxy logs to discover all the domains your application actually contacts before tightening it. External services often use multiple hostnames for APIs, CDNs, redirects, and object storage.
 </Tip>
 
 ### Deploy via Helm
@@ -92,12 +84,8 @@ config: |
   http_port 3128
 
   acl allowed_domains dstdomain \
-    .anthropic.com \
-    .github.com \
-    .githubusercontent.com \
-    .npmjs.org \
-    .npmjs.com \
-    .linear.app
+    .example.com \
+    .another-service.com
 
   http_access allow allowed_domains
   http_access deny all
@@ -136,30 +124,27 @@ Once both services are deployed, exec into your application container and test:
 
 ```bash
 # Should succeed — domain is in the allowlist
-curl -I https://api.anthropic.com
-
-# Should succeed
-curl -I https://api.github.com
+curl -I https://allowed-service.example.com
 
 # Should fail — domain is not in the allowlist
-curl -I https://example.org
+curl -I https://not-allowed.example.com
 ```
 
 Check the Squid container logs in Qovery to see all outbound requests and their status.
 
 ## Step 4 (optional): Enforce with a NetworkPolicy
 
-A NetworkPolicy prevents your application from bypassing the proxy and talking directly to the internet. This step requires that your cluster networking plugin supports egress enforcement (e.g. AWS VPC CNI with network policy support enabled, or Calico/Cilium).
+A NetworkPolicy prevents your application from bypassing the proxy and talking directly to the internet. This step requires that your cluster networking plugin supports egress enforcement (e.g. AWS VPC CNI with network policy support enabled).
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: my-agent-egress-via-proxy
+  name: my-app-egress-via-proxy
 spec:
   podSelector:
     matchLabels:
-      app: my-agent        # label on your application pods
+      app: my-app           # label on your application pods
   policyTypes:
     - Egress
   egress:
@@ -187,47 +172,6 @@ spec:
 Once an egress NetworkPolicy is applied, **only traffic explicitly listed is allowed** — everything else is dropped by default. Make sure DNS is allowed or name resolution will fail entirely.
 </Warning>
 
-<Info>
-This NetworkPolicy is optional but strongly recommended for workloads where data exfiltration risk is a concern, such as autonomous AI agents.
-</Info>
-
-## Domain allowlist reference
-
-For common SaaS services used in AI agent workloads, here is a starter allowlist. Adjust based on what your proxy logs show during testing.
-
-<AccordionGroup>
-  <Accordion title="Anthropic">
-    ```
-    .anthropic.com
-    ```
-  </Accordion>
-
-  <Accordion title="GitHub">
-    ```
-    .github.com
-    .githubusercontent.com
-    .githubassets.com
-    ```
-  </Accordion>
-
-  <Accordion title="npm">
-    ```
-    .npmjs.org
-    .npmjs.com
-    ```
-  </Accordion>
-
-  <Accordion title="Linear">
-    ```
-    .linear.app
-    ```
-  </Accordion>
-</AccordionGroup>
-
-<Warning>
-Treat this list as a starting point only. SaaS services frequently use additional hostnames for CDNs, object storage, authentication, and redirects. Always validate with proxy logs before locking down the allowlist.
-</Warning>
-
 ## Troubleshooting
 
 <AccordionGroup>
@@ -252,7 +196,7 @@ Treat this list as a starting point only. SaaS services frequently use additiona
   </Accordion>
 
   <Accordion title="Some requests succeed but others fail intermittently">
-    This often happens when a SaaS service uses multiple backend hostnames or load balances across CDN nodes. Check proxy logs for blocked requests and add the missing hostnames to the allowlist.
+    This often happens when an external service uses multiple backend hostnames or load balances across CDN nodes. Check proxy logs for blocked requests and add the missing hostnames to the allowlist.
   </Accordion>
 </AccordionGroup>
 
