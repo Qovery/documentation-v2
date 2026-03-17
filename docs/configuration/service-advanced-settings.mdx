@@ -1034,6 +1034,25 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 90
 ```
 
+<a id="network-gateway-api-http-connection-idle-timeout-seconds"></a>
+
+### network.gateway_api.http_connection_idle_timeout_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the maximum idle time in seconds for HTTP connections between Envoy Gateway and backend pods. If no data is exchanged during this period, the connection is closed.
+
+**Use Case:** Control how long idle backend connections stay open to balance performance and resource usage. Increase it for long-lived or bursty traffic patterns; decrease it to reclaim resources faster and reduce stale connections.
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+120
+```
+
 <a id="network-dns-ndots"></a>
 
 ### network.dns.ndots

@@ -875,6 +875,52 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Default Value:** `1024`
 
+<a id="envoy-gateway-api-http-request-timeout-seconds"></a>
+
+### envoy.gateway_api.http_request_timeout_seconds
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the default request timeout in seconds for Envoy Gateway BackendTrafficPolicy. This value is used when services do not define `network.gateway_api.http_request_timeout_seconds`.
+
+**Use Case:** Configure a cluster-wide timeout baseline for Gateway API routes while still allowing service-level overrides when needed.
+
+<Warning>
+After changing this setting, redeploy your applications and services in this cluster to apply the new timeout on generated Gateway API resources.
+</Warning>
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+90
+```
+
+<a id="envoy-gateway-api-http-connection-idle-timeout-seconds"></a>
+
+### envoy.gateway_api.http_connection_idle_timeout_seconds
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the default idle connection timeout in seconds for Envoy Gateway BackendTrafficPolicy. This value is used when services do not define `network.gateway_api.http_connection_idle_timeout_seconds`.
+
+**Use Case:** Apply a cluster-wide default for idle HTTP backend connections while keeping service-level tuning available.
+
+<Warning>
+After changing this setting, redeploy your applications and services in this cluster to apply the new timeout on generated Gateway API resources.
+</Warning>
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+120
+```
+
 <a id="envoy-client-ip-detection-x-forwarded-for-number-trusted-hops"></a>
 
 ### envoy.client_ip_detection.x_forwarded_for.number_trusted_hops
