@@ -134,7 +134,7 @@ Check the Squid container logs in Qovery to see all outbound requests and their 
 
 ## Step 4 (optional): Enforce with a NetworkPolicy
 
-A NetworkPolicy prevents your application from bypassing the proxy and talking directly to the internet. This step requires that your cluster networking plugin supports egress enforcement (e.g. AWS VPC CNI with network policy support enabled).
+A NetworkPolicy prevents your application from bypassing the proxy and talking directly to the internet. Qovery-managed clusters run AWS VPC CNI with network policy support enabled, so this works out of the box.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
