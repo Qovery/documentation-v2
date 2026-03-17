@@ -1,0 +1,277 @@
+---
+title: "Filter Outbound Traffic with an Egress Proxy"
+description: "Restrict outbound HTTP(S) traffic for a single application using a Squid forward proxy and Kubernetes NetworkPolicy"
+---
+
+This guide shows how to restrict outbound HTTP(S) traffic for a single application running on a Qovery-managed cluster. The pattern is particularly useful for **agentic or automation workloads** where you want to reduce data exfiltration risk by only allowing calls to a predefined set of domains.
+
+<Info>
+Qovery's built-in controls focus on ingress. Per-application egress domain filtering is handled at the Kubernetes level using a dedicated forward proxy.
+</Info>
+
+## How it works
+
+The approach has three parts:
+
+1. **Squid forward proxy** — runs inside the cluster and enforces a domain allowlist
+2. **App environment variables** — tell your application to route all outbound traffic through the proxy
+3. **Kubernetes NetworkPolicy** *(optional)* — prevents the application from bypassing the proxy by talking directly to the internet
+
+```
+[ Your App ] → [ Squid Proxy ] → [ Allowed domains only ]
+                    ↑
+             allowlist enforced here
+```
+
+<Warning>
+IP-based filtering (Security Groups / NACLs) is **not reliable** for this use case. Services like GitHub, npm, Anthropic, and Linear sit behind CDNs and use multiple IPs that change over time. Domain-based filtering via a forward proxy is the right approach.
+</Warning>
+
+## Prerequisites
+
+- A Qovery environment with at least one application running
+- Basic familiarity with Kubernetes and Helm
+- A list of domains your application needs to reach
+
+<Info>
+**About EKS Application Network Policies and Envoy:** EKS FQDN-based policies are tied to EKS Auto Mode and are not available on standard Qovery-managed clusters. The Envoy Gateway being introduced in Qovery covers ingress only — it is a different component from an egress gateway. The proxy pattern described here is the recommended approach today.
+</Info>
+
+## Step 1: Deploy a Squid proxy in your environment
+
+Deploy Squid as a dedicated service inside the same Qovery environment as your application. You can use a Helm chart or a custom container.
+
+### Squid configuration
+
+Create a `squid.conf` with your domain allowlist:
+
+```nginx
+http_port 3128
+
+# Define your approved destinations
+acl allowed_domains dstdomain \
+  .anthropic.com \
+  .github.com \
+  .githubusercontent.com \
+  .npmjs.org \
+  .npmjs.com \
+  .linear.app
+
+http_access allow allowed_domains
+http_access deny all
+
+# Send logs to stdout/stderr for visibility in Qovery logs
+access_log stdio:/dev/stdout
+cache_log stdio:/dev/stderr
+```
+
+<Tip>
+Start with a permissive allowlist and use the proxy logs to discover all the domains your application actually contacts before tightening it. SaaS services often use multiple hostnames for APIs, CDNs, redirects, and object storage.
+</Tip>
+
+### Deploy via Helm
+
+Use any Squid Helm chart and mount the config above. Example `values.yaml`:
+
+```yaml
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 3128
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+config: |
+  http_port 3128
+
+  acl allowed_domains dstdomain \
+    .anthropic.com \
+    .github.com \
+    .githubusercontent.com \
+    .npmjs.org \
+    .npmjs.com \
+    .linear.app
+
+  http_access allow allowed_domains
+  http_access deny all
+
+  access_log stdio:/dev/stdout
+  cache_log stdio:/dev/stderr
+```
+
+<Warning>
+Use `ClusterIP` — this proxy is for internal use only and should never be exposed publicly.
+</Warning>
+
+## Step 2: Configure the application to use the proxy
+
+Add the following environment variables to your application in Qovery:
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `HTTPS_PROXY` | `http://squid-proxy:3128` | Route HTTPS traffic through proxy |
+| `HTTP_PROXY` | `http://squid-proxy:3128` | Route HTTP traffic through proxy |
+| `NO_PROXY` | `127.0.0.1,localhost,.svc,.cluster.local` | Bypass proxy for internal traffic |
+
+Replace `squid-proxy` with the actual Kubernetes service name of your Squid deployment.
+
+<Info>
+Some runtimes and libraries also read lowercase variants: `http_proxy`, `https_proxy`, `no_proxy`. Set both if your language runtime requires it.
+</Info>
+
+<Warning>
+Always include `.svc` and `.cluster.local` in `NO_PROXY`. Without this, internal Kubernetes service calls will be routed through the proxy and may fail.
+</Warning>
+
+## Step 3: Validate the setup
+
+Once both services are deployed, exec into your application container and test:
+
+```bash
+# Should succeed — domain is in the allowlist
+curl -I https://api.anthropic.com
+
+# Should succeed
+curl -I https://api.github.com
+
+# Should fail — domain is not in the allowlist
+curl -I https://example.org
+```
+
+Check the Squid container logs in Qovery to see all outbound requests and their status.
+
+## Step 4 (optional): Enforce with a NetworkPolicy
+
+A NetworkPolicy prevents your application from bypassing the proxy and talking directly to the internet. This step requires that your cluster networking plugin supports egress enforcement (e.g. AWS VPC CNI with network policy support enabled, or Calico/Cilium).
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-agent-egress-via-proxy
+spec:
+  podSelector:
+    matchLabels:
+      app: my-agent        # label on your application pods
+  policyTypes:
+    - Egress
+  egress:
+    # Allow traffic to the Squid proxy
+    - to:
+        - podSelector:
+            matchLabels:
+              app: squid-proxy   # label on your Squid pods
+      ports:
+        - protocol: TCP
+          port: 3128
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+```
+
+<Warning>
+Once an egress NetworkPolicy is applied, **only traffic explicitly listed is allowed** — everything else is dropped by default. Make sure DNS is allowed or name resolution will fail entirely.
+</Warning>
+
+<Info>
+This NetworkPolicy is optional but strongly recommended for workloads where data exfiltration risk is a concern, such as autonomous AI agents.
+</Info>
+
+## Domain allowlist reference
+
+For common SaaS services used in AI agent workloads, here is a starter allowlist. Adjust based on what your proxy logs show during testing.
+
+<AccordionGroup>
+  <Accordion title="Anthropic">
+    ```
+    .anthropic.com
+    ```
+  </Accordion>
+
+  <Accordion title="GitHub">
+    ```
+    .github.com
+    .githubusercontent.com
+    .githubassets.com
+    ```
+  </Accordion>
+
+  <Accordion title="npm">
+    ```
+    .npmjs.org
+    .npmjs.com
+    ```
+  </Accordion>
+
+  <Accordion title="Linear">
+    ```
+    .linear.app
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Treat this list as a starting point only. SaaS services frequently use additional hostnames for CDNs, object storage, authentication, and redirects. Always validate with proxy logs before locking down the allowlist.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Application cannot reach anything">
+    Check that:
+    - `HTTPS_PROXY` and `HTTP_PROXY` are set and point to the correct hostname and port
+    - `NO_PROXY` includes `.svc` and `.cluster.local`
+    - The Squid pod is running and healthy
+    - The Squid service name matches the hostname in the env vars
+    - If NetworkPolicy is applied, DNS (port 53) is explicitly allowed
+  </Accordion>
+
+  <Accordion title="An allowed domain is still blocked">
+    Check:
+    - Whether the service uses a different hostname than expected (e.g. a CDN endpoint)
+    - Whether there are HTTP redirects to a non-allowlisted domain
+    - The proxy access log — it shows the exact destination the client is requesting
+  </Accordion>
+
+  <Accordion title="Internal service calls are failing">
+    Check that `.svc` and `.cluster.local` are in `NO_PROXY`. Without this, Kubernetes internal service discovery goes through the proxy and typically fails.
+  </Accordion>
+
+  <Accordion title="Some requests succeed but others fail intermittently">
+    This often happens when a SaaS service uses multiple backend hostnames or load balances across CDN nodes. Check proxy logs for blocked requests and add the missing hostnames to the allowlist.
+  </Accordion>
+</AccordionGroup>
+
+## Related documentation
+
+<CardGroup cols={2}>
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variable">
+    Configure environment variables and secrets on your services
+  </Card>
+
+  <Card title="Deploy a Helm Chart" icon="helm" href="/configuration/helm-chart">
+    Deploy Squid or other tools as a Helm service in Qovery
+  </Card>
+
+  <Card title="Security Overview" icon="shield" href="/getting-started/security-and-compliance/overview">
+    Security and compliance capabilities in Qovery
+  </Card>
+
+  <Card title="Advanced Settings" icon="sliders" href="/configuration/service-advanced-settings">
+    Fine-tune service behavior with advanced settings
+  </Card>
+</CardGroup>
