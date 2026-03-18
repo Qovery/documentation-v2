@@ -207,7 +207,7 @@ Enabling this setting creates 3 additional Elastic IPs in your AWS account. Each
 
 **Type:** `integer`
 
-**Description:** Maximum retention period (in weeks) for application logs collected by Loki. This applies to all pod logs (applications, containers, jobs, and cronjobs) stored in the Loki instance running on your cluster.
+**Description:** Maximum retention period (in weeks) for application logs collected by Loki and displayed in the Qovery console log viewer. Retention is enforced both at the Loki compactor level and via object storage lifecycle policies.
 
 **Use Case:** Increase for compliance requirements or debugging long-running issues. Decrease to save storage costs on the underlying object storage bucket.
 
