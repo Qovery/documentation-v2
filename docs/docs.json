@@ -469,6 +469,7 @@
             "pages": [
               "terraform-provider/basic-application",
               "terraform-provider/application-with-database",
+              "terraform-provider/linking-services",
               "terraform-provider/multi-environment",
               "terraform-provider/airbyte-deployment",
               "terraform-provider/advanced-patterns"
