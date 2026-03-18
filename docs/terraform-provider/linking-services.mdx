@@ -1,0 +1,117 @@
+---
+title: "Linking Services Together"
+description: "Use environment variable aliases to connect services using Qovery's built-in variables in Terraform"
+---
+
+When one service needs to call another, Qovery automatically generates built-in variables exposing each service's hostname. In Terraform, you expose those variables to a dependent service using `environment_variable_aliases`.
+
+## How built-in variable names work
+
+Each service deployed on Qovery gets a set of built-in variables derived from its ID. For applications, the pattern is:
+
+```
+QOVERY_APPLICATION_Z<FIRST_SEGMENT_OF_ID_UPPERCASE>_HOST_INTERNAL
+QOVERY_APPLICATION_Z<FIRST_SEGMENT_OF_ID_UPPERCASE>_HOST_EXTERNAL
+```
+
+For example, if the application ID is `a1b2c3d4-xxxx-xxxx-xxxx-xxxxxxxxxxxx`, the built-in variable is:
+
+```
+QOVERY_APPLICATION_ZA1B2C3D4_HOST_INTERNAL
+```
+
+<Info>
+Use `HOST_INTERNAL` for service-to-service communication within the same cluster. Use `HOST_EXTERNAL` only when the consumer must reach the other service from outside the cluster.
+</Info>
+
+## Linking two services with an alias
+
+In Terraform, you can compute the built-in variable name directly from the resource ID and pass it as an alias to the dependent service:
+
+```hcl
+resource "qovery_application" "backend" {
+  environment_id = qovery_environment.prod.id
+  name           = "backend"
+  # ...
+}
+
+resource "qovery_application" "frontend" {
+  environment_id = qovery_environment.prod.id
+  name           = "frontend"
+
+  # ...
+
+  environment_variable_aliases = [
+    {
+      key   = "BACKEND_HOST_INTERNAL"
+      value = "QOVERY_APPLICATION_Z${upper(element(split("-", qovery_application.backend.id), 0))}_HOST_INTERNAL"
+    }
+  ]
+}
+```
+
+The expression `upper(element(split("-", qovery_application.backend.id), 0))` splits the UUID on `-`, takes the first segment, and uppercases it — matching the name Qovery generates for that service.
+
+## Cleaner approach: helper outputs in a module
+
+If you wrap `qovery_application` in a reusable Terraform module, expose the built-in variable name as an output. This avoids repeating the string manipulation everywhere the module is used.
+
+**modules/application/outputs.tf**
+
+```hcl
+output "internal_host_envvar" {
+  value       = "QOVERY_APPLICATION_Z${upper(element(split("-", qovery_application.app.id), 0))}_HOST_INTERNAL"
+  description = "Built-in variable name for this service's internal hostname"
+}
+
+output "external_host_envvar" {
+  value       = "QOVERY_APPLICATION_Z${upper(element(split("-", qovery_application.app.id), 0))}_HOST_EXTERNAL"
+  description = "Built-in variable name for this service's external hostname"
+}
+```
+
+**main.tf**
+
+```hcl
+module "backend" {
+  source         = "./modules/application"
+  environment_id = qovery_environment.prod.id
+  name           = "backend"
+  # ...
+}
+
+module "frontend" {
+  source         = "./modules/application"
+  environment_id = qovery_environment.prod.id
+  name           = "frontend"
+
+  env_var_aliases = [
+    {
+      key   = "BACKEND_HOST_INTERNAL"
+      value = module.backend.internal_host_envvar
+    }
+  ]
+}
+```
+
+This keeps the string manipulation in one place and makes service dependencies explicit and readable across your whole Terraform codebase.
+
+## Related documentation
+
+<CardGroup cols={2}>
+  <Card title="Application with Database" icon="database" href="/terraform-provider/application-with-database">
+    Connect an application to a managed database
+  </Card>
+
+  <Card title="Advanced Patterns" icon="code" href="/terraform-provider/advanced-patterns">
+    Reusable modules and workspace management
+  </Card>
+
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variable">
+    Built-in variables reference
+  </Card>
+
+  <Card title="Provider Reference" icon="book" href="https://registry.terraform.io/providers/Qovery/qovery/latest/docs">
+    Full Terraform provider documentation
+  </Card>
+</CardGroup>
