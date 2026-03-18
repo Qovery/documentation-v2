@@ -325,8 +325,12 @@ Changing this setting will only affect new ECR repositories created after the ch
 **Description:** Allows you to specify the [image mirroring mode](/configuration/deployment/image-mirroring) to be used for each image deployed on this cluster.
 
 **Valid values:**
-- `Service` — each service gets its own ECR repository. Provides better isolation and per-service retention policies, but creates more repositories.
-- `Cluster` — all services share a single ECR repository. Reduces the number of repositories but images from different services are mixed together.
+- `Service` — each service gets its own mirror repository (`qovery-mirror-{service_id}`). Provides better isolation but creates more repositories. Works on **all** cluster types.
+- `Cluster` — all services in the cluster share a single mirror repository (`qovery-mirror-cluster-{cluster_id}`). Fewer repositories, but requires registry lifecycle policy support for automated image cleanup.
+
+<Warning>
+`Cluster` mode is only available on cluster types that support registry lifecycle policies: **EKS**, **GKE**, **AKS** (and their self-managed variants). It is not supported on DOKS, Scaleway Kapsule, or full self-managed clusters.
+</Warning>
 
 **Default Value:** `Service`
 
