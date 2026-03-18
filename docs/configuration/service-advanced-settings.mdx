@@ -117,7 +117,13 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Type:** `integer`
 
-**Description:** Allows you to specify the time in seconds that Kubernetes waits for a pod to gracefully shut down before forcefully terminating it.
+**Description:** Allows you to specify the time in seconds that Kubernetes waits for a pod to gracefully shut down before forcefully terminating it. This timer starts as soon as the pod receives a `SIGTERM` signal (or the `pre_stop` hook begins, if configured). If the pod is still running after this period, Kubernetes sends a `SIGKILL`.
+
+**Use Case:** Increase this value for services that need extra time to drain connections, finish background jobs, or flush data to disk. Keep it low for stateless workers that can restart quickly.
+
+<Warning>
+This value must be **greater than** the time your `deployment.lifecycle.pre_stop_exec_command` takes to complete. Otherwise Kubernetes will kill the pod before the pre-stop hook finishes.
+</Warning>
 
 **Default Value:** `60`
 
@@ -129,11 +135,47 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Type:** `Map<String, String>`
 
-**Description:** Allows you to define Kubernetes node affinity requirements to control pod placement on specific nodes based on labels.
+**Description:** Allows you to define Kubernetes node affinity requirements to control pod placement on specific nodes based on labels. Each key/value pair maps to a Kubernetes `nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution` rule — pods **will not be scheduled** unless a node matches **all** the specified labels.
 
-**Use Case:** Use this to ensure your services run on nodes with specific characteristics (e.g., SSD storage, specific instance types).
+**Use Case:** Use this to pin services to specific node pools, instance families, architectures, or capacity types.
 
 **Default Value:** `{}`
+
+<Tabs>
+  <Tab title="AWS — Karpenter on-demand stable pool">
+    Force pods onto the `stable` Karpenter NodePool using on-demand instances only:
+
+    ```json
+    {
+      "karpenter.sh/capacity-type": "on-demand",
+      "karpenter.sh/nodepool": "stable"
+    }
+    ```
+  </Tab>
+  <Tab title="AWS — Graviton (ARM64)">
+    Schedule on ARM64 Graviton instances for better price/performance:
+
+    ```json
+    {
+      "kubernetes.io/arch": "arm64"
+    }
+    ```
+  </Tab>
+  <Tab title="GCP Autopilot — ARM64 Performance">
+    Run on ARM64 nodes with the GCP Autopilot `Performance` compute class:
+
+    ```json
+    {
+      "kubernetes.io/arch": "arm64",
+      "cloud.google.com/compute-class": "Performance"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+If no node matches the required labels, your pods will stay in `Pending` state. Make sure the target node pool or nodes exist before applying this setting.
+</Warning>
 
 <a id="deployment-antiaffinity-pod"></a>
 
@@ -145,7 +187,11 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Description:** Allows you to define pod anti-affinity to control how pods are distributed across nodes. Options are `Preferred` or `Required`.
 
-**Use Case:** Use `Required` to ensure pods are never scheduled on the same node (hard requirement), or `Preferred` for a soft preference that can be overridden if necessary.
+**Use Case:** Use `Required` to guarantee that no two replicas of the same service land on the same node — critical for high-availability setups where a single node failure must not take down the entire service. Use `Preferred` (default) when you want Kubernetes to spread pods across nodes on a best-effort basis without blocking scheduling if not enough nodes are available.
+
+<Info>
+With `Required`, you need **at least as many nodes as replicas**. If your cluster doesn't have enough nodes, excess pods will stay `Pending`.
+</Info>
 
 **Default Value:** `Preferred`
 
@@ -159,7 +205,12 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Description:** Allows you to specify the deployment update strategy type. Options are `RollingUpdate` or `Recreate`.
 
-**Use Case:** `RollingUpdate` ensures zero-downtime deployments by gradually replacing pods. `Recreate` terminates all pods before creating new ones.
+**Use Case:**
+- **`RollingUpdate`** (default) — gradually replaces pods for zero-downtime deployments. Best for stateless services.
+- **`Recreate`** — terminates all existing pods before creating new ones. Use this when:
+  - Your service uses a **ReadWriteOnce (RWO) volume** that cannot be mounted by two pods simultaneously.
+  - You need to run a **database migration** at startup and cannot have two versions of the schema running at the same time.
+  - Your application does not support running two versions concurrently.
 
 **Default Value:** `RollingUpdate`
 
@@ -199,15 +250,20 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Type:** `string`
 
-**Description:** Allows you to specify a command to execute immediately after a container starts.
+**Description:** Allows you to specify a command to execute immediately after a container starts. The command runs **in parallel** with the container's main process and the readiness probe — it does **not** block traffic on its own.
 
-**Use Case:** Use this for initialization tasks that must run after the container starts but before it receives traffic.
+**Use Case:** Use this for initialization side-effects like warming a local cache, registering the instance with a service mesh, or writing a marker file that a readiness probe checks.
 
 **Default Value:** `""`
 
-**Example:**
+**Examples:**
 ```json
-["/bin/sh", "-c", "echo 'Container started' > /tmp/started"]
+// Warm the application cache at startup
+["/bin/sh", "-c", "curl -s http://localhost:8080/warmup || true"]
+```
+```json
+// Write a marker file for a readiness probe
+["/bin/sh", "-c", "touch /tmp/ready"]
 ```
 
 <a id="deployment-lifecycle-pre-stop-exec-command"></a>
@@ -218,15 +274,24 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 **Type:** `string`
 
-**Description:** Allows you to specify a command to execute before a container is terminated.
+**Description:** Allows you to specify a command to execute before a container is terminated. Kubernetes calls this hook when a pod is about to be stopped (scale-down, deployment, node drain). The main process receives `SIGTERM` **at the same time** as the hook starts.
 
-**Use Case:** Use this for graceful shutdown procedures, such as finishing in-flight requests or closing connections cleanly.
+**Use Case:** Use this to give your service time to drain in-flight requests, close database connections, or deregister from a load balancer before the pod disappears.
+
+<Info>
+The default `sleep 15` gives Kubernetes networking time to remove the pod from service endpoints before the process exits. If your service handles its own graceful shutdown, you may still want a short sleep to avoid receiving traffic after `SIGTERM`.
+</Info>
 
 **Default Value:** `["/bin/sh", "-c", "sleep 15"]`
 
-**Example:**
+**Examples:**
 ```json
-["/bin/sh", "-c", "kill -SIGTERM 1 && sleep 30"]
+// Notify the app to drain, then wait for connections to close
+["/bin/sh", "-c", "curl -s http://localhost:8080/drain && sleep 20"]
+```
+```json
+// Simple sleep to let LB deregister the pod
+["/bin/sh", "-c", "sleep 30"]
 ```
 
 ---
