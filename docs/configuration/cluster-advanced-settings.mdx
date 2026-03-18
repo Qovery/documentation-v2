@@ -105,7 +105,7 @@ resource "qovery_cluster" "my_cluster" {
 
 ## Cluster sizing
 
-<a id="aws-cloudwatch-eks-logs-retention-days"></a>
+<a id="cluster-profile"></a>
 
 ### cluster.profile
 
@@ -165,7 +165,9 @@ resource "qovery_cluster" "my_cluster" {
 
 **Type:** `boolean`
 
-**Description:** Enable flow logs on the cluster VPC and store them in an S3 bucket.
+**Description:** Enable flow logs on the cluster VPC and store them in an S3 bucket. VPC flow logs capture information about IP traffic going to and from network interfaces in your VPC.
+
+**Use Case:** Required for compliance frameworks (SOC 2, PCI-DSS, HIPAA) that mandate network traffic logging. Also useful for security investigations and troubleshooting connectivity issues.
 
 **Default Value:** `false`
 
@@ -205,7 +207,9 @@ Enabling this setting creates 3 additional Elastic IPs in your AWS account. Each
 
 **Type:** `integer`
 
-**Description:** Maximum Kubernetes pods (containers/applications/jobs/cronjobs) retention logs in weeks.
+**Description:** Maximum retention period (in weeks) for application logs collected by Loki and displayed in the Qovery console log viewer. Retention is enforced both at the Loki compactor level and via object storage lifecycle policies.
+
+**Use Case:** Increase for compliance requirements or debugging long-running issues. Decrease to save storage costs on the underlying object storage bucket.
 
 **Default Value:** `12` (84 days)
 
@@ -257,18 +261,38 @@ Enabling this setting creates 3 additional Elastic IPs in your AWS account. Each
 
 **Type:** `string`
 
-**Description:** Additional configuration to add to CoreDNS. This can be used to customize DNS resolution rules on the cluster.
+**Description:** Additional configuration to add to CoreDNS. This can be used to customize DNS resolution rules on the cluster. The value is appended to the default CoreDNS Corefile.
+
+**Use Case:** Forward specific domains to internal DNS servers (split-horizon DNS), resolve private hosted zones, or add custom caching rules.
 
 **Default Value:** `null`
 
-**Example:**
-```corefile
-example.com:53 {
-    errors
-    cache 30
-    forward . 8.8.8.8 8.8.4.4
-}
-```
+**Examples:**
+
+<Tabs>
+  <Tab title="Forward to internal DNS">
+    Route queries for your internal domain to a private DNS server:
+
+    ```corefile
+    corp.internal:53 {
+        errors
+        cache 30
+        forward . 10.0.0.2
+    }
+    ```
+  </Tab>
+  <Tab title="Forward to public resolver">
+    Use Google Public DNS for a specific domain:
+
+    ```corefile
+    example.com:53 {
+        errors
+        cache 30
+        forward . 8.8.8.8 8.8.4.4
+    }
+    ```
+  </Tab>
+</Tabs>
 
 ---
 
@@ -300,7 +324,13 @@ Changing this setting will only affect new ECR repositories created after the ch
 
 **Description:** Allows you to specify the [image mirroring mode](/configuration/deployment/image-mirroring) to be used for each image deployed on this cluster.
 
-**Valid values:** `Service`, `Cluster`
+**Valid values:**
+- `Service` — each service gets its own mirror repository (`qovery-mirror-{service_id}`). Provides better isolation but creates more repositories. Works on **all** cluster types.
+- `Cluster` — all services in the cluster share a single mirror repository (`qovery-mirror-cluster-{cluster_id}`). Fewer repositories, but requires registry lifecycle policy support for automated image cleanup.
+
+<Warning>
+`Cluster` mode is only available on cluster types that support registry lifecycle policies: **EKS**, **GKE**, **AKS** (and their self-managed variants). It is not supported on DOKS, Scaleway Kapsule, or full self-managed clusters.
+</Warning>
 
 **Default Value:** `Service`
 
@@ -1109,7 +1139,7 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `boolean`
 
-**Description:** Deny any access to all PostgreSQL databases.
+**Description:** Deny any access to all PostgreSQL databases. When enabled, **no** CIDR (including `allowed_cidrs`) can reach the database — this is a hard deny that overrides everything.
 
 <Warning>
 - Managed databases: Access is removed instantly
@@ -1126,9 +1156,14 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `string`
 
-**Description:** List of allowed CIDR ranges for PostgreSQL database access.
+**Description:** List of allowed CIDR ranges for PostgreSQL database access. Only traffic from these CIDRs can reach the database. Ignored if `database.postgresql.deny_any_access` is `true`.
 
 **Default Value:** `["0.0.0.0/0"]`
+
+**Example:** Restrict to your VPN and office IPs:
+```json
+["10.0.0.0/8", "203.0.113.0/24"]
+```
 
 <a id="database-mysql-deny-any-access"></a>
 
@@ -1138,7 +1173,7 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `boolean`
 
-**Description:** Deny any access to all MySQL databases.
+**Description:** Deny any access to all MySQL databases. When enabled, this overrides `allowed_cidrs`.
 
 <Warning>
 - Managed databases: Access is removed instantly
@@ -1155,7 +1190,7 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `string`
 
-**Description:** List of allowed CIDR ranges for MySQL database access.
+**Description:** List of allowed CIDR ranges for MySQL database access. Ignored if `database.mysql.deny_any_access` is `true`.
 
 **Default Value:** `["0.0.0.0/0"]`
 
@@ -1167,7 +1202,7 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `boolean`
 
-**Description:** Deny any access to all MongoDB databases.
+**Description:** Deny any access to all MongoDB databases. When enabled, this overrides `allowed_cidrs`.
 
 <Warning>
 - Managed databases: Access is removed instantly
@@ -1184,7 +1219,7 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `string`
 
-**Description:** List of allowed CIDR ranges for MongoDB database access.
+**Description:** List of allowed CIDR ranges for MongoDB database access. Ignored if `database.mongodb.deny_any_access` is `true`.
 
 **Default Value:** `["0.0.0.0/0"]`
 
@@ -1196,7 +1231,7 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `boolean`
 
-**Description:** Deny any access to all Redis databases.
+**Description:** Deny any access to all Redis databases. When enabled, this overrides `allowed_cidrs`.
 
 <Warning>
 - Managed databases: Access is removed instantly
@@ -1213,7 +1248,7 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `string`
 
-**Description:** List of allowed CIDR ranges for Redis database access.
+**Description:** List of allowed CIDR ranges for Redis database access. Ignored if `database.redis.deny_any_access` is `true`.
 
 **Default Value:** `["0.0.0.0/0"]`
 
@@ -1229,13 +1264,13 @@ Envoy Gateway automatically selects the best compression algorithm based on the 
 
 **Type:** `boolean`
 
-**Description:** Authorize CPU overcommit (limit > request) for services deployed within this cluster.
+**Description:** Authorize CPU overcommit (limit > request) for services deployed within this cluster. When enabled, pods can burst above their CPU request up to the configured limit when spare capacity is available on the node.
 
 <Warning>
-Using overcommit on pod resources can lead to instability on your cluster and we strongly discourage it. Be careful when using this feature.
+CPU overcommit can cause CPU throttling and unpredictable latency when nodes are under pressure. Use with caution in production.
 </Warning>
 
-**Use Case:** Once enabled, you can update the service advanced setting `resources.override.limit.cpu_in_mib`.
+**Use Case:** Once enabled, you can update the service advanced setting `resources.override.limit.cpu_in_milli` to set a CPU limit higher than the request.
 
 **Default Value:** `false`
 
@@ -1247,13 +1282,13 @@ Using overcommit on pod resources can lead to instability on your cluster and we
 
 **Type:** `boolean`
 
-**Description:** Authorize memory overcommit (limit > request) for services deployed within this cluster.
+**Description:** Authorize memory overcommit (limit > request) for services deployed within this cluster. When enabled, pods can use more memory than their request up to the configured limit.
 
 <Warning>
-Using overcommit on pod resources can lead to instability on your cluster and we strongly discourage it. Be careful when using this feature.
+Memory overcommit is riskier than CPU overcommit. Unlike CPU (which is throttled), exceeding memory limits causes the pod to be **OOM-killed**. If multiple pods on the same node exceed their requests simultaneously, the node can become unstable.
 </Warning>
 
-**Use Case:** Once enabled, you can update the service advanced setting `resources.override.limit.ram_in_mib`.
+**Use Case:** Once enabled, you can update the service advanced setting `resources.override.limit.ram_in_mib` to set a memory limit higher than the request.
 
 **Default Value:** `false`
 
@@ -1341,13 +1376,18 @@ It won't be possible to go back once this feature is activated.
 
 **Type:** `string`
 
-**Description:** Contains additional CIDRs that should be whitelisted to access the Kubernetes API.
+**Description:** Contains additional CIDRs that should be whitelisted to access the Kubernetes API. Use this to allow your team or CI/CD pipelines to reach the K8s API when `qovery.static_ip_mode` is enabled.
 
 <Info>
 `qovery.static_ip_mode` should be set to `true` to make this setting effective.
 </Info>
 
 **Default Value:** `[]`
+
+**Example:**
+```json
+["203.0.113.0/24", "198.51.100.10/32"]
+```
 
 ---
 
@@ -1363,7 +1403,9 @@ It won't be possible to go back once this feature is activated.
 
 **Description:** Specify the [IMDS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) version you want to use.
 
-**Valid values:** `required` (IMDS v2 only), `optional` (IMDS v1 and v2)
+**Valid values:**
+- `required` — IMDSv2 only (recommended). Forces all metadata requests to use session tokens, which protects against SSRF attacks that try to steal instance credentials.
+- `optional` — IMDSv1 and v2. Use only if you have legacy workloads that don't support IMDSv2.
 
 **Default Value:** `required`
 
@@ -1429,11 +1471,30 @@ If you need to connect to the Kubernetes cluster from your network, make sure to
 
 ### storageclass.fast_ssd
 
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
 **Type:** `string`
 
-**Description:** Specify the Kubernetes storageClass to be used for storage attached to your container databases and applications.
+**Description:** Specify the Kubernetes storageClass to be used for storage attached to your container databases and applications. Override this if you need a custom storageClass (e.g., for encryption, specific IOPS, or a different disk type).
 
-**Default Value:** Cloud provider specific
+**Default Value:** `""` (empty — each cloud provider uses its own default)
+
+When left empty, Qovery uses the following storageClasses per provider:
+
+| Cloud Provider | StorageClass | Disk Type |
+|---|---|---|
+| AWS | `aws-ebs-gp3-0` | General Purpose SSD (GP3) |
+| GCP | `gcp-pd-balanced` | Balanced persistent disk |
+| Azure | `azure-standard-ssd-zrs` | Standard SSD with zone-redundant storage |
+| Scaleway | `scw-sbv-ssd-0` | Block Storage SSD |
+
+<Info>
+**AWS GP2 → GP3 migration:** If your cluster still uses `aws-ebs-gp2-0` (legacy), we recommend migrating to `aws-ebs-gp3-0`. GP3 offers better baseline performance (3,000 IOPS and 125 MB/s included) at a lower cost than GP2. Set `storageclass.fast_ssd` to `aws-ebs-gp3-0` and redeploy your cluster.
+</Info>
+
+<Info>
+GCP also supports `gcp-pd-ssd` for higher IOPS. Azure supports `azure-premium-lrs`, `azure-premium-v2-lrs`, `azure-premium-zrs`, `azure-ultra-ssd-lrs`, and `azure-standard-ssd-lrs`.
+</Info>
 
 ---
 
