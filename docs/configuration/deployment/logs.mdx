@@ -46,6 +46,18 @@ By default, the deployment logs view shows the most recent deployment execution.
 - Deployment status updates during Kubernetes execution
 - Final success/failure confirmation with issue guidance
 
+### Build Runner Usage
+
+For services that include a build step (applications and jobs with a git source), a **Build runner usage** button appears in the deployment logs header alongside "Go to pipeline" and "Go to service logs".
+
+Clicking this button generates a temporary Grafana snapshot showing build pod resource usage (CPU, memory, network I/O) and opens it in a new tab. The link is publicly accessible and expires after **1 hour**.
+
+The snapshot covers from build start to ~40 minutes after, scoped to the specific build pod. This helps identify resource-constrained builds and right-size build infrastructure.
+
+<Note>
+This button is only visible for services with a build step. It does not appear for services deployed from a pre-built container image.
+</Note>
+
 You can access historical deployments through the "Deployment log switch" or the Deployment history tab.
 
 ![Deployment History](/images/deployment/deployment_history.png)
