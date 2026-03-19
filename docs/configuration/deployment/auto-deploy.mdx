@@ -24,7 +24,7 @@ The "Deployment restrictions" feature allows you to better control which commits
 There are two modes:
 
 - **EXCLUDE**: the deployment will be triggered for all commits EXCEPT the one that have changed ONLY the specified files/folders
-- **MATCH**: the deployment will be triggered ONLY if the commit has changed the specified files/folders
+- **MATCH**: the deployment will be triggered ONLY if the commit has changed the specified files/folders. If multiple MATCH conditions exist, only one of them has to be true to trigger the deployment.
 
 <Warning>
 Important notes:
