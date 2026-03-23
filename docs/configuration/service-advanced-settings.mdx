@@ -195,6 +195,74 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 
 **Default Value:** `Preferred`
 
+<a id="deployment-topology-spread-zone"></a>
+
+### deployment.topology_spread.zone
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+
+**Type:** `string`
+
+**Description:** Controls how pods are spread across availability zones using Kubernetes [`topologySpreadConstraints`](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/). This setting generates a constraint with `maxSkew: 1` and `topologyKey: topology.kubernetes.io/zone`.
+
+**Options:**
+
+| Value | Behavior |
+|---|---|
+| `Disabled` | No topology spread constraint is applied. Pods are scheduled without any zone-awareness. |
+| `ScheduleAnyway` | Kubernetes **tries** to spread pods evenly across zones, but will still schedule them even if the distribution is not perfect. This is a soft constraint — pods are never left `Pending` due to zone imbalance. |
+| `DoNotSchedule` | Kubernetes **enforces** even distribution across zones. If the scheduler cannot place a pod without exceeding a `maxSkew` of 1, the pod stays `Pending` until a suitable node becomes available. |
+
+**Recommendation:** Use `ScheduleAnyway` for most production workloads — it provides zone spreading on a best-effort basis without risking pods stuck in `Pending`. Reserve `DoNotSchedule` for critical services where strict zone distribution is mandatory and you are confident that your cluster has enough capacity in each zone. Keep `Disabled` for dev/staging environments or workloads where zone spreading adds no value (e.g., single-replica services, batch jobs).
+
+<Warning>
+With `DoNotSchedule`, if your cluster has an uneven number of nodes across zones or if a zone is temporarily unavailable, excess pods will remain in `Pending` state. Make sure you have sufficient capacity in each availability zone before enabling this mode.
+</Warning>
+
+<Info>
+This setting is a prerequisite for properly leveraging multi-AZ clusters for high availability. It complements `deployment.antiaffinity.pod` which spreads pods across **nodes** — this setting spreads pods across **zones**.
+</Info>
+
+**Default Value:** `Disabled`
+
+#### Common patterns
+
+These settings work together to cover different high-availability strategies. Here are recommended combinations depending on your use case:
+
+<Tabs>
+  <Tab title="Critical production service">
+    Maximum resilience: pods pinned to stable on-demand nodes, strictly spread across zones, and never co-located on the same node.
+
+    | Setting | Value |
+    |---|---|
+    | `deployment.affinity.node.required` | `{"karpenter.sh/capacity-type": "on-demand"}` |
+    | `deployment.topology_spread.zone` | `DoNotSchedule` |
+    | `deployment.antiaffinity.pod` | `Required` |
+
+    <Warning>
+    Requires at least as many on-demand nodes as replicas, distributed across all availability zones. Otherwise pods will stay `Pending`.
+    </Warning>
+  </Tab>
+  <Tab title="Standard production service">
+    Best-effort zone and node spreading without any scheduling risk. Works well with spot instances and autoscaling.
+
+    | Setting | Value |
+    |---|---|
+    | `deployment.affinity.node.required` | `{}` |
+    | `deployment.topology_spread.zone` | `ScheduleAnyway` |
+    | `deployment.antiaffinity.pod` | `Preferred` |
+  </Tab>
+  <Tab title="Stateful with zone pinning">
+    Pin pods to a specific zone — useful for workloads that must be co-located with a zone-bound resource (e.g., EBS volume, RDS instance).
+
+    | Setting | Value |
+    |---|---|
+    | `deployment.affinity.node.required` | `{"topology.kubernetes.io/zone": "eu-west-1a"}` |
+    | `deployment.topology_spread.zone` | `Disabled` |
+    | `deployment.antiaffinity.pod` | `Preferred` |
+  </Tab>
+</Tabs>
+
 <a id="deployment-update-strategy-type"></a>
 
 ### deployment.update_strategy.type
