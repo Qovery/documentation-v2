@@ -787,7 +787,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Description:** Minimum number of Envoy data-plane replicas managed by Envoy Gateway for horizontal pod autoscaling. This ensures a baseline level of availability and traffic-serving capacity. Must be less than or equal to `envoy.hpa.max_number_instances`.
 
-**Default Value:** `2`
+**Default Value:** `2` for production clusters, `1` for non-production clusters
 
 <a id="envoy-hpa-max-number-instances"></a>
 
@@ -841,7 +841,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Description:** Minimum number of Envoy Gateway control-plane replicas for horizontal pod autoscaling. This ensures baseline controller availability for reconciliation and configuration updates. Must be less than or equal to `envoy.gateway.hpa.max_number_instances`.
 
-**Default Value:** `2`
+**Default Value:** `2` for production clusters, `1` for non-production clusters
 
 <a id="envoy-gateway-hpa-max-number-instances"></a>
 
