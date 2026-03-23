@@ -757,7 +757,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `float`
 
-**Description:** HPA CPU average utilization threshold assigned to Envoy Gateway deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When CPU usage exceeds this threshold, Kubernetes will scale up the number of Envoy replicas.
+**Description:** HPA CPU average utilization threshold for the Envoy data plane managed by Envoy Gateway, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When CPU usage exceeds this threshold, Kubernetes scales the Envoy proxy replicas serving traffic. This setting applies to `EnvoyProxy.spec.provider.kubernetes.envoyHpa`. Learn more in the [EnvoyProxy HPA documentation](https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/).
 
 **Valid values:** `0.0` to `1.0`
 
@@ -771,7 +771,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `float`
 
-**Description:** HPA memory average utilization threshold assigned to Envoy Gateway deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes will scale up the number of Envoy replicas.
+**Description:** HPA memory average utilization threshold for the Envoy data plane managed by Envoy Gateway, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes scales the Envoy proxy replicas serving traffic. This setting applies to `EnvoyProxy.spec.provider.kubernetes.envoyHpa`. Learn more in the [EnvoyProxy HPA documentation](https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/).
 
 **Valid values:** `0.0` to `1.0`
 
@@ -785,7 +785,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Minimum number of Envoy Gateway replicas for horizontal pod autoscaling. This ensures a baseline level of availability and load distribution. Must be less than or equal to `envoy.hpa.max_number_instances`.
+**Description:** Minimum number of Envoy data-plane replicas managed by Envoy Gateway for horizontal pod autoscaling. This ensures a baseline level of availability and traffic-serving capacity. Must be less than or equal to `envoy.hpa.max_number_instances`.
 
 **Default Value:** `2`
 
@@ -797,7 +797,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Maximum number of Envoy Gateway replicas for horizontal pod autoscaling. This sets an upper limit on scaling to control resource consumption. Must be greater than or equal to `envoy.hpa.min_number_instances`.
+**Description:** Maximum number of Envoy data-plane replicas managed by Envoy Gateway for horizontal pod autoscaling. This sets an upper limit on traffic-serving scale and resource consumption. Must be greater than or equal to `envoy.hpa.min_number_instances`.
 
 **Default Value:** `25`
 
@@ -811,7 +811,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `float`
 
-**Description:** HPA CPU average utilization threshold assigned to the Envoy Gateway deployment serving traffic, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When CPU usage exceeds this threshold, Kubernetes will automatically scale up the number of Envoy Gateway replicas to handle increased load. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+**Description:** HPA CPU average utilization threshold for the Envoy Gateway control-plane deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When CPU usage exceeds this threshold, Kubernetes scales the `envoy-gateway` controller deployment. This setting applies to the Gateway Helm chart HPA for the control plane.
 
 **Valid values:** `0.0` to `1.0`
 
@@ -825,7 +825,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `float`
 
-**Description:** HPA memory average utilization threshold assigned to the Envoy Gateway deployment serving traffic, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes will automatically scale up the number of Envoy Gateway replicas to handle increased load. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+**Description:** HPA memory average utilization threshold for the Envoy Gateway control-plane deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes scales the `envoy-gateway` controller deployment. This setting applies to the Gateway Helm chart HPA for the control plane.
 
 **Valid values:** `0.0` to `1.0`
 
@@ -839,9 +839,9 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Minimum number of Envoy Gateway replicas serving traffic for horizontal pod autoscaling. This ensures a baseline level of availability and load distribution for incoming traffic. Must be less than or equal to `envoy.gateway.hpa.max_number_instances`. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+**Description:** Minimum number of Envoy Gateway control-plane replicas for horizontal pod autoscaling. This ensures baseline controller availability for reconciliation and configuration updates. Must be less than or equal to `envoy.gateway.hpa.max_number_instances`.
 
-**Default Value:** `1`
+**Default Value:** `2`
 
 <a id="envoy-gateway-hpa-max-number-instances"></a>
 
@@ -851,7 +851,7 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 
 **Type:** `integer`
 
-**Description:** Maximum number of Envoy Gateway replicas serving traffic for horizontal pod autoscaling. This sets an upper limit on scaling to control resource consumption. Must be greater than or equal to `envoy.gateway.hpa.min_number_instances`. Learn more in the [Envoy Gateway HPA documentation](https://gateway.envoyproxy.io/docs/tasks/operations/customize-envoyproxy/#customize-envoyproxy-horizontal-pod-autoscaler).
+**Description:** Maximum number of Envoy Gateway control-plane replicas for horizontal pod autoscaling. This sets an upper limit on controller scaling and resource consumption. Must be greater than or equal to `envoy.gateway.hpa.min_number_instances`.
 
 **Default Value:** `5`
 
