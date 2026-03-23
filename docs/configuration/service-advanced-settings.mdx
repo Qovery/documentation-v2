@@ -203,9 +203,25 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 
 **Type:** `string`
 
-**Description:** Controls how pods are spread across availability zones using Kubernetes `topologySpreadConstraints`. Options are `Disabled`, `ScheduleAnyway`, or `DoNotSchedule`.
+**Description:** Controls how pods are spread across availability zones using Kubernetes [`topologySpreadConstraints`](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/). This setting generates a constraint with `maxSkew: 1` and `topologyKey: topology.kubernetes.io/zone`.
 
-**Use Case:** Use `DoNotSchedule` to enforce even distribution of pods across availability zones with a `maxSkew` of 1 (hard constraint). Use `ScheduleAnyway` for best-effort spreading. This is a prerequisite for properly leveraging multi-AZ clusters for high availability.
+**Options:**
+
+| Value | Behavior |
+|---|---|
+| `Disabled` | No topology spread constraint is applied. Pods are scheduled without any zone-awareness. |
+| `ScheduleAnyway` | Kubernetes **tries** to spread pods evenly across zones, but will still schedule them even if the distribution is not perfect. This is a soft constraint — pods are never left `Pending` due to zone imbalance. |
+| `DoNotSchedule` | Kubernetes **enforces** even distribution across zones. If the scheduler cannot place a pod without exceeding a `maxSkew` of 1, the pod stays `Pending` until a suitable node becomes available. |
+
+**Recommendation:** Use `ScheduleAnyway` for most workloads — it provides zone spreading on a best-effort basis without risking pods stuck in `Pending`. Reserve `DoNotSchedule` for critical services where strict zone distribution is mandatory and you are confident that your cluster has enough nodes in each zone to accommodate all replicas.
+
+<Warning>
+With `DoNotSchedule`, if your cluster has an uneven number of nodes across zones or if a zone is temporarily unavailable, excess pods will remain in `Pending` state. Make sure you have sufficient capacity in each availability zone before enabling this mode.
+</Warning>
+
+<Info>
+This setting is a prerequisite for properly leveraging multi-AZ clusters for high availability. It complements `deployment.antiaffinity.pod` which spreads pods across **nodes** — this setting spreads pods across **zones**.
+</Info>
 
 **Default Value:** `Disabled`
 
