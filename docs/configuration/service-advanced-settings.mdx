@@ -225,6 +225,44 @@ This setting is a prerequisite for properly leveraging multi-AZ clusters for hig
 
 **Default Value:** `Disabled`
 
+#### Common patterns
+
+These settings work together to cover different high-availability strategies. Here are recommended combinations depending on your use case:
+
+<Tabs>
+  <Tab title="Critical production service">
+    Maximum resilience: pods pinned to stable on-demand nodes, strictly spread across zones, and never co-located on the same node.
+
+    | Setting | Value |
+    |---|---|
+    | `deployment.affinity.node.required` | `{"karpenter.sh/capacity-type": "on-demand"}` |
+    | `deployment.topology_spread.zone` | `DoNotSchedule` |
+    | `deployment.antiaffinity.pod` | `Required` |
+
+    <Warning>
+    Requires at least as many on-demand nodes as replicas, distributed across all availability zones. Otherwise pods will stay `Pending`.
+    </Warning>
+  </Tab>
+  <Tab title="Standard production service">
+    Best-effort zone and node spreading without any scheduling risk. Works well with spot instances and autoscaling.
+
+    | Setting | Value |
+    |---|---|
+    | `deployment.affinity.node.required` | `{}` |
+    | `deployment.topology_spread.zone` | `ScheduleAnyway` |
+    | `deployment.antiaffinity.pod` | `Preferred` |
+  </Tab>
+  <Tab title="Stateful with zone pinning">
+    Pin pods to a specific zone — useful for workloads that must be co-located with a zone-bound resource (e.g., EBS volume, RDS instance).
+
+    | Setting | Value |
+    |---|---|
+    | `deployment.affinity.node.required` | `{"topology.kubernetes.io/zone": "eu-west-1a"}` |
+    | `deployment.topology_spread.zone` | `Disabled` |
+    | `deployment.antiaffinity.pod` | `Preferred` |
+  </Tab>
+</Tabs>
+
 <a id="deployment-update-strategy-type"></a>
 
 ### deployment.update_strategy.type
