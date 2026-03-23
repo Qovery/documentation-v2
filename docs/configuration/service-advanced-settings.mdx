@@ -213,7 +213,7 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 | `ScheduleAnyway` | Kubernetes **tries** to spread pods evenly across zones, but will still schedule them even if the distribution is not perfect. This is a soft constraint — pods are never left `Pending` due to zone imbalance. |
 | `DoNotSchedule` | Kubernetes **enforces** even distribution across zones. If the scheduler cannot place a pod without exceeding a `maxSkew` of 1, the pod stays `Pending` until a suitable node becomes available. |
 
-**Recommendation:** Use `ScheduleAnyway` for most workloads — it provides zone spreading on a best-effort basis without risking pods stuck in `Pending`. Reserve `DoNotSchedule` for critical services where strict zone distribution is mandatory and you are confident that your cluster has enough nodes in each zone to accommodate all replicas.
+**Recommendation:** Use `ScheduleAnyway` for most production workloads — it provides zone spreading on a best-effort basis without risking pods stuck in `Pending`. Reserve `DoNotSchedule` for critical services where strict zone distribution is mandatory and you are confident that your cluster has enough capacity in each zone. Keep `Disabled` for dev/staging environments or workloads where zone spreading adds no value (e.g., single-replica services, batch jobs).
 
 <Warning>
 With `DoNotSchedule`, if your cluster has an uneven number of nodes across zones or if a zone is temporarily unavailable, excess pods will remain in `Pending` state. Make sure you have sufficient capacity in each availability zone before enabling this mode.
