@@ -8,7 +8,8 @@ description: "Fine-tune your Qovery services with advanced configuration options
 Service Advanced Settings allow you to fine-tune infrastructure and deployment parameters for your Qovery services. These settings provide granular control over build processes, networking, security, and resource allocation without requiring direct Kubernetes configuration.
 
 <Info>
-Advanced settings are available for **Applications**, **Containers**, **Cronjobs**, **Jobs**, and **Helm charts**.
+  Advanced settings are available for **Applications**, **Containers**,
+  **Cronjobs**, **Jobs**, and **Helm charts**.
 </Info>
 
 ## Accessing Advanced Settings
@@ -18,25 +19,26 @@ Advanced settings are available for **Applications**, **Containers**, **Cronjobs
     Open your service (Application, Container, Cronjob, Job, or Helm) in Qovery Console
   </Step>
 
-  <Step title="Open Settings">
-    Click on the **Settings** tab
-  </Step>
+<Step title="Open Settings">Click on the **Settings** tab</Step>
 
   <Step title="Access Advanced Settings">
     Scroll to the **Advanced Settings** section
 
     ![Advanced Settings Location](/images/configuration/advanced-settings/settings.png)
+
   </Step>
 
   <Step title="Configure Settings">
     Click on a setting to modify its value. You can toggle to show only overridden settings.
 
     ![Advanced Settings Interface](/images/configuration/advanced-settings/advanced_settings.png)
+
   </Step>
 </Steps>
 
 <Tip>
-Use the **Show only overridden** toggle to view only settings that differ from defaults.
+  Use the **Show only overridden** toggle to view only settings that differ from
+  defaults.
 </Tip>
 
 ---
@@ -47,7 +49,8 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### build.timeout_max_sec
 
-<span class="badge-app">Application</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
@@ -59,7 +62,8 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### build.cpu_max_in_milli
 
-<span class="badge-app">Application</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
@@ -71,7 +75,8 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### build.ram_max_in_gib
 
-<span class="badge-app">Application</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
@@ -83,7 +88,8 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### build.ephemeral_storage_in_gib
 
-<span class="badge-app">Application</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
@@ -95,7 +101,8 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### build.disable_buildkit_cache
 
-<span class="badge-app">Application</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `boolean`
 
@@ -113,7 +120,9 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 
 ### deployment.termination_grace_period_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
@@ -122,7 +131,9 @@ Use the **Show only overridden** toggle to view only settings that differ from d
 **Use Case:** Increase this value for services that need extra time to drain connections, finish background jobs, or flush data to disk. Keep it low for stateless workers that can restart quickly.
 
 <Warning>
-This value must be **greater than** the time your `deployment.lifecycle.pre_stop_exec_command` takes to complete. Otherwise Kubernetes will kill the pod before the pre-stop hook finishes.
+  This value must be **greater than** the time your
+  `deployment.lifecycle.pre_stop_exec_command` takes to complete. Otherwise
+  Kubernetes will kill the pod before the pre-stop hook finishes.
 </Warning>
 
 **Default Value:** `60`
@@ -131,7 +142,9 @@ This value must be **greater than** the time your `deployment.lifecycle.pre_stop
 
 ### deployment.affinity.node.required
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `Map<String, String>`
 
@@ -151,6 +164,7 @@ This value must be **greater than** the time your `deployment.lifecycle.pre_stop
       "karpenter.sh/nodepool": "stable"
     }
     ```
+
   </Tab>
   <Tab title="AWS — Graviton (ARM64)">
     Schedule on ARM64 Graviton instances for better price/performance:
@@ -160,6 +174,7 @@ This value must be **greater than** the time your `deployment.lifecycle.pre_stop
       "kubernetes.io/arch": "arm64"
     }
     ```
+
   </Tab>
   <Tab title="GCP Autopilot — ARM64 Performance">
     Run on ARM64 nodes with the GCP Autopilot `Performance` compute class:
@@ -170,18 +185,22 @@ This value must be **greater than** the time your `deployment.lifecycle.pre_stop
       "cloud.google.com/compute-class": "Performance"
     }
     ```
+
   </Tab>
 </Tabs>
 
 <Warning>
-If no node matches the required labels, your pods will stay in `Pending` state. Make sure the target node pool or nodes exist before applying this setting.
+  If no node matches the required labels, your pods will stay in `Pending`
+  state. Make sure the target node pool or nodes exist before applying this
+  setting.
 </Warning>
 
 <a id="deployment-antiaffinity-pod"></a>
 
 ### deployment.antiaffinity.pod
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `string`
 
@@ -190,22 +209,40 @@ If no node matches the required labels, your pods will stay in `Pending` state. 
 **Use Case:** Use `Required` to guarantee that no two replicas of the same service land on the same node — critical for high-availability setups where a single node failure must not take down the entire service. Use `Preferred` (default) when you want Kubernetes to spread pods across nodes on a best-effort basis without blocking scheduling if not enough nodes are available.
 
 <Info>
-With `Required`, you need **at least as many nodes as replicas**. If your cluster doesn't have enough nodes, excess pods will stay `Pending`.
+  With `Required`, you need **at least as many nodes as replicas**. If your
+  cluster doesn't have enough nodes, excess pods will stay `Pending`.
 </Info>
 
 **Default Value:** `Preferred`
+
+<a id="deployment-topology-spread-zone"></a>
+
+### deployment.topology_spread.zone
+
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+
+**Type:** `string`
+
+**Description:** Controls how pods are spread across availability zones using Kubernetes `topologySpreadConstraints`. Options are `Disabled`, `ScheduleAnyway`, or `DoNotSchedule`.
+
+**Use Case:** Use `DoNotSchedule` to enforce even distribution of pods across availability zones with a `maxSkew` of 1 (hard constraint). Use `ScheduleAnyway` for best-effort spreading. This is a prerequisite for properly leveraging multi-AZ clusters for high availability.
+
+**Default Value:** `Disabled`
 
 <a id="deployment-update-strategy-type"></a>
 
 ### deployment.update_strategy.type
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `string`
 
 **Description:** Allows you to specify the deployment update strategy type. Options are `RollingUpdate` or `Recreate`.
 
 **Use Case:**
+
 - **`RollingUpdate`** (default) — gradually replaces pods for zero-downtime deployments. Best for stateless services.
 - **`Recreate`** — terminates all existing pods before creating new ones. Use this when:
   - Your service uses a **ReadWriteOnce (RWO) volume** that cannot be mounted by two pods simultaneously.
@@ -218,7 +255,8 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 
 ### deployment.update_strategy.rolling_update.max_unavailable_percent
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `integer`
 
@@ -232,7 +270,8 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 
 ### deployment.update_strategy.rolling_update.max_surge_percent
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `integer`
 
@@ -246,7 +285,8 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 
 ### deployment.lifecycle.post_start_exec_command
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `string`
 
@@ -257,10 +297,12 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 **Default Value:** `""`
 
 **Examples:**
+
 ```json
 // Warm the application cache at startup
 ["/bin/sh", "-c", "curl -s http://localhost:8080/warmup || true"]
 ```
+
 ```json
 // Write a marker file for a readiness probe
 ["/bin/sh", "-c", "touch /tmp/ready"]
@@ -270,7 +312,8 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 
 ### deployment.lifecycle.pre_stop_exec_command
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `string`
 
@@ -279,16 +322,21 @@ With `Required`, you need **at least as many nodes as replicas**. If your cluste
 **Use Case:** Use this to give your service time to drain in-flight requests, close database connections, or deregister from a load balancer before the pod disappears.
 
 <Info>
-The default `sleep 15` gives Kubernetes networking time to remove the pod from service endpoints before the process exits. If your service handles its own graceful shutdown, you may still want a short sleep to avoid receiving traffic after `SIGTERM`.
+  The default `sleep 15` gives Kubernetes networking time to remove the pod from
+  service endpoints before the process exits. If your service handles its own
+  graceful shutdown, you may still want a short sleep to avoid receiving traffic
+  after `SIGTERM`.
 </Info>
 
 **Default Value:** `["/bin/sh", "-c", "sleep 15"]`
 
 **Examples:**
+
 ```json
 // Notify the app to drain, then wait for connections to close
 ["/bin/sh", "-c", "curl -s http://localhost:8080/drain && sleep 20"]
 ```
+
 ```json
 // Simple sleep to let LB deregister the pod
 ["/bin/sh", "-c", "sleep 30"]
@@ -302,7 +350,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.enable_cors
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `boolean`
 
@@ -314,7 +364,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.cors_allow_origin
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -326,7 +378,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.cors_allow_methods
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -338,7 +392,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.cors_allow_headers
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -350,7 +406,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.force_ssl_redirect
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `boolean`
 
@@ -364,7 +422,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_body_size_mb
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -378,7 +438,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_buffer_size_kb
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -392,7 +454,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_connect_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -404,7 +468,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_read_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -418,7 +484,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_send_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -430,7 +498,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_buffering
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -444,7 +514,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_request_buffering
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -458,7 +530,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.proxy_set_headers
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `Map<String, String>`
 
@@ -470,7 +544,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.add_headers
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -481,15 +557,18 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `{}`
 
 **Example:**
+
 ```json
-{"X-Frame-Options":"DENY","X-Content-Type-Options":"nosniff"}
+{ "X-Frame-Options": "DENY", "X-Content-Type-Options": "nosniff" }
 ```
 
 <a id="network-ingress-whitelist-source-range"></a>
 
 ### network.ingress.whitelist_source_range
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -503,7 +582,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.denylist_source_range
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -515,7 +596,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.basic_auth_env_var
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -529,7 +612,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.enable_sticky_session
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `boolean`
 
@@ -543,7 +628,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.keepalive_time_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -557,7 +644,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.keepalive_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -569,7 +658,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.send_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -583,7 +674,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.grpc_send_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -595,7 +688,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.grpc_read_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -607,7 +702,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.nginx_controller_configuration_snippet
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -621,7 +718,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.nginx_controller_server_snippet
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -635,7 +734,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.nginx_limit_burst_multiplier
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -649,7 +750,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.nginx_limit_connections
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer`
 
@@ -663,7 +766,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.nginx_limit_rpm
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -675,7 +780,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.nginx_limit_rps
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -687,7 +794,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.ingress.nginx_custom_http_errors
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -698,6 +807,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `null`
 
 **Example:**
+
 ```json
 "404,503"
 ```
@@ -706,7 +816,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.enable_sticky_session
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `boolean`
 
@@ -720,7 +832,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.force_ssl_redirect
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `boolean`
 
@@ -734,7 +848,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.enable_cors
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `boolean`
 
@@ -748,7 +864,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.cors_allow_origin
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -757,6 +875,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `"*"` (allows all origins)
 
 **Example:**
+
 ```json
 "https://example.com, https://app.example.com"
 ```
@@ -765,7 +884,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.cors_allow_methods
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -777,7 +898,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.cors_allow_headers
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -789,7 +912,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.whitelist_source_range
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -800,6 +925,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `"0.0.0.0/0, ::/0"` (allows all IPv4 and IPv6 addresses)
 
 **Example:**
+
 ```json
 "10.0.0.0/8, 192.168.1.0/24"
 ```
@@ -808,7 +934,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.denylist_source_range
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -819,6 +947,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `""` (no IPs are blocked)
 
 **Example:**
+
 ```json
 "203.0.113.0/24, 198.51.100.0/24"
 ```
@@ -827,7 +956,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.basic_auth_env_var
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -838,6 +969,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `""` (Basic Auth disabled)
 
 **Example:**
+
 ```json
 "BASIC_AUTH_CREDENTIALS"
 ```
@@ -846,7 +978,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.route_limit_rpm
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -857,6 +991,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `null` (no limit)
 
 **Example:**
+
 ```json
 1000
 ```
@@ -865,7 +1000,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.route_limit_rps
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -876,6 +1013,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `null` (no limit)
 
 **Example:**
+
 ```json
 100
 ```
@@ -884,7 +1022,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.route_limit_source_cidrs
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -895,6 +1035,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `""` (rate limiting applies to all sources)
 
 **Example:**
+
 ```json
 "0.0.0.0/0, ::/0"
 ```
@@ -903,7 +1044,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.route_limit_headers
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -914,6 +1057,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `""` (rate limiting is per source IP)
 
 **Example:**
+
 ```json
 "X-API-Key, X-User-ID"
 ```
@@ -922,7 +1066,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.add_headers
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `map<string, string>`
 
@@ -933,6 +1079,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `{}` (no headers added)
 
 **Example:**
+
 ```json
 {
   "X-Custom-Header": "custom-value",
@@ -944,7 +1091,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.proxy_set_headers
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `map<string, string>`
 
@@ -955,6 +1104,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `{}` (no headers modified)
 
 **Example:**
+
 ```json
 {
   "X-Forwarded-Proto": "https",
@@ -966,7 +1116,9 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 ### network.gateway_api.custom_http_errors
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `string`
 
@@ -977,19 +1129,24 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 **Default Value:** `null` (no custom error pages)
 
 **Example:**
+
 ```json
 "404,503,502"
 ```
 
 <Info>
-The hardcoded error pages cannot be customized at this time. If you need to customize error pages for your use case, please contact us and we can extend this feature.
+  The hardcoded error pages cannot be customized at this time. If you need to
+  customize error pages for your use case, please contact us and we can extend
+  this feature.
 </Info>
 
 <a id="network-gateway-api-circuit-breaker-max-connections"></a>
 
 ### network.gateway_api.circuit_breaker.max_connections
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -1000,6 +1157,7 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 **Default Value:** `null` (no limit)
 
 **Example:**
+
 ```json
 1024
 ```
@@ -1008,7 +1166,9 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 ### network.gateway_api.circuit_breaker.max_pending_requests
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -1019,6 +1179,7 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 **Default Value:** `null` (no limit)
 
 **Example:**
+
 ```json
 1024
 ```
@@ -1027,7 +1188,9 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 ### network.gateway_api.circuit_breaker.max_parallel_requests
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -1038,6 +1201,7 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 **Default Value:** `null` (no limit)
 
 **Example:**
+
 ```json
 2048
 ```
@@ -1046,7 +1210,9 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 ### network.gateway_api.tcp_keepalive_idle_time_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -1057,6 +1223,7 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 **Default Value:** `null` (uses Envoy Gateway default)
 
 **Example:**
+
 ```json
 7200
 ```
@@ -1065,7 +1232,9 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 ### network.gateway_api.tcp_keepalive_interval_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -1076,6 +1245,7 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 **Default Value:** `null` (uses Envoy Gateway default)
 
 **Example:**
+
 ```json
 120
 ```
@@ -1084,7 +1254,9 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 ### network.gateway_api.http_request_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -1095,6 +1267,7 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 **Default Value:** `null` (uses Envoy Gateway default)
 
 **Example:**
+
 ```json
 90
 ```
@@ -1103,7 +1276,9 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 ### network.gateway_api.http_connection_idle_timeout_seconds
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-helm">Helm</span>
 
 **Type:** `integer` (unsigned)
 
@@ -1114,6 +1289,7 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 **Default Value:** `null` (uses Envoy Gateway default)
 
 **Example:**
+
 ```json
 120
 ```
@@ -1122,13 +1298,16 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 
 ### network.dns.ndots
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer` (unsigned)
 
 **Description:** Configures the DNS `ndots` threshold that determines when Kubernetes appends search domain suffixes to hostnames during DNS resolution.
 
 **Use Case:** When your service queries an external domain like `api.example.com` (2 dots) with the default `ndots=5`, Kubernetes attempts **6 DNS queries** before resolving:
+
 1. `api.example.com.default.svc.cluster.local` ❌ (fails)
 2. `api.example.com.svc.cluster.local` ❌ (fails)
 3. `api.example.com.cluster.local` ❌ (fails)
@@ -1141,6 +1320,7 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 **Default Value:** `null` (uses Kubernetes default of `5`)
 
 **Example:**
+
 ```json
 2
 ```
@@ -1155,7 +1335,8 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 
 ### hpa.cpu.average_utilization_percent
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `integer`
 
@@ -1169,7 +1350,8 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 
 ### hpa.memory.average_utilization_percent
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
 
 **Type:** `integer`
 
@@ -1243,7 +1425,9 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 
 ### resources.override.limit.cpu_in_milli
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
@@ -1257,7 +1441,9 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 
 ### resources.override.limit.ram_in_mib
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `integer`
 
@@ -1275,7 +1461,9 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 
 ### security.service_account_name
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `string`
 
@@ -1289,7 +1477,9 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 
 ### security.automount_service_account_token
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `boolean`
 
@@ -1303,7 +1493,9 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 
 ### security.read_only_root_filesystem
 
-<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
+<span class="badge-app">Application</span>
+<span class="badge-container">Container</span>
+<span class="badge-cronjob">Cronjob</span> <span class="badge-job">Job</span>
 
 **Type:** `boolean`
 
@@ -1318,16 +1510,32 @@ Setting `ndots=2` reduces this to **1 DNS query** since the hostname already has
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Cluster Advanced Settings" icon="server" href="/configuration/cluster-advanced-settings">
+  <Card
+    title="Cluster Advanced Settings"
+    icon="server"
+    href="/configuration/cluster-advanced-settings"
+  >
     Configure cluster-level advanced settings
   </Card>
-  <Card title="Environment Variables" icon="code" href="/configuration/environment-variables">
+  <Card
+    title="Environment Variables"
+    icon="code"
+    href="/configuration/environment-variables"
+  >
     Manage environment variables and secrets
   </Card>
-  <Card title="Qovery API Reference" icon="brackets-curly" href="/api-reference/introduction">
+  <Card
+    title="Qovery API Reference"
+    icon="brackets-curly"
+    href="/api-reference/introduction"
+  >
     Explore the full Qovery API
   </Card>
-  <Card title="Terraform Provider" icon="/images/logos/terraform-icon.svg" href="/terraform-provider/overview">
+  <Card
+    title="Terraform Provider"
+    icon="/images/logos/terraform-icon.svg"
+    href="/terraform-provider/overview"
+  >
     Manage infrastructure as code
   </Card>
 </CardGroup>
