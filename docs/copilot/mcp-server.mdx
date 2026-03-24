@@ -1,84 +1,25 @@
 ---
-title: "MCP Server Setup"
-description: "Setup Qovery AI Copilot with Claude Desktop using the Model Context Protocol"
+title: "MCP Server"
+description: "Connect any MCP-compatible client to your Qovery infrastructure"
 ---
 
 ## Overview
 
-The Qovery MCP (Model Context Protocol) Server enables you to use Qovery AI Copilot directly in any MCP-compatible client, including ChatGPT, Claude, and Claude Code. This gives you natural language control over your entire Qovery infrastructure.
-
-<Note>
-**Activation Required**: Before using the MCP Server, organization administrators must first activate Qovery AI Copilot from the console settings. See the [Getting Started guide](/copilot/getting-started#activation) for activation instructions.
-</Note>
+The Qovery MCP Server lets you interact with your Qovery infrastructure from any MCP-compatible client (Claude, Claude Code, ChatGPT, etc.) using natural language.
 
 <Info>
 **What is MCP?** The Model Context Protocol is an open standard developed by Anthropic that allows AI assistants to interact with external tools and systems. [Learn more →](https://modelcontextprotocol.io)
 </Info>
 
-## Operating Modes
-
-By default, the MCP Server operates in **read-only mode**. To enable read-write access, you must explicitly opt in using a URL parameter and have the necessary permissions configured.
-
-<Tabs>
-  <Tab title="Read-Only Mode (Default)">
-    **Safe exploration** - View-only access
-
-    In **read-only mode**, the Copilot allows you to:
-    - View information and status
-    - Get help and recommendations
-    - Troubleshoot issues
-    - Monitor deployments
-    - Analyze infrastructure
-    - **No changes** to infrastructure
-
-    This is the default mode, ensuring safe exploration without risk of accidental modifications.
-  </Tab>
-
-  <Tab title="Read-Write Mode">
-    **Full automation** - Maximum capabilities
-
-    In **read-write mode**, the Copilot can perform complete automation:
-    - Deploy applications and services
-    - Create new environments and resources
-    - Update configurations and settings
-    - Add/modify/delete environment variables
-    - Scale, restart, or stop services
-    - Delete resources (with confirmation)
-    - Execute complex workflows
-
-    <Warning>
-    The Copilot will **ask for confirmation** before performing destructive operations like deletions.
-    </Warning>
-
-    <Info>
-    Read-write mode requires both:
-    1. AI write permissions enabled in your organization settings
-    2. An API token with sufficient permissions (Developer or Admin role)
-    3. Adding `read_write=true` to the MCP Server URL
-    </Info>
-  </Tab>
-</Tabs>
-
-<Note>
-**Permission Hierarchy**: The MCP Server is **read-only by default**. To enable read-write access, you must:
-- Add `read_write=true` to the MCP Server URL
-- Have AI write permissions enabled in your organization settings
-- Use an API token with sufficient role permissions
-
-The most restrictive setting takes precedence. For example, if you add `read_write=true` but your token has viewer permissions, the Copilot will remain in read-only mode.
-</Note>
-
 ## Prerequisites
 
-Before using the MCP Server:
-
-- **MCP-Compatible Client**: Any MCP-compatible application (tested with ChatGPT, Claude, and Claude Code)
+- **MCP-Compatible Client**: Any MCP-compatible application
 - **Qovery Account**: Active account with infrastructure
-- **API Token**: Generate from Qovery Console (Settings → API Tokens)
+- **API Token**: Generate from Qovery Console (Settings -> API Tokens) (only needed if you don't use OAuth)
 
 ## Setup
 
-### 1. Generate Your Qovery API Token
+### 1. Generate Your Qovery API Token (if not using OAuth)
 
 <Steps>
   <Step title="Open Qovery Console">
@@ -93,7 +34,7 @@ Before using the MCP Server:
     Go to **API Tokens** section
   </Step>
 
- <Step title="Generate Token">
+  <Step title="Generate Token">
     Click "Generate Token" and copy it
 
     <Warning>
@@ -104,36 +45,24 @@ Before using the MCP Server:
 
 ### 2. Configure Your MCP Client
 
-The Qovery MCP Server is accessible via the following URL:
+The Qovery MCP Server is accessible at:
 
 ```
-https://mcp-api-ai.qovery.com/mcp
+https://mcp.qovery.com/mcp
 ```
 
-You can optionally include your API token and operating mode as query parameters:
+**OAuth:**
 
-```
-https://mcp-api-ai.qovery.com/mcp?token=<your-token>
-```
+If your client supports OAuth, use the MCP Server URL and configure the OAuth callback port. Example with Claude Code:
 
-To enable read-write mode (requires appropriate permissions):
-
-```
-https://mcp-api-ai.qovery.com/mcp?token=<your-token>&read_write=true
+```bash
+claude mcp add --transport http qovery https://mcp.qovery.com/mcp --callback-port 4242
 ```
 
-<Info>
-**Token in URL**: If you provide the token in the URL, you won't be prompted for authentication during the session. If omitted, the token will be requested when you first interact with the server.
-</Info>
-
-<Info>
-**Operating Mode**: By default, the MCP Server operates in read-only mode. To enable read-write access, add `read_write=true` to the URL. This requires AI write permissions to be enabled in your organization settings and a token with sufficient permissions.
-</Info>
-
-Add the Qovery MCP Server to your MCP client's configuration using:
+**API Token:**
 
 ```
-Server URL: https://mcp-api-ai.qovery.com/mcp
+https://mcp.qovery.com/mcp?token=<your-token>
 ```
 
 Refer to your specific MCP client's documentation for detailed setup instructions on how to add a custom MCP server.
@@ -142,85 +71,42 @@ Refer to your specific MCP client's documentation for detailed setup instruction
 The Qovery MCP Server is also available through the [MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=com.qovery).
 </Info>
 
-## Usage
+## Authentication
 
-### Authentication with API Token
-
-The Qovery MCP Server supports **3 authentication methods**:
+The Qovery MCP Server supports **2 authentication methods**:
 
 <Tabs>
-  <Tab title="1. Query Parameter">
-    Add your token directly to the MCP Server URL:
-    ```
-    https://mcp-api-ai.qovery.com/mcp?token=your_qovery_token
+  <Tab title="1. OAuth">
+
+    Use the MCP Server URL and configure an OAuth callback port. Example with Claude Code:
+
+    ```bash
+    claude mcp add --transport http qovery https://mcp.qovery.com/mcp --callback-port 4242
     ```
 
-    To force read-only mode:
-    ```
-    https://mcp-api-ai.qovery.com/mcp?token=your_qovery_token&read-only=true
-    ```
   </Tab>
 
-  <Tab title="2. Custom Header">
-    Add the `X-Qovery-Token` header to your requests:
-    ```
-    X-Qovery-Token: your_qovery_token
-    ```
+  <Tab title="2. API Token">
+    Pass your Qovery token via query parameter or Authorization header:
 
-    To force read-only mode, add `read-only=true` as a query parameter:
     ```
-    https://mcp-api-ai.qovery.com/mcp?read-only=true
-    ```
-  </Tab>
+    # Query parameter
+    https://mcp.qovery.com/mcp?token=your_qovery_token
 
-  <Tab title="3. Authorization Header">
-    Use the standard `Authorization` header:
-    ```
+    # Authorization header
     Authorization: Token your_qovery_token
-    ```
-
-    To force read-only mode, add `read-only=true` as a query parameter:
-    ```
-    https://mcp-api-ai.qovery.com/mcp?read-only=true
     ```
   </Tab>
 </Tabs>
 
-
 ## Usage Examples
 
-Once authenticated, you can interact with your infrastructure naturally:
-
-### Check Status
+Once connected, you can interact with your infrastructure naturally:
 
 ```
 "Show me all my environments"
-"What's the status of production?"
-"List applications in the staging environment"
-```
-
-### Deploy Applications
-
-```
-"Deploy the latest version of my-api to production"
-"Restart the frontend application"
-"Scale the API service to 5 replicas"
-```
-
-### Troubleshoot Issues
-
-```
-"Why is my deployment failing?"
-"Show me error logs from the last hour"
-"Debug the connection timeout in staging"
-```
-
-### Manage Infrastructure
-
-```
-"Create a new environment called feature-test"
-"Clone production to staging"
-"Stop all services in the dev environment"
+"What services are running in production?"
+"List projects in my organization"
 ```
 
 ## Troubleshooting
@@ -230,7 +116,7 @@ Once authenticated, you can interact with your infrastructure naturally:
 **Issue**: Client doesn't show Qovery tools or cannot connect
 
 **Solutions**:
-1. Verify the MCP Server URL is correct: `https://mcp-api-ai.qovery.com/mcp`
+1. Verify the MCP Server URL is correct: `https://mcp.qovery.com/mcp`
 2. Check your internet connection
 3. Restart your MCP client
 4. Contact Qovery Support if the issue persists
@@ -242,17 +128,7 @@ Once authenticated, you can interact with your infrastructure naturally:
 **Solutions**:
 1. Verify your API token is correct (check for copy-paste errors)
 2. Ensure the token hasn't been revoked or expired
-3. Verify the token has the necessary permissions for the requested operation
-4. Generate a new API token if needed from Qovery Console
-
-### Token Not Persisting
-
-**Issue**: Need to re-enter token for each question
-
-**Solutions**:
-1. Ensure you're staying in the same conversation
-2. Provide the token at the beginning of new conversations
-3. Check if your client is maintaining the conversation context
+3. Generate a new API token if needed from Qovery Console
 
 ## Security Best Practices
 
@@ -295,5 +171,5 @@ The API token has the same permissions as the role you selected during creation:
 ## Resources
 
 - **MCP Protocol**: [modelcontextprotocol.io](https://modelcontextprotocol.io)
-- **Claude Desktop**: [claude.ai/download](https://claude.ai/download)
+- **Claude**: [claude.ai](https://claude.ai)
 - **Technical Blog**: [How We Built an Agentic DevOps Copilot](https://www.qovery.com/blog/how-we-built-an-agentic-devops-copilot-to-automate-infrastructure-tasks-and-beyond)
