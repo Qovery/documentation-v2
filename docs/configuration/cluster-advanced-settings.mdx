@@ -741,10 +741,13 @@ If you don't specify custom image repository and tag, ensure your cluster includ
 **Description:** Makes Gateway API the default routing component.
 
 <Warning>
-  - When enabled, all new services will be exposed through Gateway API instead
-  of Ingress NGINX controller. - NGINX controller will still be deployed in the
-  cluster an will remain until we've fully migrated to Gateway API, but it will
-  not be used for routing.
+  - This might cause a 30 seconds - 3 minutes downtime on your custom DNS due to
+    DNS propagation.
+
+  - When enabled, all new services will be exposed through
+    Gateway API instead of Ingress NGINX controller. - NGINX controller will still
+    be deployed in the cluster an will remain until we've fully migrated to
+    Gateway API, but it will not be used for routing.
 </Warning>
 
 **Default Value:** `false`
