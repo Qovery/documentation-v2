@@ -161,6 +161,15 @@ This value must be **greater than** the time your `deployment.lifecycle.pre_stop
     }
     ```
   </Tab>
+  <Tab title="AWS — Dedicated Cronjob Pool">
+    Schedule pods onto the dedicated `cronjob` Karpenter NodePool (must be enabled on the cluster):
+
+    ```json
+    {
+      "karpenter.sh/nodepool": "cronjob"
+    }
+    ```
+  </Tab>
   <Tab title="GCP Autopilot — ARM64 Performance">
     Run on ARM64 nodes with the GCP Autopilot `Performance` compute class:
 
