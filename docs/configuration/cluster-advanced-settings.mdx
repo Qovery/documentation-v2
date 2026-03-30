@@ -438,6 +438,22 @@ Enabling this feature will create a 10 min max downtime on your application's pu
 
 **Default Value:** `128`
 
+<a id="aws-eks-enable-efs-addon"></a>
+
+### aws.eks.enable_efs_addon
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable the [AWS EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html) EKS add-on to provision EFS-backed persistent volumes on the cluster. When enabled, the EFS CSI driver is installed as a managed EKS add-on with the required IAM permissions. This allows Kubernetes workloads to use Amazon EFS file systems as persistent storage via PersistentVolumeClaims.
+
+<Note>
+Enabling this add-on installs the driver only. You still need to create an EFS file system and configure a StorageClass or PersistentVolume referencing it.
+</Note>
+
+**Default Value:** `false`
+
 <a id="load-balancer-size"></a>
 
 ### load_balancer.size
