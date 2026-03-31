@@ -255,7 +255,7 @@ Qovery deploys two node pools by default:
 Additional optional node pools can be enabled:
 
 - **GPU node pool**: Can be enabled if you want to run GPU workloads on your cluster. You can select the GPU instance types you want to use on this nodepool.
-- **Cronjob node pool**: A dedicated node pool for cronjob workloads. When enabled, a Karpenter NodePool named `cronjob` is created with a `nodepool/cronjob: NoSchedule` taint. Cronjob pods automatically receive the appropriate tolerations and node affinity to schedule on this nodepool. This isolates cronjob workloads from other services, preventing them from impacting shared nodes. The cronjob nodepool supports consolidation scheduling and resource limits (same as the stable nodepool). After enabling or disabling this nodepool, **we strongly recommend redeploying all your cron jobs** to ensure they run with the correct node targeting. A fallback mechanism prevents pods from getting stuck if the nodepool is removed, but redeploying ensures optimal scheduling.
+- **Cronjob node pool**: A dedicated node pool for Qovery cron jobs. When enabled, a Karpenter NodePool named `cronjob` is created with a `nodepool/cronjob: NoSchedule` taint. Qovery cron jobs automatically receive the appropriate toleration and a preferred node affinity toward this nodepool, so they are steered there when available. This helps isolate cronjob workloads from long-running services on shared nodes. The cronjob nodepool supports consolidation scheduling and resource limits (same as the stable nodepool). After enabling or disabling this nodepool, **we strongly recommend redeploying all your cron jobs** to ensure they run with the latest intended scheduling configuration. If the nodepool is removed before redeploy, existing jobs can fall back to the default nodepool instead of staying in `Pending`.
 
 #### Settings for nodepools:
 
@@ -318,7 +318,7 @@ For example, to assign a service to the t3a.xlarge instance type, manually set t
 
 ### Change the node pool of your service when using Helm
 
-When using Helm, you can update the `affinity` field in your `values.yaml` file to target a specific node pool for your service. For example you can switch from the `default` to `stable` or `cronjob` nodepool:
+When using Helm, you can update the `affinity` field in your `values.yaml` file to target a specific node pool for your service. For example you can switch from the `default` to the `stable` nodepool:
 
 ```yaml
 affinity:
