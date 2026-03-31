@@ -452,6 +452,10 @@ Enabling this feature will create a 10 min max downtime on your application's pu
 Enabling this add-on installs the driver only. You still need to create an EFS file system and configure a StorageClass or PersistentVolume referencing it.
 </Note>
 
+<Warning>
+Disable this add-on only if no workload still depends on EFS-backed volumes. Existing pods using the driver can fail to mount volumes correctly once the EFS CSI driver is removed from the cluster.
+</Warning>
+
 **Default Value:** `false`
 
 <a id="load-balancer-size"></a>
