@@ -466,19 +466,7 @@ EFS provides shared, multi-AZ, ReadWriteMany storage — ideal for workloads tha
 ```json
 {
   "Effect": "Allow",
-  "Action": [
-    "elasticfilesystem:CreateFileSystem",
-    "elasticfilesystem:DeleteFileSystem",
-    "elasticfilesystem:DescribeFileSystems",
-    "elasticfilesystem:CreateMountTarget",
-    "elasticfilesystem:DeleteMountTarget",
-    "elasticfilesystem:DescribeMountTargets",
-    "elasticfilesystem:TagResource",
-    "elasticfilesystem:CreateAccessPoint",
-    "elasticfilesystem:DeleteAccessPoint",
-    "elasticfilesystem:DescribeAccessPoints",
-    "elasticfilesystem:PutLifecycleConfiguration"
-  ],
+  "Action": "elasticfilesystem:*",
   "Resource": "*"
 }
 ```
