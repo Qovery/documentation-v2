@@ -438,155 +438,6 @@ Enabling this feature will create a 10 min max downtime on your application's pu
 
 **Default Value:** `128`
 
-<a id="aws-eks-enable-efs-addon"></a>
-
-### aws.eks.enable_efs_addon
-
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
-
-**Type:** `boolean`
-
-**Description:** Enable the [AWS EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html) EKS add-on to provision EFS-backed persistent volumes on the cluster.
-
-When enabled, Qovery automatically provisions:
-- The **EFS CSI driver** as a managed EKS add-on
-- An **encrypted EFS file system** dedicated to the cluster
-- A **security group** allowing NFS (port 2049) from the VPC
-- **Mount targets** in each availability zone used by the cluster
-- The required **IAM roles and policies** (IRSA)
-- A **StorageClass** named `aws-efs` for dynamic provisioning via EFS access points
-
-<Note>
-EFS provides shared, multi-AZ, ReadWriteMany storage — ideal for workloads that need to share files across multiple pods or nodes (e.g. CMS uploads, shared config, ML datasets).
-</Note>
-
-<Warning>
-**Prerequisite:** Before enabling this setting, you must add the following IAM permissions to the role used by Qovery to manage your AWS account. Without them, the cluster deployment will fail when trying to create the EFS resources.
-
-```json
-{
-  "Effect": "Allow",
-  "Action": "elasticfilesystem:*",
-  "Resource": "*"
-}
-```
-
-Add this statement to the IAM policy attached to your Qovery AWS role (the one configured in **Organization settings > Cloud provider credentials**).
-</Warning>
-
-<Warning>
-Disable this add-on only if no workload still depends on EFS-backed volumes. Disabling will **destroy** the EFS file system and all data stored in it.
-</Warning>
-
-#### Using EFS with Helm charts
-
-Once the setting is enabled and the cluster is deployed, the `aws-efs` StorageClass is available. Create a `PersistentVolumeClaim` and mount it in your workload.
-
-**Step 1 — Create a PVC in your Helm chart templates:**
-
-```yaml
-# templates/efs-pvc.yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ "{{ .Release.Name }}" }}-efs
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: aws-efs
-  resources:
-    requests:
-      storage: 5Gi
-```
-
-**Step 2 — Mount the volume in your workload:**
-
-```yaml
-# templates/deployment.yaml (excerpt)
-spec:
-  containers:
-    - name: app
-      volumeMounts:
-        - name: efs-data
-          mountPath: /data
-  volumes:
-    - name: efs-data
-      persistentVolumeClaim:
-        claimName: {{ "{{ .Release.Name }}" }}-efs
-```
-
-That's it — no need to create a StorageClass or look up the EFS file system ID. Qovery handles everything.
-
-**Default Value:** `false`
-
-<a id="aws-eks-efs-throughput-mode"></a>
-
-### aws.eks.efs.throughput_mode
-
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
-
-**Type:** `string`
-
-**Description:** Controls how throughput is allocated for the EFS file system provisioned by the cluster.
-
-| Mode | Throughput | Cost model | Best for |
-|---|---|---|---|
-| `elastic` | Scales automatically up to 10 GiB/s read, 3 GiB/s write | Pay per GiB transferred (~$0.03/GiB read, ~$0.06/GiB write) | Variable or unpredictable workloads |
-| `bursting` | Baseline 50 KiB/s per GiB stored, bursts up to 100 MiB/s | Included in storage cost (~$0.30/GiB-month) | Small file systems with occasional bursts |
-| `provisioned` | Fixed throughput you configure (1–3,072 MiB/s) | ~$6.00/MiB/s-month on top of storage | Steady, high-throughput workloads |
-
-<Warning>
-`provisioned` mode is not fully supported yet — it requires a fixed throughput value that is not configurable via Qovery advanced settings. Use `elastic` or `bursting` instead.
-</Warning>
-
-**Valid values:** `elastic`, `bursting`, `provisioned`
-
-**Default Value:** `elastic`
-
-<a id="aws-eks-efs-performance-mode"></a>
-
-### aws.eks.efs.performance_mode
-
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
-
-**Type:** `string`
-
-**Description:** Controls the I/O performance characteristics of the EFS file system.
-
-| Mode | Latency | Max IOPS | Best for |
-|---|---|---|---|
-| `generalPurpose` | Lowest (sub-ms) | Up to 55,000 read / 25,000 write | Web serving, CMS, home directories, most workloads |
-| `maxIO` | Slightly higher | No practical limit | Massively parallel big data, genomics, media processing |
-
-<Warning>
-**This setting cannot be changed after the EFS file system is created.** Changing it requires destroying and recreating the file system, which **permanently deletes all stored data**. Choose carefully at cluster creation time.
-</Warning>
-
-**Valid values:** `generalPurpose`, `maxIO`
-
-**Default Value:** `generalPurpose`
-
-<a id="aws-eks-efs-transition-to-ia"></a>
-
-### aws.eks.efs.transition_to_ia
-
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
-
-**Type:** `string`
-
-**Description:** Lifecycle policy that automatically moves files not accessed for the specified period to the **Infrequent Access (IA)** storage class.
-
-| Storage class | Storage cost | Read cost | Write cost |
-|---|---|---|---|
-| Standard | ~$0.30/GiB-month | Included | Included |
-| Infrequent Access | ~$0.016/GiB-month (~95% cheaper) | ~$0.01/GiB | ~$0.01/GiB |
-
-Set to an empty string (`""`) to disable the lifecycle policy and keep all files in Standard storage.
-
-**Valid values:** `AFTER_1_DAY`, `AFTER_7_DAYS`, `AFTER_14_DAYS`, `AFTER_30_DAYS`, `AFTER_60_DAYS`, `AFTER_90_DAYS`, `""` (disabled)
-
-**Default Value:** `AFTER_30_DAYS`
-
 <a id="load-balancer-size"></a>
 
 ### load_balancer.size
@@ -1619,6 +1470,10 @@ If you need to connect to the Kubernetes cluster from your network, make sure to
 
 **Default Value:** `false`
 
+---
+
+## Storage
+
 <a id="storageclass-fast-ssd"></a>
 
 ### storageclass.fast_ssd
@@ -1647,6 +1502,155 @@ When left empty, Qovery uses the following storageClasses per provider:
 <Info>
 GCP also supports `gcp-pd-ssd` for higher IOPS. Azure supports `azure-premium-lrs`, `azure-premium-v2-lrs`, `azure-premium-zrs`, `azure-ultra-ssd-lrs`, and `azure-standard-ssd-lrs`.
 </Info>
+
+<a id="aws-eks-enable-efs-addon"></a>
+
+### aws.eks.enable_efs_addon
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `boolean`
+
+**Description:** Enable the [AWS EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html) EKS add-on to provision EFS-backed persistent volumes on the cluster.
+
+When enabled, Qovery automatically provisions:
+- The **EFS CSI driver** as a managed EKS add-on
+- An **encrypted EFS file system** dedicated to the cluster
+- A **security group** allowing NFS (port 2049) from the VPC
+- **Mount targets** in each availability zone used by the cluster
+- The required **IAM roles and policies** (IRSA)
+- A **StorageClass** named `aws-efs` for dynamic provisioning via EFS access points
+
+<Note>
+EFS provides shared, multi-AZ, ReadWriteMany storage — ideal for workloads that need to share files across multiple pods or nodes (e.g. CMS uploads, shared config, ML datasets).
+</Note>
+
+<Warning>
+**Prerequisite:** Before enabling this setting, you must add the following IAM permissions to the role used by Qovery to manage your AWS account. Without them, the cluster deployment will fail when trying to create the EFS resources.
+
+```json
+{
+  "Effect": "Allow",
+  "Action": "elasticfilesystem:*",
+  "Resource": "*"
+}
+```
+
+Add this statement to the IAM policy attached to your Qovery AWS role (the one configured in **Organization settings > Cloud provider credentials**).
+</Warning>
+
+<Warning>
+Disable this add-on only if no workload still depends on EFS-backed volumes. Disabling will **destroy** the EFS file system and all data stored in it.
+</Warning>
+
+#### Using EFS with Helm charts
+
+Once the setting is enabled and the cluster is deployed, the `aws-efs` StorageClass is available. Create a `PersistentVolumeClaim` and mount it in your workload.
+
+**Step 1 — Create a PVC in your Helm chart templates:**
+
+```yaml
+# templates/efs-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ "{{ .Release.Name }}" }}-efs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: aws-efs
+  resources:
+    requests:
+      storage: 5Gi
+```
+
+**Step 2 — Mount the volume in your workload:**
+
+```yaml
+# templates/deployment.yaml (excerpt)
+spec:
+  containers:
+    - name: app
+      volumeMounts:
+        - name: efs-data
+          mountPath: /data
+  volumes:
+    - name: efs-data
+      persistentVolumeClaim:
+        claimName: {{ "{{ .Release.Name }}" }}-efs
+```
+
+That's it — no need to create a StorageClass or look up the EFS file system ID. Qovery handles everything.
+
+**Default Value:** `false`
+
+<a id="aws-eks-efs-throughput-mode"></a>
+
+### aws.eks.efs.throughput_mode
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Controls how throughput is allocated for the EFS file system provisioned by the cluster.
+
+| Mode | Throughput | Cost model | Best for |
+|---|---|---|---|
+| `elastic` | Scales automatically up to 10 GiB/s read, 3 GiB/s write | Pay per GiB transferred (~$0.03/GiB read, ~$0.06/GiB write) | Variable or unpredictable workloads |
+| `bursting` | Baseline 50 KiB/s per GiB stored, bursts up to 100 MiB/s | Included in storage cost (~$0.30/GiB-month) | Small file systems with occasional bursts |
+| `provisioned` | Fixed throughput you configure (1-3,072 MiB/s) | ~$6.00/MiB/s-month on top of storage | Steady, high-throughput workloads |
+
+<Warning>
+`provisioned` mode is not fully supported yet — it requires a fixed throughput value that is not configurable via Qovery advanced settings. Use `elastic` or `bursting` instead.
+</Warning>
+
+**Valid values:** `elastic`, `bursting`
+
+**Default Value:** `elastic`
+
+<a id="aws-eks-efs-performance-mode"></a>
+
+### aws.eks.efs.performance_mode
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Controls the I/O performance characteristics of the EFS file system.
+
+| Mode | Latency | Max IOPS | Best for |
+|---|---|---|---|
+| `generalPurpose` | Lowest (sub-ms) | Up to 55,000 read / 25,000 write | Web serving, CMS, home directories, most workloads |
+| `maxIO` | Slightly higher | No practical limit | Massively parallel big data, genomics, media processing |
+
+<Warning>
+**This setting cannot be changed after the EFS file system is created.** Changing it requires destroying and recreating the file system, which **permanently deletes all stored data**. Choose carefully at cluster creation time.
+</Warning>
+
+**Valid values:** `generalPurpose`, `maxIO`
+
+**Default Value:** `generalPurpose`
+
+<a id="aws-eks-efs-transition-to-ia"></a>
+
+### aws.eks.efs.transition_to_ia
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Lifecycle policy that automatically moves files not accessed for the specified period to the **Infrequent Access (IA)** storage class.
+
+| Storage class | Storage cost | Read cost | Write cost |
+|---|---|---|---|
+| Standard | ~$0.30/GiB-month | Included | Included |
+| Infrequent Access | ~$0.016/GiB-month (~95% cheaper) | ~$0.01/GiB | ~$0.01/GiB |
+
+Set to an empty string (`""`) to disable the lifecycle policy and keep all files in Standard storage.
+
+**Valid values:** `AFTER_1_DAY`, `AFTER_7_DAYS`, `AFTER_14_DAYS`, `AFTER_30_DAYS`, `AFTER_60_DAYS`, `AFTER_90_DAYS`, `""` (disabled)
+
+**Default Value:** `AFTER_30_DAYS`
 
 ---
 
