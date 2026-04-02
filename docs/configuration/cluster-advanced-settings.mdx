@@ -454,8 +454,7 @@ When enabled, Qovery automatically provisions:
 - A **security group** allowing NFS (port 2049) from the VPC
 - **Mount targets** in each availability zone used by the cluster
 - The required **IAM roles and policies** (IRSA)
-
-The EFS file system ID is exposed as a Terraform output (`efs_file_system_id`) so you can reference it in your workloads.
+- A **StorageClass** named `aws-efs` for dynamic provisioning via EFS access points
 
 <Note>
 EFS provides shared, multi-AZ, ReadWriteMany storage — ideal for workloads that need to share files across multiple pods or nodes (e.g. CMS uploads, shared config, ML datasets).
@@ -467,24 +466,9 @@ Disable this add-on only if no workload still depends on EFS-backed volumes. Dis
 
 #### Using EFS with Helm charts
 
-Once the setting is enabled and the cluster is deployed, create a `StorageClass` and consume it via a `PersistentVolumeClaim`. The easiest approach is to deploy a Helm chart on Qovery that includes these resources.
+Once the setting is enabled and the cluster is deployed, the `aws-efs` StorageClass is available. Create a `PersistentVolumeClaim` and mount it in your workload.
 
-**Step 1 — Create a StorageClass in your Helm chart templates:**
-
-```yaml
-# templates/efs-storageclass.yaml
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: efs-sc
-provisioner: efs.csi.aws.com
-parameters:
-  provisioningMode: efs-ap
-  fileSystemId: {{ "{{ .Values.efs.fileSystemId }}" }}
-  directoryPerms: "700"
-```
-
-**Step 2 — Create a PVC:**
+**Step 1 — Create a PVC in your Helm chart templates:**
 
 ```yaml
 # templates/efs-pvc.yaml
@@ -495,13 +479,13 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: efs-sc
+  storageClassName: aws-efs
   resources:
     requests:
       storage: 5Gi
 ```
 
-**Step 3 — Mount the volume in your workload:**
+**Step 2 — Mount the volume in your workload:**
 
 ```yaml
 # templates/deployment.yaml (excerpt)
@@ -517,13 +501,7 @@ spec:
         claimName: {{ "{{ .Release.Name }}" }}-efs
 ```
 
-**Step 4 — Pass the EFS file system ID** via Helm values when deploying on Qovery. You can find it in the Terraform output of your cluster or in the AWS console under the EFS service.
-
-```yaml
-# values.yaml
-efs:
-  fileSystemId: fs-0123456789abcdef0
-```
+That's it — no need to create a StorageClass or look up the EFS file system ID. Qovery handles everything.
 
 **Default Value:** `false`
 
