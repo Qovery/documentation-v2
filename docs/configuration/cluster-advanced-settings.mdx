@@ -461,6 +461,31 @@ EFS provides shared, multi-AZ, ReadWriteMany storage — ideal for workloads tha
 </Note>
 
 <Warning>
+**Prerequisite:** Before enabling this setting, you must add the following IAM permissions to the role used by Qovery to manage your AWS account. Without them, the cluster deployment will fail when trying to create the EFS resources.
+
+```json
+{
+  "Effect": "Allow",
+  "Action": [
+    "elasticfilesystem:CreateFileSystem",
+    "elasticfilesystem:DeleteFileSystem",
+    "elasticfilesystem:DescribeFileSystems",
+    "elasticfilesystem:CreateMountTarget",
+    "elasticfilesystem:DeleteMountTarget",
+    "elasticfilesystem:DescribeMountTargets",
+    "elasticfilesystem:TagResource",
+    "elasticfilesystem:CreateAccessPoint",
+    "elasticfilesystem:DeleteAccessPoint",
+    "elasticfilesystem:DescribeAccessPoints"
+  ],
+  "Resource": "*"
+}
+```
+
+Add this statement to the IAM policy attached to your Qovery AWS role (the one configured in **Organization settings > Cloud provider credentials**).
+</Warning>
+
+<Warning>
 Disable this add-on only if no workload still depends on EFS-backed volumes. Disabling will **destroy** the EFS file system and all data stored in it.
 </Warning>
 
