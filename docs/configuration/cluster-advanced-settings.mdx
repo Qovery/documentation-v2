@@ -446,15 +446,84 @@ Enabling this feature will create a 10 min max downtime on your application's pu
 
 **Type:** `boolean`
 
-**Description:** Enable the [AWS EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html) EKS add-on to provision EFS-backed persistent volumes on the cluster. When enabled, the EFS CSI driver is installed as a managed EKS add-on with the required IAM permissions. This allows Kubernetes workloads to use Amazon EFS file systems as persistent storage via PersistentVolumeClaims.
+**Description:** Enable the [AWS EFS CSI driver](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html) EKS add-on to provision EFS-backed persistent volumes on the cluster.
+
+When enabled, Qovery automatically provisions:
+- The **EFS CSI driver** as a managed EKS add-on
+- An **encrypted EFS file system** dedicated to the cluster
+- A **security group** allowing NFS (port 2049) from the VPC
+- **Mount targets** in each availability zone used by the cluster
+- The required **IAM roles and policies** (IRSA)
+
+The EFS file system ID is exposed as a Terraform output (`efs_file_system_id`) so you can reference it in your workloads.
 
 <Note>
-Enabling this add-on installs the driver only. You still need to create an EFS file system and configure a StorageClass or PersistentVolume referencing it.
+EFS provides shared, multi-AZ, ReadWriteMany storage — ideal for workloads that need to share files across multiple pods or nodes (e.g. CMS uploads, shared config, ML datasets).
 </Note>
 
 <Warning>
-Disable this add-on only if no workload still depends on EFS-backed volumes. Existing pods using the driver can fail to mount volumes correctly once the EFS CSI driver is removed from the cluster.
+Disable this add-on only if no workload still depends on EFS-backed volumes. Disabling will **destroy** the EFS file system and all data stored in it.
 </Warning>
+
+#### Using EFS with Helm charts
+
+Once the setting is enabled and the cluster is deployed, create a `StorageClass` and consume it via a `PersistentVolumeClaim`. The easiest approach is to deploy a Helm chart on Qovery that includes these resources.
+
+**Step 1 — Create a StorageClass in your Helm chart templates:**
+
+```yaml
+# templates/efs-storageclass.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: efs-sc
+provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: {{ "{{ .Values.efs.fileSystemId }}" }}
+  directoryPerms: "700"
+```
+
+**Step 2 — Create a PVC:**
+
+```yaml
+# templates/efs-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ "{{ .Release.Name }}" }}-efs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 5Gi
+```
+
+**Step 3 — Mount the volume in your workload:**
+
+```yaml
+# templates/deployment.yaml (excerpt)
+spec:
+  containers:
+    - name: app
+      volumeMounts:
+        - name: efs-data
+          mountPath: /data
+  volumes:
+    - name: efs-data
+      persistentVolumeClaim:
+        claimName: {{ "{{ .Release.Name }}" }}-efs
+```
+
+**Step 4 — Pass the EFS file system ID** via Helm values when deploying on Qovery. You can find it in the Terraform output of your cluster or in the AWS console under the EFS service.
+
+```yaml
+# values.yaml
+efs:
+  fileSystemId: fs-0123456789abcdef0
+```
 
 **Default Value:** `false`
 
