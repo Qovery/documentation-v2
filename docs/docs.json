@@ -237,7 +237,8 @@
                 "group": "Azure AKS",
                 "pages": [
                   "configuration/integrations/kubernetes/aks/overview",
-                  "configuration/integrations/kubernetes/aks/managed"
+                  "configuration/integrations/kubernetes/aks/managed",
+                  "configuration/integrations/kubernetes/aks/permissions"
                 ]
               },
               {
