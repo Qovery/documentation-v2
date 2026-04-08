@@ -1,0 +1,225 @@
+---
+title: "Filter Outbound Traffic with an Egress Proxy"
+description: "Restrict outbound HTTP(S) traffic for a single application using a Squid forward proxy and Kubernetes NetworkPolicy"
+---
+
+This guide shows how to restrict outbound HTTP(S) traffic for a single application running on a Qovery-managed cluster. The goal is to enforce a domain allowlist so the application can only reach a predefined set of external services.
+
+<Info>
+Qovery's built-in controls focus on ingress. Per-application egress domain filtering is handled at the Kubernetes level using a dedicated forward proxy.
+</Info>
+
+## How it works
+
+The approach has three parts:
+
+1. **Squid forward proxy** — runs inside the cluster as a container service and enforces a domain allowlist
+2. **App environment variables** — tell your application to route all outbound traffic through the proxy
+3. **Kubernetes NetworkPolicy** *(optional)* — prevents the application from bypassing the proxy by talking directly to the internet
+
+```
+[ Your App ] → [ Squid Proxy ] → [ Allowed domains only ]
+                    ↑
+             allowlist enforced here
+```
+
+<Warning>
+IP-based filtering (Security Groups / NACLs) is **not reliable** for domain-based allowlisting. Many external services sit behind CDNs and use multiple IPs that change over time. A forward proxy that filters on the destination hostname is the right approach.
+</Warning>
+
+## Prerequisites
+
+- A Qovery environment with at least one application running
+- A list of domains your application needs to reach
+
+## Step 1: Deploy Squid as a container service
+
+Create a new **Container** service in your Qovery environment using the `ubuntu/squid` image.
+
+### Configure the service
+
+| Setting | Value |
+|---|---|
+| Image | `ubuntu/squid` |
+| Port | `3128` (do not expose publicly) |
+
+### Pass the Squid configuration as a file variable
+
+Rather than baking a config into a custom image, pass your `squid.conf` as a **file variable** mounted directly into the container.
+
+In Qovery, create a new variable with:
+
+| Field | Value |
+|---|---|
+| Name | `SQUID_CONF` (or any name) |
+| Type | File |
+| Mount path | `/etc/squid/squid.conf` |
+| Value | *(the squid.conf content below)* |
+
+File content:
+
+```nginx
+http_port 3128
+
+# Define your approved destinations
+acl allowed_domains dstdomain \
+  .example.com \
+  .another-service.com
+
+http_access allow allowed_domains
+http_access deny all
+```
+
+Replace `.example.com` and `.another-service.com` with the domains your application actually needs to reach.
+
+<Tip>
+Start with a permissive allowlist and use the proxy logs to discover all the domains your application actually contacts before tightening it. External services often use multiple hostnames for APIs, CDNs, redirects, and object storage.
+</Tip>
+
+### Configure health probes
+
+Add the following exec probe so Qovery (and Kubernetes) can verify Squid is healthy:
+
+| Probe | Command |
+|---|---|
+| Liveness | `squid -k check` |
+| Readiness | `squid -k check` |
+
+`squid -k check` sends a signal to the running Squid process and exits with a non-zero code if the process is not responding — making it a reliable health signal.
+
+<Warning>
+Do not expose this service publicly. It is an internal proxy and should only be reachable from within the cluster.
+</Warning>
+
+## Step 2: Configure the application to use the proxy
+
+Add the following environment variables to your application in Qovery:
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `HTTPS_PROXY` | `http://$QOVERY_CONTAINER_<ID>_HOST_INTERNAL:3128` | Route HTTPS traffic through proxy |
+| `HTTP_PROXY` | `http://$QOVERY_CONTAINER_<ID>_HOST_INTERNAL:3128` | Route HTTP traffic through proxy |
+| `NO_PROXY` | `127.0.0.1,localhost,.svc,.cluster.local` | Bypass proxy for internal traffic |
+
+Qovery automatically exposes a built-in variable for each service's internal hostname. For your Squid container service it will look like `QOVERY_CONTAINER_<ID>_HOST_INTERNAL`. You can find the exact variable name in the **Environment Variables** tab of your Squid service, under the built-in variables section.
+
+Use it by reference so the value stays correct across redeployments:
+
+```
+HTTP_PROXY=http://{{ QOVERY_CONTAINER_<ID>_HOST_INTERNAL }}:3128
+HTTPS_PROXY=http://{{ QOVERY_CONTAINER_<ID>_HOST_INTERNAL }}:3128
+```
+
+<Info>
+Some runtimes and libraries also read lowercase variants: `http_proxy`, `https_proxy`, `no_proxy`. Set both if your language runtime requires it.
+</Info>
+
+<Warning>
+Always include `.svc` and `.cluster.local` in `NO_PROXY`. Without this, internal Kubernetes service calls will be routed through the proxy and may fail.
+</Warning>
+
+## Step 3: Validate the setup
+
+Once both services are deployed, exec into your application container and test:
+
+```bash
+# Should succeed — domain is in the allowlist
+curl -I https://allowed-service.example.com
+
+# Should fail — domain is not in the allowlist
+curl -I https://not-allowed.example.com
+```
+
+Check the Squid container logs in Qovery to see all outbound requests and their status.
+
+## Step 4 (optional): Enforce with a NetworkPolicy
+
+A NetworkPolicy prevents your application from bypassing the proxy and talking directly to the internet. Qovery-managed clusters run AWS VPC CNI with network policy support enabled, so this works out of the box.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-app-egress-via-proxy
+spec:
+  podSelector:
+    matchLabels:
+      app: my-app           # label on your application pods
+  policyTypes:
+    - Egress
+  egress:
+    # Allow traffic to the Squid proxy
+    - to:
+        - podSelector:
+            matchLabels:
+              app: squid-proxy   # label on your Squid pods
+      ports:
+        - protocol: TCP
+          port: 3128
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+```
+
+<Warning>
+Once an egress NetworkPolicy is applied, **only traffic explicitly listed is allowed** — everything else is dropped by default. Make sure DNS is allowed or name resolution will fail entirely.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Application cannot reach anything">
+    Check that:
+    - `HTTPS_PROXY` and `HTTP_PROXY` are set and point to the correct hostname and port
+    - `NO_PROXY` includes `.svc` and `.cluster.local`
+    - The Squid pod is running and healthy (`squid -k check` probe passes)
+    - The Squid service name matches the hostname in the env vars
+    - If NetworkPolicy is applied, DNS (port 53) is explicitly allowed
+  </Accordion>
+
+  <Accordion title="An allowed domain is still blocked">
+    Check:
+    - Whether the service uses a different hostname than expected (e.g. a CDN endpoint)
+    - Whether there are HTTP redirects to a non-allowlisted domain
+    - The proxy access log — it shows the exact destination the client is requesting
+  </Accordion>
+
+  <Accordion title="Internal service calls are failing">
+    Check that `.svc` and `.cluster.local` are in `NO_PROXY`. Without this, Kubernetes internal service discovery goes through the proxy and typically fails.
+  </Accordion>
+
+  <Accordion title="Some requests succeed but others fail intermittently">
+    This often happens when an external service uses multiple backend hostnames or load balances across CDN nodes. Check proxy logs for blocked requests and add the missing hostnames to the allowlist.
+  </Accordion>
+
+  <Accordion title="Squid health probe is failing">
+    Make sure the container has fully started before the probe runs — `ubuntu/squid` may take a few seconds to initialize. Add a `initialDelaySeconds` to the probe if needed. You can also exec into the container and run `squid -k check` manually to check the process state.
+  </Accordion>
+</AccordionGroup>
+
+## Related documentation
+
+<CardGroup cols={2}>
+  <Card title="Environment Variables" icon="key" href="/configuration/environment-variable">
+    Configure environment variables and file variables on your services
+  </Card>
+
+  <Card title="Container Service" icon="docker" href="/configuration/application">
+    Deploy a container image as a Qovery service
+  </Card>
+
+  <Card title="Security Overview" icon="shield" href="/getting-started/security-and-compliance/overview">
+    Security and compliance capabilities in Qovery
+  </Card>
+
+  <Card title="Advanced Settings" icon="sliders" href="/configuration/service-advanced-settings">
+    Fine-tune service behavior with advanced settings
+  </Card>
+</CardGroup>

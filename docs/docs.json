@@ -154,7 +154,8 @@
                     "pages": [
                       "getting-started/guides/advanced-tutorials/cloudflare-custom-domain",
                       "getting-started/guides/advanced-tutorials/rate-limiting",
-                      "getting-started/guides/advanced-tutorials/ip-header-authorization"
+                      "getting-started/guides/advanced-tutorials/ip-header-authorization",
+                      "getting-started/guides/advanced-tutorials/egress-filtering-squid-proxy"
                     ]
                   },
                   {
