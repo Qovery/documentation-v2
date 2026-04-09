@@ -954,6 +954,54 @@ After changing this setting, redeploy your applications and services in this clu
 120
 ```
 
+
+<a id="envoy-gateway-api-http-stream-idle-timeout-seconds"></a>
+
+### envoy.gateway_api.http_stream_idle_timeout_seconds
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the stream idle timeout in seconds for Envoy Gateway `ClientTrafficPolicy` at gateway level. A stream is considered idle when no upstream or downstream data is exchanged during the configured period. This maps to Envoy `stream_idle_timeout` behavior. Learn more in the [Envoy timeout documentation](https://www.envoyproxy.io/docs/envoy/latest/faq/configuration/timeouts.html#stream-timeouts).
+
+**Use Case:** Keep long-running streaming responses alive while still terminating genuinely stalled streams.
+
+<Warning>
+After changing this setting, redeploy your applications and services in this cluster to apply the new timeout on generated Gateway API resources.
+</Warning>
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+300
+```
+
+
+<a id="envoy-gateway-api-http-max-stream-duration-seconds"></a>
+
+### envoy.gateway_api.http_max_stream_duration_seconds
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the default maximum stream duration in seconds for Envoy Gateway `BackendTrafficPolicy`. This value is used when services do not define `network.gateway_api.http_max_stream_duration_seconds`. This maps to Envoy `max_stream_duration` behavior. Learn more in the [Envoy timeout documentation](https://www.envoyproxy.io/docs/envoy/latest/faq/configuration/timeouts.html#stream-timeouts).
+
+**Use Case:** Put a hard upper bound on stream lifetime while still allowing long-running active streams below that limit.
+
+<Warning>
+After changing this setting, redeploy your applications and services in this cluster to apply the new timeout on generated Gateway API resources.
+</Warning>
+
+**Default Value:** `null` (uses Envoy Gateway default)
+
+**Example:**
+```json
+600
+```
+
 <a id="envoy-client-ip-detection-x-forwarded-for-number-trusted-hops"></a>
 
 ### envoy.client_ip_detection.x_forwarded_for.number_trusted_hops
