@@ -166,7 +166,7 @@ You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-co
   </Step>
 
   <Step title="Update Daemonsets">
-    If you have deployed some daemonsets, you must update their definitions to enable them to run on every node of the future nodepools (stable & default). Everything is explained in [our guide](/getting-started/guides/advanced-tutorials/deploy-daemonset-karpenter)
+    If you have deployed some daemonsets, you must update their definitions to enable them to run on every node of the future nodepools (stable, default, and cronjob if enabled). Everything is explained in [our guide](/getting-started/guides/advanced-tutorials/deploy-daemonset-karpenter)
   </Step>
 </Steps>
 
@@ -252,14 +252,17 @@ Qovery deploys two node pools by default:
 - **Stable node pool**: Used for single instances and internal Qovery applications. For example, any containerized databases or application having the number of minimum instances set to 1, will be deployed on this nodepool. On this nodepool the consolidation is deactivated by default.
 - **Default node pool**: Designed to handle general workloads and serves as the foundation for deploying most applications.
 
-An additional GPU node pool can be present if you have enabled the GPU node pool configuration when creating your cluster (can be enabled afterwards).
+Additional optional node pools can be enabled:
+
+- **GPU node pool**: Can be enabled if you want to run GPU workloads on your cluster. You can select the GPU instance types you want to use on this nodepool.
+- **Cronjob node pool**: A dedicated node pool for Qovery cron jobs. When enabled, a Karpenter NodePool named `cronjob` is created with a `nodepool/cronjob: NoSchedule` taint. Qovery cron jobs automatically receive the appropriate toleration and a preferred node affinity toward this nodepool, so they are steered there when available. This helps isolate cronjob workloads from long-running services on shared nodes. The cronjob nodepool supports consolidation scheduling and resource limits (same as the stable nodepool). After enabling or disabling this nodepool, **we strongly recommend redeploying all your cron jobs** to ensure they run with the latest intended scheduling configuration. If the nodepool is removed before redeploy, existing jobs can fall back to the default nodepool instead of staying in `Pending`.
 
 #### Settings for nodepools:
 
 - **Instance types**: Define the list of instance types that can be used. (Shared for Stable and Default nodepools)
 - **Spot instances**: Enable or disable spot instances. (Shared across the three nodepools)
 - **Node disk size (GB)**: Specify the disk capacity allocated per worker node, determining the amount of data each node can store. (Shared for Stable and Default nodepools)
-- **Consolidation schedule** _(Stable nodepool only)_: Optimizes resource usage by consolidating workloads onto fewer nodes. This feature is not available for the default nodepool, as consolidation can happen at any time. We recommend enabling this option; otherwise, nodes will never be consolidated, leading to unnecessary infrastructure costs.
+- **Consolidation schedule** _(Stable and Cronjob nodepools only)_: Optimizes resource usage by consolidating workloads onto fewer nodes. This feature is not available for the default nodepool, as consolidation can happen at any time. We recommend enabling this option; otherwise, nodes will never be consolidated, leading to unnecessary infrastructure costs.
 - **Node pool limits**: Configure CPU and memory limits to ensure nodes stay within defined resource constraints, preventing excessive costs.
 
 <Warning>
@@ -315,7 +318,7 @@ For example, to assign a service to the t3a.xlarge instance type, manually set t
 
 ### Change the node pool of your service when using Helm
 
-When using Helm, you can update the `affinity` field in your `values.yaml` file to target a specific node pool for your service. For example you can switch from the `default` to `stable` nodepool:
+When using Helm, you can update the `affinity` field in your `values.yaml` file to target a specific node pool for your service. For example you can switch from the `default` to the `stable` nodepool:
 
 ```yaml
 affinity:

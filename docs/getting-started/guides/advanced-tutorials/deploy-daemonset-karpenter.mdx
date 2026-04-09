@@ -39,6 +39,8 @@ When you deploy Qovery, a PriorityClass named `qovery-standard-priority` is crea
 
 When you deploy Qovery, two nodepools are deployed by default: `default` and `stable`. The `stable` nodepool includes a taint with the key `nodepool/stable` on it. This taint restricts pod scheduling to only those pods that have the corresponding toleration.
 
+If the optional cronjob nodepool is enabled on your cluster, a third nodepool named `cronjob` is created with a taint `nodepool/cronjob: NoSchedule`. Your DaemonSet must also tolerate this taint to be scheduled on cronjob nodes.
+
 ### How to target every node
 
 To target all nodes and properly deploy your DaemonSet or Helm chart, add the following tolerations and affinity to your pods:

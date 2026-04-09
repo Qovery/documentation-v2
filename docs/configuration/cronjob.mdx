@@ -15,6 +15,16 @@ Cron Jobs in Qovery are Kubernetes workloads that run on a regular schedule. The
 - Perform database backups
 - Run maintenance scripts
 
+## Dedicated Cronjob Node Pool
+
+<Info>
+On AWS EKS clusters with Karpenter, you can enable a dedicated **cronjob node pool**. When enabled, a Karpenter NodePool named `cronjob` is created with a `nodepool/cronjob: NoSchedule` taint. Qovery cron jobs automatically receive the appropriate toleration and a preferred node affinity toward this node pool, so they are steered there when available. See [AWS EKS cluster resources](/configuration/integrations/kubernetes/eks/managed#resources) for details on enabling and configuring this nodepool.
+</Info>
+
+<Warning>
+After enabling or disabling the cronjob node pool, **we strongly recommend redeploying all your cron jobs** to ensure they pick up the updated scheduling configuration. If the nodepool is removed before jobs are redeployed, existing cron jobs can fall back to the default nodepool instead of staying in `Pending`, but redeploying ensures they run with the latest intended scheduling behavior.
+</Warning>
+
 ## Deployment Sources
 
 Qovery supports two deployment sources for Cron Jobs:
