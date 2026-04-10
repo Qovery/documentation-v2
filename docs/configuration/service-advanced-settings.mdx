@@ -1186,6 +1186,26 @@ The hardcoded error pages cannot be customized at this time. If you need to cust
 120
 ```
 
+
+<a id="network-gateway-api-http-max-stream-duration-seconds"></a>
+
+### network.gateway_api.http_max_stream_duration_seconds
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `integer` (unsigned)
+
+**Description:** Sets the maximum stream duration in seconds for HTTP streams proxied through the Gateway API route. When exceeded, the stream is terminated. This maps to Envoy `max_stream_duration` behavior. Learn more in the [Envoy timeout documentation](https://www.envoyproxy.io/docs/envoy/latest/faq/configuration/timeouts.html#stream-timeouts).
+
+**Use Case:** Add a hard cap for very long streams while still allowing long active responses like exports or server-sent events.
+
+**Default Value:** `null` (uses cluster default if set, otherwise Envoy Gateway default)
+
+**Example:**
+```json
+300
+```
+
 <a id="network-dns-ndots"></a>
 
 ### network.dns.ndots
