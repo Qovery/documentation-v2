@@ -15,89 +15,100 @@ The Qovery MCP Server lets you interact with your Qovery infrastructure from any
 
 - **MCP-Compatible Client**: Any MCP-compatible application
 - **Qovery Account**: Active account with infrastructure
-- **API Token**: Generate from Qovery Console (Settings -> API Tokens) (only needed if you don't use OAuth)
 
 ## Setup
 
-### 1. Generate Your Qovery API Token (if not using OAuth)
+The Qovery MCP Server is accessible at `https://mcp.qovery.com/mcp`. Choose one of the two authentication methods below to connect your MCP client.
 
-<Steps>
-  <Step title="Open Qovery Console">
-    Go to [console.qovery.com](https://console.qovery.com)
-  </Step>
+<Tabs>
+  <Tab title="OAuth (recommended)">
 
-  <Step title="Navigate to Settings">
-    Click on the settings icon in your organization
-  </Step>
+    If your MCP client supports OAuth, this is the easiest option — no token generation required. The client will handle authentication automatically.
 
-  <Step title="Access API Tokens">
-    Go to **API Tokens** section
-  </Step>
+    **Example with Claude Code:**
 
-  <Step title="Generate Token">
-    Click "Generate Token" and copy it
+    ```bash
+    # Read-only (default)
+    claude mcp add --transport http qovery https://mcp.qovery.com/mcp --callback-port 4242
 
-    <Warning>
-    Save this token securely. You won't be able to see it again!
-    </Warning>
-  </Step>
-</Steps>
+    # Read/write
+    claude mcp add --transport http qovery "https://mcp.qovery.com/mcp?read_write=true" --callback-port 4242
+    ```
 
-### 2. Configure Your MCP Client
+    Refer to your MCP client's documentation for how to configure OAuth with a custom server URL.
 
-The Qovery MCP Server is accessible at:
+  </Tab>
 
-```
-https://mcp.qovery.com/mcp
-```
+  <Tab title="API Token">
 
-**OAuth:**
+    If your MCP client doesn't support OAuth, generate a Qovery API token and pass it via the URL.
 
-If your client supports OAuth, use the MCP Server URL and configure the OAuth callback port. Example with Claude Code:
+    **Step 1 — Generate a token:**
 
-```bash
-claude mcp add --transport http qovery https://mcp.qovery.com/mcp --callback-port 4242
-```
+    <Steps>
+      <Step title="Open Qovery Console">
+        Go to [console.qovery.com](https://console.qovery.com)
+      </Step>
 
-**API Token:**
+      <Step title="Navigate to Settings">
+        Click on the settings icon in your organization
+      </Step>
 
-```
-https://mcp.qovery.com/mcp?token=<your-token>
-```
+      <Step title="Access API Tokens">
+        Go to **API Tokens** section
+      </Step>
 
-Refer to your specific MCP client's documentation for detailed setup instructions on how to add a custom MCP server.
+      <Step title="Generate Token">
+        Click "Generate Token" and copy it
+
+        <Warning>
+        Save this token securely. You won't be able to see it again!
+        </Warning>
+      </Step>
+    </Steps>
+
+    **Step 2 — Configure your MCP client:**
+
+    Use the following URL format, replacing `your_qovery_token` with your token:
+
+    ```
+    # Read-only (default)
+    https://mcp.qovery.com/mcp?token=your_qovery_token
+
+    # Read/write
+    https://mcp.qovery.com/mcp?token=your_qovery_token&read_write=true
+    ```
+
+    You can also pass the token via an `Authorization` header instead:
+
+    ```
+    Authorization: Token your_qovery_token
+    ```
+
+  </Tab>
+</Tabs>
 
 <Info>
 The Qovery MCP Server is also available through the [MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=com.qovery).
 </Info>
 
-## Authentication
+## Access Modes
 
-The Qovery MCP Server supports **2 authentication methods**:
+| Mode | Default | Description |
+|------|---------|-------------|
+| Read-only | Yes | Can query and list resources (environments, services, deployments, etc.) |
+| Read/write | No (`read_write=true`) | Can also trigger deployments, update configurations, and perform write operations |
 
-<Tabs>
-  <Tab title="1. OAuth">
+<Info>
+The `devops_copilot` tool depends on two settings in your Qovery Console:
 
-    Use the MCP Server URL and configure an OAuth callback port. Example with Claude Code:
+1. **Copilot must be enabled** — if disabled, the tool will not be accessible at all, regardless of your MCP configuration
+2. **Write access must be enabled** — required to use the tool in read/write mode (in addition to the `read_write=true` URL parameter)
+</Info>
 
-    ```bash
-    claude mcp add --transport http qovery https://mcp.qovery.com/mcp --callback-port 4242
-    ```
-
-  </Tab>
-
-  <Tab title="2. API Token">
-    Pass your Qovery token via query parameter or Authorization header:
-
-    ```
-    # Query parameter
-    https://mcp.qovery.com/mcp?token=your_qovery_token
-
-    # Authorization header
-    Authorization: Token your_qovery_token
-    ```
-  </Tab>
-</Tabs>
+<Warning>
+Enable write mode only when needed. Prefer read-only mode to limit the blast radius of unintended AI actions.
+</Warning>
 
 ## Usage Examples
 
