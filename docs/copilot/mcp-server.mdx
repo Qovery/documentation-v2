@@ -51,22 +51,6 @@ The Qovery MCP Server is accessible at:
 https://mcp.qovery.com/mcp
 ```
 
-**OAuth:**
-
-If your client supports OAuth, use the MCP Server URL and configure the OAuth callback port. Example with Claude Code:
-
-```bash
-claude mcp add --transport http qovery https://mcp.qovery.com/mcp --callback-port 4242
-```
-
-**API Token:**
-
-```
-https://mcp.qovery.com/mcp?token=<your-token>
-```
-
-Refer to your specific MCP client's documentation for detailed setup instructions on how to add a custom MCP server.
-
 <Info>
 The Qovery MCP Server is also available through the [MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=com.qovery).
 </Info>
@@ -75,27 +59,61 @@ The Qovery MCP Server is also available through the [MCP Registry](https://regis
 
 The Qovery MCP Server supports **2 authentication methods**:
 
-<Tabs>
-  <Tab title="1. OAuth">
+### OAuth
 
-    Use the MCP Server URL and configure an OAuth callback port. Example with Claude Code:
+The easiest method to authentificate, it will open a page in your browser to authentificate
+
+<Tabs>
+  <Tab title="Claude code">
+
+    Use the MCP Server URL and configure an OAuth callback port
 
     ```bash
     claude mcp add --transport http qovery https://mcp.qovery.com/mcp --callback-port 4242
     ```
-
   </Tab>
 
-  <Tab title="2. API Token">
-    Pass your Qovery token via query parameter or Authorization header:
+  <Tab title="Codex">
+
+    At the root of your `.codex/config.toml` add this settings.
+
+    ```toml
+    mcp_oauth_callback_port = 4242
+    ```
+
+    After you can add Qovery MCP Server with this command
+
+    ```bash
+    codex mcp add qovery --url https://mcp.qovery.com/mcp
+    ```
+  </Tab>
+</Tabs>
+
+
+### Qovery API Token
+
+If you want to use a Qovery API token, for example to be able to limit the permission of what can be done.
+You can create a token with read/view only permission so you are guaranteed no destructive action can be taken.
+
+<Tabs>
+  <Tab title="Claude Code">
+
+    Configure claude code to add your Qovery token in the HTTP headers
+
+    ```bash
+    claude mcp add --transport http qovery https://mcp.qovery.com/mcp --header 'Authorization: Token qov_xxxx'
+    ```
+  </Tab>
+
+  <Tab title="Codex">
+    In your `.codex/config.toml` add this settings to the Qovery MCP server section
 
     ```
-    # Query parameter
-    https://mcp.qovery.com/mcp?token=your_qovery_token
-
-    # Authorization header
-    Authorization: Token your_qovery_token
+    [mcp_servers.qovery]
+    url = "https://mcp.qovery.com/mcp"
+    http_headers = { "Authorization" = "Token qov_xxxx" }
     ```
+
   </Tab>
 </Tabs>
 
