@@ -65,6 +65,7 @@
                 "pages": [
                   "getting-started/quickstart/docker-desktop",
                   "getting-started/quickstart/cloud",
+                  "getting-started/quickstart/ai-agent",
                   {
                     "group": "Managed Cluster",
                     "pages": [
