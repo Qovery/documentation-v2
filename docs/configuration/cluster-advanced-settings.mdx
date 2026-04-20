@@ -1026,6 +1026,40 @@ After changing this setting, redeploy your applications and services in this clu
 
 **Default Value:** `null` (uses Envoy default behavior)
 
+<Warning>
+`envoy.client_ip_detection.x_forwarded_for.number_trusted_hops` and `envoy.client_ip_detection.x_forwarded_for.trusted_cidrs` are **mutually exclusive**.
+
+Set **only one** of them.
+
+Qovery API validates this and returns a clear error if both are set.
+At engine rendering level, CIDR strategy has precedence when both values are present.
+</Warning>
+
+<a id="envoy-client-ip-detection-x-forwarded-for-trusted-cidrs"></a>
+
+### envoy.client_ip_detection.x_forwarded_for.trusted_cidrs
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `array[string]`
+
+**Description:** List of trusted CIDR ranges used to evaluate `X-Forwarded-For` and determine the original client IP address. This is the CIDR-based strategy for Envoy client IP detection. See [Envoy Gateway documentation](https://gateway.envoyproxy.io/latest/tasks/traffic/client-traffic-policy/#configure-client-ip-detection).
+
+**How to configure:**
+- Add your trusted proxy CIDRs (for example the CIDRs used by your edge/load balancers)
+- Keep the list empty to disable this strategy
+- Use this strategy when proxy hop count is variable but source proxy networks are known
+
+**Example:**
+```json
+[
+  "10.0.0.0/8",
+  "192.168.0.0/16"
+]
+```
+
+**Default Value:** `[]`
+
 <a id="envoy-log-format"></a>
 
 ### envoy.log_format
