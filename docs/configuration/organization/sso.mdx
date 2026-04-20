@@ -84,7 +84,11 @@ The following sections use Okta as IDP to illustrate the setup and information t
     If you want to automatically assign a Qovery role according to your users' groups (see [Configure Group Synchronization](#configure-group-synchronization)), you need to expose this information:
 
     - Add attribute `groups` to match the targeted IDP groups you want to expose
-    - Use `.*` to expose all groups assigned to your users
+    - Use a regex to expose the groups you plan to use for role synchronization, i.e `.*Qovery.*`
+
+    <Info>
+    Okta recommends to [expose only group names used by the target Application](https://help.okta.com/oie/en-us/content/topics/apps/define-group-attribute-statements.htm?cshid=ext-define-group-attribute-statements).
+    </Info>
 
     <Frame>
       <img src="/images/configuration/sso-saml-oidc/group-attributes.png" alt="Group Attributes" />
