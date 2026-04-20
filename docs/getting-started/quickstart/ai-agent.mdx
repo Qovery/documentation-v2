@@ -1,0 +1,170 @@
+---
+title: "Deploy with AI Agent"
+description: "Use Claude Code, Cursor, OpenCode, or any AI coding agent to deploy your application on Qovery with a single prompt."
+---
+
+Install the Qovery Agent Skill and let your AI coding agent deploy your application end-to-end — from analyzing your codebase to a running deployment on Kubernetes. No Kubernetes knowledge required.
+
+<Info>
+**Skill vs MCP Server — what's the difference?**
+
+- **Qovery Agent Skill** (this page) = **Forward engineering.** Takes your source code and deploys it on Qovery. The AI agent analyzes your project, creates Dockerfiles, provisions databases, sets up environment variables, and deploys everything.
+- **[Qovery MCP Server](/copilot/mcp-server)** = **Operations.** Manages existing infrastructure. Query environments, troubleshoot deployments, monitor services.
+
+Both can be used together: use the skill to deploy, then the MCP Server to manage.
+</Info>
+
+---
+
+## Install the Skill
+
+One command installs the skill globally for all your projects:
+
+<Steps>
+  <Step title="Run the installer">
+    ```bash
+    curl -fsSL https://skill.qovery.com/install.sh | bash
+    ```
+
+    This installs the skill to all compatible tool directories automatically. No manual configuration needed.
+  </Step>
+
+  <Step title="Open your AI coding tool">
+    Launch Claude Code, Cursor, OpenCode, VS Code Copilot, Gemini CLI, or any compatible tool.
+  </Step>
+
+  <Step title="Ask the agent to deploy">
+    ```
+    Deploy my application with Qovery
+    ```
+
+    The agent loads the skill automatically and guides you through the entire process.
+  </Step>
+</Steps>
+
+<Tip>
+To install for the current project only (instead of globally), run:
+```bash
+curl -fsSL https://skill.qovery.com/install.sh | bash -s -- --project
+```
+To update to the latest version, re-run the install command.
+</Tip>
+
+---
+
+## Compatible Tools
+
+The Qovery Agent Skill follows the [Agent Skills](https://agentskills.io) open standard and works with 30+ AI coding tools. The installer places the skill in all discovery paths automatically.
+
+| Tool | Supported |
+|------|-----------|
+| **Claude Code** | Yes |
+| **Cursor** | Yes |
+| **OpenCode** | Yes |
+| **VS Code Copilot** | Yes |
+| **Gemini CLI** | Yes |
+| Roo Code | Yes |
+| Goose | Yes |
+| Amp | Yes |
+| Kiro | Yes |
+| Junie (JetBrains) | Yes |
+| OpenHands | Yes |
+| OpenAI Codex | Yes |
+| Mistral Vibe | Yes |
+| TRAE | Yes |
+
+And any other tool that discovers skills from `.claude/skills/` or `.agents/skills/` directories.
+
+---
+
+## What the Skill Does
+
+When you tell your AI agent to deploy, the skill guides it through a complete deployment workflow:
+
+1. **Analyzes your codebase** — detects language, framework, ports, database needs, environment variables
+2. **Creates a Dockerfile** if one is missing — production-ready multi-stage templates for Node.js, Next.js, React, Vite, Python, Go, Java, Ruby, PHP, .NET
+3. **Asks the right questions** — dev vs production, database type, deployment method
+4. **Sets up infrastructure** — cluster creation from scratch if needed (AWS, GCP, Azure, Scaleway)
+5. **Deploys via CLI + API** (quick path) or **Terraform provider** (recommended for production)
+6. **Provisions databases** — container mode for dev/test, managed mode (e.g. AWS RDS) for production, or Terraform services for RDS Aurora
+7. **Sets up environment variables** using aliases, interpolation, and overrides — no duplication
+8. **Handles Helm charts, Terraform modules, lifecycle jobs, and cron jobs**
+9. **Watches deployments and auto-fixes failures** — diagnoses build errors, port mismatches, health check failures, missing env vars, and OOM issues. Fixes Qovery configuration automatically; asks for permission before modifying your code
+
+---
+
+## What You Need
+
+<Check>**Qovery account** — [Sign up at console.qovery.com](https://console.qovery.com) (free to start)</Check>
+<Check>**Git repository** connected to Qovery (GitHub, GitLab, or Bitbucket)</Check>
+
+That's it. The skill handles everything else:
+- **No API token needed upfront** — the skill generates one via the Qovery CLI
+- **No cluster needed upfront** — the skill guides you through cluster creation if you don't have one
+- **No Dockerfile needed** — the skill creates one if missing
+- **No Kubernetes knowledge needed** — the skill configures health checks, ports, deployment stages, and resource limits
+
+---
+
+## How It Compares
+
+| | Console (Manual) | AI Agent Skill | MCP Server |
+|---|---|---|---|
+| **Purpose** | Full control via web UI | Fastest path from code to deployed | Manage existing infrastructure |
+| **Creates Dockerfiles** | No | Yes, for 12+ frameworks | No |
+| **Provisions databases** | Manual configuration | Automatic (asks dev vs prod) | No |
+| **Sets up env vars** | Manual per variable | Automatic with aliases and overrides | No |
+| **Deployment method** | Console UI | CLI + API or Terraform | N/A |
+| **Monitors & fixes failures** | Manual log inspection | Automatic diagnosis and auto-fix | Query-based |
+| **Best for** | Experienced users, fine-tuning | Developers deploying from code | Day-2 operations |
+
+---
+
+## Supported Frameworks
+
+The skill includes production-ready Dockerfile templates for:
+
+| Language | Frameworks |
+|----------|-----------|
+| **Node.js** | Express, Fastify, NestJS |
+| **Next.js** | SSR with standalone output |
+| **React / Vite** | SPA served via nginx |
+| **Python** | Flask, Django, FastAPI |
+| **Go** | Any (net/http, Gin, Echo, Fiber, etc.) |
+| **Java** | Spring Boot (Maven and Gradle) |
+| **Ruby** | Rails |
+| **PHP** | Laravel |
+| **.NET** | ASP.NET Core |
+
+If your framework is not listed, the agent creates a custom Dockerfile based on your project structure.
+
+---
+
+## Example Prompts
+
+Once the skill is installed, try any of these prompts with your AI coding agent:
+
+- *"Deploy my application with Qovery"*
+- *"Set up Qovery for my project"*
+- *"Deploy this to Kubernetes with Qovery"*
+- *"Create a Qovery Terraform configuration for my app"*
+- *"I need a production deployment with a PostgreSQL database"*
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Qovery MCP Server" icon="robot" href="/copilot/mcp-server">
+    Manage deployed infrastructure from your AI agent
+  </Card>
+  <Card title="Terraform Provider" icon="code" href="/terraform-provider/overview">
+    Version-controlled infrastructure as code
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/cli/overview">
+    Monitor, debug, and manage from the terminal
+  </Card>
+  <Card title="Skill Source Code" icon="github" href="https://github.com/Qovery/qovery-skills">
+    View, contribute, or fork on GitHub
+  </Card>
+</CardGroup>
