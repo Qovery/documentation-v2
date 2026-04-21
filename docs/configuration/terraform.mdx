@@ -13,9 +13,7 @@ Terraform Native Service enables you to deploy and manage Terraform or OpenTofu 
 
 Watch this interactive demo to see how to deploy S3 infrastructure using Terraform and connect it to services deployed with Qovery:
 
-<video controls style={{width: '100%', maxHeight: '80vh'}}>
-  <source src="/files/videos/Deploy_S3_Infrastructure_using_Terraform_with_Qovery.mp4" type="video/mp4" />
-</video>
+<video src="/videos/Deploy_S3_Infrastructure_using_Terraform_with_Qovery.mp4" controls />
 
 ---
 
@@ -25,32 +23,26 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
   <Step title="Open Environment Overview">
     Navigate to the environment where you want to deploy your Terraform infrastructure.
   </Step>
-
   <Step title="Create New Service">
     Click **New Service** and select **Terraform** from the service type options.
   </Step>
-
   <Step title="Configure Service Name">
     Provide a **service name** that identifies this Terraform service (e.g., `aws-infrastructure`, `cloudflare-config`).
   </Step>
-
   <Step title="Select Git Repository">
     Choose the **Git repository** containing your Terraform code. This repository must include your `.tf` configuration files.
 
     Specify the **branch** and **root path** if your Terraform code is in a subdirectory.
   </Step>
-
   <Step title="Select Engine">
     Choose the execution engine:
 
     - **Terraform** - Official HashiCorp Terraform
     - **OpenTofu** - Open-source Terraform fork
   </Step>
-
   <Step title="Select Terraform Version">
     Choose the **Terraform version** to use for execution. Supported versions depend on your selected engine.
   </Step>
-
   <Step title="State Management">
     Configure how Terraform stores and manages state files. Qovery supports two state management modes.
 
@@ -61,12 +53,12 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
         This default configuration requires no additional setup and is ideal for getting started quickly.
 
         **Benefits:**
+
         - Zero configuration required
         - Automatic state management
         - Secure storage within your cluster
         - No external dependencies
       </Tab>
-
       <Tab title="Custom Backend (AWS S3)">
         If you prefer to manage your Terraform state in your own backend, you can configure a custom backend. **The standard for AWS is to use an S3 backend.**
 
@@ -96,6 +88,7 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
         ```
 
         **Configuration parameters:**
+
         - `bucket` - Name of your S3 bucket for storing state files
         - `key` - Path to the state file within the bucket (typically `terraform.tfstate`)
         - `region` - AWS region where your S3 bucket is located
@@ -103,28 +96,29 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
         - `encrypt` - Set to `true` to enable server-side encryption for the state file (recommended)
 
         <Info>
-        Using `use_lockfile = true` eliminates the need to set up a DynamoDB table for state locking, simplifying your infrastructure. This is the recommended approach as DynamoDB-based locking is deprecated and will be removed in a future version of Terraform.
+          Using `use_lockfile = true` eliminates the need to set up a DynamoDB table for state locking, simplifying your infrastructure. This is the recommended approach as DynamoDB-based locking is deprecated and will be removed in a future version of Terraform.
         </Info>
 
         <Tip>
-        **Best Practices:**
-        - Enable **bucket versioning** on your S3 bucket to allow state recovery in case of accidental deletions or corruption
-        - Use `encrypt = true` to enable server-side encryption for your state files
-        - Never hardcode sensitive values in your backend configuration
+          **Best Practices:**
+
+          - Enable **bucket versioning** on your S3 bucket to allow state recovery in case of accidental deletions or corruption
+          - Use `encrypt = true` to enable server-side encryption for your state files
+          - Never hardcode sensitive values in your backend configuration
         </Tip>
 
         **Configuring AWS Credentials**
 
         To allow Terraform to access your S3 backend, you must provide AWS credentials as **environment variables** in the service configuration:
 
-        ```
+        ```text
         AWS_ACCESS_KEY_ID=AKIA...
         AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
         AWS_DEFAULT_REGION=eu-west-3
         ```
 
         <Tip>
-        Store these credentials as **Secrets** in Qovery to ensure they are encrypted and never exposed in logs.
+          Store these credentials as **Secrets** in Qovery to ensure they are encrypted and never exposed in logs.
         </Tip>
 
         **Required IAM Permissions**
@@ -156,19 +150,20 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
         ```
 
         <Info>
-        The `s3:DeleteObject` permission is required for managing the lock file when using `use_lockfile = true`.
+          The `s3:DeleteObject` permission is required for managing the lock file when using `use_lockfile = true`.
         </Info>
 
         <Warning>
-        **Using Cluster Credentials with Custom Backend**
+          **Using Cluster Credentials with Custom Backend**
 
-        If you choose to use the default cluster credentials (instead of providing custom AWS credentials), be aware that the cluster's IAM policy **only allows access to S3 buckets with names prefixed with `qovery-`**.
+          If you choose to use the default cluster credentials (instead of providing custom AWS credentials), be aware that the cluster's IAM policy **only allows access to S3 buckets with names prefixed with `qovery-`**.
 
-        You have two options:
-        1. **Name your bucket with the `qovery-` prefix** (e.g., `qovery-my-terraform-backend`)
-        2. **Provide custom AWS credentials** (recommended) with appropriate permissions for your bucket name
+          You have two options:
 
-        This restriction exists to prevent accidental access to unrelated S3 buckets in your AWS account.
+          1. **Name your bucket with the `qovery-` prefix** (e.g., `qovery-my-terraform-backend`)
+          2. **Provide custom AWS credentials** (recommended) with appropriate permissions for your bucket name
+
+          This restriction exists to prevent accidental access to unrelated S3 buckets in your AWS account.
         </Warning>
 
         **Migration from Default State**
@@ -181,17 +176,14 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
       </Tab>
     </Tabs>
   </Step>
-
   <Step title="Execution Timeout (Default)">
     The default **timeout is set to 1 hour**. This can be customized if your Terraform operations require more time.
   </Step>
-
   <Step title="Cloud Credentials (Default Behavior)">
     By default, Terraform uses **cluster credentials** when provisioning resources on the same cloud provider as your cluster.
 
     If you need to use **custom credentials** (e.g., a different AWS account, GCP project, or Azure subscription), you will configure them in the Environment Variables step.
   </Step>
-
   <Step title="Compute Resources (Default)">
     Terraform execution uses the following default compute resources:
 
@@ -201,13 +193,13 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
 
     These resources can be updated later in the **Service Settings** if your Terraform operations require more capacity.
   </Step>
-
   <Step title="Configure Terraform Variables">
     Qovery provides comprehensive variable management for Terraform, automatically detecting variables from your code and allowing flexible configuration.
 
     **Automatic Variable Detection**
 
     Qovery automatically loads variables from:
+
     - `main.tf`
     - `variables.tf`
 
@@ -216,11 +208,12 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
     **Example:**
 
     If your `variables.tf` contains:
+
     ```hcl
     variable "bucket_name" {
       type = string
     }
-
+    
     variable "environment" {
       type = string
       default = "production"
@@ -228,19 +221,21 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
     ```
 
     Qovery will create:
+
     - `tf_var_bucket_name`
     - `tf_var_environment`
 
     **Importing TFVAR Files**
 
     You can import `.tfvars` files to configure multiple variables at once:
+
     1. Click **Import TFVAR**
     2. Select the TFVAR file(s) to import
     3. Choose which TFVAR files to apply
     4. Reorder the TFVAR files as needed
 
     <Info>
-    **The last TFVAR file applied wins.** If multiple TFVAR files define the same variable, the value from the last file in the order takes precedence.
+      **The last TFVAR file applied wins.** If multiple TFVAR files define the same variable, the value from the last file in the order takes precedence.
     </Info>
 
     **Manual Variable Override**
@@ -248,27 +243,26 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
     You can manually override any variable value in two ways:
 
     1. **Direct Value Entry** - Enter a value directly:
-       ```
+       ```text
        tf_var_bucket_name = "my-custom-bucket"
        ```
-
     2. **Reference Environment Variable** - Reference another environment variable:
-       ```
+       ```text
        tf_var_bucket_name = ${MY_BUCKET_NAME}
        ```
 
     **Variables Not in main.tf or variables.tf**
 
     If you have variables defined in other `.tf` files that are not in `main.tf` or `variables.tf`, Qovery will not automatically detect them. You can create these variables manually using the `tf_var_` prefix:
-    ```
+
+    ```text
     tf_var_my_custom_variable = "value"
     ```
 
     <Frame>
-      <img src="/images/configuration/terraform/terraform-variables-configuration.png" alt="Configure Terraform Variables" />
+      ![Configure Terraform Variables](/images/configuration/terraform/terraform-variables-configuration.png)
     </Frame>
   </Step>
-
   <Step title="Configure Environment Variables">
     Add standard environment variables that will be available during Terraform execution. This is where you configure custom cloud provider credentials, provider-specific settings, and other configuration.
 
@@ -279,21 +273,24 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
     Override the default cluster credentials with your own:
 
     **AWS:**
-    ```
+
+    ```text
     AWS_ACCESS_KEY_ID=AKIA...
     AWS_SECRET_ACCESS_KEY=...
     AWS_DEFAULT_REGION=us-east-1
     ```
 
     **GCP:**
-    ```
+
+    ```text
     GOOGLE_CREDENTIALS={"type":"service_account",...}
     GOOGLE_PROJECT=my-project-id
     GOOGLE_REGION=us-central1
     ```
 
     **Azure:**
-    ```
+
+    ```text
     ARM_CLIENT_ID=...
     ARM_CLIENT_SECRET=...
     ARM_SUBSCRIPTION_ID=...
@@ -305,30 +302,32 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
     Add provider-specific environment variables:
 
     **Cloudflare:**
-    ```
+
+    ```text
     CLOUDFLARE_API_TOKEN=...
     CLOUDFLARE_ZONE_ID=...
     ```
 
     **Datadog:**
-    ```
+
+    ```text
     DATADOG_API_KEY=...
     DATADOG_APP_KEY=...
     ```
 
     <Tip>
-    Use Qovery **Secrets** for sensitive credentials to ensure they are encrypted and never exposed in logs.
+      Use Qovery **Secrets** for sensitive credentials to ensure they are encrypted and never exposed in logs.
     </Tip>
 
     **Terraform Environment Variables**
 
     You can also set Terraform-specific environment variables:
-    ```
+
+    ```text
     TF_LOG=DEBUG
     TF_WORKSPACE=production
     ```
   </Step>
-
   <Step title="Review and Create">
     Review your configuration and click **Create** to provision the Terraform service.
 
@@ -343,7 +342,7 @@ Watch this interactive demo to see how to deploy S3 infrastructure using Terrafo
 After creating your Terraform service, you can execute Terraform commands using the **Action Toolbar**.
 
 <Frame>
-  <img src="/images/configuration/terraform/terraform-action-menu.png" alt="Terraform Action Menu" />
+  ![Terraform Action Menu](/images/configuration/terraform/terraform-action-menu.png)
 </Frame>
 
 ### Available Actions
@@ -355,6 +354,7 @@ The following Terraform operations are available from the service's Action Toolb
     Executes `terraform plan` to preview infrastructure changes without applying them.
 
     Use this to:
+
     - Review what Terraform will create, modify, or destroy
     - Validate your Terraform configuration
     - Check for drift between your code and actual infrastructure
@@ -364,6 +364,7 @@ The following Terraform operations are available from the service's Action Toolb
     Executes `terraform plan` followed by `terraform apply` to provision or update infrastructure.
 
     This is the standard deployment action that:
+
     - Generates an execution plan
     - Applies changes to your infrastructure
     - Updates the Terraform state
@@ -373,7 +374,7 @@ The following Terraform operations are available from the service's Action Toolb
     Executes `terraform destroy` to remove all resources managed by this Terraform service.
 
     <Warning>
-    This action is **irreversible** and will delete all infrastructure resources defined in your Terraform code.
+      This action is **irreversible** and will delete all infrastructure resources defined in your Terraform code.
     </Warning>
   </Accordion>
 
@@ -381,12 +382,13 @@ The following Terraform operations are available from the service's Action Toolb
     Releases a stuck Terraform state lock.
 
     Use this if:
+
     - A previous Terraform operation was interrupted
     - State is locked and preventing new operations
     - You see "state is locked" errors
 
     <Warning>
-    Only use Force Unlock if you're certain no other Terraform operation is running.
+      Only use Force Unlock if you're certain no other Terraform operation is running.
     </Warning>
   </Accordion>
 
@@ -394,6 +396,7 @@ The following Terraform operations are available from the service's Action Toolb
     Migrates Terraform state between storage backends or updates state schema.
 
     This operation runs `terraform init -migrate-state` to:
+
     - Move state to a new backend
     - Upgrade state file format
     - Reconfigure state storage
@@ -405,6 +408,7 @@ The following Terraform operations are available from the service's Action Toolb
 During service creation, you can select **Create & Run Plan** to immediately execute `terraform plan` after the service is created.
 
 This allows you to:
+
 - Preview infrastructure changes before deployment
 - Validate your Terraform configuration
 - Review the execution plan before committing to apply
@@ -453,6 +457,7 @@ All parameters from the creation flow can be modified:
     - Adjust storage allocation (default: 1 GB)
 
     Increase these resources if your Terraform operations:
+
     - Manage a large number of resources
     - Require significant memory for state processing
     - Need more CPU for provider operations
@@ -471,11 +476,11 @@ All parameters from the creation flow can be modified:
 The **Terraform Arguments** section allows you to specify additional CLI arguments for each Terraform command. These arguments override default behaviors and enable advanced customization.
 
 <Frame>
-  <img src="/images/configuration/terraform/terraform-arguments.png" alt="Terraform Arguments Configuration" />
+  ![Terraform Arguments Configuration](/images/configuration/terraform/terraform-arguments.png)
 </Frame>
 
 <Info>
-Terraform Arguments provide fine-grained control over Terraform execution. Use these to customize init, validate, plan, apply, and destroy operations.
+  Terraform Arguments provide fine-grained control over Terraform execution. Use these to customize init, validate, plan, apply, and destroy operations.
 </Info>
 
 <AccordionGroup>
@@ -483,12 +488,14 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
     Customize `terraform init` behavior.
 
     **Common arguments:**
+
     - `-upgrade` - Upgrade modules and providers to latest versions
     - `-reconfigure` - Reconfigure backend ignoring existing configuration
     - `-backend-config=...` - Override backend configuration
 
     **Example:**
-    ```
+
+    ```text
     -upgrade -backend-config="bucket=my-state-bucket"
     ```
   </Accordion>
@@ -497,11 +504,13 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
     Customize `terraform validate` behavior.
 
     **Common arguments:**
+
     - `-json` - Output validation results in JSON format
     - `-no-color` - Disable colored output
 
     **Example:**
-    ```
+
+    ```text
     -json -no-color
     ```
   </Accordion>
@@ -510,6 +519,7 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
     Customize `terraform plan` behavior.
 
     **Common arguments:**
+
     - `-target=resource.name` - Plan changes for specific resource only
     - `-var="key=value"` - Set a variable value
     - `-var-file=filename` - Load variables from file
@@ -518,7 +528,8 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
     - `-parallelism=n` - Limit concurrent operations
 
     **Example:**
-    ```
+
+    ```text
     -target=aws_s3_bucket.main -parallelism=5
     ```
   </Accordion>
@@ -527,6 +538,7 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
     Customize `terraform apply` behavior.
 
     **Common arguments:**
+
     - `-target=resource.name` - Apply changes to specific resource only
     - `-var="key=value"` - Set a variable value
     - `-var-file=filename` - Load variables from file
@@ -534,7 +546,8 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
     - `-refresh=false` - Skip state refresh
 
     **Example:**
-    ```
+
+    ```text
     -parallelism=10 -refresh=false
     ```
   </Accordion>
@@ -543,17 +556,19 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
     Customize `terraform destroy` behavior.
 
     **Common arguments:**
+
     - `-target=resource.name` - Destroy specific resource only
     - `-var="key=value"` - Set a variable value
     - `-parallelism=n` - Limit concurrent operations
     - `-refresh=false` - Skip state refresh
 
     <Warning>
-    Use destroy arguments carefully. Targeting specific resources can lead to incomplete cleanup or resource dependencies issues.
+      Use destroy arguments carefully. Targeting specific resources can lead to incomplete cleanup or resource dependencies issues.
     </Warning>
 
     **Example:**
-    ```
+
+    ```text
     -target=aws_s3_bucket.temp -parallelism=2
     ```
   </Accordion>
@@ -567,7 +582,7 @@ Terraform Arguments provide fine-grained control over Terraform execution. Use t
 
 **Example Full Configuration:**
 
-```
+```text
 Init: -upgrade
 Plan: -parallelism=10 -var="environment=production"
 Apply: -parallelism=10 -var="environment=production"
@@ -596,7 +611,8 @@ Qovery provides two ways to inject custom Dockerfile commands during the build:
         In your Git repository, create a Dockerfile fragment file in your Terraform code directory or a custom location.
 
         **Example directory structure:**
-        ```
+
+        ```text
         my-repo/
         ├── terraform/
         │   ├── main.tf
@@ -605,13 +621,11 @@ Qovery provides two ways to inject custom Dockerfile commands during the build:
         └── README.md
         ```
       </Step>
-
       <Step title="Add Dockerfile Instructions">
         Add valid Dockerfile instructions to install the tools you need. The fragment is injected into the build **after** your Terraform files are copied and **before** the final user switch.
 
         See the **Fragment Examples** section below for common use cases.
       </Step>
-
       <Step title="Configure Service">
         In the Terraform service settings, configure the Dockerfile fragment:
 
@@ -620,16 +634,14 @@ Qovery provides two ways to inject custom Dockerfile commands during the build:
         - Enter the absolute path to your fragment file (e.g., `/terraform/custom-build.dockerfile`)
 
         <Info>
-        The path must be absolute (starting with `/`) and located within your service's `root_path`.
+          The path must be absolute (starting with `/`) and located within your service's `root_path`.
         </Info>
       </Step>
-
       <Step title="Deploy">
         Save your changes and deploy. Qovery will inject the fragment contents during the Docker build.
       </Step>
     </Steps>
   </Tab>
-
   <Tab title="Inline Fragment">
     Define Dockerfile commands directly in the service configuration without creating a file in your repository.
 
@@ -642,6 +654,7 @@ Qovery provides two ways to inject custom Dockerfile commands during the build:
         - Enter your Dockerfile commands in the text area
 
         **Example:**
+
         ```dockerfile
         # Install AWS CLI and common utilities
         RUN apt-get update && \
@@ -649,14 +662,13 @@ Qovery provides two ways to inject custom Dockerfile commands during the build:
             rm -rf /var/lib/apt/lists/*
         ```
       </Step>
-
       <Step title="Deploy">
         Save your changes and deploy. Qovery will inject the inline content during the Docker build.
       </Step>
     </Steps>
 
     <Info>
-    Inline fragments are limited to 8KB of content. For larger customizations, use a file-based fragment.
+      Inline fragments are limited to 8KB of content. For larger customizations, use a file-based fragment.
     </Info>
   </Tab>
 </Tabs>
@@ -664,6 +676,7 @@ Qovery provides two ways to inject custom Dockerfile commands during the build:
 ### Fragment Examples
 
 **Installing AWS CLI and common tools:**
+
 ```dockerfile
 # Install AWS CLI and common utilities
 RUN apt-get update && \
@@ -672,6 +685,7 @@ RUN apt-get update && \
 ```
 
 **Installing kubectl:**
+
 ```dockerfile
 # Install kubectl (curl is already available in the base image)
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
@@ -680,6 +694,7 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
 ```
 
 **Installing a custom binary from your repository:**
+
 ```dockerfile
 # Install a custom tool already present in the repository
 # (repository files are already copied to /data)
@@ -688,6 +703,7 @@ RUN cp /data/bin/my-custom-tool /usr/local/bin/my-custom-tool && \
 ```
 
 **Downloading and extracting a remote archive:**
+
 ```dockerfile
 # Download and extract a tool from the internet
 ADD https://releases.example.com/tool-v1.2.3.tar.gz /tmp/tool.tar.gz
@@ -703,15 +719,15 @@ The fragment supports the following Dockerfile instructions:
 - `ADD` - Add files with URL/archive support (download and extract remote archives)
 
 <Info>
-Repository files are already present in `/data` before the fragment executes, so you can reference them in `RUN` commands without needing `COPY`.
+  Repository files are already present in `/data` before the fragment executes, so you can reference them in `RUN` commands without needing `COPY`.
 </Info>
 
 <Warning>
-The fragment runs as `root` during the build. The container switches to a non-root user (`app`) after your fragment executes. Make sure any binaries you install are accessible to all users.
+  The fragment runs as `root` during the build. The container switches to a non-root user (`app`) after your fragment executes. Make sure any binaries you install are accessible to all users.
 </Warning>
 
 <Info>
-This feature is specific to Terraform and OpenTofu services. Applications and Jobs use different build mechanisms.
+  This feature is specific to Terraform and OpenTofu services. Applications and Jobs use different build mechanisms.
 </Info>
 
 ---
@@ -724,18 +740,16 @@ You can create a clone of the service via the clone feature. A new service with 
   <Step title="Select Service">
     Go to the Terraform service you want to clone
   </Step>
-
   <Step title="Clone Service">
     Click on the **three dots button** and select **Clone**
   </Step>
-
   <Step title="Select Target Environment">
     Choose the target environment where you want to clone the service
   </Step>
 </Steps>
 
 <Info>
-The target environment can be the same as the current environment or a different one in a completely different project.
+  The target environment can be the same as the current environment or a different one in a completely different project.
 </Info>
 
 ---
