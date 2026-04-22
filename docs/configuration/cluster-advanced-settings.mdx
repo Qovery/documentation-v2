@@ -438,6 +438,20 @@ Enabling this feature will create a 10 min max downtime on your application's pu
 
 **Default Value:** `128`
 
+<a id="aws-eks-alb-controller-load-balancer-source-ranges"></a>
+
+### aws.eks.alb_controller.load-balancer-source-ranges
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `list of cidr string`
+
+**Description:** Specifies the CIDRs that are allowed to access the NLB. https://kubernetes-sigs.github.io/aws-load-balancer-controller/v3.2/guide/service/annotations/#lb-source-ranges
+
+**Default Value:** `[]`
+
+**Example:** `["10.0.0.0/8", "192.168.0.0/16"]`
+
 <a id="load-balancer-size"></a>
 
 ### load_balancer.size
