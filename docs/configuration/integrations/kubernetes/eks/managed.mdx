@@ -7,6 +7,7 @@ description: "Learn how to configure your AWS Kubernetes clusters on Qovery"
 **Default Autoscaling Mode**
 
 All AWS EKS clusters on Qovery now use Karpenter for autoscaling, which automatically launches the right compute resources to handle your cluster's applications.
+
 </Info>
 
 Karpenter automatically launches just the right compute resources to handle your cluster's applications. It is designed to let you take full advantage of the cloud with fast and simple compute provisioning for Kubernetes clusters.
@@ -35,7 +36,6 @@ You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-co
   <Step title="Set Resources">
     In the `Set Resources` window, select:
 
-    * **Karpenter**: Toggle the switch to enable Karpenter on your AWS EKS cluster
     * **Node disk size (GB)**: Specify the disk capacity allocated per worker node, determining the amount of data each node can store. The minimum value is 20GB.
     * **Instance types scopes**: By editing it, you can apply different filters to the node architectures, categories, families, and sizes. On the right, you can view all the instance types that match the applied filters. This means Karpenter will be able to spawn nodes on any of the listed instance types.
       * **Architectures**: by default both `AMD64` and `ARM64` architectures are selected.
@@ -59,10 +59,10 @@ You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-co
 
   </Step>
 
-  <Step title="Configure Features">
-    In the `Features` step, select the features you want to enable on your cluster.
+  <Step title="Configure Network">
+    In the `Network` step, select the network mode you want to enable on your cluster.
 
-    If you want to manage the network layer of your cluster by yourself, you can switch VPC mode to `Deploy on my existing VPC` to use your own VPC instead of the one provided by Qovery.
+    If you want to manage the network layer of your cluster by yourself, you can switch Network mode to `Self-managed` to use your own VPC instead of the one provided by Qovery.
 
     <Warning>
     These options can only be configured during cluster creation and cannot be modified later.
@@ -159,48 +159,14 @@ You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-co
 
   </Step>
 
-  <Step title="Configure Additional Subnets (Existing VPC Only)">
-    If you have configured an existing vpc for your cluster, you'll need to indicate some additional subnets dedicated to fargate:
-    * those subnets must be **private**
-    * they must all have access to internet through a NAT gateway
-  </Step>
+<Step title="Configure Additional Subnets (Existing VPC Only)">
+  If you have configured an existing vpc for your cluster, you'll need to
+  indicate some additional subnets dedicated to fargate: * those subnets must be
+  **private** * they must all have access to internet through a NAT gateway
+</Step>
 
   <Step title="Update Daemonsets">
     If you have deployed some daemonsets, you must update their definitions to enable them to run on every node of the future nodepools (stable, default, and cronjob if enabled). Everything is explained in [our guide](/getting-started/guides/advanced-tutorials/deploy-daemonset-karpenter)
-  </Step>
-</Steps>
-
-### Enable Karpenter
-
-You can easily activate Karpenter on your non-production existing cluster by following this process:
-
-<Steps>
-  <Step title="Open Qovery Console">
-    Open your [Qovery Console](https://console.qovery.com).
-  </Step>
-
-  <Step title="Navigate to Cluster Page">
-    On the left menu bar, click on the Cluster page.
-  </Step>
-
-  <Step title="Access Cluster Settings">
-    To access your cluster settings, click on the wheel button.
-  </Step>
-
-  <Step title="Activate Karpenter">
-    Access to `Resources` section and switch on the toggle `Activate Karpenter`
-  </Step>
-
-  <Step title="Update Your Cluster">
-    Update your cluster by selecting the action `Update` from the drop-down menu.
-  </Step>
-
-  <Step title="Verify and Add Instance Types">
-    Once the update is complete, your cluster will be running on Karpenter. By default, only the instance types selected when you created your AWS cluster with the auto-scaler will be configured. You can add additional instance types by editing the instance types in the resources section.
-  </Step>
-
-  <Step title="Redeploy Environments">
-    Please redeploy all your environments of your cluster: this will automatically update your services configuration to run them on the appropriate nodepool.
   </Step>
 </Steps>
 
@@ -213,12 +179,10 @@ To manage the settings of an existing cluster:
     Open your [Qovery Console](https://console.qovery.com).
   </Step>
 
-  <Step title="Navigate to Cluster Page">
-    On the left menu bar, click on the Cluster page.
-  </Step>
+<Step title="Navigate to Cluster Page">Click on the Clusters tab.</Step>
 
   <Step title="Access Cluster Settings">
-    To access your cluster settings, click on the wheel button.
+    To access your cluster settings, click on the settings tab.
   </Step>
 </Steps>
 
@@ -281,13 +245,12 @@ The credentials configured on this registry are the one used to create the clust
 
 Check [this link](/configuration/deployment/image-mirroring) for more information.
 
-### Features
-
-The `Features` tab in your cluster settings allows you to check if the [**Static IP**](#static-ip), [**Custom VPC subnet**](#custom-vpc-subnet), [**Deploy on existing VPC**](#use-your-existing-vpc) features are enabled on your cluster. The enabled features cannot be changed after the creation of the cluster.
-
 ### Network
 
-The `Network` tab in your cluster settings allows you to update your Qovery VPC route table so that you can perform VPC peering. For step-by-step guidelines on how to set up VPC peering, [see our dedicated tutorial](/configuration/integrations/aws/vpc-peering).
+The `Network` tab in your cluster settings allows you to:
+
+- check if the [**Static IP**](#static-ip), [**Custom VPC subnet**](#custom-vpc-subnet), [**Deploy on existing VPC**](#use-your-existing-vpc) features are enabled on your cluster. The enabled features cannot be changed after the creation of the cluster.
+- Update your Qovery VPC route table so that you can perform VPC peering. For step-by-step guidelines on how to set up VPC peering, [see our dedicated tutorial](/configuration/integrations/aws/vpc-peering).
 
 ## Defining cluster node constraints to run your Services
 

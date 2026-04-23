@@ -15,9 +15,9 @@ To follow this section, you must have [created an account](https://console.qover
 
 When you sign up for Qovery, you will be asked to create your first organization and project. You will need to:
 
-1. Sign in through your Git provider (GitHub, GitLab, or Bitbucket)
-2. Create your first organization and project
-3. Select a plan: Free, Team, or Enterprise
+1. Sign in through your Git provider (GitHub, GitLab, or Bitbucket), Google or Microsoft
+2. Create your first organization
+3. You will be on Team plan by default during your trial
 
 For more information on available plans, visit the [pricing page](https://www.qovery.com/pricing).
 
@@ -27,15 +27,16 @@ You can create multiple organizations to separate concerns. To create a new orga
 
 <Steps>
   <Step title="Access Organization Menu">
-    Click on your profile icon button on the left navbar
+    Click on your current organization dropdown meny in the header
   </Step>
 
   <Step title="Create New Organization">
-    Click the `+` button in the top right corner of the dropdown menu
+    Click the `+` button in the bottom of the dropdown menu
 
     <Frame>
       <img src="/images/configuration/organization/create_organization_after_signing_up.png" alt="Create organization after signing up" />
     </Frame>
+
   </Step>
 
   <Step title="Configure Organization">
@@ -47,18 +48,22 @@ You can create multiple organizations to separate concerns. To create a new orga
 
 If you have access to multiple organizations, you can switch between them:
 
-1. Locate the organization dropdown in the bottom left of the navbar
+1. Locate the organization dropdown in the header
 2. Click on the dropdown to see all available organizations
 3. Select the organization you want to switch to
 
 <Frame>
-  <img src="/images/configuration/organization/change_organization.png" alt="Change organization" />
+  <img
+    src="/images/configuration/organization/change_organization.png"
+    alt="Change organization"
+  />
 </Frame>
 
 ## Delete an Organization
 
 <Warning>
-Deleting an organization is **irreversible**. All data associated with the organization will be permanently deleted.
+  Deleting an organization is **irreversible**. All data associated with the
+  organization will be permanently deleted.
 </Warning>
 
 To delete an organization:
@@ -83,10 +88,13 @@ For pricing details, visit the [pricing page](https://www.qovery.com/pricing).
 
 ### Accessing Settings
 
-Click the **Wheel** button (⚙️) on the left navigation bar to access organization settings.
+Click the Settings tab while you are on your organization overview.
 
 <Frame>
-  <img src="/images/configuration/organization/access_settings.png" alt="Access organization settings" />
+  <img
+    src="/images/configuration/organization/access_settings.png"
+    alt="Access organization settings"
+  />
 </Frame>
 
 ### General Information
@@ -99,7 +107,8 @@ Configure basic organization details:
 - **Admin contact emails**: Enter one or multiple email addresses separated by commas
 
 <Info>
-Admin contact emails are used for communications about infrastructure outages, maintenance updates, and weekly and monthly usage reports.
+  Admin contact emails are used for communications about infrastructure outages,
+  maintenance updates, and weekly and monthly usage reports.
 </Info>
 
 Click **Update** to save your changes.
@@ -111,25 +120,45 @@ Click **Update** to save your changes.
     Generate and manage API tokens for programmatic access
   </Card>
 
-  <Card title="Cloud Credentials" icon="cloud" href="/configuration/organization/cloud-credentials">
-    Connect your cloud provider accounts (AWS, GCP, Azure, Scaleway)
-  </Card>
+<Card
+  title="Cloud Credentials"
+  icon="cloud"
+  href="/configuration/organization/cloud-credentials"
+>
+  Connect your cloud provider accounts (AWS, GCP, Azure, Scaleway)
+</Card>
 
-  <Card title="Container Registry" icon="box" href="/configuration/organization/container-registry">
-    Configure access to your container registries
-  </Card>
+<Card
+  title="Container Registry"
+  icon="box"
+  href="/configuration/organization/container-registry"
+>
+  Configure access to your container registries
+</Card>
 
-  <Card title="Git Repository Access" icon="code-branch" href="/configuration/organization/git-repository-access">
-    Manage Git provider integrations and repository access
-  </Card>
+<Card
+  title="Git Repository Access"
+  icon="code-branch"
+  href="/configuration/organization/git-repository-access"
+>
+  Manage Git provider integrations and repository access
+</Card>
 
-  <Card title="Helm Repository" icon="/images/logos/helm-icon.svg" href="/configuration/organization/helm-repository">
-    Add and configure Helm chart repositories
-  </Card>
+<Card
+  title="Helm Repository"
+  icon="/images/logos/helm-icon.svg"
+  href="/configuration/organization/helm-repository"
+>
+  Add and configure Helm chart repositories
+</Card>
 
-  <Card title="Labels & Annotations" icon="tag" href="/configuration/organization/labels-annotations">
-    Define custom labels and annotations for your resources
-  </Card>
+<Card
+  title="Labels & Annotations"
+  icon="tag"
+  href="/configuration/organization/labels-annotations"
+>
+  Define custom labels and annotations for your resources
+</Card>
 
   <Card title="Members & RBAC" icon="users" href="/configuration/organization/members-rbac">
     Manage team members and role-based access control

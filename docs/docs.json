@@ -409,8 +409,7 @@
                 "pages": [
                   "configuration/integrations/iac/overview",
                   "configuration/integrations/iac/terraform",
-                  "configuration/integrations/iac/cloudformation",
-                  "configuration/integrations/iac/lifecycle-job-tutorial"
+                  "configuration/integrations/iac/cloudformation"
                 ]
               }
             ]

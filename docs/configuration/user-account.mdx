@@ -9,12 +9,23 @@ Your user account settings allow you to manage your personal information and com
 
 To access your user account settings:
 
-1. Click on the **user icon** in the bottom left corner of the Qovery Console
-2. Select **Your profile** from the menu
+1. Click on the **user icon** in the top right corner of the Qovery Console
+2. Select **Profile settings** from the menu
 
 <Frame>
-  <img src="/images/configuration/user-account/access_user_account.png" alt="Access user account settings" />
+  <img
+    src="/images/configuration/user-account/access_user_account.png"
+    alt="Access user account settings"
+  />
 </Frame>
+
+## Theme
+
+Qovery supports **light**, **dark**, and **system** themes. To switch, click your avatar in the top-right corner and select your preferred option under **Theme**:
+
+- **System** — follows your OS/browser preference
+- **Light** — always use the light theme
+- **Dark** — always use the dark theme
 
 ## Account Information
 
@@ -23,7 +34,8 @@ To access your user account settings:
 Your **first name** and **last name** are retrieved from your Git account and cannot be changed directly in Qovery.
 
 <Info>
-To update your name, you need to modify it in your Git provider (GitHub, GitLab, or Bitbucket) settings.
+  To update your name, you need to modify it in your Git provider (GitHub,
+  GitLab, or Bitbucket) settings.
 </Info>
 
 ### Account Email
@@ -31,7 +43,8 @@ To update your name, you need to modify it in your Git provider (GitHub, GitLab,
 Your **account email** is sourced from your Git credentials and cannot be modified within Qovery. This email is used for authentication and account identification.
 
 <Info>
-To change your account email, update it in your Git provider settings. The change will be reflected in Qovery after your next login.
+  To change your account email, update it in your Git provider settings. The
+  change will be reflected in Qovery after your next login.
 </Info>
 
 ### Communication Email
@@ -39,7 +52,9 @@ To change your account email, update it in your Git provider settings. The chang
 The **communication email** is a customizable field where you designate your preferred contact address for product updates, announcements, and important notifications.
 
 <Warning>
-Qovery uses your communication email to share important updates about the product. Please provide a valid, professional business email address that you check regularly.
+  Qovery uses your communication email to share important updates about the
+  product. Please provide a valid, professional business email address that you
+  check regularly.
 </Warning>
 
 **To update your communication email:**
@@ -50,6 +65,7 @@ Qovery uses your communication email to share important updates about the produc
 4. Click **Save** to update
 
 **Best practices:**
+
 - Use a business email address
 - Ensure the email is monitored regularly
 - Don't use temporary or disposable email addresses
@@ -60,13 +76,15 @@ Qovery uses your communication email to share important updates about the produc
 Your **timezone** is automatically synced with your browser settings to display dates and times correctly throughout the Qovery Console.
 
 This ensures that:
+
 - Deployment times are shown in your local timezone
 - Logs timestamps match your local time
 - Scheduled tasks display correctly
 - Activity history is accurately represented
 
 <Tip>
-The timezone is automatically detected and updated based on your browser. No manual configuration is needed.
+  The timezone is automatically detected and updated based on your browser. No
+  manual configuration is needed.
 </Tip>
 
 ## Why Account Settings Matter
@@ -74,6 +92,7 @@ The timezone is automatically detected and updated based on your browser. No man
 ### Stay Informed
 
 By maintaining accurate communication email settings, you'll receive:
+
 - **Product updates** - New features and improvements
 - **Service notifications** - Important system announcements
 - **Security alerts** - Account and security-related updates
@@ -82,6 +101,7 @@ By maintaining accurate communication email settings, you'll receive:
 ### Accurate Timestamps
 
 Proper timezone configuration ensures:
+
 - Deployment schedules align with your team's working hours
 - Log analysis uses correct timestamps
 - Collaboration across distributed teams is easier
@@ -97,6 +117,7 @@ Proper timezone configuration ensures:
     2. Update your profile name
     3. Log out and back into Qovery
     4. Your updated name will be reflected
+
   </Accordion>
 
   <Accordion title="How do I change my account email?">
@@ -106,6 +127,7 @@ Proper timezone configuration ensures:
     2. Ensure the new email is verified
     3. Log out and back into Qovery
     4. The new email will be used for your account
+
   </Accordion>
 
   <Accordion title="I'm not receiving communication emails">
@@ -116,6 +138,7 @@ Proper timezone configuration ensures:
     3. Ensure your email server isn't blocking emails from Qovery
     4. Add Qovery's email domain to your safe senders list
     5. Contact support if the issue persists
+
   </Accordion>
 
   <Accordion title="My timezone is incorrect">
@@ -127,6 +150,7 @@ Proper timezone configuration ensures:
     4. Refresh the Qovery Console
 
     The timezone should update automatically when you refresh the page.
+
   </Accordion>
 </AccordionGroup>
 
@@ -137,13 +161,21 @@ Proper timezone configuration ensures:
     Manage organization-level settings
   </Card>
 
-  <Card title="Members & RBAC" icon="users" href="/configuration/organization/members-rbac">
-    Manage team members and permissions
-  </Card>
+<Card
+  title="Members & RBAC"
+  icon="users"
+  href="/configuration/organization/members-rbac"
+>
+  Manage team members and permissions
+</Card>
 
-  <Card title="SSO Configuration" icon="shield" href="/configuration/organization/sso">
-    Set up single sign-on
-  </Card>
+<Card
+  title="SSO Configuration"
+  icon="shield"
+  href="/configuration/organization/sso"
+>
+  Set up single sign-on
+</Card>
 
   <Card title="API Tokens" icon="key" href="/configuration/organization/api-token">
     Generate API tokens
