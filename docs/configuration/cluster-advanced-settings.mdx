@@ -452,6 +452,25 @@ Enabling this feature will create a 10 min max downtime on your application's pu
 
 **Example:** `["10.0.0.0/8", "192.168.0.0/16"]`
 
+
+<a id="aws-eks-alb-controller-load-balancer-scheme"></a>
+
+### aws.eks.alb_controller.load-balancer-scheme
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string`
+
+**Description:** Specify if the load balancer is `internet-facing` and reachable from internet. Or if the load balancer is `internal` and reachable only from the cluster VPC.
+
+<Warning>
+Changing this value is going to replace your current load balancer and there will be up to a few minutes of downtime
+</Warning>
+
+**Default Value:** `internet-facing`
+
+**Example:** ``
+
 <a id="load-balancer-size"></a>
 
 ### load_balancer.size
