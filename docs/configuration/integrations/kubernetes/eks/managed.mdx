@@ -3,6 +3,8 @@ title: "AWS EKS"
 description: "Learn how to configure your AWS Kubernetes clusters on Qovery"
 ---
 
+import AwsCredentials from "/snippets/aws-credentials.mdx";
+
 <Info>
 **Default Autoscaling Mode**
 
@@ -14,6 +16,10 @@ Karpenter automatically launches just the right compute resources to handle your
 You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-costs-with-eks-and-karpenter/) for more information.
 
 ## Creating an AWS EKS Cluster
+
+### Connect Your AWS Account
+
+<AwsCredentials />
 
 ### Create the Cluster
 
@@ -27,7 +33,7 @@ You can read our [blog post](https://www.qovery.com/blog/save-up-to-60-on-aws-co
     * **Description**: enter a description to identify better your cluster.
     * **Production cluster**: select this option if your cluster will be used for production. Note: Karpenter is currently only available for non-production clusters.
     * **Region**: select the geographical area in which you want your cluster to be hosted.
-    * **Credentials**: select one of the existing cloud provider credentials or [create new credentials](/getting-started/installation/aws#connect-your-aws-account).
+    * **Credentials**: select one of the existing cloud provider credentials or create new credentials using the section above.
 
     To confirm, click `Next`.
 
