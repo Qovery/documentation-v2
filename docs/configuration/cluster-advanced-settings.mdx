@@ -1386,6 +1386,28 @@ Without these fields, Qovery will not be able to properly associate logs with yo
 }
 ```
 
+
+<a id="envoy-custom-certificate"></a>
+
+### envoy.custom_certificate
+
+**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
+
+**Type:** `string` (JSON format)
+
+**Description:** Allows you to upload your own TLS certificate that is going to be used by envoy when serving https traffic. Let's encrypt is not going to be used to generate the cluster certificate. The certificate must be PEM encoded
+
+<Warning>
+Changing this setting after the cluster has been deployed, requires manual intervention and will cause downtime. Please contact the support if you require it
+</Warning>
+
+**Default Value:** null
+
+**Example:** Custom JSON format with certificate and key PEM encoded:
+```json
+{"tls_crt":"-----BEGIN CERTIFICATE-----\nMIIXXXXX\n-----END CERTIFICATE-----\n","tls_key":"-----BEGIN RSA PRIVATE KEY-----\nMIIXXXXX\n-----END RSA PRIVATE KEY-----\n"}
+```
+
 <a id="envoy-controller-custom-http-errors"></a>
 
 ### envoy.controller.custom_http_errors
