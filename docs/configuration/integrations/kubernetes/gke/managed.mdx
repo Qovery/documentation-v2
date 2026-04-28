@@ -3,11 +3,13 @@ title: "Qovery-Managed GKE"
 description: "Learn how to configure your GCP Kubernetes clusters on Qovery"
 ---
 
+import GcpCredentials from "/snippets/gcp-credentials.mdx";
+
 ## Creating a GCP GKE Cluster
 
 ### Connect Your GCP Account
 
-<Snippet file="gcp-credentials.mdx" />
+<GcpCredentials />
 
 ### Create the Cluster
 
@@ -24,10 +26,11 @@ description: "Learn how to configure your GCP Kubernetes clusters on Qovery"
     * **Credentials**: select one of the existing cloud provider credentials or [create new credentials](/getting-started/installation/gcp#connect-your-gcp-account).
 
     To confirm, click `Next`.
+
   </Step>
 
-  <Step title="Configure Features">
-    In the `Features` step, select the features you want to enable on your cluster.
+  <Step title="Configure Network">
+    In the `Network` step, select the network mode you want to enable on your cluster.
 
     If you want to manage the network layer of your cluster by yourself, you can switch VPC mode to `Deploy on my existing VPC` to use your own VPC instead of the one provided by Qovery.
 
@@ -81,6 +84,7 @@ description: "Learn how to configure your GCP Kubernetes clusters on Qovery"
         </Info>
       </Tab>
     </Tabs>
+
   </Step>
 
   <Step title="Create and Install">
@@ -91,6 +95,7 @@ description: "Learn how to configure your GCP Kubernetes clusters on Qovery"
     Your cluster is now displayed in your organization settings, featuring the `Installing...` status (orange status). Once your cluster is properly installed, its status turns to green and you will be able to deploy your applications on it.
 
     You can follow the execution of the action via the cluster status and/or by accessing the [Cluster Logs](/configuration/clusters#logs)
+
   </Step>
 </Steps>
 
@@ -103,12 +108,12 @@ To manage the settings of an existing cluster:
     Open your [Qovery Console](https://console.qovery.com).
   </Step>
 
-  <Step title="Navigate to Cluster Page">
-    On the left menu bar, click on the Cluster page.
-  </Step>
+<Step title="Navigate to Cluster Page">
+  On your organization overview, go on the Clusters page.
+</Step>
 
   <Step title="Access Cluster Settings">
-    To access your cluster settings, click on the wheel button.
+    To access your cluster settings, click on your cluster card and then go on Settings tab.
   </Step>
 </Steps>
 
@@ -118,17 +123,18 @@ Below you can find a description of each section
 
 The `General` tab allows you to define high-level information on your cluster:
 
-|Item|Description|
-|--------------|---------------------------|
-|Cluster Name|To edit the name of your cluster.|
-|Description|To enter or edit the description of your cluster.|
-|Production Cluster|To enter or edit the production flag of your cluster.|
+| Item               | Description                                           |
+| ------------------ | ----------------------------------------------------- |
+| Cluster Name       | To edit the name of your cluster.                     |
+| Description        | To enter or edit the description of your cluster.     |
+| Production Cluster | To enter or edit the production flag of your cluster. |
 
 ### Credentials
 
 Here you can manage here the cloud provider credentials associated with your cluster.
 
 If you need to change the credentials:
+
 - generate a new set of credentials on your cloud provider ([Procedure for GCP account](/installation/gcp#connect-gcp-account))
 - create the new credential on the Qovery by opening the drop-down and selecting "New Credentials"
 
@@ -143,6 +149,6 @@ The credentials configured on this registry are the one used to create the clust
 
 Check [this link](/configuration/deployment/image-mirroring) for more information.
 
-### Features
+### Network
 
-The `Features` tab in your cluster settings allows you to check if the [**Static IP**](#static-ip), [**Deploy on existing VPC**](#use-existing-vpc) features are enabled on your cluster. The enabled features cannot be changed after the creation of the cluster.
+The `Network` tab in your cluster settings allows you to check if the [**Static IP**](#static-ip), [**Deploy on existing VPC**](#use-existing-vpc) features are enabled on your cluster. The enabled features cannot be changed after the creation of the cluster.

@@ -11,11 +11,12 @@ You can invite someone to join your organization by email. Once they accept the 
 
 <Steps>
   <Step title="Open Organization Settings">
-    Click the **Wheel** button (⚙️) on the left navigation bar
+    Click the Settings tab while you are on your organization overview.
 
     <Frame>
       <img src="/images/configuration/organization/access_settings.png" alt="How to access your organization settings" />
     </Frame>
+
   </Step>
 
   <Step title="Navigate to Members Section">
@@ -24,6 +25,7 @@ You can invite someone to join your organization by email. Once they accept the 
     <Frame>
       <img src="/images/configuration/organization/members.png" alt="Qovery - List all members within an organization" />
     </Frame>
+
   </Step>
 </Steps>
 
@@ -37,7 +39,8 @@ You can invite someone to join your organization by email. Once they accept the 
 The invited member will receive an email with instructions to join the organization.
 
 <Info>
-Changing the role of a member requires the user to logout/login to make the changes effective or wait a few minutes (max 1 hour).
+  Changing the role of a member requires the user to logout/login to make the
+  changes effective or wait a few minutes (max 1 hour).
 </Info>
 
 ## Default Roles
@@ -66,32 +69,28 @@ The user has read-only access to any section of the organization.
 
 ## Permissions Matrix
 
-| Action | Owner | Admin | DevOps | Billing Manager | Viewer |
-|--------|-------|-------|--------|-----------------|--------|
-| Read organization | yes | yes | yes | yes | yes |
-| Edit organization | yes | yes | no | no | no |
-| Delete organization | yes | no | no | no | no |
-| Manage billing | yes | yes | no | yes | no |
-| Manage members & roles | yes | yes | no | no | no |
-| Manage cluster & container registry | yes | yes | yes | no | no |
-| Manage organization setup | yes | yes | yes | no | no |
-| Read ANY project | yes | yes | yes | no | yes |
-| Edit/Delete ANY project | yes | yes | no | no | no |
-| Create project | yes | yes | no | no | no |
-| Read ANY environment | yes | yes | yes | no | yes |
-| Edit/Delete ANY environment or service | yes | yes | no | no | no |
-| Create environment or service | yes | yes | no | no | no |
-| Add/Edit/Delete environment variables and secrets | yes | yes | yes | no | no |
-| Deploy/Stop ANY environment or service | yes | yes | yes | no | no |
-| Connect via shell to ANY application | yes | yes | yes | no | no |
+| Action                                            | Owner | Admin | DevOps | Billing Manager | Viewer |
+| ------------------------------------------------- | ----- | ----- | ------ | --------------- | ------ |
+| Read organization                                 | yes   | yes   | yes    | yes             | yes    |
+| Edit organization                                 | yes   | yes   | no     | no              | no     |
+| Delete organization                               | yes   | no    | no     | no              | no     |
+| Manage billing                                    | yes   | yes   | no     | yes             | no     |
+| Manage members & roles                            | yes   | yes   | no     | no              | no     |
+| Manage cluster & container registry               | yes   | yes   | yes    | no              | no     |
+| Manage organization setup                         | yes   | yes   | yes    | no              | no     |
+| Read ANY project                                  | yes   | yes   | yes    | no              | yes    |
+| Edit/Delete ANY project                           | yes   | yes   | no     | no              | no     |
+| Create project                                    | yes   | yes   | no     | no              | no     |
+| Read ANY environment                              | yes   | yes   | yes    | no              | yes    |
+| Edit/Delete ANY environment or service            | yes   | yes   | no     | no              | no     |
+| Create environment or service                     | yes   | yes   | no     | no              | no     |
+| Add/Edit/Delete environment variables and secrets | yes   | yes   | yes    | no              | no     |
+| Deploy/Stop ANY environment or service            | yes   | yes   | yes    | no              | no     |
+| Connect via shell to ANY application              | yes   | yes   | yes    | no              | no     |
 
 ## Custom Roles
 
 You can create custom roles to fine-tune access control for your organization members. Custom roles allow you to define permissions at two levels: cluster level and project level.
-
-<Frame>
-  <img src="/images/configuration/organization/custom-role-creation.png" alt="Qovery - custom role creation" />
-</Frame>
 
 ### Cluster Level Permissions
 
@@ -121,5 +120,6 @@ You can transfer ownership of the organization to another member. To do so:
 4. Confirm the transfer
 
 <Warning>
-Once ownership is transferred, you will no longer be the owner of the organization.
+  Once ownership is transferred, you will no longer be the owner of the
+  organization.
 </Warning>

@@ -20,12 +20,14 @@ First, deploy a simple Debian container that will need S3 access:
 
 ### Get Kubernetes Namespace Name
 
-1. Access your container variables
-2. Locate `QOVERY_KUBERNETES_NAMESPACE_NAME`
-3. This value represents the namespace where the container runs
+1. Access your container variables and locate `QOVERY_KUBERNETES_NAMESPACE_NAME`
+2. This value represents the namespace where the container runs
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/debian_namespace.png" alt="Get Kubernetes namespace from container variables" />
+  <img
+    src="/images/aws-iam-assume-role/debian_namespace.png"
+    alt="Get Kubernetes namespace from container variables"
+  />
 </Frame>
 
 ---
@@ -38,7 +40,10 @@ First, deploy a simple Debian container that will need S3 access:
 2. Copy the OpenID Connect provider URL
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/eks_oidc.png" alt="EKS OIDC provider URL" />
+  <img
+    src="/images/aws-iam-assume-role/eks_oidc.png"
+    alt="EKS OIDC provider URL"
+  />
 </Frame>
 
 ### Create Identity Provider
@@ -51,7 +56,10 @@ First, deploy a simple Debian container that will need S3 access:
 6. Create the provider
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/oidc_connect.png" alt="Create OIDC identity provider" />
+  <img
+    src="/images/aws-iam-assume-role/oidc_connect.png"
+    alt="Create OIDC identity provider"
+  />
 </Frame>
 
 ---
@@ -65,7 +73,10 @@ First, deploy a simple Debian container that will need S3 access:
 3. Set **Identity provider** and **Audience** to `sts.amazonaws.com`
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/role_create_step1.png" alt="Create IAM role step 1" />
+  <img
+    src="/images/aws-iam-assume-role/role_create_step1.png"
+    alt="Create IAM role step 1"
+  />
 </Frame>
 
 ### Add Role Permissions
@@ -92,6 +103,7 @@ First, deploy a simple Debian container that will need S3 access:
     Replace placeholders:
     - `kubernetes_namespace`: Your Qovery environment namespace
     - `service_account_name`: Define a service account name (e.g., `my-s3-role`)
+
   </Tab>
 
   <Tab title="Cluster-Scoped Role">
@@ -107,11 +119,15 @@ First, deploy a simple Debian container that will need S3 access:
     ```
 
     This allows the service account to be used across all namespaces starting with `z`.
+
   </Tab>
 </Tabs>
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/role_trusted_entities_default.png" alt="Configure trusted entities" />
+  <img
+    src="/images/aws-iam-assume-role/role_trusted_entities_default.png"
+    alt="Configure trusted entities"
+  />
 </Frame>
 
 Save the **role ARN** for later use.
@@ -126,10 +142,10 @@ Save the **role ARN** for later use.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
- name: $SERVICE_ACCOUNT_NAME
- namespace: $QOVERY_KUBERNETES_NAMESPACE_NAME
- annotations:
-   eks.amazonaws.com/role-arn: $AWS_ROLE_ARN
+  name: $SERVICE_ACCOUNT_NAME
+  namespace: $QOVERY_KUBERNETES_NAMESPACE_NAME
+  annotations:
+    eks.amazonaws.com/role-arn: $AWS_ROLE_ARN
 ```
 
 ### Deploy with Helm
@@ -137,25 +153,36 @@ metadata:
 We'll use a Helm chart to deploy the service account:
 
 **Chart Configuration:**
+
 - Helm source: Helm repository
 - Chart name: `qovery-sa-helper`
 - Version: `0.1.0`
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/create_sa.png" alt="Create service account" />
+  <img
+    src="/images/aws-iam-assume-role/create_sa.png"
+    alt="Create service account"
+  />
 </Frame>
 
 **Repository Details:**
+
 1. Repository name: `Qovery Service Account Helper`
 2. Kind: `HTTPS`
 3. URL: `https://qovery.github.io/create_service_account/`
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/helm_sa_1.png" alt="Helm service configuration" />
+  <img
+    src="/images/aws-iam-assume-role/helm_sa_1.png"
+    alt="Helm service configuration"
+  />
 </Frame>
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/set-helm-repo.png" alt="Set Helm repository" />
+  <img
+    src="/images/aws-iam-assume-role/set-helm-repo.png"
+    alt="Set Helm repository"
+  />
 </Frame>
 
 **Override Arguments:**
@@ -164,17 +191,26 @@ We'll use a Helm chart to deploy the service account:
 2. `awsRoleArn`: Your role ARN
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/helm_sa_2.png" alt="Override service account name" />
+  <img
+    src="/images/aws-iam-assume-role/helm_sa_2.png"
+    alt="Override service account name"
+  />
 </Frame>
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/helm_sa_3.png" alt="Override AWS role ARN" />
+  <img
+    src="/images/aws-iam-assume-role/helm_sa_3.png"
+    alt="Override AWS role ARN"
+  />
 </Frame>
 
 Deploy the Helm service and verify it completes successfully:
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/helm_sa_logs.png" alt="Service account creation logs" />
+  <img
+    src="/images/aws-iam-assume-role/helm_sa_logs.png"
+    alt="Service account creation logs"
+  />
 </Frame>
 
 ---
@@ -188,7 +224,10 @@ Deploy the Helm service and verify it completes successfully:
 3. Deploy using the **Deploy now** button
 
 <Frame>
-  <img src="/images/aws-iam-assume-role/debian_sa.png" alt="Set service account on application" />
+  <img
+    src="/images/aws-iam-assume-role/debian_sa.png"
+    alt="Set service account on application"
+  />
 </Frame>
 
 ### Validate Access
@@ -239,13 +278,21 @@ Initial setup requires multiple configuration steps across AWS and Kubernetes. O
     Learn about EKS cluster management
   </Card>
 
-  <Card title="Advanced Settings" icon="sliders" href="/configuration/service-advanced-settings">
-    Configure service advanced settings
-  </Card>
+<Card
+  title="Advanced Settings"
+  icon="sliders"
+  href="/configuration/service-advanced-settings"
+>
+  Configure service advanced settings
+</Card>
 
-  <Card title="Environment Variables" icon="key" href="/configuration/environment-variables">
-    Manage environment variables and secrets
-  </Card>
+<Card
+  title="Environment Variables"
+  icon="key"
+  href="/configuration/environment-variables"
+>
+  Manage environment variables and secrets
+</Card>
 
   <Card title="Helm Services" icon="/images/logos/helm-icon.svg" href="/configuration/helm">
     Deploy applications with Helm

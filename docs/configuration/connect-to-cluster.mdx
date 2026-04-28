@@ -12,7 +12,8 @@ Connecting to your Kubernetes cluster with kubectl gives you direct access to ma
 3. **AWS CLI Method (Traditional)** - Manual setup for advanced users who need full control
 
 <Warning>
-Any manual operations on your cluster could conflict with Qovery's management. Use with caution and understand the implications of direct cluster access.
+  Any manual operations on your cluster could conflict with Qovery's management.
+  Use with caution and understand the implications of direct cluster access.
 </Warning>
 
 ## Method 1: Using Qovery Console Shell (Easiest)
@@ -27,11 +28,12 @@ The Qovery Console provides the fastest way to access your cluster - directly fr
   </Step>
 
   <Step title="Open Shell">
-    In the cluster toolbar, click on the shell icon (">") to open an embedded terminal.
+    Click on the Cloud shell tab to open an embedded terminal.
 
     <Frame>
       <img src="/images/configuration/clusters/cluster-shell-access.png" alt="Cluster Shell Access" />
     </Frame>
+
   </Step>
 
   <Step title="Use k9s or kubectl">
@@ -46,19 +48,20 @@ The Qovery Console provides the fastest way to access your cluster - directly fr
     kubectl get pods -A
     kubectl get namespaces
     ```
+
   </Step>
 </Steps>
 
 <Info>
-The Console Shell comes pre-configured with:
-- **k9s** - Interactive Kubernetes cluster management
-- **kubectl** - Full kubectl access
-- Cluster credentials automatically configured
-- No local installation required
+  The Console Shell comes pre-configured with: - **k9s** - Interactive
+  Kubernetes cluster management - **kubectl** - Full kubectl access - Cluster
+  credentials automatically configured - No local installation required
 </Info>
 
 <Tip>
-This method is perfect for quick debugging, viewing resources, or when you don't have local tools installed. The shell runs directly in your cluster with full access.
+  This method is perfect for quick debugging, viewing resources, or when you
+  don't have local tools installed. The shell runs directly in your cluster with
+  full access.
 </Tip>
 
 ## Method 2: Using Qovery CLI (Recommended for Local Development)
@@ -66,6 +69,7 @@ This method is perfect for quick debugging, viewing resources, or when you don't
 ### Prerequisites
 
 Before using Qovery CLI, ensure you have:
+
 - [Qovery CLI installed](/cli/overview)
 - An existing cluster managed by Qovery
 - kubectl installed ([installation guide](https://kubernetes.io/docs/tasks/tools/))
@@ -112,6 +116,7 @@ This method downloads the kubeconfig file to your local machine for full kubectl
     ```bash
     qovery auth --headless
     ```
+
   </Step>
 
   <Step title="List Available Clusters">
@@ -127,6 +132,7 @@ This method downloads the kubeconfig file to your local machine for full kubectl
     prod-us-east   us-east-1     AWS       Running   1.28
     staging-eu     eu-west-1     AWS       Running   1.27
     ```
+
   </Step>
 
   <Step title="Download Kubeconfig">
@@ -140,6 +146,7 @@ This method downloads the kubeconfig file to your local machine for full kubectl
     - Generate a kubeconfig file
     - Save it to your current directory
     - Display the file location
+
   </Step>
 
   <Step title="Configure kubectl">
@@ -160,6 +167,7 @@ This method downloads the kubeconfig file to your local machine for full kubectl
       kubectl config view --flatten > ~/.kube/config.new
     mv ~/.kube/config.new ~/.kube/config
     ```
+
   </Step>
 
   <Step title="Verify Connection">
@@ -170,6 +178,7 @@ This method downloads the kubeconfig file to your local machine for full kubectl
     ```
 
     You should see your cluster nodes listed.
+
   </Step>
 </Steps>
 
@@ -191,6 +200,7 @@ For quick troubleshooting without local setup, use the debug pod feature:
     - kubectl pre-configured
     - Common debugging tools
     - Network access to cluster services
+
   </Step>
 
   <Step title="Run kubectl Commands">
@@ -206,6 +216,7 @@ For quick troubleshooting without local setup, use the debug pod feature:
     # Check service endpoints
     kubectl get endpoints -n <namespace>
     ```
+
   </Step>
 
   <Step title="Exit Debug Pod">
@@ -214,11 +225,14 @@ For quick troubleshooting without local setup, use the debug pod feature:
     ```bash
     exit
     ```
+
   </Step>
 </Steps>
 
 <Tip>
-The debug pod method is perfect for quick checks and doesn't require any local configuration. It's ideal for debugging connectivity issues or testing from within the cluster.
+  The debug pod method is perfect for quick checks and doesn't require any local
+  configuration. It's ideal for debugging connectivity issues or testing from
+  within the cluster.
 </Tip>
 
 ## Method 3: Using AWS CLI (Advanced)
@@ -226,12 +240,14 @@ The debug pod method is perfect for quick checks and doesn't require any local c
 For users who need full control or want to use AWS IAM directly, you can configure kubectl using the AWS CLI. This method requires more manual setup but provides flexibility.
 
 <Info>
-This method is recommended for advanced users who need custom IAM configurations or want to integrate with existing AWS tooling.
+  This method is recommended for advanced users who need custom IAM
+  configurations or want to integrate with existing AWS tooling.
 </Info>
 
 ### Prerequisites
 
 Before using AWS CLI method, ensure you have:
+
 - [AWS CLI installed](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
 - [kubectl installed](https://kubernetes.io/docs/tasks/tools/)
 - [Qovery CLI installed](/cli/overview)
@@ -255,6 +271,7 @@ Before using AWS CLI method, ensure you have:
     1. Go to your Qovery cluster settings
     2. Navigate to Advanced Settings
     3. Enable SSO authentication for the cluster
+
   </Step>
 
   <Step title="Configure AWS CLI Credentials">
@@ -269,6 +286,7 @@ Before using AWS CLI method, ensure you have:
     - AWS Secret Access Key
     - Default region (match your cluster region)
     - Default output format (json recommended)
+
   </Step>
 
   <Step title="Verify AWS Access">
@@ -279,6 +297,7 @@ Before using AWS CLI method, ensure you have:
     ```
 
     This should return your IAM user information.
+
   </Step>
 </Steps>
 
@@ -292,6 +311,7 @@ Before using AWS CLI method, ensure you have:
     qovery cluster list
     qovery cluster kubeconfig --cluster-id <cluster-id>
     ```
+
   </Step>
 
   <Step title="Set kubectl Context">
@@ -306,6 +326,7 @@ Before using AWS CLI method, ensure you have:
     ```bash
     kubectl config current-context
     ```
+
   </Step>
 
   <Step title="Test Cluster Access">
@@ -316,6 +337,7 @@ Before using AWS CLI method, ensure you have:
     ```
 
     If successful, you'll see the list of nodes in your cluster.
+
   </Step>
 </Steps>
 
@@ -330,7 +352,9 @@ aws eks update-kubeconfig \
 ```
 
 <Warning>
-When using AWS CLI to generate kubeconfig, ensure the cluster name matches exactly as it appears in AWS EKS. Qovery-managed clusters follow a specific naming convention.
+  When using AWS CLI to generate kubeconfig, ensure the cluster name matches
+  exactly as it appears in AWS EKS. Qovery-managed clusters follow a specific
+  naming convention.
 </Warning>
 
 ## Working with Applications
@@ -348,6 +372,7 @@ Qovery creates a unique namespace for each environment:
     ```
 
     Qovery namespaces start with 'z' followed by a unique identifier.
+
   </Step>
 
   <Step title="Identify Your Namespace">
@@ -358,6 +383,7 @@ Qovery creates a unique namespace for each environment:
     ```
 
     Look for a namespace like: `z<environment-id>`
+
   </Step>
 
   <Step title="Set Default Namespace">
@@ -366,6 +392,7 @@ Qovery creates a unique namespace for each environment:
     ```bash
     kubectl config set-context --current --namespace=z<environment-id>
     ```
+
   </Step>
 </Steps>
 
@@ -436,7 +463,9 @@ kubectl port-forward --namespace <namespace> service/<service-name> 8080:80
 ```
 
 <Info>
-The Qovery CLI also provides a `qovery port-forward` command that can be easier to use. See [qovery port-forward](/cli/commands/port-forward) for details.
+  The Qovery CLI also provides a `qovery port-forward` command that can be
+  easier to use. See [qovery port-forward](/cli/commands/port-forward) for
+  details.
 </Info>
 
 ### Describe Resources
@@ -497,6 +526,7 @@ kubectl get events --namespace <namespace> --sort-by='.lastTimestamp'
     - Check your kubeconfig path: `echo $KUBECONFIG`
     - Ensure AWS credentials are valid: `aws sts get-caller-identity`
     - Regenerate kubeconfig: `qovery cluster kubeconfig --cluster-id <cluster-id>`
+
   </Accordion>
 
   <Accordion title="Authentication Failed">
@@ -507,6 +537,7 @@ kubectl get events --namespace <namespace> --sort-by='.lastTimestamp'
     - Verify IAM permissions for AWS CLI method
     - Check if your IAM user is in the cluster admin group
     - Ensure SSO is enabled if using SSO authentication
+
   </Accordion>
 
   <Accordion title="Forbidden Access">
@@ -517,6 +548,7 @@ kubectl get events --namespace <namespace> --sort-by='.lastTimestamp'
     - Check RBAC roles: `kubectl get rolebindings --namespace <namespace>`
     - Ensure you're using the correct namespace
     - Contact your organization admin for access
+
   </Accordion>
 
   <Accordion title="Namespace Not Found">
@@ -527,6 +559,7 @@ kubectl get events --namespace <namespace> --sort-by='.lastTimestamp'
     - Verify environment ID from Qovery Console
     - Ensure environment is deployed
     - Check if namespace starts with 'z' prefix
+
   </Accordion>
 </AccordionGroup>
 
@@ -557,7 +590,8 @@ kubectl run -ti --rm debug --image=busybox --restart=Never -- nslookup kubernete
 ## Security Best Practices
 
 <Warning>
-Direct cluster access bypasses Qovery's safety mechanisms. Follow these best practices to avoid issues.
+  Direct cluster access bypasses Qovery's safety mechanisms. Follow these best
+  practices to avoid issues.
 </Warning>
 
 ### Do's and Don'ts
@@ -583,19 +617,15 @@ Direct cluster access bypasses Qovery's safety mechanisms. Follow these best pra
 ### Resource Management
 
 <Accordion title="Resources Safe to Modify">
-  - Application-specific ConfigMaps (not created by Qovery)
-  - Application-specific Secrets (not created by Qovery)
-  - Custom resources you deployed
-  - Debug pods you created
+  - Application-specific ConfigMaps (not created by Qovery) -
+  Application-specific Secrets (not created by Qovery) - Custom resources you
+  deployed - Debug pods you created
 </Accordion>
 
 <Accordion title="Resources to Avoid Modifying">
-  - Deployments managed by Qovery
-  - Services created by Qovery
-  - Ingress resources
-  - Qovery system namespaces (qovery, qovery-system, etc.)
-  - Network policies
-  - Resource quotas
+  - Deployments managed by Qovery - Services created by Qovery - Ingress
+  resources - Qovery system namespaces (qovery, qovery-system, etc.) - Network
+  policies - Resource quotas
 </Accordion>
 
 ### Access Control
@@ -609,18 +639,18 @@ Direct cluster access bypasses Qovery's safety mechanisms. Follow these best pra
 
 ## Comparison of Methods
 
-| Feature | Console Shell | Qovery CLI | AWS CLI |
-|---------|--------------|-----------|---------|
-| Setup Complexity | None (browser only) | Low (1-2 commands) | Medium (IAM setup required) |
-| Local Installation | Not required | Qovery CLI + kubectl | AWS CLI + kubectl |
-| Authentication | Automatic | Qovery account | IAM credentials |
-| Best For | Quick debugging | Local development | Advanced users, automation |
-| k9s Included | ✅ Yes | ❌ No | ❌ No |
-| kubectl Access | ✅ Yes | ✅ Yes | ✅ Yes |
-| Works Offline | ❌ No | ✅ Yes (once configured) | ✅ Yes (once configured) |
-| IAM Configuration | Not required | Not required | Required |
-| Learning Curve | Minimal | Minimal | Moderate |
-| Flexibility | Standard access | Standard access | Full AWS control |
+| Feature            | Console Shell       | Qovery CLI               | AWS CLI                     |
+| ------------------ | ------------------- | ------------------------ | --------------------------- |
+| Setup Complexity   | None (browser only) | Low (1-2 commands)       | Medium (IAM setup required) |
+| Local Installation | Not required        | Qovery CLI + kubectl     | AWS CLI + kubectl           |
+| Authentication     | Automatic           | Qovery account           | IAM credentials             |
+| Best For           | Quick debugging     | Local development        | Advanced users, automation  |
+| k9s Included       | ✅ Yes              | ❌ No                    | ❌ No                       |
+| kubectl Access     | ✅ Yes              | ✅ Yes                   | ✅ Yes                      |
+| Works Offline      | ❌ No               | ✅ Yes (once configured) | ✅ Yes (once configured)    |
+| IAM Configuration  | Not required        | Not required             | Required                    |
+| Learning Curve     | Minimal             | Minimal                  | Moderate                    |
+| Flexibility        | Standard access     | Standard access          | Full AWS control            |
 
 ## Next Steps
 
@@ -629,13 +659,17 @@ Direct cluster access bypasses Qovery's safety mechanisms. Follow these best pra
     Explore all Qovery CLI commands and features
   </Card>
 
-  <Card title="Cluster Management" icon="server" href="/configuration/clusters">
-    Learn more about managing clusters in Qovery
-  </Card>
+<Card title="Cluster Management" icon="server" href="/configuration/clusters">
+  Learn more about managing clusters in Qovery
+</Card>
 
-  <Card title="Deployment Logs" icon="scroll" href="/configuration/deployment/logs">
-    View deployment logs through Qovery Console
-  </Card>
+<Card
+  title="Deployment Logs"
+  icon="scroll"
+  href="/configuration/deployment/logs"
+>
+  View deployment logs through Qovery Console
+</Card>
 
   <Card title="Port Forwarding" icon="arrow-right-arrow-left" href="/cli/commands/port-forward">
     Use Qovery CLI port forwarding feature

@@ -88,7 +88,7 @@ Qovery needs credentials to manage resources in your GCP project. We use a secur
 <Steps>
   <Step title="Start Cluster Creation">
     1. Go to [Qovery Console](https://console.qovery.com)
-    2. Click **Clusters** in the left sidebar
+    2. Go to your organization overview and click on the **Clusters** tab
     3. Click **Create Cluster**
     4. Select **GCP** as the cloud provider
   </Step>
@@ -105,7 +105,7 @@ Qovery needs credentials to manage resources in your GCP project. We use a secur
 
     The command will look like:
     ```bash
-    curl https://hub.qovery.com/files/create_credentials_gcp.sh | bash -s -- YOUR_PROJECT_ID qovery_role qovery-service-account
+    curl https://setup.qovery.com/create_credentials_gcp.sh | bash -s -- YOUR_PROJECT_ID qovery_role qovery-service-account
     ```
 
     <Info>

@@ -16,7 +16,7 @@ description: "Manage your Kubernetes clusters with Qovery"
 To create a new cluster:
 
 1. Open the [Qovery Console](https://console.qovery.com)
-2. Navigate to the **Cluster** page in the left menu
+2. Navigate to the **Clusters** tab
 3. Click **Add Cluster**
 4. Follow the provider-specific guide for your cloud platform:
 
@@ -197,13 +197,11 @@ Resumes a stopped cluster and redeploys all services.
 Permanently removes your cluster. You have three deletion options:
 
 1. **Default (Recommended)**: Complete cleanup
-
    - Deletes all Qovery-managed resources
    - Removes cloud provider infrastructure
    - No residual costs
 
 2. **Delete on cloud provider and Qovery configuration**: Manual database handling
-
    - Deletes cluster from cloud provider
    - Removes Qovery configuration
    - Requires manual database cleanup
@@ -306,6 +304,7 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
     - Your Cloudflare account email
 
     The Qovery team will configure the integration for you.
+
   </Step>
 
   <Step title="Verify DNS">
@@ -365,6 +364,7 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
     <Info>
     The Hosted Zone ID is optional. If not provided, Qovery will auto-detect it.
     </Info>
+
   </Step>
 
   <Step title="Contact Qovery Support">
@@ -377,6 +377,7 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
     - Your Hosted Zone ID (optional)
 
     The Qovery team will configure the integration for you.
+
   </Step>
 
   <Step title="Verify DNS">
@@ -385,7 +386,8 @@ To use your own custom domain with wildcard TLS certificates, Qovery supports **
 </Steps>
 
 <Info>
-This feature is currently in **Beta**. Both **Cloudflare** and **AWS Route53** are supported. Additional DNS providers will be added in future releases.
+  This feature is currently in **Beta**. Both **Cloudflare** and **AWS Route53**
+  are supported. Additional DNS providers will be added in future releases.
 </Info>
 
 ## AWS Account Cleanup
@@ -399,11 +401,10 @@ If cluster deletion fails or leaves resources behind, you can manually clean up 
     Navigate to the [AWS Resource Groups & Tag Editor](https://console.aws.amazon.com/resource-groups/tag-editor)
   </Step>
 
-  <Step title="Search for Qovery Resources">
-    1. Select **All supported resource types**
-    2. Add tag filter: `ClusterId` or `QoveryCluster`
-    3. Search for resources
-  </Step>
+<Step title="Search for Qovery Resources">
+  1. Select **All supported resource types** 2. Add tag filter: `ClusterId` or
+  `QoveryCluster` 3. Search for resources
+</Step>
 
   <Step title="Review and Delete">
     1. Review the list of tagged resources
