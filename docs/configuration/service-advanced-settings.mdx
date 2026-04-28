@@ -778,11 +778,46 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 **Type:** `boolean`
 
-**Description:** Enables session affinity (sticky sessions) to ensure that requests from the same client are always routed to the same backend pod. This is useful for applications that maintain session state locally.
+**Description:** Enables session affinity (sticky sessions) to ensure that requests from the same client are always routed to the same backend pod. Sticky session behavior is controlled by `network.gateway_api.sticky_session_type` (default: `Cookie`).
 
 **Use Case:** Enable for stateful applications that store session data in memory or local storage.
 
 **Default Value:** `false`
+
+<a id="network-gateway-api-sticky-session-type"></a>
+
+### network.gateway_api.sticky_session_type
+
+<span class="badge-app">Application</span> <span class="badge-container">Container</span> <span class="badge-helm">Helm</span>
+
+**Type:** `string`
+
+**Description:** Defines how session affinity is computed when `network.gateway_api.enable_sticky_session` is enabled.
+
+**Default Value:** `"Cookie"`
+
+**Valid values:**
+- `Cookie`: use cookie-based affinity.
+- `SourceIP`: use client source IP affinity.
+- `{"Header":{"name":"X-Header"}}`: use a specific HTTP header for affinity.
+- Legacy header name string (for backward compatibility), for example: `X-Header`.
+
+**How header-based sticky session works:**
+- The gateway uses the configured header name to identify a session key.
+- Requests carrying the same header value are consistently routed to the same backend pod (while that backend remains available).
+- If the header is missing, stickiness cannot be derived from that header for the request.
+
+**References:**
+- [Envoy Gateway: Session Persistence](https://gateway.envoyproxy.io/docs/tasks/traffic/session-persistence/)
+- [Envoy: Stateful Session Filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/stateful_session_filter)
+
+**Validation rules:**
+- Value cannot be empty.
+- Header names (legacy string or JSON `Header.name`) must match `[-a-zA-Z0-9]+`.
+
+**Behavior change (QOV-1862):**
+- Sticky session type is now explicitly configurable.
+- Existing services with sticky sessions enabled and no type set are automatically backfilled to `"Cookie"` to preserve previous behavior.
 
 <a id="network-gateway-api-force-ssl-redirect"></a>
 
