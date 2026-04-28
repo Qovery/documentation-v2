@@ -60,19 +60,20 @@ qovery log --application "app-id" --tail 100
 
 ## Options
 
-| Flag | Description |
-|------|-------------|
-| `--application` | Application ID or name |
-| `--container` | Container ID or name |
-| `--database` | Database ID or name |
-| `--job` | Job ID or name |
-| `--follow` | Follow log output |
-| `--filter` | Filter logs by keyword |
-| `--since` | Show logs since duration (e.g., 1h, 30m) |
-| `--from` | Show logs from timestamp (ISO 8601) |
-| `--to` | Show logs until timestamp (ISO 8601) |
-| `--tail` | Number of lines to show from end |
-| `--help` | Show help |
+| Flag            | Description                              |
+| --------------- | ---------------------------------------- |
+| `--application` | Application ID or name                   |
+| `--container`   | Container ID or name                     |
+| `--database`    | Database ID or name                      |
+| `--job`         | Job ID or name                           |
+| `--service`     | Service ID or name                       |
+| `--follow`      | Follow log output                        |
+| `--filter`      | Filter logs by keyword                   |
+| `--since`       | Show logs since duration (e.g., 1h, 30m) |
+| `--from`        | Show logs from timestamp (ISO 8601)      |
+| `--to`          | Show logs until timestamp (ISO 8601)     |
+| `--tail`        | Number of lines to show from end         |
+| `--help`        | Show help                                |
 
 ## Examples
 
@@ -130,15 +131,17 @@ qovery log \
 ## Tips
 
 <Tip>
-Use `--follow` to monitor logs in real-time during deployments or debugging.
+  Use `--follow` to monitor logs in real-time during deployments or debugging.
 </Tip>
 
 <Tip>
-Combine `--filter` with error levels like "ERROR", "WARN", "FATAL" to quickly find issues.
+  Combine `--filter` with error levels like "ERROR", "WARN", "FATAL" to quickly
+  find issues.
 </Tip>
 
 <Tip>
-The `--since` flag accepts: `s` (seconds), `m` (minutes), `h` (hours), `d` (days).
+  The `--since` flag accepts: `s` (seconds), `m` (minutes), `h` (hours), `d`
+  (days).
 </Tip>
 
 ## Related Commands
