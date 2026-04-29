@@ -934,7 +934,12 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 **Type:** `string`
 
-**Description:** Set the name of an environment variable to use as a basic authentication (`login:crypted_password`) from `htpasswd` command. The environment variable must contain the base64-encoded htpasswd credentials. You can generate them with `htpasswd -nb login password | base64`. Multiple entries can be separated by commas.
+**Description:** Set the name of an environment variable containing htpasswd credentials for HTTP Basic Auth. The environment variable value must be plain htpasswd content (for example `username:{SHA}...`), not base64. Multiple users can be provided by adding one `username:{SHA}...` entry per line.
+
+**Password Generation Example (recommended `{SHA}` format):**
+```bash
+printf '%s\n' 'MyStrongPassword123!' | htpasswd -ni -s qovery-user
+```
 
 **Use Case:** Add simple authentication protection to your service without modifying application code.
 
