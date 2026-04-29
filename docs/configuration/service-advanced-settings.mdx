@@ -934,7 +934,7 @@ The default `sleep 15` gives Kubernetes networking time to remove the pod from s
 
 **Type:** `string`
 
-**Description:** Name of the environment variable containing Basic Authentication credentials in the format `username:password`. When set, the gateway will require HTTP Basic Authentication for all requests.
+**Description:** Set the name of an environment variable to use as a basic authentication (`login:crypted_password`) from `htpasswd` command. The environment variable must contain the base64-encoded htpasswd credentials. You can generate them with `htpasswd -nb login password | base64`. Multiple entries can be separated by commas.
 
 **Use Case:** Add simple authentication protection to your service without modifying application code.
 
