@@ -29,16 +29,17 @@
         ```bash
         VERSION=X.Y.Z
         ARCH=amd64  # use arm64 for ARM64
+        ARCHIVE="qovery-cli_${VERSION}_linux_${ARCH}.tar.gz"
 
         # Download the binary and checksums for your platform
-        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/qovery-cli_${VERSION}_linux_${ARCH}.tar.gz" -o qovery.tar.gz
+        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/${ARCHIVE}" -o "${ARCHIVE}"
         curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/checksums.txt" -o checksums.txt
 
         # Verify the checksum of the downloaded file only (fails if tampered)
-        grep "qovery-cli_${VERSION}_linux_${ARCH}.tar.gz" checksums.txt | sha256sum --check
+        grep "${ARCHIVE}" checksums.txt | sha256sum --check
 
         # Extract and install
-        tar -xzf qovery.tar.gz
+        tar -xzf "${ARCHIVE}"
         mv qovery /usr/local/bin/qovery
         chmod +x /usr/local/bin/qovery
         ```
@@ -80,16 +81,17 @@
         ```bash
         VERSION=X.Y.Z
         ARCH=amd64  # use arm64 for Apple Silicon (M1/M2/M3)
+        ARCHIVE="qovery-cli_${VERSION}_darwin_${ARCH}.tar.gz"
 
         # Download the binary and checksums for your platform
-        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/qovery-cli_${VERSION}_darwin_${ARCH}.tar.gz" -o qovery.tar.gz
+        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/${ARCHIVE}" -o "${ARCHIVE}"
         curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/checksums.txt" -o checksums.txt
 
         # Verify the checksum of the downloaded file only (fails if tampered)
-        grep "qovery-cli_${VERSION}_darwin_${ARCH}.tar.gz" checksums.txt | shasum -a 256 --check
+        grep "${ARCHIVE}" checksums.txt | shasum -a 256 --check
 
         # Extract and install
-        tar -xzf qovery.tar.gz
+        tar -xzf "${ARCHIVE}"
         mv qovery /usr/local/bin/qovery
         chmod +x /usr/local/bin/qovery
         ```
