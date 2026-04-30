@@ -7,6 +7,10 @@
         ```bash
         curl -s https://get.qovery.com | bash
         ```
+
+        <Warning>
+        The install script does not verify the binary's integrity. For security-sensitive environments, use the **Manual** tab to download a pinned release and verify its checksum against the official [checksums.txt](https://github.com/Qovery/qovery-cli/releases) published with each release.
+        </Warning>
       </Tab>
 
       <Tab title="Arch Linux">
@@ -18,7 +22,25 @@
       </Tab>
 
       <Tab title="Manual">
-        Install the Qovery CLI on Linux manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+        Install the Qovery CLI on Linux manually from a [pinned release](https://github.com/Qovery/qovery-cli/releases) to ensure you control what version is installed.
+
+        Replace `X.Y.Z` with the version you want to install:
+
+        ```bash
+        # Download the binary and checksums for your platform
+        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/qovery_Linux_x86_64.tar.gz -o qovery.tar.gz
+        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/checksums.txt -o checksums.txt
+
+        # Verify the checksum (fails if the binary has been tampered with)
+        sha256sum --check --ignore-missing checksums.txt
+
+        # Extract and install
+        tar -xzf qovery.tar.gz
+        mv qovery /usr/local/bin/qovery
+        chmod +x /usr/local/bin/qovery
+        ```
+
+        For ARM64 (Apple Silicon-based Linux), replace `x86_64` with `arm64`.
       </Tab>
     </Tabs>
   </Tab>
@@ -43,10 +65,32 @@
         ```bash
         curl -s https://get.qovery.com | bash
         ```
+
+        <Warning>
+        The install script does not verify the binary's integrity. For security-sensitive environments, use the **Manual** tab to download a pinned release and verify its checksum against the official [checksums.txt](https://github.com/Qovery/qovery-cli/releases) published with each release.
+        </Warning>
       </Tab>
 
       <Tab title="Manual">
-        Install the Qovery CLI on Mac OS manually by downloading the [latest release](https://github.com/Qovery/qovery-cli/releases), and uncompress its content to a folder into your shell `PATH`.
+        Install the Qovery CLI on macOS manually from a [pinned release](https://github.com/Qovery/qovery-cli/releases) to ensure you control what version is installed.
+
+        Replace `X.Y.Z` with the version you want to install:
+
+        ```bash
+        # Download the binary and checksums for your platform
+        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/qovery_Darwin_x86_64.tar.gz -o qovery.tar.gz
+        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/checksums.txt -o checksums.txt
+
+        # Verify the checksum (fails if the binary has been tampered with)
+        shasum -a 256 --check checksums.txt
+
+        # Extract and install
+        tar -xzf qovery.tar.gz
+        mv qovery /usr/local/bin/qovery
+        chmod +x /usr/local/bin/qovery
+        ```
+
+        For Apple Silicon (M1/M2/M3), replace `Darwin_x86_64` with `Darwin_arm64`.
       </Tab>
     </Tabs>
   </Tab>
