@@ -27,20 +27,21 @@
         Replace `X.Y.Z` with the version you want to install:
 
         ```bash
-        # Download the binary and checksums for your platform
-        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/qovery_Linux_x86_64.tar.gz -o qovery.tar.gz
-        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/checksums.txt -o checksums.txt
+        VERSION=X.Y.Z
+        ARCH=amd64  # use arm64 for ARM64
 
-        # Verify the checksum (fails if the binary has been tampered with)
-        sha256sum --check --ignore-missing checksums.txt
+        # Download the binary and checksums for your platform
+        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/qovery-cli_${VERSION}_linux_${ARCH}.tar.gz" -o qovery.tar.gz
+        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/checksums.txt" -o checksums.txt
+
+        # Verify the checksum of the downloaded file only (fails if tampered)
+        grep "qovery-cli_${VERSION}_linux_${ARCH}.tar.gz" checksums.txt | sha256sum --check
 
         # Extract and install
         tar -xzf qovery.tar.gz
         mv qovery /usr/local/bin/qovery
         chmod +x /usr/local/bin/qovery
         ```
-
-        For ARM64 (Apple Silicon-based Linux), replace `x86_64` with `arm64`.
       </Tab>
     </Tabs>
   </Tab>
@@ -77,20 +78,21 @@
         Replace `X.Y.Z` with the version you want to install:
 
         ```bash
-        # Download the binary and checksums for your platform
-        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/qovery_Darwin_x86_64.tar.gz -o qovery.tar.gz
-        curl -sL https://github.com/Qovery/qovery-cli/releases/download/vX.Y.Z/checksums.txt -o checksums.txt
+        VERSION=X.Y.Z
+        ARCH=amd64  # use arm64 for Apple Silicon (M1/M2/M3)
 
-        # Verify the checksum (fails if the binary has been tampered with)
-        shasum -a 256 --check checksums.txt
+        # Download the binary and checksums for your platform
+        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/qovery-cli_${VERSION}_darwin_${ARCH}.tar.gz" -o qovery.tar.gz
+        curl -sL "https://github.com/Qovery/qovery-cli/releases/download/v${VERSION}/checksums.txt" -o checksums.txt
+
+        # Verify the checksum of the downloaded file only (fails if tampered)
+        grep "qovery-cli_${VERSION}_darwin_${ARCH}.tar.gz" checksums.txt | shasum -a 256 --check
 
         # Extract and install
         tar -xzf qovery.tar.gz
         mv qovery /usr/local/bin/qovery
         chmod +x /usr/local/bin/qovery
         ```
-
-        For Apple Silicon (M1/M2/M3), replace `Darwin_x86_64` with `Darwin_arm64`.
       </Tab>
     </Tabs>
   </Tab>
