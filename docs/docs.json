@@ -128,7 +128,8 @@
                   "getting-started/guides/use-cases/preview-environments",
                   "getting-started/guides/use-cases/e2e-testing"
                 ]
-              }
+              },
+              "getting-started/quickstart/ai-agent"
             ]
           },
           {
