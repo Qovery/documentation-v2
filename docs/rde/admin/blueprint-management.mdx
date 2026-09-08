@@ -262,7 +262,7 @@ resource "qovery_environment" "blueprint" {
 resource "qovery_container" "workspace" {
   environment_id = qovery_environment.blueprint.id
   name           = "workspace"
-  image_name     = "ghcr.io/evoxmusic/remote-dev-env-template"
+  image_name     = "ghcr.io/qovery/remote-dev-env-template"
   tag            = "latest"
   cpu            = 2000
   memory         = 4096
@@ -320,7 +320,7 @@ Using Terraform is especially useful when managing multiple blueprints, enforcin
 Qovery provides an official workspace template image you can use as the base container for your blueprints. It is designed for both technical and non-technical builders and comes pre-configured with everything needed for a productive development environment.
 
 <Info>
-Source code and documentation: [github.com/evoxmusic/remote-dev-env-template](https://github.com/evoxmusic/remote-dev-env-template)
+Source code and documentation: [github.com/Qovery/remote-dev-env-template](https://github.com/Qovery/remote-dev-env-template)
 </Info>
 
 ### What's Included
@@ -351,11 +351,198 @@ Source code and documentation: [github.com/evoxmusic/remote-dev-env-template](ht
 To use this template as your blueprint's workspace container:
 
 1. Create a Qovery project and environment for your blueprint
-2. Add a container service using the image from the [template repository](https://github.com/evoxmusic/remote-dev-env-template)
+2. Add a container service using the image from the [template repository](https://github.com/Qovery/remote-dev-env-template)
 3. Configure the environment variables listed below
 4. Register the environment as a blueprint in the AI Builder Portal
 
-Alternatively, **fork the repository** and build a custom image tailored to your organization's needs.
+Alternatively, **fork the repository** and build a custom image tailored to your organization's needs, or use the [install script](#using-the-install-script) to add RDE tools to your existing Dockerfile.
+
+### Using the Install Script
+
+If you already have your own Dockerfile and base image, you can add all Qovery RDE tools with a single line instead of changing your base image or forking the template repository:
+
+```dockerfile
+FROM your-org/your-base-image:latest
+
+# Install all Qovery RDE tools (code-server, AI agents, runtimes, dev tools)
+RUN curl -fsSL https://rde.qovery.com/install.sh | bash
+
+WORKDIR /home/coder/project
+EXPOSE 8080 9100
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+```
+
+The script installs everything from the official template - code-server, Claude Code, OpenCode, Node.js, Python, Go, GitHub CLI, Zellij, and more - into any Debian or Ubuntu-based image.
+
+<Info>
+The install script requires a **Debian/Ubuntu-based** image (it uses `apt-get`). It must run as **root** inside a `RUN` instruction.
+</Info>
+
+#### Customizing with `.config.rde.qovery.yml`
+
+To control which components are installed, place a `.config.rde.qovery.yml` file in your Docker build context. If no config file is present, everything is installed with sensible defaults.
+
+Each value can be:
+- `true` - install with default version
+- `false` - skip installation
+- A version string (e.g., `"22"`, `"1.24.3"`) - install with a specific version
+
+```yaml
+# .config.rde.qovery.yml
+
+# Workspace user (default: coder)
+rde_user: "coder"
+
+# Runtimes
+nodejs: "22"        # Node.js 22 LTS
+python: true        # latest Python 3
+ruby: false         # skip Ruby
+go: "1.24.3"        # Go 1.24.3
+
+# AI Agents
+claude_code: "2.1.129"
+opencode: true
+codex: false
+
+# Developer Tools
+gh: "2.74.1"
+qovery_cli: true
+zellij: true
+ttyd: true
+rtk: true           # token compression for AI tools
+
+# Custom version checksums (required when overriding default versions)
+# gh_sha256_amd64: "abc123..."
+# gh_sha256_arm64: "def456..."
+# go_sha256_amd64: "789abc..."
+# go_sha256_arm64: "012def..."
+
+# Code Server (VS Code in the browser)
+code_server: "4.118.0"
+
+# VS Code extensions (comma-separated)
+extensions: anthropic.claude-code,github.copilot,ms-vscode.live-server
+
+# Entrypoint and AI resources
+entrypoint: true
+qovery_skills: true
+```
+
+Reference it in your Dockerfile:
+
+```dockerfile
+FROM ubuntu:24.04
+COPY .config.rde.qovery.yml .
+RUN curl -fsSL https://rde.qovery.com/install.sh | bash
+WORKDIR /home/coder/project
+EXPOSE 8080 9100
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+```
+
+You can also set the config file path via the `RDE_CONFIG` environment variable:
+
+```dockerfile
+RUN RDE_CONFIG=/path/to/custom-config.yml curl -fsSL https://rde.qovery.com/install.sh | bash
+```
+
+#### Available Components
+
+| Component | Config Key | Default Version | Description |
+|-----------|-----------|-----------------|-------------|
+| Workspace user | `rde_user` | `coder` | Non-root user that owns the workspace |
+| Node.js | `nodejs` | `22` | Node.js LTS via NodeSource |
+| Python | `python` | system | Python 3 + pip + venv |
+| Ruby | `ruby` | system | Ruby + Bundler |
+| Go | `go` | `1.24.3` | Go language runtime |
+| Claude Code | `claude_code` | `2.1.129` | AI coding assistant (VS Code + CLI) |
+| OpenCode | `opencode` | latest | AI coding assistant (web UI) |
+| Codex | `codex` | latest | OpenAI Codex CLI |
+| GitHub CLI | `gh` | `2.74.1` | `gh` command-line tool |
+| Qovery CLI | `qovery_cli` | latest | Qovery management CLI |
+| Zellij | `zellij` | `0.44.3` | Terminal multiplexer for session persistence |
+| ttyd | `ttyd` | `1.7.7` | Web-based terminal server |
+| RTK | `rtk` | `0.42.0` | Token compression for LLM tools |
+| code-server | `code_server` | `4.118.0` | VS Code in the browser |
+| ripgrep | `ripgrep` | system | Fast recursive search |
+| fzf | `fzf` | system | Fuzzy file finder |
+
+<Tip>
+The install script and forking the template repository are complementary approaches. Use the install script when you want to keep your existing base image and add RDE tools on top. Fork the template when you want full control over the workspace image from scratch.
+</Tip>
+
+#### Integrity & Reproducibility
+
+All binary downloads (Go, GitHub CLI, Zellij, ttyd, RTK) are **SHA256-verified** - the script checks each downloaded artifact against a pinned checksum and aborts the build if it doesn't match. Node.js is installed via a **GPG-verified apt source** instead of piping a setup script into bash.
+
+##### Using custom versions
+
+When you override the default version of a binary tool, you **must** also provide SHA256 checksums for each architecture you target. The config key pattern is:
+
+```
+<tool>_sha256_<arch>
+```
+
+Where `<tool>` is one of `go`, `gh`, `zellij`, `ttyd`, or `rtk`, and `<arch>` is `amd64` or `arm64`.
+
+For example, to pin GitHub CLI to v2.78.0 and Go to v1.25.0:
+
+```yaml
+gh: "2.78.0"
+gh_sha256_amd64: "a1b2c3d4e5f6..."
+gh_sha256_arm64: "f6e5d4c3b2a1..."
+
+go: "1.25.0"
+go_sha256_amd64: "9a8b7c6d5e4f..."
+go_sha256_arm64: "4f5e6d7c8b9a..."
+```
+
+<Info>
+You can find checksums on each tool's GitHub releases page. For example, the GitHub CLI publishes a `checksums.txt` file with every release at `https://github.com/cli/cli/releases`.
+</Info>
+
+If checksums are missing for a custom version, the install script will **fail with an error** to prevent installing unverified binaries.
+
+##### Vendoring the install script
+
+For production deployments where you need full control over what runs during your Docker build, **vendor the install script** into your repository instead of fetching it at build time:
+
+```dockerfile
+# 1. Download the script once and commit it to your repo:
+#    curl -fsSL https://rde.qovery.com/install.sh -o vendor/rde-install.sh
+
+# 2. Use COPY instead of curl in your Dockerfile:
+COPY .config.rde.qovery.yml /tmp/.config.rde.qovery.yml
+COPY vendor/rde-install.sh /tmp/rde-install.sh
+RUN RDE_CONFIG=/tmp/.config.rde.qovery.yml bash /tmp/rde-install.sh \
+    && rm /tmp/rde-install.sh /tmp/.config.rde.qovery.yml
+```
+
+This eliminates the network fetch during build, pins the script to a known-good version in your git history, and lets you review changes before updating.
+
+<Info>
+The Qovery CLI and Qovery Skills installs currently use unpinned `curl | bash` from Qovery-controlled endpoints (`get.qovery.com` and `skill.qovery.com`). Version pinning for these components is planned.
+</Info>
+
+##### Custom workspace user
+
+By default, the install script creates a `coder` user and installs everything under `/home/coder`. To use a different user, set `rde_user` in your config or the `RDE_USER` environment variable:
+
+```yaml
+rde_user: "builder"
+```
+
+Or via environment variable (takes priority over config):
+
+```dockerfile
+RUN RDE_USER=ubuntu curl -fsSL https://rde.qovery.com/install.sh | bash
+WORKDIR /home/ubuntu/project
+```
+
+If the user already exists in your base image (e.g., `node` in `node:22`, `ubuntu` in `ubuntu:24.04`), the script will use it as-is and detect its home directory automatically. If it doesn't exist, the script creates it with `/home/<user>`.
+
+<Tip>
+When using a custom user, update the `WORKDIR` in your Dockerfile to match the user's home directory (e.g., `/home/builder/project`).
+</Tip>
 
 ### Environment Variables
 
@@ -424,16 +611,20 @@ The template includes pre-configured AI skills for both Claude Code and OpenCode
 ### Customization
 
 <AccordionGroup>
+  <Accordion title="Use the install script with your own Dockerfile">
+    Add `RUN curl -fsSL https://rde.qovery.com/install.sh | bash` to your existing Dockerfile. Customize what gets installed with a `.config.rde.qovery.yml` file - disable runtimes you don't need, pin specific versions, or skip code-server entirely. See [Using the Install Script](#using-the-install-script) for details.
+  </Accordion>
+
   <Accordion title="Fork and add your own tools">
-    Fork the [template repository](https://github.com/evoxmusic/remote-dev-env-template), modify the Dockerfile to add your organization's specific tools, libraries, or CLI utilities, then build and push your custom image to your container registry.
+    Fork the [template repository](https://github.com/Qovery/remote-dev-env-template), modify the Dockerfile to add your organization's specific tools, libraries, or CLI utilities, then build and push your custom image to your container registry.
   </Accordion>
 
   <Accordion title="Customize AI behavior">
-    The AI skill files (`builder-skill/CLAUDE.md` and `builder-skill/SKILL.md`) control how Claude Code and OpenCode interact with builders. Edit these files to match your organization's coding conventions, preferred tech stack, or domain-specific instructions.
+    The AI skill files (`resources/CLAUDE.md` and `resources/SKILL.md`) control how Claude Code and OpenCode interact with builders. Edit these files to match your organization's coding conventions, preferred tech stack, or domain-specific instructions.
   </Accordion>
 
   <Accordion title="Add VS Code extensions">
-    Add additional VS Code extensions to the Dockerfile using `code-server --install-extension <extension-id>`. This is useful for language-specific extensions, linters, or your organization's internal extensions.
+    Add additional VS Code extensions to the Dockerfile using `code-server --install-extension <extension-id>`, or list them in the `extensions` key of your `.config.rde.qovery.yml` file. This is useful for language-specific extensions, linters, or your organization's internal extensions.
   </Accordion>
 
   <Accordion title="Pre-configure for a specific stack">

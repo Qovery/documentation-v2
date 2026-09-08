@@ -90,7 +90,12 @@ New blueprints start in **Testing** state. After verifying the blueprint works c
 </Tip>
 
 <Tip>
-Start with a simple blueprint - a single workspace container with basic dev tools. You can always add databases, services, and advanced configuration later. Need a ready-made image? Use the [official workspace template](https://github.com/evoxmusic/remote-dev-env-template) - an all-in-one image with code-server, Claude Code, OpenCode, and multi-language support. See [Blueprint Management](/rde/admin/blueprint-management#official-workspace-template) for details.
+Start with a simple blueprint - a single workspace container with basic dev tools. You can always add databases, services, and advanced configuration later. Two options for workspace images:
+
+- **Use the [official workspace template](https://github.com/Qovery/remote-dev-env-template)** - an all-in-one image with code-server, Claude Code, OpenCode, and multi-language support.
+- **Add to your existing Dockerfile** with `RUN curl -fsSL https://rde.qovery.com/install.sh | bash` - installs all RDE tools into any Debian/Ubuntu image. Customize what gets installed with a `.config.rde.qovery.yml` file.
+
+See [Blueprint Management](/rde/admin/blueprint-management#official-workspace-template) for details on both approaches.
 </Tip>
 
 ## Step 3: Configure Access Control
