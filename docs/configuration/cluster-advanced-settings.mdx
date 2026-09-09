@@ -1236,57 +1236,21 @@ Notes:
 
 ---
 
-<a id="envoy-gateway-hpa-cpu-average-utilization-percentage-threshold"></a>
+<a id="envoy-gateway-controller-replicas"></a>
 
-### envoy.gateway.hpa.cpu_average_utilization_percentage_threshold
-
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
-
-**Type:** `float`
-
-**Description:** HPA CPU average utilization threshold for the Envoy Gateway control-plane deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When CPU usage exceeds this threshold, Kubernetes scales the `envoy-gateway` controller deployment. This setting applies to the Gateway Helm chart HPA for the control plane.
-
-**Valid values:** `0.0` to `1.0`
-
-**Default Value:** `null` (uses Kubernetes default behavior)
-
-<a id="envoy-gateway-hpa-memory-average-utilization-percentage-threshold"></a>
-
-### envoy.gateway.hpa.memory_average_utilization_percentage_threshold
-
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
-
-**Type:** `float`
-
-**Description:** HPA memory average utilization threshold for the Envoy Gateway control-plane deployment, expressed as a value between 0.0 and 1.0 (e.g., 0.8 for 80%). When memory usage exceeds this threshold, Kubernetes scales the `envoy-gateway` controller deployment. This setting applies to the Gateway Helm chart HPA for the control plane.
-
-**Valid values:** `0.0` to `1.0`
-
-**Default Value:** `null` (uses Kubernetes default behavior)
-
-<a id="envoy-gateway-hpa-min-number-instances"></a>
-
-### envoy.gateway.hpa.min_number_instances
+### envoy.gateway_controller.replicas
 
 **Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
 
 **Type:** `integer`
 
-**Description:** Minimum number of Envoy Gateway control-plane replicas for horizontal pod autoscaling. This ensures baseline controller availability for reconciliation and configuration updates. Must be less than or equal to `envoy.gateway.hpa.max_number_instances`.
+**Description:** Number of Envoy Gateway controller replicas for the control-plane deployment. This is a fixed replica count, not an HPA setting. Use it to control controller availability for reconciliation and configuration updates.
+
+The Envoy Gateway controller is a control-plane component that watches Gateway API and Envoy Gateway resources and produces configuration for Envoy Proxy, rather than serving live traffic itself. In practice, adding replicas is mainly about controller availability and recovery if a pod crashes, not about spreading request workload across controller instances. See the [Envoy Gateway introduction](https://gateway.envoyproxy.io/docs/concepts/introduction/) and the [leader election settings](https://gateway.envoyproxy.io/docs/api/extension_types/#leaderelection), which are enabled by default for Kubernetes providers.
+
+**Valid values:** integer greater than or equal to `1`
 
 **Default Value:** `2` for production clusters, `1` for non-production clusters
-
-<a id="envoy-gateway-hpa-max-number-instances"></a>
-
-### envoy.gateway.hpa.max_number_instances
-
-**Cloud Provider:** <img src="/images/logos/cloud-providers/aws-icon.svg" alt="AWS" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/scaleway-icon.svg" alt="Scaleway" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/gcp-icon.svg" alt="GCP" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} /> <img src="/images/logos/cloud-providers/azure-icon.svg" alt="Azure" width="20"  style={{display: "inline", verticalAlign: "middle", marginRight: "4px"}} />
-
-**Type:** `integer`
-
-**Description:** Maximum number of Envoy Gateway control-plane replicas for horizontal pod autoscaling. This sets an upper limit on controller scaling and resource consumption. Must be greater than or equal to `envoy.gateway.hpa.min_number_instances`.
-
-**Default Value:** `5`
 
 ---
 
