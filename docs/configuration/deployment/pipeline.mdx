@@ -81,9 +81,9 @@ When services have no dependencies between them, place them in the same deployme
 
 If you have multiple applications that share the same base image or dependencies, deploy dependent applications to later stages. This allows Qovery to reuse already-built images and cache layers.
 
-### Avoid Environment-Specific Docker ARGs
+### Avoid Environment-Specific Build Variables
 
-Don't use environment-specific Docker ARG values in your Dockerfiles. This causes Qovery to rebuild images for each environment even when the code hasn't changed. Instead, use environment variables that are injected at runtime.
+Don't use environment-specific values for the variables your Dockerfile declares, either as an `ARG NAME` or as the `id=NAME` of a `RUN --mount=type=secret` mount. Their values are part of the computed image tag, so a value that differs per environment causes Qovery to rebuild the image for each environment even when the code hasn't changed. Instead, use environment variables that are injected at runtime. See [Build-Time Variables](/configuration/environment-variables#build-time-variables).
 
 ## Skipped Services
 

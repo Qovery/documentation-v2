@@ -416,6 +416,17 @@ This builds and runs your application locally, simulating the Qovery environment
   <Accordion title="Use .dockerignore">
     Always create a `.dockerignore` file to exclude unnecessary files from your build context.
   </Accordion>
+
+  <Accordion title="Keep build credentials out of the image">
+    A value passed with `ARG` is recorded in the image configuration and can be read by anyone who pulls the image. For a credential the build needs but the image must not carry, mount it as a build secret instead:
+
+    ```dockerfile
+    RUN --mount=type=secret,id=NPM_TOKEN \
+        NPM_TOKEN="$(cat /run/secrets/NPM_TOKEN)" npm ci
+    ```
+
+    On Qovery, the mount `id` is the name of the environment variable holding the value. See [Build-Time Variables](/configuration/environment-variables#build-time-variables).
+  </Accordion>
 </AccordionGroup>
 
 ---

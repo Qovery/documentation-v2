@@ -5,7 +5,7 @@ description: "Manage environment variables and secrets for your services"
 
 ## Overview
 
-Environment variables are key-value pairs that configure your applications at runtime. Qovery provides comprehensive variable management with support for secrets, multiple scopes, interpolation, and file-based variables.
+Environment variables are key-value pairs that configure your applications at runtime and during the build. Qovery provides comprehensive variable management with support for secrets, multiple scopes, interpolation, file-based variables, and Dockerfile build arguments and secrets.
 
 ## Variable Types
 
@@ -72,6 +72,85 @@ External secrets let you inject values stored in a third-party secrets manager d
 <Card title="Configure Secret Manager Integration" icon="key" href="/configuration/integrations/secret-managers/secret-manager-access">
   Set up ESO and connect your cluster to AWS or GCP secrets providers
 </Card>
+
+## Build-Time Variables
+
+Variables are also available while your Dockerfile is being built, not just at runtime. Which variables reach the build, and how, is decided by your Dockerfile — not by whether a variable is marked as a secret in Qovery.
+
+A variable reaches the build only if the Dockerfile declares its name in one of two ways:
+
+| Declaration in the Dockerfile | How the value is passed | Where the value ends up |
+|---|---|---|
+| `ARG NAME` | `--build-arg NAME=value` | Recorded in the image configuration and in the build cache. Visible to anyone who can pull the image. |
+| `RUN --mount=type=secret,id=NAME` | BuildKit build secret | Mounted as a file for the duration of that one `RUN` step. Not written to an image layer. |
+
+Variables the Dockerfile declares neither way are never sent to the build. They remain available at runtime as usual.
+
+<Warning>
+Marking a variable as a secret in Qovery does not change how it is passed to the build. A variable marked as a secret whose name matches an `ARG` is still passed as a build argument and ends up in the image configuration. To keep a value out of the image, mount it with `RUN --mount=type=secret` in your Dockerfile.
+</Warning>
+
+### Passing a Value as a Build Argument
+
+Declare the `ARG` in your Dockerfile and create a variable with the same name:
+
+```dockerfile
+FROM node:20
+
+ARG NEXT_PUBLIC_API_URL
+RUN npm run build
+```
+
+Use build arguments for non-sensitive values that the build needs to bake in, such as a public API URL or a feature flag.
+
+### Mounting a Value as a Build Secret
+
+Declare a secret mount on the `RUN` step that needs the value, and create a variable with the same name as the mount `id`:
+
+```dockerfile
+FROM node:20
+
+RUN --mount=type=secret,id=NPM_TOKEN \
+    NPM_TOKEN="$(cat /run/secrets/NPM_TOKEN)" npm ci
+```
+
+BuildKit exposes the value at `/run/secrets/<id>` by default, or at the path given by `target=`. Because the value is mounted for that step only, it is not written to an image layer.
+
+Use build secrets for credentials the build needs but the image must not carry: a private registry token, a package manager credential, an SSH key used to fetch a private dependency.
+
+<Info>
+This is different from a **Variable as File**. A variable as file is written into the running container at the path you configure. A build secret exists only while the build step runs, and is not present at runtime.
+</Info>
+
+### Rules and Limits
+
+**`id=` is required.** Qovery rejects a Dockerfile that declares `RUN --mount=type=secret` without a literal `id=`, and the deployment fails with an error asking you to add one. Plain `docker build` would guess the name from the mount target; Qovery does not guess, because a guessed name is rarely the variable name you meant.
+
+```dockerfile
+# Rejected: Qovery cannot tell which variable to pass
+RUN --mount=type=secret,target=/etc/npmrc npm ci
+
+# Accepted
+RUN --mount=type=secret,id=NPM_CONFIG,target=/etc/npmrc npm ci
+```
+
+**An unmatched `id=` is not an error.** If no variable matches the mount `id`, BuildKit does not mount anything: the secret's path does not exist inside the step. The build itself is not failed, but a command that reads that path will fail on its own. Add `required=true` to the mount to fail the build up front instead, with `secret <ID>: not found`:
+
+```dockerfile
+RUN --mount=type=secret,id=NPM_TOKEN,required=true npm ci
+```
+
+**Changing a build variable triggers a rebuild.** The value of every variable the Dockerfile declares — as an `ARG` or as a secret mount `id` — is part of the image tag Qovery computes. Changing a value produces a new tag, so the image is rebuilt instead of being reused.
+
+<Warning>
+Rotating a build secret does not by itself re-run the step that reads it. BuildKit deliberately keeps secret values out of its build cache keys, so a cached `RUN --mount=type=secret` step is reused whatever the new value is. This is usually what you want — the dependencies were already fetched — but if the step must run again, enable [build.disable_buildkit_cache](/configuration/service-advanced-settings#build-disable-buildkit-cache) on that service. That setting is available on applications, cronjobs and lifecycle jobs; on a Terraform service, change something the build cache does key on to force the step to re-run.
+</Warning>
+
+**Build logs are obfuscated only for secrets.** Qovery masks the values of variables marked as secrets in deployment logs. Mounting a plain key/value variable as a build secret does not mask it — mark it as a secret in Qovery if the value must not appear in logs.
+
+### Supported Services
+
+Build-time variables apply to every service Qovery builds from a Dockerfile: applications, cronjobs, lifecycle jobs, and Terraform services using a [Dockerfile fragment](/configuration/terraform#custom-build-image). Services deployed from an existing container image have no build step and are unaffected.
 
 ## Variable Scopes
 
